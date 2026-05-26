@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* ============================================================
+   ROUND 4: 完整巡检工作流仿真
+   目标：模拟真实场景下的多屏幕、多违规交叉综合评估
+   ============================================================ */
+
+/* ---- CSS 变量 (COMPLIANT) ---- */
+:root {
+  --touch-spacing-preferred: 12px;
+  --color-text-primary: #1A1A1A;
+  --color-surface: #FAFAFA;
+  --color-card-bg: #FFFFFF;
+  --color-primary: #1565C0;
+  --color-primary-text: #FFFFFF;
+  --color-danger: #C62828;
+  --color-warning: #E65100;
+  --color-success: #2E7D32;
+  --touch-min: 48px;
+  --font-title: 22px;
+  --font-body: 16px;
+  --font-button: 18px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 0;
+  margin: 0;
+}
+
+/* ============================================================
+   屏幕 1: 工单列表页 (MIXED COMPLIANCE)
+   ============================================================ */
+.screen {
+  max-width: 420px; margin: 0 auto;
+  padding: 16px;
+  border-bottom: 3px solid #E0E0E0;
+}
+.screen-title {
+  font-size: var(--font-title); font-weight: bold;
+  margin-bottom: 4px; padding: 0;
+}
+.screen-subtitle {
+  font-size: 14px; color: #757575; margin-bottom: 16px;
+}
+
+/* 合规卡 */
+.task-card {
+  min-height: 72px; padding: 16px;
+  background: var(--color-card-bg);
+  border: 3px solid #E0E0E0; border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 12px;
+}
+.task-card.completed {
+  border-color: #A5D6A7; background: #F1F8E9;
+}
+
+/* 不合规卡 A: 太小 + 无 feedback */
+.task-card-tiny {
+  min-height: 38px; padding: 8px;
+  background: #FFFFFF; border: 2px solid #E0E0E0;
+  border-radius: 8px; margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* 不合规卡 B: 颜色仅有状态 + 低对比度文字 */
+.task-card-color-only {
+  min-height: 60px; padding: 12px;
+  background: #FFFFFF; border: 2px solid #E0E0E0;
+  border-radius: 8px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.status-indicator-round {
+  min-height: 28px; min-width: 28px;
+  border-radius: 50%; display: inline-block;
+}
+.status-indicator-round.online { background: #4CAF50; }
+.status-indicator-round.offline { background: #9E9E9E; }
+.task-card-color-only .task-label {
+  font-size: 16px; color: #AAAAAA;  /* 低对比度: #AAAAAA on white ≈ 2.3:1 */
+  background: #FFFFFF;
+}
+
+/* 合规卡 (with feedback) */
+.task-card-proper {
+  min-height: 72px; padding: 16px;
+  background: #FFFFFF; border: 3px solid #BBDEFB;
+  border-radius: 12px; margin-bottom: 12px;
+}
+
+/* 不合规：超长标签 */
+.task-card-long-label {
+  min-height: 64px; padding: 14px;
+  background: #FFF8E1; border: 2px solid #FFE082;
+  border-radius: 8px; margin-bottom: 8px;
+  font-size: 16px;
+}
+
+/* ============================================================
+   屏幕 2: 设备巡检详情页
+   ============================================================ */
+.inspection-header {
+  background: #FFFFFF; border-radius: 12px; padding: 16px;
+  margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.inspection-header h3 {
+  font-size: 20px; margin: 0 0 8px;
+}
+
+/* 数值显示 — 大字体但低对比度 */
+.reading-display {
+  font-size: 32px; font-weight: bold;
+  color: #888888; background: #FFFFFF;  /* ≈3.5:1 — 大字体 OK (≥3:1)，但可能处于边界 */
+  padding: 16px; text-align: center;
+}
+
+/* 操作按钮组 — 有危险的混在中间 */
+.inspection-actions {
+  display: flex; gap: 6px;  /* 6px < 8px min */
+  flex-wrap: wrap;
+}
+.inspection-actions .btn-action {
+  min-height: 50px; min-width: 100px;
+  border: none; border-radius: 8px;
+  font-size: 16px; font-weight: bold;
+  cursor: pointer;
+}
+.btn-normal { background: #1976D2; color: #FFFFFF; }
+.btn-warn   { background: #F57C00; color: #FFFFFF; }
+.btn-danger-inline {
+  background: #D32F2F; color: #FFFFFF;  /* 危险操作！紧邻普通按钮 */
+}
+.btn-disabled {
+  background: #E0E0E0; color: #9E9E9E;  /* 低对比度 */
+}
+
+/* 语音回放区域 */
+.readback-inspection {
+  padding: 12px; background: #E3F2FD;
+  border-radius: 8px; font-size: 18px;
+  margin-top: 12px;
+}
+
+/* ============================================================
+   屏幕 3: 异常上报表单
+   ============================================================ */
+.anomaly-form {
+  background: #FFFFFF; border-radius: 12px; padding: 16px;
+}
+
+/* 缩略图选择器 — 纯图标无文字 */
+.thumbnail-grid {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.thumbnail-option {
+  min-height: 64px; min-width: 64px;
+  border: 2px solid #E0E0E0; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer;
+  background: #FFFFFF;  /* 使用 background 简写 — 对比度检查盲区 */
+}
+.thumbnail-option.selected {
+  border-color: #1976D2; background: #E3F2FD;
+}
+
+/* 文本输入 — 太小 */
+.anomaly-input {
+  min-height: 36px; min-width: 100%;
+  border: 2px solid #BDBDBD; border-radius: 8px;
+  font-size: 14px; padding: 6px;
+  color: #9E9E9E; background: #F5F5F5;  /* 低对比度 */
+  margin-bottom: 8px;
+}
+
+/* 提交操作 — 无 readback */
+.submit-without-readback {
+  min-height: 52px; min-width: 100%;
+  background: #E53935; color: #FFFFFF;
+  border: none; border-radius: 8px;
+  font-size: 20px; font-weight: bold;
+  margin-top: 16px;
+}
+
+/* ============================================================
+   屏幕 4: 提交确认 + 离线同步状态
+   ============================================================ */
+.result-screen {
+  background: #FFFFFF; border-radius: 12px; padding: 20px;
+  text-align: center;
+}
+.result-icon {
+  font-size: 48px; margin-bottom: 12px;
+}
+.result-title {
+  font-size: 22px; font-weight: bold; margin-bottom: 4px;
+}
+.result-subtitle {
+  font-size: 14px; color: #9E9E9E;  /* 低对比度 */
+  background: #FFFFFF; margin-bottom: 16px;
+}
+
+/* 离线徽章 — 颜色状态（但有文字） */
+.offline-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; background: #FFF3E0;
+  border: 2px solid #FFCC80; border-radius: 20px;
+  font-size: 14px; color: #E65100;  /* 有文字 → 不算颜色仅有 */
+  margin-bottom: 16px;
+}
+
+/* 结果操作 */
+.result-actions {
+  display: flex; gap: 12px;
+}
+.btn-undo-proper {
+  min-height: 56px; min-width: 120px;
+  background: #757575; color: #FFFFFF;
+  border: none; border-radius: 8px;
+  font-size: 18px;
+}
+.btn-next-task {
+  min-height: 56px; min-width: 120px;
+  background: #1976D2; color: #FFFFFF;
+  border: none; border-radius: 8px;
+  font-size: 18px;
+}
+
+/* ---- 无撤销的结果页 ---- */
+.result-actions-no-undo {
+  display: flex; gap: 12px; justify-content: center;
+}
+
+/* ============================================================
+   全局反模式：极小的 icon-only 浮动按钮
+   ============================================================ */
+.fab-icon-only {
+  position: fixed; bottom: 24px; right: 24px;
+  min-height: 40px; min-width: 40px;  /* < 48px */
+  background: #1976D2; border: none;
+  border-radius: 50%; font-size: 20px; color: #FFFFFF;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  /* 无文字标签！无 aria-label！纯图标！ */
+}
+
+/* ============================================================
+   条件可见性：仅在异常时显示
+   ============================================================ */
+.conditional-alert {
+  background: #FFEBEE; border: 3px solid #F44336;
+  border-radius: 8px; padding: 12px;
+  font-size: 16px;
+}
+.conditional-alert .btn-resolve {
+  min-height: 44px; min-width: 80px;  /* < 48px */
+  background: #C62828; color: #FFFFFF;
+  border: none; border-radius: 6px;
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+/* ============================================================
+   音视频反馈元素（隐藏但应被检测）
+   ============================================================ */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- 屏幕 1: 工单列表 — 混合合规 -->
+<!-- ============================================================ -->
+<div class="screen">
+  <div class="screen-title">📋 今日巡检任务</div>
+  <div class="screen-subtitle">A3厂房 · 第 2/8 项待完成</div>
+
+  <!-- 合规卡 -->
+  <div class="task-card completed" data-haptic="light" data-sound="click" onclick="openTask(1)">
+    <span style="font-size:24px;">✅</span>
+    <div>
+      <div style="font-size:18px; font-weight:bold; color:#212121;">压缩机温度检查</div>
+      <div style="font-size:14px; color:#757575;">09:30 完成 · 45°C 正常</div>
+    </div>
+  </div>
+
+  <!-- 不合规卡 A: 太小 + 无 feedback -->
+  <div class="task-card-tiny" onclick="openTask(2)">
+    泵站压力 · 未检查
+  </div>
+
+  <!-- 不合规卡 B: 颜色仅有状态 + 低对比度文字 -->
+  <div class="task-card-color-only">
+    <div class="status-indicator-round online"></div>
+    <div class="status-indicator-round offline"></div>
+    <div class="task-label">润滑油位检查 · 在线状态</div>
+  </div>
+
+  <!-- 合规卡 -->
+  <div class="task-card-proper" data-haptic="medium" data-sound="click" onclick="openTask(3)">
+    <span style="font-size:24px;">🔧</span>
+    <div>
+      <div style="font-size:18px; font-weight:bold; color:#212121;">轴承振动检测</div>
+      <div style="font-size:14px; color:#757575;">待检查 · 上次: 0.8mm/s</div>
+    </div>
+  </div>
+
+  <!-- 不合规：超长标签 -->
+  <div class="task-card-long-label" data-haptic="light" onclick="openTask(5)">
+    冷却水循环系统流量监测与温度控制装置巡检
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 屏幕 2: 设备巡检详情 -->
+<!-- ============================================================ -->
+<div class="screen">
+  <div class="screen-title">🔍 压缩机温度检查</div>
+  <div class="screen-subtitle">设备编号: CMP-A3-042 · 上次巡检: 昨天</div>
+
+  <div class="inspection-header">
+    <h3>当前读数</h3>
+    <div class="reading-display">45.2°C</div>
+    <p style="font-size:14px; color:#757575; text-align:center;">
+      正常范围: 35-55°C · 上次: 44.8°C
+    </p>
+  </div>
+
+  <!-- readback 区域 -->
+  <div class="readback-inspection" aria-live="polite" role="status">
+    📢 当前温度 45.2°C，属于正常范围
+  </div>
+
+  <!-- 操作按钮组 — 混合 gap + 危险操作 -->
+  <div class="inspection-actions">
+    <button class="btn-action btn-normal" data-haptic="light" data-sound="click">记录正常</button>
+    <button class="btn-action btn-warn" data-haptic="medium" data-sound="warning">标记异常</button>
+    <button class="btn-action btn-danger-inline" data-haptic="strong">⛔ 紧急停机</button>
+    <button class="btn-action btn-disabled">跳过此项</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 屏幕 3: 异常上报 -->
+<!-- ============================================================ -->
+<div class="screen">
+  <div class="screen-title">⚠️ 异常上报</div>
+  <div class="screen-subtitle">压缩机温度检查 · 异常类型选择</div>
+
+  <div class="anomaly-form">
+    <p style="font-size:16px; font-weight:bold; margin-bottom:8px;">选择异常类型：</p>
+    <div class="thumbnail-grid">
+      <div class="thumbnail-option" onclick="selectType(this)" data-haptic="medium" data-sound="select">🔥</div>
+      <div class="thumbnail-option selected" onclick="selectType(this)" data-haptic="medium" data-sound="select">💧</div>
+      <div class="thumbnail-option" onclick="selectType(this)" data-haptic="medium" data-sound="select">🔊</div>
+      <div class="thumbnail-option" onclick="selectType(this)">⚡</div>  <!-- 无 sound -->
+    </div>
+
+    <p style="font-size:16px; font-weight:bold; margin:12px 0 8px;">补充说明：</p>
+    <input type="text" class="anomaly-input" placeholder="描述异常情况...">
+
+    <!-- 条件告警 -->
+    <div class="conditional-alert">
+      ⚠️ 温度超过安全阈值，建议立即停机检查
+      <button class="btn-resolve">确认处理</button>
+    </div>
+
+    <!-- 无 readback 的提交 -->
+    <button class="submit-without-readback" data-haptic="strong" data-sound="confirm">
+      提交异常报告
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 屏幕 4a: 提交成功 — 有撤销 -->
+<!-- ============================================================ -->
+<div class="screen">
+  <div class="result-screen">
+    <div class="result-icon">✅</div>
+    <div class="result-title">提交成功</div>
+    <div class="result-subtitle">设备巡检记录已保存</div>
+
+    <div class="offline-badge">
+      <span>☁️</span>
+      <span>已保存，等待网络同步</span>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-undo-proper" data-haptic="light" data-sound="click">← 返回修改</button>
+      <button class="btn-next-task" data-haptic="medium" data-sound="success">下一个任务</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 屏幕 4b: 危险操作确认（无撤销） -->
+<!-- ============================================================ -->
+<div class="screen">
+  <div class="result-screen" style="border: 3px solid #F44336;">
+    <div class="result-icon">⛔</div>
+    <div class="result-title" style="color: #C62828;">设备已停机</div>
+    <div class="result-subtitle">紧急停机指令已执行，不可撤销</div>
+
+    <div class="result-actions-no-undo">
+      <!-- 无撤销按钮！ -->
+      <button class="btn-next-task" data-haptic="medium" data-sound="click">返回任务列表</button>
+      <button class="btn-undo-proper" style="background:#C62828; color:#FFFFFF;">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 全局 FAB — 纯图标无文字 -->
+<!-- ============================================================ -->
+<button class="fab-icon-only" onclick="emergency()">🆘</button>
+
+<!-- ============================================================ -->
+<!-- 隐藏的 aria-live 区域 -->
+<!-- ============================================================ -->
+<div class="sr-only" aria-live="assertive" role="alert"></div>
+
+</body>
+</html>

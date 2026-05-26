@@ -1,0 +1,447 @@
+# design-tokens.yaml
+# Machine-readable Design Tokens for Low-Visibility Field Worker Mobile UI
+# Serves as the single source of truth for eval_runner.py and design agents.
+
+# ============================================================
+# 1. Core Philosophy
+# ============================================================
+core_theme:
+  name: "Multisensory Certainty"
+  definition: >
+    In low-visibility and high-interference environments, the UI must
+    create certainty through visual, haptic, and audio channels simultaneously,
+    allowing workers to complete tasks even when they cannot see clearly,
+    hear fully, or tap precisely.
+  design_mantra:
+    en: "Large buttons. Stable positions. Short flows. Strong states. Multisensory feedback. Readback before submit. Recoverable after submit. Dangerous actions isolated."
+    zh: "大按钮。稳位置。短流程。强状态。多感官反馈。提交前读回。提交后可恢复。危险动作单独确认。"
+
+# ============================================================
+# 2. Non-Negotiables (must-pass checks)
+# ============================================================
+non_negotiables:
+  - id: "NN-01"
+    rule: "No icon-only critical controls"
+    description: "Every critical action control must have a visible text label alongside its icon"
+    severity: "critical"
+    check_type: "icon_only_critical"
+
+  - id: "NN-02"
+    rule: "No color-only state indication"
+    description: "State (e.g., normal/error/danger) must use at least two of: color, icon, text, shape, pattern"
+    severity: "critical"
+    check_type: "color_only_state"
+
+  - id: "NN-03"
+    rule: "Every critical action must have multi-channel feedback"
+    description: "At minimum: visual state change + haptic confirmation + audio/sound feedback"
+    severity: "critical"
+    check_type: "missing_feedback"
+
+  - id: "NN-04"
+    rule: "Dangerous actions must be isolated from normal actions"
+    description: "Dangerous/irreversible actions cannot be adjacent to normal action buttons"
+    severity: "critical"
+    check_type: "dangerous_action_proximity"
+
+  - id: "NN-05"
+    rule: "All touch targets must meet platform minimum"
+    description: "Touch target minimum 48x48dp (Android) / 44x44pt (iOS)"
+    severity: "critical"
+    check_type: "touch_target_minimum"
+
+  - id: "NN-06"
+    rule: "No dense multi-field forms for primary workflow"
+    description: "Primary field workflow must not present dense forms with multiple text inputs"
+    severity: "critical"
+    check_type: "dense_form"
+
+  - id: "NN-07"
+    rule: "Undo/recovery path must exist for recoverable actions"
+    description: "Completed actions must offer undo or modification within the result screen"
+    severity: "critical"
+    check_type: "missing_undo"
+
+# ============================================================
+# 3. Touch Targets
+# ============================================================
+touch_targets:
+  platform_minimum:
+    android: { width_dp: 48, height_dp: 48, approx_mm: 9 }
+    ios: { width_pt: 44, height_pt: 44 }
+    wcag_sc_258: { min_px: 24, description: "Target Size Minimum (Level AA)" }
+
+  industrial_recommended:
+    primary_button: { height_dp: 64, suggested_min: 56, suggested_max: 80 }
+    option_card: { height_dp: 72, suggested_min: 64, suggested_max: 96 }
+    secondary_button: { height_dp: 56, suggested_min: 48, suggested_max: 64 }
+
+  spacing:
+    min_dp: 8
+    preferred_dp: 12
+    dangerous_action_isolation_dp: 16
+
+  gloves_mode_overrides:
+    button_height_increase_percent: 20
+    spacing_increase_percent: 25
+    list_density_reduction: "50% fewer items per screen"
+
+# ============================================================
+# 4. Typography
+# ============================================================
+typography:
+  page_title: { min_sp: 22, max_sp: 28, weight: "bold" }
+  task_status: { min_sp: 18, max_sp: 22, weight: "medium|bold" }
+  option_label: { min_sp: 20, max_sp: 26, weight: "bold" }
+  option_description: { min_sp: 16, max_sp: 20 }
+  button_label: { min_sp: 18, max_sp: 22, weight: "bold" }
+  readback_text: { min_sp: 18, max_sp: 22, weight: "bold" }
+  error_text: { min_sp: 18, max_sp: 22, weight: "bold" }
+
+  scalability:
+    min_scale_percent: 70
+    max_scale_percent: 400
+    target_200_percent_working: true
+
+# ============================================================
+# 5. Contrast Requirements
+# ============================================================
+contrast:
+  normal_text_min: 4.5  # WCAG SC 1.4.3 AA
+  large_text_min: 3.0   # ≥18pt bold or ≥24pt regular
+  ui_component_min: 3.0  # WCAG SC 1.4.11 Non-text Contrast
+  critical_state_preferred: 7.0
+  color_policy: "color + icon + text + shape"
+
+  # Predefined color pairs with known contrast ratios
+  predefined_pairs:
+    # Light backgrounds
+    black_on_white: 21.0
+    dark_gray_on_white: { color: "#333333", bg: "#FFFFFF", ratio: 12.6 }
+    # Dark backgrounds
+    white_on_black: 21.0
+    white_on_dark_blue: { color: "#FFFFFF", bg: "#1A3A5C", ratio: 11.5 }
+    # High-contrast themes
+    yellow_on_black: { color: "#FFFF00", bg: "#000000", ratio: 19.6 }
+    # Red/green - must pair with text
+    red_on_white: { color: "#CC0000", bg: "#FFFFFF", ratio: 5.8 }
+    green_on_white: { color: "#008000", bg: "#FFFFFF", ratio: 5.1 }
+
+# ============================================================
+# 6. Color Semantics
+# ============================================================
+color_semantics:
+  requires_multi_channel: true
+  states:
+    normal:
+      color: "#4CAF50"
+      icon: "✅"
+      text: "正常"
+      must_have: ["text", "icon"]
+    abnormal:
+      color: "#FF9800"
+      icon: "⚠️"
+      text: "异常"
+      must_have: ["text", "icon"]
+    danger:
+      color: "#F44336"
+      icon: "⛔"
+      text: "危险"
+      must_have: ["text", "icon", "shape"]
+    completed:
+      color: "#2196F3"
+      icon: "✔"
+      text: "已完成"
+      must_have: ["text", "icon"]
+    offline:
+      color: "#9E9E9E"
+      icon: "☁"
+      text: "待上传"
+      must_have: ["text", "icon"]
+
+# ============================================================
+# 7. Feedback Matrix
+# ============================================================
+feedback_matrix:
+  principle: "Visual, haptic, and audio must be congruent and synchronized"
+
+  events:
+    tap_normal_button:
+      visual: "pressed state"
+      haptic: { type: "light_tick", duration_ms: 15, intensity: "low" }
+      audio: { type: "short_click", duration_ms_max: 100, required: false }
+      voice: { required: false }
+
+    selection:
+      visual: "persistent highlight + thick border + checkmark"
+      haptic: { type: "short_tick", duration_ms: 20, intensity: "low" }
+      audio: { type: "confirmation_tone", duration_ms_max: 300, required: true }
+      voice: { text: "已选择：{item_label}", required: true }
+
+    deselection:
+      visual: "highlight removal"
+      haptic: { type: "light_tick", duration_ms: 15, intensity: "low" }
+      audio: { type: "short_low_tone", duration_ms_max: 200, required: false }
+      voice: { text: "已取消选择", required: false }
+
+    submitting:
+      visual: "button loading + status text"
+      haptic: { type: "none_or_very_light", required: false }
+      audio: { required: false }
+      voice: { required: false }
+
+    submit_success:
+      visual: "success screen or banner"
+      haptic: { type: "medium_double_pulse", duration_ms: 40, intensity: "medium" }
+      audio: { type: "success_tone_or_voice", duration_ms_max: 700, required: true }
+      voice: { text: "已提交", required: true }
+
+    error:
+      visual: "high-contrast banner near problem + action instruction"
+      haptic: { type: "distinct_error_rhythm", duration_ms: 50, intensity: "medium" }
+      audio: { type: "error_tone_or_short_instruction", duration_ms_max: 1000, required: true }
+      voice: { text: "{error_instruction}", required: true }
+
+    dangerous_action:
+      visual: "separate confirmation page with warning"
+      haptic: { type: "strong_but_controlled", duration_ms: 60, intensity: "medium-high" }
+      audio: { type: "warning_tone", duration_ms_max: 1500, required: true }
+      voice: { text: "危险操作，请确认", required: true }
+
+    offline_saved:
+      visual: "pending upload badge"
+      haptic: { type: "light_tick", duration_ms: 15, intensity: "low" }
+      audio: { type: "short_tone", duration_ms_max: 200, required: false }
+      voice: { text: "已保存，待上传", required: true }
+
+    sync_complete:
+      visual: "uploaded status"
+      haptic: { type: "light_tick", duration_ms: 15, intensity: "low" }
+      audio: { type: "success_tone", duration_ms_max: 300, required: false }
+      voice: { required: false }
+
+# ============================================================
+# 8. Flow Templates
+# ============================================================
+flow_templates:
+  simple_selection:
+    max_steps: 5
+    steps:
+      - name: "show_task"
+        description: "Display task header with name, object, step, status"
+      - name: "select_option"
+        description: "Show 2-4 large option cards"
+      - name: "readback_selection"
+        description: "Display and optionally speak current selection"
+      - name: "confirm"
+        description: "Fixed bottom confirm button"
+      - name: "show_result"
+        description: "Success screen with undo and next options"
+
+  dangerous_action:
+    max_steps: 5
+    steps:
+      - name: "show_consequence"
+        description: "Display what will happen"
+      - name: "readback"
+        description: "Summarize the action"
+      - name: "long_press_confirm"
+        description: "Long press with visual progress indicator"
+      - name: "confirmation_feedback"
+        description: "Distinct success/error feedback"
+      - name: "show_result"
+        description: "Result with undo if applicable"
+
+  offline_submission:
+    max_steps: 4
+    steps:
+      - name: "save_locally"
+        description: "Save data to local storage"
+      - name: "show_pending"
+        description: "Display 'saved, pending upload' badge (never spinner only)"
+      - name: "sync"
+        description: "Sync when network available"
+      - name: "show_result"
+        description: "Uploaded or retry"
+
+# ============================================================
+# 9. Accessibility Settings
+# ============================================================
+accessibility_settings:
+  text_scale:
+    min_percent: 70
+    max_percent: 400
+  button_scale:
+    min_percent: 50
+    max_percent: 200
+  color_modes:
+    - "light"
+    - "dark"
+    - "high_contrast_light"
+    - "high_contrast_dark"
+    - "low_light_black"
+  sound_level:
+    min: 0
+    max: 10
+  vibration_level:
+    min: 0
+    max: 5
+  voice_readback:
+    options: ["off", "critical_only", "all_confirmations"]
+  button_position:
+    options: ["bottom_right", "bottom_left", "top_right", "top_left"]
+  screen_reader:
+    required: true
+    required_properties: ["label", "role", "value", "state", "hint"]
+
+# ============================================================
+# 10. Anti-Patterns (things to avoid)
+# ============================================================
+anti_patterns:
+  - "Small icon-only buttons"
+  - "Multiple equal-weight primary buttons"
+  - "Color as the only state indicator"
+  - "Select-to-submit without confirmation"
+  - "Dangerous button adjacent to normal button"
+  - "Long toast as sole feedback"
+  - "Error message saying only 'Invalid'"
+  - "Undo hidden in menus"
+  - "Small radio/checkbox as primary selection"
+  - "Low-contrast gray text"
+  - "Thin border-only selection indication"
+  - "Complex gestures for critical actions (swipe, pinch, long drag)"
+  - "Horizontal scrolling required"
+  - "Deep nested navigation (>3 levels)"
+  - "Modal-on-modal dialogs"
+  - "Long instructional text"
+  - "Button position changes between screens"
+  - "Audio feedback cannot be turned off"
+  - "Vibration feedback cannot be adjusted"
+  - "Spinner as the only offline feedback"
+
+# ============================================================
+# 11. Layout Rules
+# ============================================================
+layout:
+  max_navigation_depth: 3
+  screen_structure:
+    top:
+      contents: ["task_name", "object_name", "step_indicator", "status", "network_status"]
+      must_not_contain: ["multiple_small_icon_buttons", "long_instructions"]
+    center:
+      contents: ["2-4_option_cards_or_1_primary_input_or_scan_photo_button"]
+      must_not_contain: ["dense_lists", "multi_column_layout", "small_radios", "small_checkboxes", "icon_only_grid", "horizontal_scroll"]
+    bottom:
+      contents: ["back_or_undo", "primary_confirm_or_next"]
+      fixed: true
+      position_consistency: "same button always same position across screens"
+
+  spatial_memory_rules:
+    - "Confirm always on same side"
+    - "Back always on same side"
+    - "Undo always on same side"
+    - "Dangerous confirmation always on separate screen"
+    - "Sound/vibration settings at fixed entry point"
+
+# ============================================================
+# 12. Content Rules
+# ============================================================
+content:
+  language: "field_task_language_not_system_jargon"
+  label_rules:
+    max_primary_label_chars: 6  # Chinese characters
+    use_verbs: true  # e.g. "上报异常" not "异常管理"
+    avoid: ["system_jargon", "database_terms", "abbreviations", "technical_acronyms"]
+  icon_rules:
+    critical_icon_only: false  # NEVER allow this
+    require_text_label: true
+    use_recognizable_symbols: true
+    avoid_abstract_for_domain_tasks: true
+
+# ============================================================
+# 13. Usability Heuristics Mapping
+# ============================================================
+nielsen_heuristics:
+  h1_visibility:
+    applies_to: ["task_header", "status_badge", "offline_badge", "feedback"]
+    principle: "System must always keep users informed about what is going on"
+  h2_match_real_world:
+    applies_to: ["language", "labels", "icons"]
+    principle: "Use field task language, not system jargon"
+  h3_user_control:
+    applies_to: ["undo", "cancel", "back_navigation"]
+    principle: "Users need clear exit, cancel, undo paths"
+  h5_error_prevention:
+    applies_to: ["readback", "safety_confirmation", "dangerous_action_isolation"]
+    principle: "Prevent errors before they happen"
+  h6_recognition:
+    applies_to: ["icons", "cards", "stable_layouts"]
+    principle: "Minimize memory load — recognition over recall"
+
+# ============================================================
+# 14. Test Conditions
+# ============================================================
+testing:
+  required_conditions:
+    - "normal_indoor"
+    - "low_light"
+    - "high_glare"
+    - "noise"
+    - "gloves"
+    - "single_hand"
+    - "walking"
+    - "wet_or_dirty_hands"
+    - "time_pressure"
+    - "weak_network_or_offline"
+    - "sound_off"
+    - "vibration_off"
+    - "large_text"
+    - "high_contrast_theme"
+    - "screen_reader"
+
+  required_metrics:
+    task_success_rate: { target: ">= 95%", unit: "percent" }
+    critical_error_rate: { target: "= 0", unit: "count", applies_to: "dangerous_irreversible_actions" }
+    mis_tap_rate: { normal_test: "<= 2%", glove_low_light: "<= 5%", unit: "percent" }
+    time_to_complete: { target: "2-4 taps for simple state selection" }
+    recovery_success: { target: ">= 95%", unit: "percent" }
+    subjective_confidence: { target: "worker can state what was selected and whether submitted" }
+
+  required_test_tasks:
+    - "select_normal_and_submit"
+    - "select_abnormal_and_modify"
+    - "undo_wrong_selection"
+    - "submit_abnormal_and_view_result"
+    - "cancel_dangerous_action"
+    - "confirm_dangerous_action"
+    - "rescan_after_failed_scan"
+    - "submit_offline_then_sync"
+    - "switch_to_high_contrast_theme"
+    - "switch_to_left_hand_mode"
+    - "complete_with_sound_off"
+    - "complete_with_vibration_off"
+
+# ============================================================
+# 15. Haptics Design Rules
+# ============================================================
+haptics:
+  principles:
+    - "Less is more — excessive vibration is annoying"
+    - "Haptic must be synchronized with visual and audio"
+    - "Avoid legacy long buzzy one-shot vibrations"
+    - "Never use same pattern for success and error"
+  avoid:
+    - "Long buzzy one-shot vibration"
+    - "Vibration for non-critical visual animations"
+    - "Same pattern for success and error"
+
+# ============================================================
+# 16. Audio Design Rules
+# ============================================================
+audio:
+  principles:
+    - "Keep sounds short"
+    - "Must be toggleable off"
+    - "Cannot replace visual and haptic"
+    - "Error tone must be distinctly different from success tone"
+    - "Voice reads only key semantics, not long instructions"

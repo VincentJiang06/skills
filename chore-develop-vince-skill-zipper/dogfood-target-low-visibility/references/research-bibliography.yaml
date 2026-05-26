@@ -1,0 +1,205 @@
+# research-bibliography.yaml
+# Curated research references with cluster tags.
+# All P0 items are essential reading for the design agent.
+
+# ============================================================
+# Research Clusters
+# ============================================================
+research_clusters:
+
+  situational_impairment:
+    core:
+      - "Challenges of Situational Impairments during Interaction with Mobile Devices"
+      - "Situationally Aware Mobile Devices for Overcoming Situational Impairments"
+      - "Effect of Distinct Ambient Noise Types on Mobile Interaction"
+    use_for:
+      - "low_visibility"
+      - "glare"
+      - "noise"
+      - "cold"
+      - "encumbrance"
+      - "walking"
+      - "worker_context"
+    key_insight: >
+      SIIDs (Situationally-Induced Impairments and Disabilities) explains why
+      normal mobile UIs fail in field conditions. Design must default to degraded
+      conditions, not ideal office conditions.
+
+  haptic_audio_feedback:
+    core:
+      - "Investigating the Effectiveness of Tactile Feedback for Mobile Touchscreens"
+      - "Tactile Interfaces for Small Touch Screens"
+      - "Eyes-Off Your Fingers"
+      - "Android Haptics Design Principles"
+      - "Apple Designing Audio-Haptic Experiences"
+    use_for:
+      - "tap_feedback"
+      - "selection_confirmation"
+      - "error_feedback"
+      - "success_feedback"
+      - "eyes_free_interaction"
+    key_insight: >
+      Tactile feedback significantly improves touchscreen interaction, approaching
+      physical keyboard performance. Haptic + audio + visual must be designed together.
+
+  worker_low_literacy:
+    core:
+      - "Developing a Mobile Phone Based GUI for Users in the Construction Industry"
+      - "Designing Mobile Interfaces for Novice and Low-Literacy Users"
+      - "Actionable UI Design Guidelines for Smartphone Apps for Low-Literate Users"
+    use_for:
+      - "icon_plus_text"
+      - "short_labels"
+      - "voice_readback"
+      - "minimal_click_flow"
+      - "field_testing"
+    key_insight: >
+      Icons alone are not a universal solution. Text + icon + voice readback
+      is the robust combination. Abstract tasks especially need text labels.
+
+  touch_target:
+    core:
+      - "Android Touch Target Size (48dp minimum)"
+      - "Apple HIG Buttons (44pt minimum)"
+      - "NN/g Touch Targets on Touchscreens (1cm recommended)"
+      - "FFitts Law: Modeling Finger Touch with Fitts' Law"
+      - "Target Size Study for One-Handed Thumb Use"
+    use_for:
+      - "button_size"
+      - "card_size"
+      - "spacing"
+      - "thumb_zone"
+      - "gloves_compatibility"
+    key_insight: >
+      48dp/44pt is the platform floor, not the target. Industrial field use
+      demands 64-80dp primary buttons and 72-96dp option cards.
+
+  accessibility_standards:
+    core:
+      - "WCAG 2.2"
+      - "WCAG2Mobile Guidance"
+      - "SC 1.4.3 Contrast Minimum"
+      - "SC 1.4.11 Non-text Contrast"
+      - "SC 1.4.1 Use of Color"
+      - "SC 2.5.8 Target Size Minimum"
+    use_for:
+      - "contrast_checking"
+      - "color_not_alone"
+      - "target_size_validation"
+      - "screen_reader_support"
+      - "testing_checklist"
+
+  industrial_reference:
+    core:
+      - "Microsoft Warehouse Management mobile app accessibility features"
+      - "ISO 9241-210 Human-centred design"
+      - "Nielsen Norman Group 10 Usability Heuristics"
+    use_for:
+      - "theme_switching"
+      - "button_position_configuration"
+      - "font_button_scaling"
+      - "hci_foundations"
+    key_insight: >
+      Microsoft's warehouse app is the closest real-world reference: it supports
+      font 50-400% scaling, button 50-200% scaling, high-contrast themes, and
+      configurable button positions for handedness.
+
+# ============================================================
+# P0 Priority Reading List (15 items)
+# ============================================================
+p0_reading_list:
+  - title: "Challenges of Situational Impairments during Interaction with Mobile Devices"
+    url: "https://www.jorgegoncalves.com/docs/ozchi17.pdf"
+    reason: "Theoretical foundation for why normal mobile UI fails in the field"
+
+  - title: "Situationally Aware Mobile Devices for Overcoming Situational Impairments"
+    url: "https://dl.acm.org/doi/10.1145/3319499.3330292"
+    reason: "Decade-long survey of adaptive mobile interfaces"
+
+  - title: "Effect of Distinct Ambient Noise Types on Mobile Interaction"
+    url: "https://dl.acm.org/doi/10.1145/3214285"
+    reason: "Evidence that audio feedback cannot be the sole channel"
+
+  - title: "Investigating the Effectiveness of Tactile Feedback for Mobile Touchscreens"
+    url: "https://www.dcs.gla.ac.uk/~stephen/papers/CHI2008_eve.pdf"
+    reason: "Foundational paper proving tactile feedback improves touchscreen interaction"
+
+  - title: "Tactile Interfaces for Small Touch Screens"
+    url: "https://www.ivanpoupyrev.com/e-library/2003/uist2003_tactilesmalldisplay.pdf"
+    reason: "Early work on making on-screen controls perceivable by touch"
+
+  - title: "Developing a Mobile Phone Based GUI for Users in the Construction Industry"
+    url: "https://opendl.ifip-tc6.org/db/conf/ifip13/hwid2009/YammiyavarK09.pdf"
+    reason: "Directly targets construction workers — icons, local language, voice prompts"
+
+  - title: "Designing Mobile Interfaces for Novice and Low-Literacy Users"
+    url: "https://www.microsoft.com/en-us/research/publication/designing-mobile-interfaces-for-novice-and-low-literacy-users/"
+    reason: "Microsoft Research study on 90 low-literacy users and UI form factors"
+
+  - title: "Actionable UI Design Guidelines for Smartphone Apps for Low-Literate Users"
+    url: "https://anupriyatuli.github.io/publications/2021_CSCW.pdf"
+    reason: "SARAL framework — 13 actionable guidelines for low-literacy smartphone UI"
+
+  - title: "WCAG2Mobile: Guidance on Applying WCAG 2.2 to Mobile Applications"
+    url: "https://www.w3.org/TR/wcag2mobile-22/"
+    reason: "W3C 2025 mobile accessibility guidance for native/hybrid/web apps"
+
+  - title: "Android Touch Target Size"
+    url: "https://support.google.com/accessibility/android/answer/7101858"
+    reason: "Android official: minimum 48x48dp, 8dp spacing"
+
+  - title: "Apple HIG: Buttons"
+    url: "https://developer.apple.com/design/human-interface-guidelines/buttons"
+    reason: "Apple official: minimum 44x44pt hit region"
+
+  - title: "Microsoft Warehouse Management mobile app accessibility"
+    url: "https://learn.microsoft.com/en-us/dynamics365/supply-chain/warehousing/warehouse-app-accessibility"
+    reason: "Closest real-world industrial mobile UI reference"
+
+  - title: "Android Haptics Design Principles"
+    url: "https://developer.android.com/develop/ui/views/haptics/haptics-principles"
+    reason: "Official guidance: less is more, sync with visual/audio"
+
+  - title: "Apple Designing Audio-Haptic Experiences (WWDC 2019)"
+    url: "https://developer.apple.com/videos/play/wwdc2019/810/"
+    reason: "Official guidance on co-designing audio and haptics"
+
+  - title: "Nielsen Norman Group: 10 Usability Heuristics"
+    url: "https://www.nngroup.com/articles/ten-usability-heuristics/"
+    reason: "Universal UI review framework applicable to all designs"
+
+# ============================================================
+# Design Canon (Books & Long-form)
+# ============================================================
+design_canon:
+  - title: "The Design of Everyday Things"
+    author: "Don Norman"
+    key_concepts: ["visibility", "feedback", "constraints", "mapping", "errors_are_not_user_fault"]
+
+  - title: "Designing with the Mind in Mind"
+    author: "Jeff Johnson"
+    key_concepts: ["cognitive_psychology_for_ui", "why_large_buttons", "why_minimize_memory_load"]
+
+  - title: "About Face: The Essentials of Interaction Design"
+    author: "Cooper, Reimann, Cronin"
+    key_concepts: ["goal_directed_design", "personas", "scenarios", "mobile_interaction_patterns"]
+
+  - title: "Universal Principles of Design"
+    author: "Lidwell, Holden, Butler"
+    key_concepts: ["fitts_law", "signal_to_noise", "feedback", "affordance", "recognition_over_recall"]
+
+# ============================================================
+# Educational Courses
+# ============================================================
+courses:
+  - name: "MIT 6.831/6.813: User Interface Design and Implementation"
+    url: "https://ocw.mit.edu/courses/6-831-user-interface-design-and-implementation-spring-2011/"
+    key_modules: ["learnability", "visibility", "error_prevention", "motor_skills", "attention", "human_error"]
+
+  - name: "Stanford CS147: Introduction to HCI Design"
+    url: "https://cs147.stanford.edu/"
+    key_modules: ["user_centered_design", "rapid_prototyping", "direct_manipulation", "cognitive_principles"]
+
+  - name: "CMU: Introduction to Human-Computer Interaction"
+    url: "https://www.hcii.cmu.edu/course/introduction-human-computer-interaction"
+    key_modules: ["design", "prototyping", "evaluation", "human_cognition_and_perception"]

@@ -1,40 +1,48 @@
 ---
 name: vince-skill-zipper
 description: >
-  Analyzes an existing Claude Code skill and designs an optimal rules/ file structure.
-  Covers three operations: (1) compressing SKILL.md by moving verbose content into rules modules,
-  (2) encapsulating optional features so they only load when needed — reducing per-invocation token
-  cost, (3) enriching the skill with new template or resource files for steps that currently require
-  the model to reinvent from scratch each time. Also identifies vague instructions and rewrites them
-  to be precise. All operations are lossless — original content is always preserved or explicitly
-  moved, never deleted without a destination.
-  Use this skill whenever someone says "my skill is too long", "help me structure my rules files",
-  "split this skill", "reduce token usage", "add a template to my skill", "make this rule more
-  precise", or shows you a SKILL.md and asks how to improve its structure or efficiency.
+  Restructure an existing Claude Code skill for token efficiency, reliability,
+  and triggering accuracy. Use when the user says "my skill is too long",
+  "split this skill", "reduce token usage", "make this rule precise",
+  "my skill isn't triggering", "audit this skill's structure", or shows
+  you a SKILL.md and asks how to improve it. Applies five lossless
+  operations: Compress, Encapsulate, Enrich, Harden, Retrigger.
+  Do NOT use for creating skills from scratch (use skill-creator),
+  measuring skill output quality across runs (use skill-track), or
+  general writing/editing requests unrelated to a Claude Code skill.
 ---
 
-# Skill Rules Designer
+# vince-skill-zipper
 
-You help users restructure existing Claude Code skills. The guiding principle is **lossless
-restructuring**: every operation either moves content to a new location, or adds new content.
-Nothing is ever deleted without being placed somewhere else first.
+Restructure an existing Claude Code skill. The guiding principle is
+**lossless restructuring**: every operation either moves content to a new
+location or adds new content. Nothing is ever deleted without being placed
+somewhere else first.
 
-There are four things you can do to a skill, and you should analyze which apply:
+There are **five** operations. Analyze which apply, then propose a plan:
 
-1. **Compress** — move verbose content from SKILL.md into a rules file. SKILL.md gets shorter,
-   total content is unchanged, per-invocation token cost is unchanged (rules files in a skill's
-   directory are still loaded). Worth doing for readability and maintainability.
+1. **Compress** — move verbose content from SKILL.md into an on-demand
+   rules file. Saves always-loaded tokens *if* the content isn't always
+   Read back in. Worth doing for readability even when token-neutral.
 
-2. **Encapsulate** — move content that is only needed in some invocations into a rules file that
-   is loaded conditionally. SKILL.md shrinks AND per-invocation token cost drops. This is the
-   highest-value operation.
+2. **Encapsulate** — move content gated by a clear condition into a
+   conditionally-loaded rules file. Highest-leverage operation: directly
+   shrinks the per-invocation always-loaded budget.
 
-3. **Enrich** — create a new rules file containing templates, checklists, or scripts for something
-   the skill currently handles by ad-hoc reasoning each time. Doesn't shorten SKILL.md but makes
-   the skill faster, more consistent, and more capable.
+3. **Enrich** — create a new rules/template/script file for something the
+   skill currently handles by ad-hoc reasoning each time. Makes the skill
+   faster and more consistent without changing its scope.
 
-4. **Harden** — rewrite vague instructions in any file to make them precise and unambiguous. No
-   structural change; improves reliability.
+4. **Harden** — rewrite vague instructions (in any file) to be precise.
+   No structural change; improves reliability.
+
+5. **Retrigger** — rewrite the frontmatter `description` so the skill
+   triggers on the right turns and not on the wrong ones. Often the
+   single highest-impact change a skill can receive.
+
+Before reasoning about any of these, **read `rules/progressive-disclosure-model.md`**
+to internalize what "always-loaded" vs "on-demand" means in this runtime.
+Without that model the token-cost reasoning below is meaningless.
 
 Always show a plan first. Wait for user confirmation before writing anything.
 
@@ -47,55 +55,83 @@ Ask for the skill directory path (or accept it if already provided).
 Read:
 - `SKILL.md` (required — stop if missing)
 - All existing `rules/*.md` files
-- Any `scripts/` or `assets/` directories (note what exists)
+- The names of files in `scripts/`, `assets/`, `references/` (note what exists; don't read bodies unless needed for analysis)
 
-Build a mental model: what does this skill do, what are its phases, what files exist?
+Run `scripts/measure_tokens.py <skill_dir>` and capture the output. This
+gives you the actual always-loaded vs on-demand split.
 
-Print a one-line inventory:
+Print a one-line inventory plus the measurement summary:
+
 ```
-skill-track — SKILL.md (59 lines) + 6 rules files (640 lines total)
+skill-track — SKILL.md (59 lines, 620 tokens always-loaded)
+              + 6 rules files (640 lines, 6,120 tokens on-demand)
+              Always-loaded share: 9.2%
 ```
 
 ---
 
 ## Step 2: Analyze each dimension
 
-Work through each of the four operations. For each one, identify specific candidates.
+Work through each of the five operations. For each one, identify specific
+candidates. Cross-reference `rules/progressive-disclosure-model.md` when
+reasoning about token impact.
 
 ### Compress candidates
+
 Look for content in SKILL.md that is:
 - Detailed reference material (tables, schemas, long examples)
 - A complete self-contained phase that could be a standalone document
-- More than ~30 lines that are unlikely to change what the model does if removed from direct view
+- More than ~30 lines that the model doesn't need on every invocation
 
-For each candidate: name it, estimate line count, state what file it would move to.
+For each candidate: name it, estimate line count and token count, state
+what file it would move to, and predict whether the resulting on-demand
+file will be Read on most invocations (token-neutral) or only some
+(token-positive).
 
 ### Encapsulate candidates
-Look for content in SKILL.md (or existing rules files) that is only needed sometimes:
-- Features gated by a user choice (e.g., "only if the user asks for PDF export")
+
+Look for content (in SKILL.md or existing rules) that is only needed
+sometimes:
+- Features gated by a user choice ("only if exporting to PDF")
 - Error handling paths that rarely trigger
 - A whole workflow branch that applies to one mode but not another
+- Language packs, theme variants, format-specific output rules
 
-For each candidate: name it, estimate token savings per typical invocation, state the condition
-that gates it.
+For each candidate: name it, estimate token savings per typical
+invocation, state the **explicit condition** that gates loading. If the
+condition is fuzzy, the encapsulation is fragile — flag this as a
+Harden-first candidate instead.
 
 ### Enrich candidates
+
 Look for steps where the skill currently says something like:
 - "generate a report" without a template
-- "format the output" without a format spec
-- "commit with a conventional message" without examples
-- Any multi-step procedure that a user would want to be consistent across runs
+- "format the output" with no format spec
+- "commit with a conventional message" without an example
+- Any multi-step procedure that should be consistent across runs
 
-For each candidate: describe what the new file would contain, why it saves the model from
-reasoning from scratch, and what the skill currently does instead.
+For each candidate: describe what the new file would contain, why it
+saves the model from reasoning from scratch, and what the skill currently
+does in its place.
 
 ### Harden candidates
+
 Look for instructions that use vague verbs or implicit branching:
 - "handle X appropriately", "process as needed", "if relevant"
 - A check or guard rail with no consequence defined for failure
 - A decision (if A then B) where the else case is missing
+- Numeric thresholds without units or boundaries ("if it's too long")
 
-For each candidate: quote the original, explain the ambiguity, propose a precise rewrite.
+For each candidate: quote the original, explain the ambiguity, propose
+a precise rewrite. Preserve the original intent — clarify, don't change,
+behavior.
+
+### Retrigger candidates
+
+Load `rules/description-quality.md` and apply its diagnosis rubric to the
+current frontmatter `description`. If the score is 0-3, propose a rewrite
+from scratch. If 4-5, propose targeted improvements per missing item.
+If 6-7, mark this dimension as "no action needed."
 
 ---
 
@@ -106,26 +142,30 @@ Use this format:
 ```
 ## Restructuring Plan — [skill name]
 
-Current: SKILL.md ([N] lines) + [N] rules files
-After:   SKILL.md (~[N] lines) + [N] rules files
+Current: SKILL.md ([N] lines, [N] tokens always-loaded)
+         + [N] rules files ([N] tokens on-demand)
+After:   SKILL.md (~[N] lines, ~[N] tokens always-loaded)
+         + [N] rules files (~[N] tokens on-demand)
 
 ### Compress
-→ Move [section name] (~[N] lines) → rules/[filename].md
-  [One sentence on why this is worth doing]
+→ Move [section name] (~[N] lines, ~[N] tokens) → rules/[filename].md
+  Token effect: [neutral / saves N tokens on invocations that skip the Read]
+  Rationale: [one sentence]
 
 → (or: Nothing to compress — SKILL.md is already lean)
 
 ### Encapsulate
-→ Move [section name] (~[N] lines) → rules/[filename].md
-  Condition: only loaded when [specific trigger]
-  Token savings: ~[N] lines on typical invocations that skip this path
+→ Move [section name] (~[N] lines, ~[N] tokens) → rules/[filename].md
+  Condition: only Read when [specific trigger]
+  Token savings: ~[N] tokens on typical invocations that skip this path
 
 → (or: No clear encapsulation opportunities)
 
 ### Enrich
-→ New file: rules/[filename].md
-  Contains: [what it holds — template, checklist, script]
+→ New file: rules/[filename].md  (or assets/, scripts/)
+  Contains: [template, checklist, or script outline]
   Replaces: [what the skill currently does ad-hoc]
+  Per-invocation token cost: ~[N] tokens when Read (acceptable because [reason])
 
 → (or: No enrichment needed)
 
@@ -136,9 +176,20 @@ After:   SKILL.md (~[N] lines) + [N] rules files
 
 → (or: No vague instructions found)
 
+### Retrigger
+Current description score (per rules/description-quality.md): [N]/7
+→ [Rewrite from scratch / Targeted fixes for items X, Y / No action needed]
+  Proposed new description:
+  """
+  [new description text]
+  """
+
+→ (or: Description score 6-7 — no action needed)
+
 ---
-Lossless check: all content currently in SKILL.md will exist in the new file set.
-No original content is removed without a destination.
+Lossless check: every line currently in SKILL.md will exist verbatim in
+the new file set, OR is an explicit Harden rewrite listed above.
+Verification: `scripts/diff_lossless.py <before> <after>` should report 0 LOST lines.
 ```
 
 After the plan, ask:
@@ -158,11 +209,17 @@ Say "go" to proceed.
 
 Once confirmed, write in this order to preserve losslessness:
 
-1. Create new `rules/*.md` files with the content they'll receive
-2. Update SKILL.md — remove only the content that was written in step 1
-3. If enriching: create new template/resource files
+1. **Snapshot the before state**: copy the skill directory to a temp
+   location (or rely on git) so `diff_lossless.py` has something to
+   compare against later.
+2. **Create new files first**: write each new `rules/*.md`, `assets/*`, or
+   `scripts/*` with the content it will hold. Do NOT touch SKILL.md yet.
+3. **Update SKILL.md last**: remove content that has been written
+   elsewhere; add references to the new files; apply Harden rewrites;
+   apply Retrigger description rewrite.
 
-Never remove content from SKILL.md until it has been written to its destination file.
+Never remove content from SKILL.md until it has been written to its
+destination file.
 
 Each new rules file structure:
 ```markdown
@@ -171,19 +228,41 @@ Each new rules file structure:
 [Content]
 ```
 
-References in updated SKILL.md:
+References in the updated SKILL.md:
 ```markdown
 ## Modules
-- `rules/[name].md` — [when to read it]
+- `rules/[name].md` — [when to Read it]
 ```
+
+---
+
+## Step 5: Verify
+
+After writing, run two verification checks:
+
+1. **Lossless check**:
+   ```
+   python scripts/diff_lossless.py <before_snapshot> <skill_dir>
+   ```
+   Expect: 0 LOST lines. Any LOST line is a bug — either restore the
+   content or explicitly justify it as a Harden rewrite.
+
+2. **Token impact**:
+   ```
+   python scripts/measure_tokens.py --diff <before_snapshot> <skill_dir>
+   ```
+   Expect: always-loaded tokens decreased (or stayed flat with a
+   readability justification). On-demand tokens may grow — that's fine.
 
 Print a summary when done:
+
 ```
 Done.
-  ✓ Created rules/[name].md ([N] lines)  [compress/encapsulate/enrich]
-  ✓ Updated SKILL.md: [before] → [after] lines
+  ✓ Created rules/[name].md ([N] lines, [N] tokens)  [compress/encapsulate/enrich]
+  ✓ Updated SKILL.md: [before] → [after] lines, [before] → [after] tokens
+  ✓ Lossless check: 0 LOST lines ([N] rewritten, [N] new)
 
-Token impact: [N] lines removed from always-loaded context.
+Token impact: always-loaded shrunk by [N] tokens ([N]%) per invocation.
 [Module] only loads when [condition] — saves ~[N] tokens on [typical scenario].
 ```
 
@@ -192,11 +271,32 @@ Token impact: [N] lines removed from always-loaded context.
 ## Losslessness rules
 
 The restructuring is lossless when:
-- Every line removed from SKILL.md appears verbatim (or explicitly rewritten) in a rules file
-- No rules file is created without a corresponding reference added to SKILL.md
-- Hardening rewrites preserve the original intent — they clarify, not change, behavior
-- If the user later removes all rules files, SKILL.md still describes the skill's full scope
-  (even if the detail lives elsewhere)
+- Every line removed from SKILL.md appears verbatim (or as an explicit
+  Harden rewrite) in another file
+- No new rules file is created without a corresponding reference added
+  to SKILL.md
+- Hardening rewrites preserve the original intent — they clarify, not
+  change, behavior
+- If the user later removes all rules files, SKILL.md still describes
+  the skill's full scope (even when detail lives elsewhere)
+- `scripts/diff_lossless.py` returns exit code 0
 
-If the user asks you to delete a section with no destination, propose a destination first.
-If no destination makes sense, suggest keeping it in SKILL.md even if it's long.
+If the user asks you to delete a section with no destination, propose a
+destination first. If no destination makes sense, suggest keeping the
+section in SKILL.md even if it's long — losslessness trumps brevity.
+
+---
+
+## Modules
+
+| File | When to load |
+|------|--------------|
+| `rules/progressive-disclosure-model.md` | Always — sets the mental model for what "always-loaded" vs "on-demand" means. Without this you can't reason about token cost. |
+| `rules/description-quality.md` | When applying the Retrigger operation, or any time the user mentions trigger accuracy |
+
+## Scripts
+
+| File | Usage |
+|------|-------|
+| `scripts/measure_tokens.py` | `python scripts/measure_tokens.py <skill_dir>` — report actual line + token counts, grouped by load discipline. Supports `--diff <before> <after>`. |
+| `scripts/diff_lossless.py` | `python scripts/diff_lossless.py <before_dir> <after_dir>` — verify a restructure preserved every line. Exit 0 = lossless, exit 1 = content was lost. |

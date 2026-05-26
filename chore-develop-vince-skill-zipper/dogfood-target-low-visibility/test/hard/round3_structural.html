@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* ============================================================
+   ROUND 3: 结构边界测试
+   目标：测试深层嵌套、多上下文、非标准DOM结构下的检查准确性
+   ============================================================ */
+:root {
+  --touch-spacing-preferred: 12px;
+  --color-text-primary: #212121;
+  --color-surface: #FFFFFF;
+  --touch-min: 48px;
+  --danger-gap: 16px;
+}
+
+body { font-family: sans-serif; padding: 16px; background: #F0F0F0; color: #212121; }
+h2 { font-size: 18px; margin: 28px 0 12px; border-left: 4px solid #1976D2; padding-left: 8px; }
+h3 { font-size: 15px; color: #616161; margin: 16px 0 8px; }
+
+/* ============================================================
+   场景 1: 深层嵌套 — 3层以上的交互元素
+   ============================================================ */
+.modal-overlay {
+  background: rgba(0,0,0,0.5); padding: 24px; border-radius: 16px;
+}
+.modal-container {
+  background: #FFFFFF; border-radius: 12px; padding: 20px;
+}
+.modal-body {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.modal-actions {
+  display: flex; gap: 12px; margin-top: 16px;
+}
+.btn-deep-nested {
+  min-height: 52px; min-width: 120px;  /* 合规 */
+  background: #1976D2; color: #FFFFFF;
+  border: none; border-radius: 8px; font-size: 18px;
+}
+.btn-tiny-deep {
+  min-height: 32px; min-width: 60px;  /* 不合规: < 48px */
+  background: #FF5722; color: #FFFFFF;
+  border: none; border-radius: 4px; font-size: 12px;
+}
+
+/* ============================================================
+   场景 2: 表格中的交互元素
+   ============================================================ */
+.data-table {
+  width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 8px;
+}
+.data-table th { padding: 12px; background: #E3F2FD; font-size: 16px; text-align: left; }
+.data-table td { padding: 12px; border-top: 1px solid #E0E0E0; font-size: 16px; }
+.table-action-btn {
+  min-height: 44px; min-width: 44px;  /* 不合规: < 48px */
+  background: #1976D2; color: #FFFFFF;
+  border: none; border-radius: 6px; font-size: 14px;
+  padding: 0 12px;
+}
+.table-row-clickable {
+  cursor: pointer;  /* tabindex 未设置但 CSS 暗示交互 */
+}
+.table-row-clickable:hover { background: #F5F5F5; }
+
+/* ============================================================
+   场景 3: 多个危险操作在不同上下文中
+   ============================================================ */
+/* 上下文 A: 隔离的危险操作 */
+.safety-section {
+  background: #FFF3E0; border: 3px solid #FF9800; border-radius: 12px; padding: 20px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.btn-danger-isolated {
+  min-height: 64px; min-width: 180px;
+  background: #D32F2F; color: #FFFFFF;
+  border: 3px solid #B71C1C; border-radius: 8px;
+  font-size: 20px; font-weight: bold;
+}
+
+/* 上下文 B: 混合的工具栏 — 危险操作混在普通操作中 */
+.mixed-toolbar {
+  display: flex; gap: 4px; padding: 12px; background: #FAFAFA; border-radius: 8px;
+}
+.btn-tool {
+  min-height: 48px; min-width: 48px;
+  background: #E0E0E0; border: none; border-radius: 6px; font-size: 14px;
+}
+.btn-tool-danger {
+  min-height: 48px; min-width: 48px;
+  background: #FFCDD2; color: #C62828;
+  border: 1px solid #EF9A9A; border-radius: 6px; font-size: 14px;
+}
+
+/* 上下文 C: 条件中的危险类 */
+.conditional-panel {
+  background: #FFFFFF; border-radius: 8px; padding: 16px;
+}
+.conditional-panel.danger {
+  border: 2px solid #F44336;
+}
+
+/* ============================================================
+   场景 4: 非标准交互 — data-* 触发、role 隐式交互
+   ============================================================ */
+[data-action="select"] {
+  cursor: pointer;
+  min-height: 56px; padding: 16px;
+  background: #FFFFFF; border: 3px solid #E0E0E0;
+  border-radius: 12px;
+}
+[data-action="select"][aria-selected="true"] {
+  border-color: #1976D2; background: #E3F2FD;
+}
+
+/* ============================================================
+   场景 5: 重复 CSS 变量引用的链式解析
+   ============================================================ */
+.chain-var-a {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  font-size: 16px;
+}
+
+/* ============================================================
+   场景 6: 同一元素有多重违规
+   ============================================================ */
+.multi-violation-btn {
+  min-height: 36px; min-width: 40px;  /* 大小不合规 */
+  background: #F44336; color: #FFCDD2;  /* 对比度极低 */
+  border: none; border-radius: 4px;
+  font-size: 12px;  /* 字体太小 */
+}
+
+/* ============================================================
+   场景 7: 大量间隔的容器测试
+   ============================================================ */
+.grid-2col {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;  /* 6px < 8px min */
+}
+.grid-3col {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;  /* 10px ≥ 8px, 合规 */
+}
+.grid-item {
+  min-height: 56px; padding: 12px;
+  background: #FFFFFF; border: 2px solid #E0E0E0; border-radius: 8px;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+
+/* ============================================================
+   场景 8: feedback 属性继承/缺失
+   ============================================================ */
+.feedback-container {
+  display: flex; gap: 12px;
+}
+.btn-with-feedback {
+  min-height: 56px; min-width: 100px;
+  background: #1976D2; color: #FFFFFF;
+  border: none; border-radius: 8px; font-size: 18px;
+}
+.btn-no-feedback-in-group {  /* 在 feedback 容器中但自身无属性 */
+  min-height: 56px; min-width: 100px;
+  background: #757575; color: #FFFFFF;
+  border: none; border-radius: 8px; font-size: 18px;
+}
+
+/* ============================================================
+   场景 9: 暗色主题切换（无 CSS 变量，仅 class 切换）
+   ============================================================ */
+.theme-dark-mode {
+  background: #121212; color: #EEEEEE;
+}
+.theme-dark-mode .dark-card {
+  background: #1E1E1E; border: 1px solid #333333; border-radius: 8px; padding: 16px;
+}
+.theme-dark-mode .dark-btn {
+  min-height: 56px; min-width: 120px;
+  background: #333333; color: #AAAAAA;  /* 对比度可能不足 */
+  border: 1px solid #444444; border-radius: 8px; font-size: 18px;
+}
+
+/* ============================================================
+   场景 10: readback + 无撤销 的组合
+   ============================================================ */
+.final-submit-section {
+  background: #E8F5E9; border-radius: 8px; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- 场景 1: 深层嵌套 — 模态框 3 层以上 -->
+<!-- ============================================================ -->
+<h2>场景 1: 深层嵌套交互（4层）</h2>
+<div class="modal-overlay">  <!-- L1 -->
+  <div class="modal-container">  <!-- L2 -->
+    <h3>⚠️ 确认危险操作</h3>
+    <div class="modal-body">  <!-- L3 -->
+      <p>此操作将永久删除设备记录，不可恢复。</p>
+      <div class="modal-actions">  <!-- L4 -->
+        <button class="btn-deep-nested" data-haptic="light" data-sound="click">取消</button>
+        <button class="btn-tiny-deep" data-haptic="strong">确认删除</button>  <!-- 多层嵌套 + 危险 + 太小 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 场景 2: 表格中的交互元素 -->
+<!-- ============================================================ -->
+<h2>场景 2: 表格交互元素</h2>
+<table class="data-table">
+  <thead>
+    <tr><th>设备</th><th>状态</th><th>操作</th></tr>
+  </thead>
+  <tbody>
+    <tr class="table-row-clickable" onclick="selectRow(this)">
+      <td>压缩机 A1</td>
+      <td><span style="color:#4CAF50; font-weight:bold;">正常</span></td>
+      <td><button class="table-action-btn" data-haptic="light">详情</button></td>
+    </tr>
+    <tr class="table-row-clickable" onclick="selectRow(this)">
+      <td>泵站 B3</td>
+      <td><span style="color:#FF9800; font-weight:bold;">异常</span></td>
+      <td><button class="table-action-btn" data-haptic="light">详情</button></td>
+    </tr>
+    <tr class="table-row-clickable" onclick="selectRow(this)">
+      <td>阀门 C7</td>
+      <td><span style="color:#F44336; font-weight:bold;">危险</span></td>
+      <td><button class="table-action-btn" data-haptic="light">详情</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<!-- 场景 3a: 隔离的危险操作 — 应 PASS -->
+<!-- ============================================================ -->
+<h2>场景 3a: 正确隔离的危险操作</h2>
+<div class="safety-section">
+  <p style="font-size:18px; font-weight:bold; color:#E65100;">⚠️ 危险操作区域</p>
+  <p style="font-size:16px;">执行此操作后设备将进入停机状态</p>
+  <button class="btn-danger-isolated" data-haptic="strong" data-sound="warning">
+    确认停机
+  </button>
+</div>
+
+<!-- ============================================================ -->
+<!-- 场景 3b: 混在普通操作中的危险操作 — 应 FAIL -->
+<!-- ============================================================ -->
+<h2>场景 3b: 危险操作混在工具栏</h2>
+<div class="mixed-toolbar">
+  <button class="btn-tool" data-haptic="light">编辑</button>
+  <button class="btn-tool" data-haptic="light">复制</button>
+  <button class="btn-tool-danger">删除记录</button>  <!-- 危险 + 紧邻 + 4px gap -->
+  <button class="btn-tool" data-haptic="light">分享</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- 场景 4: data-* 属性驱动交互 -->
+<!-- ============================================================ -->
+<h2>场景 4: data-* 属性驱动的交互元素</h2>
+<div style="display: flex; flex-direction: column; gap: 12px;">
+  <div data-action="select" aria-selected="false" data-haptic="medium" data-sound="select">
+    <span style="font-size:20px; font-weight:bold;">✅ 设备正常运转</span>
+  </div>
+  <div data-action="select" aria-selected="true" data-haptic="medium" data-sound="select">
+    <span style="font-size:20px; font-weight:bold;">⚠️ 需要维护</span>
+  </div>
+  <div data-action="select" aria-selected="false" style="min-height:36px; min-width:80px;">  <!-- 太小 -->
+    <span style="font-size:16px;">🚫 设备故障</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 场景 5: CSS 变量链式引用 -->
+<!-- ============================================================ -->
+<h2>场景 5: CSS 变量链式引用</h2>
+<p class="chain-var-a">这段文字使用 CSS 变量链式引用颜色。</p>
+<div class="chain-var-a" style="padding:12px; border-radius:8px;">
+  <button style="min-height:56px; min-width:120px; background:#1976D2; color:#FFFFFF; border:none; border-radius:8px; font-size:18px;" data-haptic="light" data-sound="click">变量背景容器中的按钮</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- 场景 6: 单元素多重违规 -->
+<!-- ============================================================ -->
+<h2>场景 6: 单元素多重违规</h2>
+<button class="multi-violation-btn" onclick="dangerousAction()">删除</button>
+<!-- 应同时触发: TOUCH-01 (36px), CONTRAST-01 (F44336/FFCDD2 ≈ 1.8:1), DANGER-01 (删除) -->
+
+<!-- ============================================================ -->
+<!-- 场景 7: Grid 布局间隔测试 -->
+<!-- ============================================================ -->
+<h2>场景 7: Grid 间隔测试</h2>
+<h3>7a: 6px gap（< 8px, 应 WARNING）</h3>
+<div class="grid-2col">
+  <div class="grid-item" data-haptic="light" data-sound="click" onclick="select(this)">选项 1</div>
+  <div class="grid-item" data-haptic="light" data-sound="click" onclick="select(this)">选项 2</div>
+  <div class="grid-item" data-haptic="light" data-sound="click" onclick="select(this)">选项 3</div>
+  <div class="grid-item" data-haptic="light" data-sound="click" onclick="select(this)">选项 4</div>
+</div>
+
+<h3>7b: 10px gap（≥ 8px, 应 PASS）</h3>
+<div class="grid-3col">
+  <div class="grid-item" data-haptic="light" data-sound="click" onclick="select(this)">A</div>
+  <div class="grid-item" data-haptic="light" data-sound="click" onclick="select(this)">B</div>
+  <div class="grid-item" data-haptic="light" data-sound="click" onclick="select(this)">C</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 场景 8: Feedback 属性在混合组中 -->
+<!-- ============================================================ -->
+<h2>场景 8: 混合 feedback 组</h2>
+<div class="feedback-container">
+  <button class="btn-with-feedback" data-haptic="medium" data-sound="confirm">保存</button>
+  <button class="btn-no-feedback-in-group">取消</button>
+  <button class="btn-with-feedback" data-haptic="medium" data-sound="confirm">下一步</button>
+</div>
+<!-- FEED-01 是全局检查：有 feedback 的元素数量足够=>全局 PASS，但取消按钮单独没有 feedback -->
+
+<!-- ============================================================ -->
+<!-- 场景 9: 暗色主题（无 CSS 变量） -->
+<!-- ============================================================ -->
+<h2>场景 9: 暗色模式（class-based，无 CSS 变量）</h2>
+<div class="theme-dark-mode">
+  <div class="dark-card">
+    <p style="font-size:18px;">夜间巡检模式</p>
+    <button class="dark-btn" data-haptic="light">开始巡检</button>
+    <!-- #333333 background + #AAAAAA text → contrast ≈ 3.4:1 → 低于 4.5:1 -->
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 场景 10: readback 存在但无撤销 -->
+<!-- ============================================================ -->
+<h2>场景 10: 有 readback 但无撤销</h2>
+<div class="readback-bar" aria-live="polite" role="status" style="padding:12px; background:#E3F2FD; border-radius:8px; font-size:18px;">
+  ✅ 已提交：设备巡检完成 — 3项正常，1项异常
+</div>
+<div class="final-submit-section">
+  <p style="font-size:16px; color:#616161;">提交后不可修改，确认继续？</p>
+  <button class="btn-deep-nested" data-haptic="medium" data-sound="success">确认并结束巡检</button>
+  <!-- 无撤销/返回修改按钮！ -->
+</div>
+
+</body>
+</html>

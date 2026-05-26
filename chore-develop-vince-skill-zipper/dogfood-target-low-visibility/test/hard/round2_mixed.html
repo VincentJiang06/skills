@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* ============================================================
+   ROUND 2: 混合合规 — 模拟真实巡检工单页面
+   目标：测试 eval_runner 在部分通过/部分失败场景下的细粒度准确性
+   ============================================================ */
+:root {
+  --touch-spacing-preferred: 12px;
+  --color-text-primary: #212121;
+  --color-surface: #FFFFFF;
+  --touch-min: 48px;
+  --touch-recommended-primary: 64px;
+}
+
+body { font-family: sans-serif; padding: 16px; background: #F5F5F5; color: #212121; }
+h2 { font-size: 18px; margin: 24px 0 12px; }
+
+/* ============================================================
+   SECTION A: 完全合规的任务头部
+   ============================================================ */
+.task-header {
+  background: #FFFFFF; border-radius: 12px; padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.task-title { font-size: 22px; font-weight: bold; color: #212121; }
+.task-meta { font-size: 16px; color: #616161; margin-top: 4px; }
+.status-badge-compliant {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 16px; font-weight: bold;
+}
+.online { background: #E8F5E9; color: #2E7D32; }
+.synced { background: #E3F2FD; color: #1565C0; }
+
+/* ============================================================
+   SECTION B: 混合合规的检查项列表
+   ============================================================ */
+.inspection-list { display: flex; flex-direction: column; gap: 12px; }
+
+.option-card {
+  min-height: 72px; padding: 16px;
+  border: 3px solid #E0E0E0; border-radius: 12px;
+  background: #FFFFFF;
+  font-size: 20px; font-weight: bold;
+  display: flex; align-items: center; gap: 12px;
+}
+.option-card.selected {
+  border-color: #1976D2; background: #E3F2FD;
+}
+.option-card[data-haptic] { cursor: pointer; }
+
+/* ---- 不合规卡1：无 feedback 属性 ---- */
+.option-card-no-feedback {
+  min-height: 72px; padding: 16px;
+  border: 3px solid #E0E0E0; border-radius: 12px;
+  background: #FFFFFF;
+  font-size: 20px; font-weight: bold;
+  display: flex; align-items: center; gap: 12px;
+}
+
+/* ---- 不合规卡2：太小 ---- */
+.option-card-small {
+  min-height: 36px; padding: 8px;
+  border: 2px solid #E0E0E0; border-radius: 8px;
+  background: #FFFFFF;
+  font-size: 16px;
+}
+
+/* ---- 不合规卡3：颜色仅有状态 ---- */
+.state-dot {
+  display: inline-block;
+  min-height: 20px; min-width: 20px;
+  border-radius: 50%;
+}
+.state-dot.normal { background-color: #4CAF50; }
+.state-dot.abnormal { background-color: #FF9800; }
+.state-dot.danger { background-color: #F44336; }
+
+/* ============================================================
+   SECTION C: 不合规数据录入表单（应有 readback 但缺失）
+   ============================================================ */
+.form-section {
+  background: #FFFFFF; border-radius: 12px; padding: 16px;
+}
+.form-input {
+  min-height: 40px; min-width: 100%;
+  border: 2px solid #BDBDBD; border-radius: 8px;
+  font-size: 14px; padding: 8px;
+  color: #9E9E9E; background: #FFFFFF;
+}
+.form-label {
+  font-size: 12px; color: #BDBDBD;
+  margin-bottom: 4px;
+}
+.submit-no-readback {
+  min-height: 48px; min-width: 120px;
+  background: #1976D2; color: #FFFFFF;
+  border: none; border-radius: 8px;
+  font-size: 18px;
+  margin-top: 12px;
+}
+
+/* ============================================================
+   SECTION D: 危险操作紧邻普通操作
+   ============================================================ */
+.danger-adjacent-bar {
+  display: flex; gap: 4px;
+  padding: 16px; background: #FAFAFA; border-radius: 8px;
+}
+.btn-normal-action {
+  min-height: 56px; min-width: 120px;
+  background: #1976D2; color: #FFFFFF;
+  border: none; border-radius: 8px;
+  font-size: 18px;
+}
+.btn-danger-action {
+  min-height: 56px; min-width: 120px;
+  background: #D32F2F; color: #FFFFFF;
+  border: none; border-radius: 8px;
+  font-size: 18px;
+}
+
+/* ============================================================
+   SECTION E: 有撤销的一个地方，没有的另一个
+   ============================================================ */
+.result-bar {
+  display: flex; gap: 12px; padding: 16px; background: #E8F5E9;
+  border-radius: 8px; margin-top: 12px;
+}
+.btn-undo {
+  min-height: 56px; min-width: 120px;
+  background: #757575; color: #FFFFFF;
+  border: none; border-radius: 8px;
+  font-size: 18px;
+}
+.btn-complete {
+  min-height: 56px; min-width: 120px;
+  background: #4CAF50; color: #FFFFFF;
+  border: none; border-radius: 8px;
+  font-size: 18px;
+}
+
+/* ============================================================
+   SECTION F: 图标按钮（无文字）
+   ============================================================ */
+.icon-only-btn {
+  min-height: 48px; min-width: 48px;
+  background: transparent; border: 2px solid #E0E0E0;
+  border-radius: 8px; font-size: 24px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* ============================================================
+   SECTION G: 语言混用
+   ============================================================ */
+.mixed-lang-label {
+  color: #616161; font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- SECTION A: 完全合规 — 应该全 PASS -->
+<!-- ============================================================ -->
+<h2>SECTION A: 合规任务头部</h2>
+<div class="task-header">
+  <div class="task-title">📋 每日设备巡检 — A3厂房</div>
+  <div class="task-meta">第 3/12 项 · 压缩机温度检查</div>
+  <div style="display: flex; gap: 12px; margin-top: 8px;">
+    <span class="status-badge-compliant online">🟢 在线</span>
+    <span class="status-badge-compliant synced">☁️ 已同步</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION B: 混合合规检查项 — 部分通过、部分失败 -->
+<!-- ============================================================ -->
+<h2>SECTION B: 混合合规检查项</h2>
+<div class="inspection-list">
+  <!-- 合规卡 -->
+  <div class="option-card selected" data-haptic="medium" data-sound="confirm" onclick="select(this)">
+    <span>✅</span>
+    <span>温度正常 (45°C)</span>
+  </div>
+
+  <!-- 不合规：无 feedback -->
+  <div class="option-card-no-feedback" onclick="select(this)">
+    <span>⚠️</span>
+    <span>轻微异响</span>
+  </div>
+
+  <!-- 不合规：太小 (36px) -->
+  <div class="option-card-small" onclick="select(this)">
+    轴承磨损
+  </div>
+
+  <!-- 不合规：颜色仅有状态 -->
+  <div style="display: flex; gap: 8px; align-items: center; padding: 8px;">
+    <span>振动状态:</span>
+    <div class="state-dot normal" role="status"></div>
+    <div class="state-dot abnormal" role="status"></div>
+    <div class="state-dot danger" role="status"></div>
+  </div>
+
+  <!-- 合规卡2 -->
+  <div class="option-card" data-haptic="medium" data-sound="confirm" onclick="select(this)">
+    <span>🔧</span>
+    <span>润滑油位正常</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION C: 不合规表单 — 缺 readback、低对比度、小字体 -->
+<!-- ============================================================ -->
+<h2>SECTION C: 不合规数据录入</h2>
+<div class="form-section">
+  <div class="form-label">备注说明</div>
+  <input type="text" class="form-input" placeholder="请输入备注...">
+  <div class="form-label" style="margin-top: 8px;">异常代码</div>
+  <input type="text" class="form-input" placeholder="E-">
+  <button class="submit-no-readback">提交</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION D: 危险操作与普通操作紧邻 -->
+<!-- ============================================================ -->
+<h2>SECTION D: 危险操作紧邻普通操作</h2>
+<div class="danger-adjacent-bar">
+  <button class="btn-normal-action" data-haptic="light" data-sound="click">保存记录</button>
+  <button class="btn-danger-action">⛔ 报废设备</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION E: 有撤销路径 -->
+<!-- ============================================================ -->
+<h2>SECTION E: 提交后有撤销</h2>
+<div class="result-bar">
+  <button class="btn-undo">← 返回修改</button>
+  <button class="btn-complete" data-haptic="medium" data-sound="success">确认无误</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION F: 图标按钮无文字 -->
+<!-- ============================================================ -->
+<h2>SECTION F: 纯图标操作</h2>
+<div style="display: flex; gap: 8px;">
+  <button class="icon-only-btn" onclick="edit()">✏️</button>
+  <button class="icon-only-btn" onclick="delete()">🗑️</button>
+  <button class="icon-only-btn" onclick="share()">📤</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION G: 语言测试 — 英文标签 -->
+<!-- ============================================================ -->
+<h2>SECTION G: 英文标签 + 混合语言</h2>
+<button class="btn-normal-action" data-haptic="light" data-sound="click">Submit Inspection Report</button>
+<button class="btn-normal-action" data-haptic="light" data-sound="click">提交巡检报告并发送邮件通知相关部门</button>
+
+<div class="readback-bar" aria-live="polite" role="status" style="padding:12px; background:#E3F2FD; border-radius:8px; font-size:18px; margin-top:12px;">
+  当前选择：<strong>温度正常 (45°C)</strong>
+</div>
+
+</body>
+</html>
