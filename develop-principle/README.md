@@ -54,8 +54,11 @@ Run:
 node tools/validate_kb.mjs
 node tools/evaluate_query_cases.mjs
 node tools/check_context_budget.mjs
+node tools/check_doc_traceability.mjs
 ```
 
 `evaluate_query_cases.mjs` simulates 20 skill-design requirements and verifies that the public indexes can route each requirement to relevant docs, graph nodes, and execution assets.
 
 `check_context_budget.mjs` enforces the low-context contract for entrypoints, graph node summaries, and query fixtures.
+
+`check_doc_traceability.mjs` verifies that long documents declare machine summaries, node ids, and reference ids that resolve in the knowledge graph.

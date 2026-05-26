@@ -280,6 +280,12 @@
       "tags": ["context", "budget", "low", "token"]
     },
     {
+      "id": "testing.doc_traceability_rules",
+      "path": "testing/doc_traceability_rules.json",
+      "kind": "testing_file",
+      "tags": ["traceability", "docs", "references", "nodes"]
+    },
+    {
       "id": "tool.validate_kb",
       "path": "tools/validate_kb.mjs",
       "kind": "validation_tool"
@@ -292,6 +298,11 @@
     {
       "id": "tool.check_context_budget",
       "path": "tools/check_context_budget.mjs",
+      "kind": "validation_tool"
+    },
+    {
+      "id": "tool.check_doc_traceability",
+      "path": "tools/check_doc_traceability.mjs",
       "kind": "validation_tool"
     },
     {

@@ -44,3 +44,4 @@ Each graph node is intentionally short. Use `doc_ids` and `reference_ids` to exp
 - Structure validation: `node tools/validate_kb.mjs`
 - Query effectiveness: `node tools/evaluate_query_cases.mjs`
 - Context budget: `node tools/check_context_budget.mjs`
+- Document traceability: `node tools/check_doc_traceability.mjs`
