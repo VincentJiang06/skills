@@ -274,6 +274,12 @@
       "kind": "testing_file"
     },
     {
+      "id": "testing.context_budget_rules",
+      "path": "testing/context_budget_rules.json",
+      "kind": "testing_file",
+      "tags": ["context", "budget", "low", "token"]
+    },
+    {
       "id": "tool.validate_kb",
       "path": "tools/validate_kb.mjs",
       "kind": "validation_tool"
@@ -281,6 +287,11 @@
     {
       "id": "tool.evaluate_query_cases",
       "path": "tools/evaluate_query_cases.mjs",
+      "kind": "validation_tool"
+    },
+    {
+      "id": "tool.check_context_budget",
+      "path": "tools/check_context_budget.mjs",
       "kind": "validation_tool"
     },
     {

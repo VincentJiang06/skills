@@ -139,6 +139,7 @@
     {
       "id": "query.full_review",
       "requirement": "请审查一个 skill 是否工业级：设计、测试、TDD、指标、生命周期和低上下文都要覆盖。",
+      "max_expected_total_ids": 18,
       "expected_doc_ids": [
         "doc.architecture.industrial_skill_design",
         "doc.testing.skill_testing_process",
@@ -152,4 +153,3 @@
     }
   ]
 }
-
