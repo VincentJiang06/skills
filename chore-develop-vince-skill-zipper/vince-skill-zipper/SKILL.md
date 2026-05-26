@@ -72,6 +72,9 @@ skill-track — SKILL.md (59 lines, 620 tokens always-loaded)
 
 ## Step 2: Analyze each dimension
 
+Load `rules/diagnosis-rubric.md` first — it provides the smoke-test
+thresholds and the per-operation signal lists you'll use below.
+
 Work through each of the five operations. For each one, identify specific
 candidates. Cross-reference `rules/progressive-disclosure-model.md` when
 reasoning about token impact.
@@ -102,6 +105,12 @@ invocation, state the **explicit condition** that gates loading. If the
 condition is fuzzy, the encapsulation is fragile — flag this as a
 Harden-first candidate instead.
 
+When a candidate looks promising, match it against the pattern library
+in `rules/encapsulation-patterns.md` (P1 Mode pack / P2 Feature gate /
+P3 Variant pack / P4 Rare path / P5 Phase-conditional). If it matches
+none of these — and isn't a fit for the three requirements at the top
+of that file — do not encapsulate.
+
 ### Enrich candidates
 
 Look for steps where the skill currently says something like:
@@ -125,6 +134,11 @@ Look for instructions that use vague verbs or implicit branching:
 For each candidate: quote the original, explain the ambiguity, propose
 a precise rewrite. Preserve the original intent — clarify, don't change,
 behavior.
+
+For the rewrite shape, consult `rules/hardening-patterns.md` (H1 vague
+verbs, H2 fuzzy conditions, H3 missing else, H4 unitless thresholds,
+H5 undefined consequences, H6 implicit quality, H7 free-form judgment,
+H8 implicit ordering, H9 pronoun, H10 underspecified output).
 
 ### Retrigger candidates
 
@@ -221,12 +235,14 @@ Once confirmed, write in this order to preserve losslessness:
 Never remove content from SKILL.md until it has been written to its
 destination file.
 
-Each new rules file structure:
-```markdown
-# [filename] — [one-line purpose]
+Each new rules file should follow the skeleton in
+`assets/rules-template.md` (title with one-line purpose, "Read this
+when" trigger, main content, anti-patterns, optional verification). Copy
+the template as a starting point rather than reinventing the structure.
 
-[Content]
-```
+If the skill being restructured doesn't have a SKILL.md yet, or its
+SKILL.md needs a full rewrite, use `assets/skill-md-skeleton.md` as the
+starting point.
 
 References in the updated SKILL.md:
 ```markdown
@@ -292,7 +308,10 @@ section in SKILL.md even if it's long — losslessness trumps brevity.
 | File | When to load |
 |------|--------------|
 | `rules/progressive-disclosure-model.md` | Always — sets the mental model for what "always-loaded" vs "on-demand" means. Without this you can't reason about token cost. |
-| `rules/description-quality.md` | When applying the Retrigger operation, or any time the user mentions trigger accuracy |
+| `rules/diagnosis-rubric.md` | At Step 2, before analyzing any operation. Provides smoke-test thresholds, per-operation signal lists, and the priority matrix. |
+| `rules/encapsulation-patterns.md` | When evaluating an Encapsulate candidate. Catalogue of good patterns (P1-P5) and anti-patterns (A1-A4). |
+| `rules/hardening-patterns.md` | When evaluating a Harden candidate. Library of vague→precise rewrite shapes (H1-H10). |
+| `rules/description-quality.md` | When applying the Retrigger operation, or any time the user mentions trigger accuracy. |
 
 ## Scripts
 
@@ -300,3 +319,10 @@ section in SKILL.md even if it's long — losslessness trumps brevity.
 |------|-------|
 | `scripts/measure_tokens.py` | `python scripts/measure_tokens.py <skill_dir>` — report actual line + token counts, grouped by load discipline. Supports `--diff <before> <after>`. |
 | `scripts/diff_lossless.py` | `python scripts/diff_lossless.py <before_dir> <after_dir>` — verify a restructure preserved every line. Exit 0 = lossless, exit 1 = content was lost. |
+
+## Assets
+
+| File | Usage |
+|------|-------|
+| `assets/rules-template.md` | Skeleton for a new rules file. Copy and fill in placeholders; strip HTML comments before committing. |
+| `assets/skill-md-skeleton.md` | Skeleton for a new SKILL.md. Use when restructuring requires a full SKILL.md rewrite. |
