@@ -1,0 +1,23 @@
+{
+  "skill_name": "vince-skill-zipper",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我有一个 SKILL.md 文件，内容很长，已经快 400 行了。帮我看看哪些部分可以拆到 rules/ 目录下。技能路径是 /Users/vincent/.claude/skills/skill-track",
+      "expected_output": "给出具体的拆分方案：哪些内容移到哪个 rules 文件、保留哪些在 SKILL.md、以及为什么这样拆对 token 效率有帮助。然后等用户确认。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "这是我的 skill，里面有些规则写得很模糊，比如「handle errors appropriately」，帮我把它们改得更精确。路径：/Users/vincent/.claude/skills/skill-track",
+      "expected_output": "找出所有模糊指令，为每一条给出具体的问题分析和改写建议，等用户确认后写入文件。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "帮我把这个 skill 的 rules 结构设计一下。它目前只有一个 SKILL.md，没有任何 rules 文件，但 SKILL.md 已经很复杂了。路径：/Users/vincent/.claude/skills/course-study",
+      "expected_output": "读取 SKILL.md，识别出哪些阶段/场景适合独立成 rules 模块，给出完整结构方案包括各模块的职责和触发时机。",
+      "files": []
+    }
+  ]
+}
