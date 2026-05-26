@@ -26,15 +26,29 @@ line in SKILL.md is a tax paid on every invocation.
 These tokens enter context only if Claude (or a script) explicitly Reads
 them during the invocation.
 
-| What | When it loads |
-|------|---------------|
-| `rules/*.md` | When SKILL.md links to it or Claude judges it relevant and Reads it |
-| `references/*` | Same — Read-on-demand |
-| `assets/*` | Same — Read-on-demand (or copy-pasted into a generated file) |
-| `scripts/*` | Same — Read-on-demand, OR executed by Bash (in which case only stdout enters context, not the source code) |
+| Directory | Role | Load mechanism | When to put content here |
+|-----------|------|----------------|--------------------------|
+| `rules/*.md` | **Instructional prose** — additional rules, patterns, mental models the model should think with | SKILL.md links to it; Claude Reads when relevant | Content the model needs to *reason from*. Anything mode-specific, pattern libraries, scorecards. |
+| `references/*` | **Lookup data** — tables, bibliographies, schemas, enums, constants | Read on demand, often referenced by a rule | Content the model needs to *look up* but not reason about. Bibliography YAMLs, design-token tables, ISO code lists. |
+| `assets/*` | **Copy-paste artifacts** — templates, skeletons, example outputs | Read on demand, then the model copies content into a generated file | Content the model should *emit*, not absorb. HTML/Markdown templates, file skeletons, example reports. |
+| `scripts/*` | **Executable code** — Python/shell/Node that performs deterministic work | Either Read (rare) or executed via Bash; for execution, only `stdout` enters context | Logic that must be exact: parsers, validators, measurements, formatters. Code that produces JSON for the model to consume. |
 
-Files in `evals/`, `test/`, or any hidden directory are infrastructure for
-the skill author. Claude never loads them during normal invocation.
+Two consequences of this taxonomy:
+
+1. **Pick the right directory for each piece of content.** Putting a
+   template in `rules/` works mechanically, but signals to future
+   maintainers that this is instruction — not an artifact to copy. Same
+   the other way: a lookup table buried in `rules/` makes the model
+   think it must absorb it rather than scan it.
+
+2. **The execution path of `scripts/` is special.** A 300-line Python
+   script costs zero tokens if it's invoked via Bash (only stdout enters
+   context). The same script if Read costs its full size. Prefer to
+   `python scripts/foo.py` over `Read scripts/foo.py` whenever the
+   model needs the output, not the implementation.
+
+Files in `evals/`, `test/`, or any hidden directory are infrastructure
+for the skill author. Claude never loads them during normal invocation.
 
 ## Token cost model
 
