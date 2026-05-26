@@ -128,8 +128,8 @@ section in SKILL.md even if it's long — losslessness trumps brevity.
 
 | File | Usage |
 |------|-------|
-| `scripts/measure_tokens.py` | `python scripts/measure_tokens.py <skill_dir>` — line + token counts grouped by load discipline. Supports `--diff <before> <after>`. |
-| `scripts/diff_lossless.py` | `python scripts/diff_lossless.py <before> <after>` — verify a restructure preserved every line. Exit 0 = lossless, exit 1 = content lost. |
+| `scripts/measure_tokens.py` | `python3 scripts/measure_tokens.py <skill_dir>` — line + token counts grouped by load discipline. Supports `--diff <before> <after>`. |
+| `scripts/diff_lossless.py` | `python3 scripts/diff_lossless.py <before> <after>` — verify a restructure preserved every line. Exit 0 = lossless, exit 1 = content lost. |
 
 ## Assets
 

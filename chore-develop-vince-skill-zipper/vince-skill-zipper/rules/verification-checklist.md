@@ -15,7 +15,7 @@ Run both scripts in this order. Each one has a single pass criterion.
 ### Check 1.1 — Lossless
 
 ```
-python scripts/diff_lossless.py <before_snapshot> <skill_dir>
+python3 scripts/diff_lossless.py <before_snapshot> <skill_dir>
 ```
 
 | Outcome | Interpretation | Action |
@@ -36,7 +36,7 @@ silently waving losses is the failure mode.
 ### Check 1.2 — Token impact
 
 ```
-python scripts/measure_tokens.py --diff <before_snapshot> <skill_dir>
+python3 scripts/measure_tokens.py --diff <before_snapshot> <skill_dir>
 ```
 
 | Outcome | Interpretation | Action |

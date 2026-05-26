@@ -68,18 +68,26 @@ the model knows from SKILL.md alone whether to load the file.
 
 When the user requests a preview before applying:
 
-1. Create the preview directory:
+1. Create the preview directory.
    ```
-   cp -R <skill_dir> <skill_dir>_preview
+   cp -RL <skill_dir> <skill_dir>_preview
    ```
+   Use `-RL` (capital L), not just `-R`. Many users keep their skills
+   under `~/.claude/skills/<name>` as **symlinks** to the real location
+   (e.g., `~/.agents/skills/<name>`, or a checked-out git repo). On
+   macOS and most BSDs, `cp -R` preserves a top-level symlink verbatim,
+   so the "preview" ends up pointing right back at the original — every
+   edit you make in the preview silently writes through to the source.
+   `cp -RL` dereferences symlinks and gives you a genuine copy. If you
+   forget this, the entire purpose of dry-run mode is defeated.
 
 2. Apply all the planned changes to `<skill_dir>_preview/`, following
    the same write order above.
 
 3. Run the verification scripts comparing the preview to the original:
    ```
-   python scripts/diff_lossless.py <skill_dir> <skill_dir>_preview
-   python scripts/measure_tokens.py --diff <skill_dir> <skill_dir>_preview
+   python3 scripts/diff_lossless.py <skill_dir> <skill_dir>_preview
+   python3 scripts/measure_tokens.py --diff <skill_dir> <skill_dir>_preview
    ```
 
 4. Print the verification output to the user, then ask:
@@ -95,10 +103,12 @@ When the user requests a preview before applying:
    ```
 
 5. Only on explicit "apply" do you write to the real skill directory.
-   The fastest correct path is to `cp -R <skill_dir>_preview/* <skill_dir>/`
+   The fastest correct path is to `cp -RL <skill_dir>_preview/* <skill_dir>/`
    (after `rm` of the originals), but it's safer to re-run the
    structured writes against the real directory so any half-applied
-   state from a previous attempt gets overwritten cleanly.
+   state from a previous attempt gets overwritten cleanly. Either way,
+   the same symlink caveat from step 1 applies — use `-L` so the copy
+   actually lands on the real underlying files.
 
 ---
 

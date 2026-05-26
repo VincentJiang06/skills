@@ -44,7 +44,7 @@ Two consequences of this taxonomy:
 2. **The execution path of `scripts/` is special.** A 300-line Python
    script costs zero tokens if it's invoked via Bash (only stdout enters
    context). The same script if Read costs its full size. Prefer to
-   `python scripts/foo.py` over `Read scripts/foo.py` whenever the
+   `python3 scripts/foo.py` over `Read scripts/foo.py` whenever the
    model needs the output, not the implementation.
 
 Files in `evals/`, `test/`, or any hidden directory are infrastructure

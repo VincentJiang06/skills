@@ -18,6 +18,15 @@ Before any deeper analysis, eyeball these four numbers from `measure_tokens.py`:
 Two or more "concerning" or any single "bad" → restructuring is worth the effort.
 All "healthy" → skip restructuring; focus on Harden + Retrigger only.
 
+**Absolute size guards the share alarm.** A skill with no rules files
+will report 100% always-loaded share by definition — that single metric
+in isolation will flag every small single-file skill as "bad." So
+short-circuit the share row: if SKILL.md lines < 150 *and* tokens <
+1,500, ignore the always-loaded share entirely. The skill is healthy
+in absolute terms; the share is a meaningless ratio at this scale.
+Only treat share > 40% as bad when at least one of (lines, tokens) is
+already in the concerning or bad band.
+
 ## Per-operation diagnosis
 
 For each of the 5 operations, the question to ask and the signal to look for:

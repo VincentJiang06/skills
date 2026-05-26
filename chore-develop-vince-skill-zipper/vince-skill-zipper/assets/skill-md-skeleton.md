@@ -92,7 +92,7 @@ Before reasoning about any of these, **read `rules/{foundational-rules-file}.md`
 
 | File | Usage |
 |------|-------|
-| `scripts/{name}.py` | `python scripts/{name}.py <args>` — {what it does} |
+| `scripts/{name}.py` | `python3 scripts/{name}.py <args>` — {what it does} |
 
 ## Assets
 
