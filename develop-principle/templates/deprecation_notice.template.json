@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.deprecation_notice",
+  "skill_id": "",
+  "version_range": "",
+  "deprecated_at": "YYYY-MM-DD",
+  "sunset_at": "YYYY-MM-DD",
+  "replacement_id": "",
+  "replacement_version": "",
+  "severity": "info|warning|error",
+  "reason_zh": "",
+  "reason_en": "",
+  "migration_steps": [],
+  "compatibility_notes": [],
+  "owner": "",
+  "reference_ids": ["ref.semver"]
+}

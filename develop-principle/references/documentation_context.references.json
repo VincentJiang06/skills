@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "documentation_context_architecture",
+  "references": [
+    {
+      "id": "ref.llms_txt",
+      "tier": 1,
+      "title_en": "The /llms.txt file",
+      "title_zh": "/llms.txt 文件",
+      "authors_or_org": "Jeremy Howard",
+      "source_type": "proposed_standard",
+      "url": "https://llmstxt.org/",
+      "summary_zh": "提出为 LLM 提供短入口文件，放背景、导航和重要 Markdown 链接。支持本库的 `AGENT_INDEX.md` 和短入口设计。",
+      "summary_en": "Proposes a concise LLM-facing root file with background, navigation, and links to important Markdown pages. Supports this library's short entrypoint design.",
+      "reuse_notes": ["agent_index", "short_entrypoint", "markdown_links"],
+      "reliability_notes": "Community proposal, not formal standard."
+    },
+    {
+      "id": "ref.diataxis",
+      "tier": 1,
+      "title_en": "Diátaxis",
+      "title_zh": "Diátaxis 技术文档框架",
+      "authors_or_org": "Daniele Procida",
+      "source_type": "documentation_framework",
+      "url": "https://diataxis.fr/",
+      "summary_zh": "将文档分成 tutorials、how-to、reference、explanation。支持把短 JSON 节点、长 Markdown、模板和参考文献分开承载不同用途。",
+      "summary_en": "Separates documentation into tutorials, how-to guides, reference, and explanation. Supports separating short JSON nodes, long Markdown, templates, and references.",
+      "reuse_notes": ["information_architecture", "doc_type_separation"],
+      "reliability_notes": "Stable documentation architecture source."
+    },
+    {
+      "id": "ref.docs_as_code",
+      "tier": 1,
+      "title_en": "Docs as Code",
+      "title_zh": "文档即代码",
+      "authors_or_org": "Write the Docs community",
+      "source_type": "community_guide",
+      "url": "https://www.writethedocs.org/guide/docs-as-code/",
+      "summary_zh": "主张文档进入 Git、评审、自动测试和 CI。支持把 skill 文档库当成可验证工程资产维护。",
+      "summary_en": "Advocates maintaining docs in Git with review, automated tests, and CI. Supports treating the skill knowledge base as a verifiable engineering asset.",
+      "reuse_notes": ["docs_governance", "review", "ci_validation"],
+      "reliability_notes": "Mature community practice."
+    },
+    {
+      "id": "ref.dita.topic",
+      "tier": 1,
+      "title_en": "The topic as the basic unit of information",
+      "title_zh": "Topic 作为信息基本单元",
+      "authors_or_org": "OASIS DITA Technical Committee",
+      "source_type": "technical_documentation_standard",
+      "url": "https://dita-lang.org/dita/archspec/base/topicdefined",
+      "summary_zh": "把 topic 作为可独立理解、可复用的最小信息单元，并用 map 组织层级。支持短节点和长文档按 topic 拆分。",
+      "summary_en": "Defines topic as the reusable, self-contained unit of information and uses maps for hierarchy. Supports compact nodes and topic-based long docs.",
+      "reuse_notes": ["topic_granularity", "map_hierarchy"],
+      "reliability_notes": "Standard source; use concepts without adopting full DITA tooling."
+    },
+    {
+      "id": "ref.backstage.catalog",
+      "tier": 1,
+      "title_en": "Descriptor Format of Catalog Entities",
+      "title_zh": "Catalog Entity 描述格式",
+      "authors_or_org": "Backstage Project",
+      "source_type": "software_catalog_documentation",
+      "url": "https://backstage.io/docs/features/software-catalog/descriptor-format/",
+      "summary_zh": "展示工业 catalog 如何使用统一 envelope、metadata、spec、relations、tags、links。支持本库 typed node 的 schema 设计。",
+      "summary_en": "Shows how an industrial catalog uses a consistent envelope, metadata, spec, relations, tags, and links. Supports typed node schema design.",
+      "reuse_notes": ["catalog_schema", "metadata", "relations"],
+      "reliability_notes": "Mature engineering catalog model."
+    },
+    {
+      "id": "ref.json_ld",
+      "tier": 2,
+      "title_en": "JSON-LD 1.1",
+      "title_zh": "JSON-LD 1.1",
+      "authors_or_org": "JSON-LD Working Group",
+      "source_type": "linked_data_standard",
+      "url": "https://json-ld.org/spec/latest/json-ld/",
+      "summary_zh": "定义 JSON 中的节点标识、类型和有向边。支持用稳定 id 和关系引用减少重复 payload。",
+      "summary_en": "Defines node identifiers, types, and directed edges in JSON. Supports stable ids and relationship references to reduce duplicated payload.",
+      "reuse_notes": ["stable_ids", "edge_references"],
+      "reliability_notes": "Linked-data standard; this library uses a simplified pattern."
+    },
+    {
+      "id": "ref.microsoft.graphrag",
+      "tier": 2,
+      "title_en": "From Local to Global: A Graph RAG Approach to Query-Focused Summarization",
+      "title_zh": "GraphRAG：从局部到全局的查询聚焦总结",
+      "authors_or_org": "Darren Edge et al. / Microsoft Research",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2404.16130",
+      "summary_zh": "用实体图、社区检测和社区摘要支持不同抽象层级检索。支持本库的 parent/child 节点和按需展开策略。",
+      "summary_en": "Uses entity graphs, community detection, and community summaries for multi-level retrieval. Supports parent/child nodes and progressive expansion.",
+      "reuse_notes": ["graph_retrieval", "hierarchical_summary"],
+      "reliability_notes": "Research source; this library uses lightweight graph files, not full GraphRAG."
+    },
+    {
+      "id": "ref.agent_kb",
+      "tier": 2,
+      "title_en": "Agent KB: Leveraging Cross-Domain Experience for Agentic Problem Solving",
+      "title_zh": "Agent KB：利用跨领域经验进行 Agentic 问题求解",
+      "authors_or_org": "Xiangru Tang et al.",
+      "source_type": "research_preprint",
+      "url": "https://arxiv.org/abs/2507.06229",
+      "summary_zh": "提出结构化 agent 经验库和规划/诊断两阶段检索。支持把 skill 经验拆成短卡片、失败模式和诊断补丁。",
+      "summary_en": "Proposes a structured agent experience knowledge base with planning and diagnostic retrieval. Supports compact skill cards, failure patterns, and diagnostic fixes.",
+      "reuse_notes": ["experience_cards", "diagnostic_retrieval"],
+      "reliability_notes": "New preprint; useful architecture inspiration."
+    },
+    {
+      "id": "ref.byterover",
+      "tier": 2,
+      "title_en": "ByteRover: Agent-Native Memory Through LLM-Curated Hierarchical Context",
+      "title_zh": "ByteRover：通过 LLM 策展层级上下文实现 Agent 原生记忆",
+      "authors_or_org": "Andy Nguyen et al.",
+      "source_type": "research_preprint",
+      "url": "https://arxiv.org/abs/2604.01599",
+      "summary_zh": "提出文件型层级 Context Tree，每个 entry 带关系、来源、重要性和生命周期。强支持短节点、层级图、来源和成熟度字段。",
+      "summary_en": "Proposes a file-based Context Tree with relationships, provenance, importance, and lifecycle metadata. Strongly supports compact nodes and hierarchical context.",
+      "reuse_notes": ["context_tree", "node_maturity", "provenance"],
+      "reliability_notes": "New preprint; aligned with this library's constraints."
+    }
+  ]
+}
+

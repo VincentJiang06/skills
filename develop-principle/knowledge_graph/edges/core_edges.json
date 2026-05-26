@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "edges": [
+    {"id": "edge.design.defines_skill", "source_id": "pillar.design", "target_id": "concept.skill", "type": "defines"},
+    {"id": "edge.skill.has_trigger", "source_id": "concept.skill", "target_id": "concept.trigger", "type": "contains"},
+    {"id": "edge.skill.has_protocol", "source_id": "concept.skill", "target_id": "concept.execution_protocol", "type": "contains"},
+    {"id": "edge.skill.has_tests", "source_id": "concept.skill", "target_id": "concept.test_asset", "type": "contains"},
+    {"id": "edge.design.uses_progressive_disclosure", "source_id": "pillar.design", "target_id": "principle.progressive_disclosure", "type": "uses"},
+    {"id": "edge.kb.uses_short_nodes", "source_id": "pillar.kb_architecture", "target_id": "principle.short_node_budget", "type": "uses"},
+    {"id": "edge.kb.uses_id_refs", "source_id": "pillar.kb_architecture", "target_id": "principle.id_references", "type": "uses"},
+    {"id": "edge.testing.uses_pyramid", "source_id": "pillar.testing", "target_id": "procedure.test_pyramid", "type": "uses"},
+    {"id": "edge.testing.uses_trajectory", "source_id": "pillar.testing", "target_id": "procedure.trajectory_eval", "type": "uses"},
+    {"id": "edge.testing.uses_paired_eval", "source_id": "pillar.testing", "target_id": "procedure.paired_skill_eval", "type": "uses"},
+    {"id": "edge.tdd.uses_red_green", "source_id": "pillar.tdd", "target_id": "procedure.red_green_refactor_for_skill", "type": "uses"},
+    {"id": "edge.tdd.uses_contract", "source_id": "pillar.tdd", "target_id": "technique.contract_test", "type": "uses"},
+    {"id": "edge.metrics.measures_success", "source_id": "pillar.metrics", "target_id": "metric.task_success_rate", "type": "measures"},
+    {"id": "edge.metrics.measures_activation", "source_id": "pillar.metrics", "target_id": "metric.activation_precision", "type": "measures"},
+    {"id": "edge.metrics.measures_stability", "source_id": "pillar.metrics", "target_id": "metric.pass_k", "type": "measures"},
+    {"id": "edge.metrics.measures_cost", "source_id": "pillar.metrics", "target_id": "metric.cost_per_success", "type": "measures"},
+    {"id": "edge.metrics.measures_context", "source_id": "pillar.metrics", "target_id": "metric.loaded_context_tokens", "type": "measures"},
+    {"id": "edge.metrics.measures_control", "source_id": "pillar.metrics", "target_id": "metric.policy_violation_rate", "type": "measures"},
+    {"id": "edge.activation.has_false_positive", "source_id": "metric.activation_precision", "target_id": "metric.false_positive_rate", "type": "decomposes_to"},
+    {"id": "edge.activation.has_false_negative", "source_id": "metric.activation_precision", "target_id": "metric.false_negative_rate", "type": "decomposes_to"},
+    {"id": "edge.prompted_architecture.contradicts_control", "source_id": "anti_pattern.prompted_architecture", "target_id": "principle.executable_acceptance", "type": "contradicts"},
+    {"id": "edge.trajectory.supports_progress", "source_id": "procedure.trajectory_eval", "target_id": "metric.progress_rate", "type": "supports"},
+    {"id": "edge.trajectory.supports_tool_correctness", "source_id": "procedure.trajectory_eval", "target_id": "metric.tool_call_correctness", "type": "supports"},
+    {"id": "edge.paired_eval.supports_lift", "source_id": "procedure.paired_skill_eval", "target_id": "metric.marginal_lift", "type": "supports"},
+    {"id": "edge.lifecycle.uses_release_gate", "source_id": "pillar.lifecycle", "target_id": "procedure.release_gate", "type": "uses"},
+    {"id": "edge.lifecycle.uses_feedback", "source_id": "pillar.lifecycle", "target_id": "procedure.production_feedback_loop", "type": "uses"},
+    {"id": "edge.lifecycle.uses_deprecation", "source_id": "pillar.lifecycle", "target_id": "procedure.skill_deprecation", "type": "uses"}
+  ]
+}

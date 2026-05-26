@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "workflow_id": "workflow.skill_tdd",
+  "title_zh": "Skill TDD 工作流",
+  "title_en": "Skill TDD Workflow",
+  "steps": [
+    {
+      "id": "tdd.red.define_behavior",
+      "phase": "red",
+      "action_zh": "定义目标行为、非目标行为、边界行为和验收标准。",
+      "action_en": "Define target behavior, non-target behavior, boundary behavior, and acceptance criteria.",
+      "outputs": ["skill_design_record", "eval_cases"]
+    },
+    {
+      "id": "tdd.red.baseline",
+      "phase": "red",
+      "action_zh": "在无 skill 或旧 skill 下运行 baseline，确认目标测试失败或表现不足。",
+      "action_en": "Run baseline without the skill or with the old skill to confirm failure or insufficient performance.",
+      "outputs": ["baseline_result"]
+    },
+    {
+      "id": "tdd.green.minimal_skill",
+      "phase": "green",
+      "action_zh": "写最小触发、协议、模板或脚本，使核心 eval 通过。",
+      "action_en": "Write minimal trigger, protocol, template, or script so the core eval passes.",
+      "outputs": ["candidate_skill"]
+    },
+    {
+      "id": "tdd.green.paired_eval",
+      "phase": "green",
+      "action_zh": "固定模型和环境，运行 with-skill 配对评估。",
+      "action_en": "Hold model and environment fixed and run with-skill paired eval.",
+      "outputs": ["candidate_result"]
+    },
+    {
+      "id": "tdd.refactor.structure",
+      "phase": "refactor",
+      "action_zh": "将长内容移出入口，补充回归样例、指标和文档。",
+      "action_en": "Move long content out of entrypoints and add regression cases, metrics, and docs.",
+      "outputs": ["refactored_skill", "regression_suite", "metric_plan"]
+    }
+  ]
+}
+

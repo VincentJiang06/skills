@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "skill_architecture",
+  "references": [
+    {
+      "id": "ref.veso.agentic_patterns",
+      "tier": 1,
+      "title_en": "Agentic Patterns",
+      "title_zh": "Agentic Patterns：前沿 Agent 系统的通用架构模式",
+      "authors_or_org": "Veso AI Research",
+      "source_type": "engineering_research_guide",
+      "url": "https://veso.ai/research/agentic-patterns/",
+      "summary_zh": "将 agentic 系统拆成 instruction、skills、control、context、interface、operate 和 anti-patterns。对本库最有价值的是：skill 不是孤立提示词，而是整个 agent 架构中的可复用工作流单元。",
+      "summary_en": "Frames agentic systems around instructions, skills, control, context, interface, operations, and anti-patterns. It supports treating skills as reusable workflow units inside a broader agent architecture.",
+      "reuse_notes": ["design_principles", "anti_patterns", "context_budget", "operations"],
+      "reliability_notes": "Useful engineering synthesis. Treat platform-specific claims as volatile."
+    },
+    {
+      "id": "ref.microsoft.agent_skills",
+      "tier": 1,
+      "title_en": "Agent Skills",
+      "title_zh": "Microsoft Agent Skills",
+      "authors_or_org": "Microsoft Learn / Microsoft Agent Framework",
+      "source_type": "official_documentation",
+      "url": "https://learn.microsoft.com/en-us/agent-framework/agents/skills",
+      "summary_zh": "定义 skill 为可移植的 instructions、scripts、resources 包，并强调渐进披露、支持文件、脚本治理和运行时集成。",
+      "summary_en": "Defines skills as portable packages of instructions, scripts, and resources, with progressive disclosure, supporting files, script governance, and runtime integration.",
+      "reuse_notes": ["skill_package_model", "progressive_disclosure", "resource_organization"],
+      "reliability_notes": "Official platform documentation; abstract implementation details into platform-neutral rules."
+    },
+    {
+      "id": "ref.anthropic.building_effective_agents",
+      "tier": 1,
+      "title_en": "Building Effective AI Agents",
+      "title_zh": "构建有效 AI Agent",
+      "authors_or_org": "Anthropic Engineering",
+      "source_type": "official_engineering_article",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "summary_zh": "强调简单、可组合的 agent 模式，区分 workflow 与 agent，并指出清晰成功标准、反馈循环和人工监督是生产 agent 的关键。",
+      "summary_en": "Emphasizes simple composable patterns, the workflow-agent distinction, clear success criteria, feedback loops, and human oversight.",
+      "reuse_notes": ["architecture_principles", "workflow_vs_agent", "success_criteria"],
+      "reliability_notes": "High-quality engineering guidance; use as principle source, not quantitative proof."
+    },
+    {
+      "id": "ref.anthropic.writing_tools_for_agents",
+      "tier": 1,
+      "title_en": "Writing effective tools for AI agents - with agents",
+      "title_zh": "为 AI Agent 编写有效工具",
+      "authors_or_org": "Anthropic Engineering",
+      "source_type": "official_engineering_article",
+      "url": "https://www.anthropic.com/engineering/writing-tools-for-agents",
+      "summary_zh": "提出工具质量会显著影响 agent 效果。建议原型化工具、构建综合 eval、审查工具调用轨迹和工具返回，定位 agent 困惑点。",
+      "summary_en": "Shows that tool quality strongly affects agent performance. Recommends prototyping tools, building comprehensive evals, and inspecting tool traces and responses.",
+      "reuse_notes": ["tool_interface_design", "trace_review", "eval_loop"],
+      "reliability_notes": "Directly relevant to skill scripts and tool-facing protocols."
+    },
+    {
+      "id": "ref.agentskills.open_standard",
+      "tier": 1,
+      "title_en": "Agent Skills specification and documentation",
+      "title_zh": "Agent Skills 开放规范",
+      "authors_or_org": "agentskills project",
+      "source_type": "open_standard_repository",
+      "url": "https://github.com/agentskills/agentskills",
+      "summary_zh": "提供跨工具 skill 文件格式和目录结构的开放规范。适合抽象出最小可移植 skill 单元，但字段本身可能随生态变化。",
+      "summary_en": "Provides an open cross-tool skill file and directory format. Useful for defining portable skill packages while treating exact fields as evolving.",
+      "reuse_notes": ["portable_skill_unit", "directory_conventions"],
+      "reliability_notes": "Open standard in a changing ecosystem; use the structure, not fixed vendor assumptions."
+    },
+    {
+      "id": "ref.toolformer",
+      "tier": 2,
+      "title_en": "Toolformer: Language Models Can Teach Themselves to Use Tools",
+      "title_zh": "Toolformer：语言模型可以学习使用工具",
+      "authors_or_org": "Timo Schick et al.",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2302.04761",
+      "summary_zh": "提供工具使用的基础理论：模型要学会何时调用工具、调用哪个工具、传什么参数、如何整合结果。这可迁移为 skill 的触发和接口设计标准。",
+      "summary_en": "Provides a foundational view of tool use: when to call a tool, which tool to call, what arguments to pass, and how to integrate the result.",
+      "reuse_notes": ["trigger_design", "tool_selection", "interface_contract"],
+      "reliability_notes": "Research paper; not a modern skill packaging guide."
+    }
+  ]
+}
+

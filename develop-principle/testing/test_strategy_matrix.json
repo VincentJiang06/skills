@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "matrix_id": "testing.skill_strategy_matrix",
+  "title_zh": "Skill 测试策略矩阵",
+  "title_en": "Skill Testing Strategy Matrix",
+  "levels": [
+    {
+      "level": "L0",
+      "name": "static_structure",
+      "goal_zh": "检查结构、schema、路径、引用和节点长度。",
+      "goal_en": "Check structure, schemas, paths, references, and node length.",
+      "typical_checks": ["json_valid", "schema_valid", "link_exists", "node_budget"]
+    },
+    {
+      "level": "L1",
+      "name": "contract",
+      "goal_zh": "验证输入、输出、工具参数、错误路径和文件边界。",
+      "goal_en": "Validate inputs, outputs, tool arguments, error paths, and file boundaries.",
+      "typical_checks": ["output_schema", "allowed_path", "tool_arg_schema", "error_contract"]
+    },
+    {
+      "level": "L2",
+      "name": "component",
+      "goal_zh": "测试触发、单步路由、模板、脚本和局部 fixture。",
+      "goal_en": "Test activation, single-step routing, templates, scripts, and local fixtures.",
+      "typical_checks": ["activation_examples", "script_fixture", "template_render", "single_step_judge"]
+    },
+    {
+      "level": "L3",
+      "name": "trajectory",
+      "goal_zh": "评估工具调用序列、参数、加载文档、状态变化和失败处理。",
+      "goal_en": "Evaluate tool-call sequence, arguments, loaded docs, state changes, and failure handling.",
+      "typical_checks": ["strict_match", "subset_match", "unordered_match", "rubric_trace"]
+    },
+    {
+      "level": "L4",
+      "name": "real_task",
+      "goal_zh": "在固定任务、固定环境和稳定 fixture 上验证端到端结果。",
+      "goal_en": "Validate end-to-end outcomes on fixed tasks, fixed environments, and stable fixtures.",
+      "typical_checks": ["acceptance_tests", "state_validation", "user_simulation", "repeat_trials"]
+    },
+    {
+      "level": "L5",
+      "name": "paired_eval",
+      "goal_zh": "隔离 skill 的边际收益和成本变化。",
+      "goal_en": "Isolate the skill's marginal lift and cost delta.",
+      "typical_checks": ["with_without_skill", "old_new_skill", "cost_delta", "risk_delta"]
+    },
+    {
+      "level": "L6",
+      "name": "release_lifecycle",
+      "goal_zh": "验证发布清单、门禁、回滚、弃用、注册表 metadata 和运行观测字段。",
+      "goal_en": "Validate release manifest, gates, rollback, deprecation, registry metadata, and runtime observability fields.",
+      "typical_checks": ["release_manifest", "rollback_plan", "deprecation_metadata", "trace_fields", "registry_metadata"]
+    }
+  ],
+  "reference_ids": ["ref.martinfowler.test_pyramid", "ref.google.adk.evaluate_agents", "ref.anthropic.agent_evals", "ref.promptfoo.test_agent_skills", "ref.deepeval.e2e_component", "ref.open_agent_skills.specification", "ref.google_sre.canarying"]
+}
