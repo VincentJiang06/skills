@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "matrix_id": "testing.skill_tdd_planning",
+  "title_zh": "Skill TDD 规划矩阵",
+  "title_en": "Skill TDD Planning Matrix",
+  "phases": [
+    {
+      "phase": "red",
+      "required_outputs": ["skill_design_record", "eval_cases", "acceptance_criteria", "deterministic_grader", "trajectory_assertion", "budget"],
+      "stop_condition": "At least one target case fails for the right reason."
+    },
+    {
+      "phase": "green",
+      "required_outputs": ["minimal_trigger", "minimal_protocol", "required_resources", "required_controls"],
+      "stop_condition": "The target case passes without expanding scope."
+    },
+    {
+      "phase": "refactor",
+      "required_outputs": ["short_entrypoint", "supporting_docs", "templates", "regression_cases", "metric_catalog_update"],
+      "stop_condition": "Behavior stays green while structure becomes smaller and easier to retrieve."
+    },
+    {
+      "phase": "harden",
+      "required_outputs": ["negative_cases", "adjacent_cases", "mutation_cases", "metamorphic_relations", "paired_eval"],
+      "stop_condition": "The skill survives boundary, routing, and regression pressure."
+    }
+  ],
+  "reference_ids": ["ref.kent_beck.tdd_by_example", "ref.mlflow.eval_driven_development", "ref.openai.evals", "ref.metamorphic_testing", "ref.mutation_testing"]
+}

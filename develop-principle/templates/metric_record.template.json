@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.metric_record",
+  "metric": {
+    "id": "",
+    "title_zh": "",
+    "title_en": "",
+    "group": "effectiveness",
+    "definition_zh": "",
+    "definition_en": "",
+    "formula": "",
+    "unit": "",
+    "direction": "higher_is_better",
+    "required_inputs": [],
+    "recommended_thresholds": {
+      "draft": null,
+      "release_candidate": null,
+      "production": null
+    },
+    "known_failure_modes": [],
+    "reference_ids": []
+  }
+}
+

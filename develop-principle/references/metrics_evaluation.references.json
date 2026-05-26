@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "metrics_evaluation",
+  "references": [
+    {
+      "id": "ref.swe_skills_bench",
+      "tier": 1,
+      "title_en": "SWE-Skills-Bench: Do Agent Skills Actually Help in Real-World Software Engineering?",
+      "title_zh": "SWE-Skills-Bench：Agent Skills 是否真的帮助真实软件工程",
+      "authors_or_org": "Tingxu Han et al.",
+      "source_type": "research_preprint",
+      "url": "https://arxiv.org/abs/2603.15401",
+      "summary_zh": "直接评估 skill 边际收益。核心方法是 with-skill / without-skill 配对实验，并同时记录通过率、token 开销、适配风险和退化案例。",
+      "summary_en": "Directly evaluates skill marginal utility through with-skill vs without-skill paired evaluation, while tracking pass-rate gain, token overhead, mismatch risk, and regressions.",
+      "reuse_notes": ["paired_eval", "marginal_utility", "token_overhead"],
+      "reliability_notes": "New preprint but highly aligned with this library's core goal."
+    },
+    {
+      "id": "ref.tau_bench",
+      "tier": 1,
+      "title_en": "τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains",
+      "title_zh": "τ-bench：真实领域中的工具-Agent-用户交互评测",
+      "authors_or_org": "Shunyu Yao, Noah Shinn, Pedram Razavi, Karthik Narasimhan",
+      "source_type": "benchmark_paper",
+      "url": "https://arxiv.org/abs/2406.12045",
+      "summary_zh": "用模拟用户、领域政策、API 工具和数据库终态评估 agent。pass^k 和状态校验适合迁移到 skill 稳定性指标。",
+      "summary_en": "Evaluates agents with simulated users, domain policies, API tools, and database final-state checks. pass^k and state validation map well to skill reliability metrics.",
+      "reuse_notes": ["pass_k", "state_validation", "policy_compliance"],
+      "reliability_notes": "Strong benchmark paper for tool-using agent reliability."
+    },
+    {
+      "id": "ref.agentboard",
+      "tier": 1,
+      "title_en": "AgentBoard: An Analytical Evaluation Board of Multi-turn LLM Agents",
+      "title_zh": "AgentBoard：多轮 LLM Agent 分析评估板",
+      "authors_or_org": "Chang Ma et al.",
+      "source_type": "conference_paper",
+      "url": "https://arxiv.org/abs/2401.13178",
+      "summary_zh": "指出只看最终成功率不够，需要 fine-grained progress rate。适合衡量 skill 失败前推进到了哪一步。",
+      "summary_en": "Argues that final success rate is insufficient and introduces fine-grained progress rate, useful for measuring how far a skill gets before failure.",
+      "reuse_notes": ["progress_rate", "failure_localization"],
+      "reliability_notes": "Strong source for process metrics."
+    },
+    {
+      "id": "ref.stable_toolbench",
+      "tier": 1,
+      "title_en": "StableToolBench: Towards Stable Large-Scale Benchmarking on Tool Learning of Large Language Models",
+      "title_zh": "StableToolBench：稳定的大规模工具学习评测",
+      "authors_or_org": "Zhicheng Guo et al.",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2403.07714",
+      "summary_zh": "指出真实在线 API 的状态变化会污染评估结果。适合指导 skill eval 使用 mock、simulator、缓存和稳定测试环境。",
+      "summary_en": "Shows that live API instability can pollute tool-use evaluation. Supports mocks, simulators, caching, and stable test environments for skill evals.",
+      "reuse_notes": ["stable_eval_environment", "tool_simulator"],
+      "reliability_notes": "Highly practical for reproducible skill testing."
+    },
+    {
+      "id": "ref.helm",
+      "tier": 2,
+      "title_en": "Holistic Evaluation of Language Models",
+      "title_zh": "语言模型整体评估",
+      "authors_or_org": "Percy Liang et al. / Stanford CRFM",
+      "source_type": "peer_reviewed_paper",
+      "url": "https://arxiv.org/abs/2211.09110",
+      "summary_zh": "强调多场景、多指标评估，而不是单一 accuracy。可迁移为 skill 指标体系：效果、鲁棒性、效率、安全、适用范围。",
+      "summary_en": "Emphasizes multi-scenario and multi-metric evaluation beyond accuracy. Maps to skill effectiveness, robustness, efficiency, safety, and scope.",
+      "reuse_notes": ["multi_metric_evaluation", "metric_taxonomy"],
+      "reliability_notes": "Mature evaluation paper; model-level focus must be adapted to skills."
+    },
+    {
+      "id": "ref.metr.long_tasks",
+      "tier": 2,
+      "title_en": "Measuring AI Ability to Complete Long Software Tasks",
+      "title_zh": "衡量 AI 完成长软件任务的能力",
+      "authors_or_org": "METR researchers",
+      "source_type": "conference_paper",
+      "url": "https://arxiv.org/abs/2503.14499",
+      "summary_zh": "提出 task-completion horizon，用任务时长和成功率衡量长任务能力。适合 skill 的长度上限、复杂度上限和可靠完成区间。",
+      "summary_en": "Introduces task-completion horizon using task duration and success rate. Useful for skill length limits, complexity limits, and reliable completion ranges.",
+      "reuse_notes": ["task_horizon", "long_task_reliability"],
+      "reliability_notes": "Software-task focused; recalibrate for other domains."
+    },
+    {
+      "id": "ref.agent_token_consumption",
+      "tier": 2,
+      "title_en": "How Do AI Agents Spend Your Money? Analyzing and Predicting Token Consumption in Agentic Coding Tasks",
+      "title_zh": "AI Agent 如何消耗成本：Agentic 编码任务的 Token 消耗分析",
+      "authors_or_org": "Longju Bai et al.",
+      "source_type": "research_preprint",
+      "url": "https://arxiv.org/abs/2604.22750",
+      "summary_zh": "研究 agentic coding 的 token 消耗、波动和成本效率。可迁移为 tokens_per_success、cost variance、cost-quality frontier。",
+      "summary_en": "Studies token consumption, variance, and cost efficiency in agentic coding. Maps to tokens per success, cost variance, and cost-quality frontier.",
+      "reuse_notes": ["cost_metrics", "token_variance"],
+      "reliability_notes": "New preprint; useful metric inspiration."
+    },
+    {
+      "id": "ref.agent_safetybench",
+      "tier": 2,
+      "title_en": "Agent-SafetyBench: Evaluating the Safety of LLM Agents",
+      "title_zh": "Agent-SafetyBench：评估 LLM Agent 安全性",
+      "authors_or_org": "Zhexin Zhang et al.",
+      "source_type": "benchmark_paper",
+      "url": "https://arxiv.org/abs/2412.14470",
+      "summary_zh": "覆盖 agent 交互环境、工具使用、安全风险和失败模式。适合转化为 skill 的越权、误用、防护和拒绝指标。",
+      "summary_en": "Covers interactive environments, tool use, safety risks, and failure modes. Useful for skill metrics around overreach, misuse, guardrails, and refusal.",
+      "reuse_notes": ["safety_metrics", "control_metrics"],
+      "reliability_notes": "Benchmark categories need task-specific mapping."
+    },
+    {
+      "id": "ref.agenteval.dag",
+      "tier": 2,
+      "title_en": "AgentEval: DAG-Structured Step-Level Evaluation for Agentic Workflows with Error Propagation Tracking",
+      "title_zh": "AgentEval：带错误传播追踪的 DAG 步骤级 Agent 工作流评估",
+      "authors_or_org": "Dongxin Guo, Jikun Wu, Siu Ming Yiu",
+      "source_type": "research_preprint",
+      "url": "https://arxiv.org/abs/2604.23581",
+      "summary_zh": "把复杂 agent 工作流建模为步骤 DAG，用于检测失败、追踪错误传播和定位根因。适合 skill 的阶段指标、依赖图和失败归因。",
+      "summary_en": "Models complex agent workflows as step DAGs for failure detection, error propagation tracking, and root-cause attribution. Useful for skill stage metrics and failure analysis.",
+      "reuse_notes": ["step_level_eval", "failure_propagation", "root_cause"],
+      "reliability_notes": "New preprint; use as architecture inspiration, not final benchmark truth."
+    }
+  ]
+}

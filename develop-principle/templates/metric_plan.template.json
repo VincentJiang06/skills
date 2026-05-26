@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.metric_plan",
+  "metric_plan_id": "metric_plan.example",
+  "skill_id": "skill.example",
+  "baseline": {
+    "without_skill_run_id": "",
+    "old_skill_run_id": ""
+  },
+  "candidate": {
+    "with_skill_run_id": "",
+    "new_skill_version": ""
+  },
+  "required_metrics": [
+    "metric.task_success_rate",
+    "metric.marginal_lift",
+    "metric.activation_precision",
+    "metric.pass_k",
+    "metric.cost_per_success",
+    "metric.loaded_context_tokens",
+    "metric.policy_violation_rate"
+  ],
+  "trial_policy": {
+    "repeat_count": 3,
+    "isolate_trials": true,
+    "stable_environment_required": true
+  },
+  "decision_thresholds": {
+    "minimum_marginal_lift": null,
+    "maximum_cost_delta": null,
+    "minimum_activation_precision": null,
+    "maximum_policy_violation_rate": 0
+  }
+}

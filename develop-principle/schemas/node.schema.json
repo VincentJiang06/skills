@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.dev/develop-principle/schemas/node.schema.json",
+  "title": "Develop Principle Knowledge Node",
+  "type": "object",
+  "required": ["id", "type", "tier", "title_zh", "title_en", "summary_zh", "summary_en", "tags", "parent_ids", "child_ids", "doc_ids", "reference_ids"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z]+\\.[a-z0-9_\\.]+$"},
+    "type": {
+      "type": "string",
+      "enum": ["pillar", "concept", "principle", "procedure", "technique", "metric", "pattern", "anti_pattern", "template", "checklist", "reference"]
+    },
+    "tier": {"type": "integer", "minimum": 1, "maximum": 4},
+    "title_zh": {"type": "string", "minLength": 1},
+    "title_en": {"type": "string", "minLength": 1},
+    "summary_zh": {"type": "string", "minLength": 1, "maxLength": 220},
+    "summary_en": {"type": "string", "minLength": 1, "maxLength": 420},
+    "tags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "parent_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "child_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "doc_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "reference_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

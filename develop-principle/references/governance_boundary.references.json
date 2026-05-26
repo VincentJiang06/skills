@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "governance_boundary",
+  "references": [
+    {
+      "id": "ref.owasp.agentic_skills_top10",
+      "tier": 3,
+      "title_en": "OWASP Agentic Skills Top 10",
+      "title_zh": "OWASP Agentic Skills Top 10",
+      "authors_or_org": "OWASP Foundation",
+      "source_type": "security_risk_taxonomy",
+      "url": "https://owasp.org/www-project-agentic-skills-top-10/",
+      "summary_zh": "直接面向 agentic skills 的安全风险分类，包括恶意 skill、供应链、过度权限、弱隔离、更新漂移和治理不足。",
+      "summary_en": "A risk taxonomy for agentic skills, including malicious skills, supply chain compromise, over-privilege, weak isolation, update drift, and weak governance.",
+      "reuse_notes": ["security_checklist", "release_gate", "permission_review"],
+      "reliability_notes": "Important boundary source, but not the main design workflow source."
+    },
+    {
+      "id": "ref.owasp.llm_top10",
+      "tier": 3,
+      "title_en": "OWASP Top 10 for LLM Applications",
+      "title_zh": "OWASP LLM 应用 Top 10",
+      "authors_or_org": "OWASP GenAI Security Project",
+      "source_type": "security_risk_taxonomy",
+      "url": "https://genai.owasp.org/llm-top-10/",
+      "summary_zh": "覆盖 prompt injection、敏感信息泄露、供应链、输出处理、过度代理等风险。适合作为 skill 风险清单的底层词表。",
+      "summary_en": "Covers prompt injection, sensitive information disclosure, supply chain, output handling, excessive agency, and related risks.",
+      "reuse_notes": ["risk_vocabulary", "security_tests"],
+      "reliability_notes": "Broad LLM app security source."
+    },
+    {
+      "id": "ref.openai.practical_agents",
+      "tier": 1,
+      "title_en": "A practical guide to building agents",
+      "title_zh": "构建 Agent 的实践指南",
+      "authors_or_org": "OpenAI",
+      "source_type": "official_guide",
+      "url": "https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf",
+      "summary_zh": "讨论工具风险分级、guardrails、人类升级和生产安全。对 skill 的权限边界和可控性设计非常实用。",
+      "summary_en": "Covers tool risk classification, guardrails, human escalation, and production safety. Useful for skill control boundaries.",
+      "reuse_notes": ["guardrails", "tool_risk", "human_escalation"],
+      "reliability_notes": "Workflow-relevant governance source; keep platform-neutral."
+    },
+    {
+      "id": "ref.mcp.security",
+      "tier": 3,
+      "title_en": "MCP Security Best Practices",
+      "title_zh": "MCP 安全最佳实践",
+      "authors_or_org": "Model Context Protocol project",
+      "source_type": "official_protocol_documentation",
+      "url": "https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices",
+      "summary_zh": "虽然绑定 MCP，但其授权、工具边界、攻击向量和审计思想可迁移到通用 skill 的工具接口治理。",
+      "summary_en": "MCP-specific but useful for authorization, tool boundaries, attack vectors, and auditing in generic skill-tool interfaces.",
+      "reuse_notes": ["tool_boundary", "authorization", "audit"],
+      "reliability_notes": "Use principles, not MCP-specific APIs."
+    },
+    {
+      "id": "ref.nist.ai_rmf",
+      "tier": 3,
+      "title_en": "Artificial Intelligence Risk Management Framework",
+      "title_zh": "AI 风险管理框架",
+      "authors_or_org": "NIST",
+      "source_type": "government_framework",
+      "url": "https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10",
+      "summary_zh": "提供 govern、map、measure、manage 的 AI 风险管理框架。适合做组织级治理背景，不作为 skill 设计主线。",
+      "summary_en": "Provides govern, map, measure, and manage functions for AI risk management. Useful as governance context, not the main skill design workflow.",
+      "reuse_notes": ["governance_context", "risk_lifecycle"],
+      "reliability_notes": "Authoritative but broad."
+    },
+    {
+      "id": "ref.slsa",
+      "tier": 3,
+      "title_en": "Supply-chain Levels for Software Artifacts",
+      "title_zh": "软件制品供应链等级",
+      "authors_or_org": "SLSA / OpenSSF",
+      "source_type": "supply_chain_specification",
+      "url": "https://slsa.dev/spec/v1.2/about",
+      "summary_zh": "提供供应链完整性等级。可迁移为 skill 发布等级、来源、签名、依赖固定和制品校验。",
+      "summary_en": "Provides supply-chain integrity levels. Maps to skill release levels, provenance, signing, dependency pinning, and artifact verification.",
+      "reuse_notes": ["release_maturity", "provenance"],
+      "reliability_notes": "Security boundary source."
+    }
+  ]
+}
+

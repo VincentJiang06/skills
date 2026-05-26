@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0.0",
+  "nodes": [
+    {
+      "id": "pillar.design",
+      "type": "pillar",
+      "tier": 1,
+      "title_zh": "工业级 Skill 设计",
+      "title_en": "Industrial Skill Design",
+      "summary_zh": "定义 skill 的边界、触发、执行协议、支撑材料、控制边界和生命周期，使它能稳定复用而不是依赖临时提示词。",
+      "summary_en": "Defines skill boundaries, triggers, execution protocol, supporting materials, control boundaries, and lifecycle for stable reuse.",
+      "tags": ["design", "architecture"],
+      "parent_ids": [],
+      "child_ids": ["concept.skill", "principle.progressive_disclosure", "principle.executable_acceptance", "anti_pattern.prompted_architecture"],
+      "doc_ids": ["doc.architecture.industrial_skill_design"],
+      "reference_ids": ["ref.veso.agentic_patterns", "ref.microsoft.agent_skills", "ref.anthropic.building_effective_agents"]
+    },
+    {
+      "id": "pillar.testing",
+      "type": "pillar",
+      "tier": 1,
+      "title_zh": "Skill 测试流程",
+      "title_en": "Skill Testing Process",
+      "summary_zh": "用分层测试、轨迹评估、对照实验、回归套件和稳定环境来验证 skill 的真实效果和可控性。",
+      "summary_en": "Uses layered tests, trajectory evals, paired experiments, regression suites, and stable environments to validate skill quality and control.",
+      "tags": ["testing", "eval"],
+      "parent_ids": [],
+      "child_ids": ["procedure.test_pyramid", "procedure.trajectory_eval", "procedure.paired_skill_eval", "procedure.regression_suite"],
+      "doc_ids": ["doc.testing.skill_testing_process"],
+      "reference_ids": ["ref.anthropic.agent_evals", "ref.promptfoo.test_agent_skills", "ref.martinfowler.test_pyramid"]
+    },
+    {
+      "id": "pillar.tdd",
+      "type": "pillar",
+      "tier": 1,
+      "title_zh": "Skill TDD 规划",
+      "title_en": "Skill TDD Planning",
+      "summary_zh": "先定义失败任务、验收标准和评分器，再写最小 skill 行为，最后重构文档、脚本、测试和指标。",
+      "summary_en": "Defines failing tasks, acceptance criteria, and graders first; implements minimal skill behavior; then refactors docs, scripts, tests, and metrics.",
+      "tags": ["tdd", "edd"],
+      "parent_ids": [],
+      "child_ids": ["procedure.red_green_refactor_for_skill", "technique.contract_test", "technique.mutation_test", "technique.metamorphic_test"],
+      "doc_ids": ["doc.testing.tdd_for_skill_development"],
+      "reference_ids": ["ref.kent_beck.tdd_by_example", "ref.openai.evals", "ref.metamorphic_testing"]
+    },
+    {
+      "id": "pillar.metrics",
+      "type": "pillar",
+      "tier": 1,
+      "title_zh": "Skill 量化指标",
+      "title_en": "Skill Quantitative Metrics",
+      "summary_zh": "用效果、触发、稳定性、成本、长度、可控性和安全指标衡量 skill，而不是只看单次主观感觉。",
+      "summary_en": "Measures skills through effectiveness, activation, stability, cost, length, controllability, and safety instead of one-off subjective impressions.",
+      "tags": ["metrics", "observability"],
+      "parent_ids": [],
+      "child_ids": ["metric.task_success_rate", "metric.activation_precision", "metric.pass_k", "metric.cost_per_success", "metric.progress_rate"],
+      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
+      "reference_ids": ["ref.swe_skills_bench", "ref.tau_bench", "ref.agentboard", "ref.helm"]
+    },
+    {
+      "id": "pillar.kb_architecture",
+      "type": "pillar",
+      "tier": 1,
+      "title_zh": "低上下文知识库架构",
+      "title_en": "Low-Context Knowledge Base Architecture",
+      "summary_zh": "用短入口、短节点、ID 引用和长文外链，让多轮 agent 开发只加载当前任务需要的最小上下文。",
+      "summary_en": "Uses short entrypoints, compact nodes, ID references, and linked long docs so multi-turn agents load minimal relevant context.",
+      "tags": ["context", "knowledge_graph", "retrieval"],
+      "parent_ids": [],
+      "child_ids": ["principle.short_node_budget", "principle.id_references", "pattern.progressive_loading"],
+      "doc_ids": ["doc.operations.knowledge_base_architecture"],
+      "reference_ids": ["ref.llms_txt", "ref.dita.topic", "ref.backstage.catalog", "ref.byterover"]
+    },
+    {
+      "id": "pillar.lifecycle",
+      "type": "pillar",
+      "tier": 1,
+      "title_zh": "Skill 生命周期管理",
+      "title_en": "Skill Lifecycle Management",
+      "summary_zh": "管理 skill 从草稿、候选、发布、观测、回滚、弃用到证据门控演进的完整闭环。",
+      "summary_en": "Manages the loop from draft, candidate, release, observation, rollback, deprecation, to evidence-gated evolution.",
+      "tags": ["lifecycle", "release", "operations"],
+      "parent_ids": [],
+      "child_ids": ["procedure.release_gate", "pattern.skill_registry", "procedure.rollback_plan", "procedure.deprecation_policy", "procedure.evidence_gated_update"],
+      "doc_ids": ["doc.operations.skill_lifecycle_management", "doc.operations.skill_lifecycle_governance"],
+      "reference_ids": ["ref.skillsvote.lifecycle_governance", "ref.skilldex.package_registry", "ref.openai.practical_agents", "ref.owasp.agentic_skills_top10", "ref.slsa"]
+    }
+  ]
+}
