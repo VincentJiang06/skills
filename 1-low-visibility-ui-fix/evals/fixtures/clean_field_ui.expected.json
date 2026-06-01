@@ -1,0 +1,15 @@
+{
+  "summary": {
+    "score": 100,
+    "by_severity": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0
+    },
+    "resolved_count": 0,
+    "needs_judgment_count": 0
+  },
+  "findings": [],
+  "needs_judgment": [],
+  "target": "clean_field_ui.html"
+}

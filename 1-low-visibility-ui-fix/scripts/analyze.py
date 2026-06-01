@@ -292,13 +292,19 @@ def resolved(node, rules, prop, inherit=False, default=None, _cache=None):
 
 
 def resolved_bg(node, rules):
-    """Nearest explicit background-color up the tree; default white canvas."""
+    """Nearest explicit background-color up the tree.
+    Returns an (r,g,b) tuple, the sentinel "image" when a background image or
+    gradient is encountered first (contrast unknowable), or white as the CSS
+    initial canvas if nothing is declared."""
     n = node
     while n is not None and n.tag != "#root":
         own = declared(n, rules)
         c = parse_color(own.get("background-color"))
         if c is not None:
             return (c[0], c[1], c[2])
+        bg_shorthand = own.get("background-image", "") + " " + own.get("background", "")
+        if "url(" in bg_shorthand or "gradient(" in bg_shorthand:
+            return "image"
         n = n.parent
     return (255, 255, 255)
 
@@ -375,11 +381,8 @@ def analyze(root, rules, tokens):
                 elif fsize < fs["field_body_px"]:
                     add("font_size", "major", node, measured=fsize,
                         threshold=fs["field_body_px"], axis="low_light",
-                        fix_hint=f"raise font-size to >= {fs['field_body_px']}px")
-                elif fsize < fs["field_critical_px"]:
-                    add("font_size", "minor", node, measured=fsize,
-                        threshold=fs["field_critical_px"], axis="low_light",
-                        fix_hint=f"consider >= {fs['field_critical_px']}px for critical labels")
+                        fix_hint=f"raise font-size to >= {fs['field_body_px']}px "
+                        f"({fs['field_critical_px']}px for critical labels)")
 
         # --- contrast (direct text only) ---
         if has_text:
@@ -388,6 +391,11 @@ def analyze(root, rules, tokens):
                 needs.append({"reason": "css_var_unresolved", "location": node.descr()})
             else:
                 bg = resolved_bg(node, rules)
+                # text over an image/gradient: contrast is unknowable statically
+                if bg == "image":
+                    needs.append({"reason": "bg_image", "location": node.descr()})
+                    bg = None
+            if fg is not None and bg is not None:
                 fg_rgb = _composite(fg, (bg[0], bg[1], bg[2], 1.0)) if fg[3] < 1 else fg[:3]
                 ratio = round(contrast_ratio(fg_rgb, bg), 2)
                 fsize = parse_length_px(resolved(node, rules, "font-size", inherit=True,

@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "score": 100,
+    "by_severity": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0
+    },
+    "resolved_count": 0,
+    "needs_judgment_count": 2
+  },
+  "findings": [],
+  "needs_judgment": [
+    {
+      "reason": "css_var_unresolved",
+      "location": "div.card (line 14)"
+    },
+    {
+      "reason": "bg_image",
+      "location": "div.hero (line 15)"
+    }
+  ],
+  "target": "needs_judgment.html"
+}
