@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>巡检 (bad field UI fixture)</title>
+<style>
+  body { background-color: #ffffff; color: #999999; font-size: 12px; }
+  .task-title { font-size: 13px; color: #aaaaaa; }
+  .btn { background-color: #cccccc; color: #dddddd; width: 32px; height: 32px; }
+  .btn-primary { background-color: #1565c0; color: #5b9bd5; width: 40px; height: 40px; }
+  .status-dot { background-color: #e53935; width: 12px; height: 12px; border-radius: 50%; }
+  .row .btn { margin: 1px; }
+</style>
+</head>
+<body>
+  <div class="task-title">巡检任务 A-12</div>
+  <div class="row">
+    <button class="btn" aria-hidden="true"><svg viewBox="0 0 24 24"></svg></button>
+    <button class="btn"><svg></svg></button>
+    <button class="btn-primary">确认</button>
+  </div>
+  <span class="status-dot"></span>
+  <p>请在完成后点击确认按钮提交本次巡检结果。</p>
+</body>
+</html>

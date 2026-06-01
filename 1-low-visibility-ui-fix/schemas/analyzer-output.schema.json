@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "low-visibility-ui-fix/analyzer-output",
+  "title": "Low-visibility analyzer output",
+  "type": "object",
+  "required": ["summary", "findings", "needs_judgment"],
+  "additionalProperties": true,
+  "properties": {
+    "summary": {
+      "type": "object",
+      "required": ["score", "by_severity", "resolved_count", "needs_judgment_count"],
+      "properties": {
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "by_severity": {
+          "type": "object",
+          "required": ["critical", "major", "minor"],
+          "properties": {
+            "critical": { "type": "integer", "minimum": 0 },
+            "major": { "type": "integer", "minimum": 0 },
+            "minor": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "resolved_count": { "type": "integer", "minimum": 0 },
+        "needs_judgment_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "rule", "severity", "location"],
+        "properties": {
+          "id": { "type": "string" },
+          "rule": {
+            "type": "string",
+            "enum": ["contrast", "target_size", "color_only", "icon_only", "spacing", "font_size"]
+          },
+          "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
+          "location": { "type": "string" },
+          "measured": { "type": "number" },
+          "threshold": { "type": "number" },
+          "axis": {
+            "type": "string",
+            "enum": ["low_light", "glare", "gloves", "vibration"]
+          },
+          "fix_hint": { "type": "string" }
+        }
+      }
+    },
+    "needs_judgment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["reason", "location"],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "enum": ["css_var_unresolved", "bg_image", "js_state", "image_only",
+                     "external_stylesheet", "target_size_unresolved"]
+          },
+          "location": { "type": "string" }
+        }
+      }
+    },
+    "target": { "type": "string" },
+    "comparison": { "type": "object" }
+  }
+}

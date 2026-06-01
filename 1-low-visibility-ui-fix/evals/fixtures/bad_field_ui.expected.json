@@ -1,0 +1,150 @@
+{
+  "summary": {
+    "score": 0,
+    "by_severity": {
+      "critical": 9,
+      "major": 3,
+      "minor": 2
+    },
+    "resolved_count": 14,
+    "needs_judgment_count": 0
+  },
+  "findings": [
+    {
+      "id": "f1",
+      "rule": "font_size",
+      "severity": "critical",
+      "location": "div.task-title (line 17)",
+      "measured": 13.0,
+      "threshold": 14,
+      "axis": "low_light",
+      "fix_hint": "raise font-size to >= 16px"
+    },
+    {
+      "id": "f2",
+      "rule": "contrast",
+      "severity": "critical",
+      "location": "div.task-title (line 17)",
+      "measured": 2.32,
+      "threshold": 4.5,
+      "axis": "glare",
+      "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 2.32:1)"
+    },
+    {
+      "id": "f3",
+      "rule": "target_size",
+      "severity": "critical",
+      "location": "button.btn (line 19)",
+      "measured": 32.0,
+      "threshold": 48,
+      "axis": "gloves",
+      "fix_hint": "enlarge target to >= 64px (gloves)"
+    },
+    {
+      "id": "f4",
+      "rule": "icon_only",
+      "severity": "major",
+      "location": "button.btn (line 19)",
+      "axis": "glare",
+      "fix_hint": "add a visible text label or aria-label"
+    },
+    {
+      "id": "f5",
+      "rule": "spacing",
+      "severity": "minor",
+      "location": "button.btn (line 19)",
+      "measured": 1.0,
+      "threshold": 12,
+      "axis": "gloves",
+      "fix_hint": "increase gap to >= 12px between targets"
+    },
+    {
+      "id": "f6",
+      "rule": "target_size",
+      "severity": "critical",
+      "location": "button.btn (line 20)",
+      "measured": 32.0,
+      "threshold": 48,
+      "axis": "gloves",
+      "fix_hint": "enlarge target to >= 64px (gloves)"
+    },
+    {
+      "id": "f7",
+      "rule": "icon_only",
+      "severity": "major",
+      "location": "button.btn (line 20)",
+      "axis": "glare",
+      "fix_hint": "add a visible text label or aria-label"
+    },
+    {
+      "id": "f8",
+      "rule": "spacing",
+      "severity": "minor",
+      "location": "button.btn (line 20)",
+      "measured": 1.0,
+      "threshold": 12,
+      "axis": "gloves",
+      "fix_hint": "increase gap to >= 12px between targets"
+    },
+    {
+      "id": "f9",
+      "rule": "font_size",
+      "severity": "critical",
+      "location": "button.btn-primary (line 21)",
+      "measured": 12.0,
+      "threshold": 14,
+      "axis": "low_light",
+      "fix_hint": "raise font-size to >= 16px"
+    },
+    {
+      "id": "f10",
+      "rule": "contrast",
+      "severity": "critical",
+      "location": "button.btn-primary (line 21)",
+      "measured": 1.94,
+      "threshold": 4.5,
+      "axis": "glare",
+      "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 1.94:1)"
+    },
+    {
+      "id": "f11",
+      "rule": "target_size",
+      "severity": "critical",
+      "location": "button.btn-primary (line 21)",
+      "measured": 40.0,
+      "threshold": 48,
+      "axis": "gloves",
+      "fix_hint": "enlarge target to >= 64px (gloves)"
+    },
+    {
+      "id": "f12",
+      "rule": "color_only",
+      "severity": "major",
+      "location": "span.status-dot (line 23)",
+      "axis": "glare",
+      "fix_hint": "add text/icon + shape; do not rely on color alone"
+    },
+    {
+      "id": "f13",
+      "rule": "font_size",
+      "severity": "critical",
+      "location": "p (line 24)",
+      "measured": 12.0,
+      "threshold": 14,
+      "axis": "low_light",
+      "fix_hint": "raise font-size to >= 16px"
+    },
+    {
+      "id": "f14",
+      "rule": "contrast",
+      "severity": "critical",
+      "location": "p (line 24)",
+      "measured": 2.85,
+      "threshold": 4.5,
+      "axis": "glare",
+      "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 2.85:1)"
+    }
+  ],
+  "needs_judgment": [],
+  "target": "bad_field_ui.html"
+}
