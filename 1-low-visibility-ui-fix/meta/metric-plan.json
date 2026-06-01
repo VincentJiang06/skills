@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.metric_plan",
+  "metric_plan_id": "metric_plan.low-visibility-ui-fix",
+  "skill_id": "skill.low-visibility-ui-fix",
+  "baseline": {
+    "without_skill_run_id": "",
+    "old_skill_run_id": ""
+  },
+  "candidate": {
+    "with_skill_run_id": "",
+    "new_skill_version": "0.1.0"
+  },
+  "required_metrics": [
+    "metric.task_success_rate",
+    "metric.activation_precision",
+    "metric.pass_k",
+    "metric.policy_violation_rate",
+    "metric.loaded_context_tokens",
+    "metric.cost_per_success",
+    "metric.marginal_lift"
+  ],
+  "trial_policy": {
+    "repeat_count": 3,
+    "isolate_trials": true,
+    "stable_environment_required": true
+  },
+  "decision_thresholds": {
+    "minimum_marginal_lift": 0,
+    "maximum_cost_delta": null,
+    "minimum_activation_precision": 0.9,
+    "maximum_policy_violation_rate": 0
+  },
+  "notes": {
+    "deterministic_success_signal": "analyzer contrast/target/font pass-counts before vs after fix; no LLM judge required for the core acceptance signal",
+    "skill_entry_tokens_estimate": 760,
+    "skill_entry_tokens_target": 700,
+    "skill_entry_tokens_status": "slightly over target; tracked optimization, not a release blocker",
+    "measured_l1": "evals/check.py 3/3 fixtures pass",
+    "marginal_lift_method": "contrast/target/font_size pass-rate on a fixture set, with-skill fix vs unedited baseline"
+  }
+}

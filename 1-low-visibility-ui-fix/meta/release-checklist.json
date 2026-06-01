@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "checklist_id": "checklist.low-visibility-ui-fix.release",
+  "title_zh": "low-visibility-ui-fix 发布检查清单",
+  "title_en": "low-visibility-ui-fix Release Checklist",
+  "items": [
+    {"id": "release.design_record", "required": true, "check_zh": "meta/skill-design-record.json 完整（触发/边界/协议/资源/测试/风险）。", "check_en": "meta/skill-design-record.json covers trigger, boundaries, protocol, resources, tests, risk."},
+    {"id": "release.node_budget", "required": true, "check_zh": "SKILL.md 入口尽量短；长内容在 rules/references 按需加载。", "check_en": "SKILL.md entry kept short; long content lives on-demand in rules/references."},
+    {"id": "release.eval_cases", "required": true, "check_zh": "evals/eval-cases.json 含 happy/boundary/negative/adversarial。", "check_en": "evals/eval-cases.json includes happy, boundary, negative, and adversarial cases."},
+    {"id": "release.deterministic_grader", "required": true, "check_zh": "analyze.py 提供确定性 findings；evals/check.py golden 套件通过。", "check_en": "analyze.py provides deterministic findings; evals/check.py golden suite passes."},
+    {"id": "release.trajectory", "required": true, "check_zh": "关键轨迹（先分析→门控→修复→复测）有断言。", "check_en": "Critical trajectory (analyze -> gate -> fix -> re-verify) has assertions."},
+    {"id": "release.paired_eval", "required": false, "check_zh": "with/without 配对评估测量对比度/点击通过率提升（v0.1 待补）。", "check_en": "Paired with/without eval measures contrast/target pass-rate lift (deferred for v0.1)."},
+    {"id": "release.metrics", "required": true, "check_zh": "meta/metric-plan.json 记录成功率/触发/稳定性/成本/长度/控制指标。", "check_en": "meta/metric-plan.json records success, activation, reliability, cost, length, control metrics."},
+    {"id": "release.regression", "required": true, "check_zh": "失败样例进入 fixtures golden 回归。", "check_en": "Failure cases enter the fixtures golden regression."},
+    {"id": "release.control_boundary", "required": true, "check_zh": "文件改动有人工门；写入限制在目标目录；有回滚。", "check_en": "File edits are human-gated; writes confined to the target dir; rollback exists."}
+  ],
+  "reference_ids": ["checklist.skill_release"]
+}

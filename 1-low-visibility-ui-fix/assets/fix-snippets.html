@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Low-visibility fix snippets (reference, not a page)</title>
+<!--
+  Compliant component patterns to graft into a UI during Step 5.
+  All values trace to references/design-tokens.json (field tier).
+  These are copy-paste starting points, not a finished screen.
+-->
+<style>
+  :root {
+    /* high-contrast field theme — dark default per low-visibility best practice */
+    --bg: #0b0b0b; --fg: #ffffff; --accent: #ffd400; --danger: #ff5a4d;
+    font-size: 16px;                 /* field body floor */
+  }
+  body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; }
+
+  /* big labeled action button: >=64px target, icon + text (never icon alone) */
+  .field-btn {
+    min-width: 64px; min-height: 64px; padding: 12px 20px; margin: 12px;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 18px; border: 2px solid var(--fg); border-radius: 12px;
+    background: var(--fg); color: var(--bg);   /* ~19:1 contrast */
+  }
+
+  /* status: color + icon + text + shape (passes color_only) */
+  .status { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; }
+  .status .badge { padding: 4px 10px; border-radius: 6px; border: 2px solid; }
+  .status.ok    .badge { background:#0b0b0b; color:#7CFC9B; border-color:#7CFC9B; }
+  .status.alarm .badge { background:#0b0b0b; color:var(--danger); border-color:var(--danger); }
+
+  /* danger control isolated + larger, requires explicit text */
+  .field-btn.danger { background: var(--danger); color: #0b0b0b; border-color: var(--danger); }
+</style>
+</head>
+<body>
+  <!-- 1. labeled action button (replaces icon-only small buttons) -->
+  <button class="field-btn">
+    <svg width="24" height="24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>
+    <span>确认</span>
+  </button>
+
+  <!-- 2. redundant-coded status (replaces a bare colored dot) -->
+  <span class="status ok">
+    <span class="badge"><svg width="18" height="18" aria-hidden="true">✓</svg> 正常</span>
+  </span>
+  <span class="status alarm">
+    <span class="badge"><svg width="18" height="18" aria-hidden="true">!</svg> 报警</span>
+  </span>
+
+  <!-- 3. isolated danger action (text required, larger, separated) -->
+  <button class="field-btn danger"><span>停止设备</span></button>
+</body>
+</html>
