@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0 — 2026-06-02 (accuracy & depth)
+- `fr_analyze` now emits a **`features[]`** peak/dip pass (log-f smoothed baseline →
+  residual extrema → hz/db/type + perceptual hint) that catches sharp peaks/dips the
+  band quanta average away — e.g. an 8 kHz sibilance spike on a band-"neutral" curve.
+- Added a continuous **`tilt`** (mean treble dev − mean bass dev) + low/high
+  extension: grades *how* warm/bright within a label (a V-shape reads `even`).
+- New **`scripts/compare.py`** deterministic comparison engine: per-band quanta/dev
+  deltas, tilt delta, who-has-more-where, and a cross-rig/cross-measurer guard.
+- **Validated `targets.json`** against authoritative raw target curves (squig.link
+  mirrors, cross-checked vs Olive/Harman + Crinacle). Corrected the treble bands (the
+  3–6 kHz ear-gain region was badly understated by the seed values), materially
+  improving how real devices read; rebuilt synthetic fixtures (continuous baseline).
+- `run_all` gains a compare layer + the dense `peaky` fixture; GREEN.
+
 ## 0.2.0 — 2026-06-02
 - Add **long-form 评测长文** output mode (~4000字, Chinese-primary, traceability
   appendix + backing `evaluation.json`). New `rules/longform-review.md`,
