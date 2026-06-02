@@ -33,9 +33,9 @@
   },
   "notes": {
     "deterministic_success_signal": "analyzer contrast/target/font pass-counts before vs after fix; no LLM judge required for the core acceptance signal",
-    "skill_entry_tokens_estimate": 760,
+    "skill_entry_tokens_measured": 689,
     "skill_entry_tokens_target": 700,
-    "skill_entry_tokens_status": "slightly over target; tracked optimization, not a release blocker",
+    "skill_entry_tokens_status": "under target (tiktoken cl100k_base via vince-skill-zipper measure_tokens); always-loaded share 6.6%",
     "measured_l1": "evals/check.py 4/4 fixtures pass; end-to-end dogfood trial green (trial/TRIAL_REPORT.md)",
     "marginal_lift_method": "contrast/target/font_size pass-rate on a fixture set, with-skill fix vs unedited baseline"
   }
