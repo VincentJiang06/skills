@@ -5,6 +5,7 @@
   "additionalProperties": false,
   "properties": {
     "version": {"type": "string"},
+    "_provenance": {"type": "string"},
     "anchor_band": {"type": "string"},
     "quanta_thresholds_db": {"type": "object",
       "required": ["neutral", "slight", "notable"], "additionalProperties": false,

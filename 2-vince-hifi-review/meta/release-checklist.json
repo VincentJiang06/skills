@@ -1,18 +1,18 @@
 {
   "schema_version": "1.0.0",
   "skill_id": "skill.2-vince-hifi-review",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "gates": [
-    {"id": "structure", "desc": "trigger/protocol/resources/controls/tests/metrics/lifecycle present", "status": "pass", "evidence": "SKILL.md + 9 rules + 6 references + 4 scripts + assets + meta all present"},
+    {"id": "structure", "desc": "trigger/protocol/resources/controls/tests/metrics/lifecycle present", "status": "pass", "evidence": "SKILL.md + 9 rules + 6 references + 5 scripts (incl. compare) + assets + meta all present"},
     {"id": "activation", "desc": "activation_precision>=0.9 on routing cases", "status": "pass", "evidence": "15/15 correct, precision 1.0 recall 1.0 (meta/live-eval-results.json)"},
     {"id": "behavior", "desc": "end-to-end + trajectory + output-contract pass", "status": "pass", "evidence": "happy + snake-oil + live 4487字 long-form all gate-PASS; snake-oil held the line; over-claim judge clean after no-inflation hardening"},
     {"id": "cost", "desc": "loaded_context recorded; SKILL.md<1000 tokens", "status": "pass", "evidence": "SKILL.md 998 tok < 1000; everything heavy on-demand"},
     {"id": "control", "desc": "policy_violation_rate==0 (no fabrication, no unflagged cross-rig)", "status": "pass", "evidence": "validate_output gate enforces; behavioral snake-oil produced no unsupported audible claim"},
-    {"id": "regression", "desc": "run_all.py GREEN", "status": "pass", "evidence": "L0 schema + L1 golden (5 fixtures) + determinism + output gate + long-form 评测长文 + token budget GREEN"},
+    {"id": "regression", "desc": "run_all.py GREEN", "status": "pass", "evidence": "L0 schema + L1 golden (6 fixtures incl. peaky) + determinism + output gate + long-form + compare engine + token budget GREEN"},
     {"id": "paired", "desc": "marginal_lift>0 vs no-skill (accuracy + traceability)", "status": "pending", "evidence": "activation+behavioral give strong signal; a controlled with/without-skill paired lift is future work (not yet measured)"},
-    {"id": "version", "desc": "semver + CHANGELOG", "status": "pass", "evidence": "0.2.0 + CHANGELOG.md"},
-    {"id": "rollback", "desc": "known-good version + steps", "status": "pass", "evidence": "known-good = 0.2.0 merge commit; rollback = git revert the merge or remove the 2-vince-hifi-review/ dir"},
+    {"id": "version", "desc": "semver + CHANGELOG", "status": "pass", "evidence": "0.3.0 + CHANGELOG.md"},
+    {"id": "rollback", "desc": "known-good version + steps", "status": "pass", "evidence": "known-good = 0.3.0 merge commit; rollback = git revert the merge or remove the 2-vince-hifi-review/ dir"},
     {"id": "observability", "desc": "trace has skill_version + loaded_source_ids + environment_stability", "status": "pass", "evidence": "evaluation.schema requires trace{skill_version,loaded_source_ids,environment_stability}; verified in behavioral outputs"}
   ],
-  "summary": "9/10 gates pass; paired-lift pending. v0.2.0 adds the long-form 评测长文 mode (live-generated 4487字 independently verified for length/structure/traceability)."
+  "summary": "9/10 gates pass; paired-lift pending. v0.3.0 deepens accuracy: peak/dip features + spectral tilt + deterministic compare.py + authoritative target-curve validation (treble bands corrected)."
 }

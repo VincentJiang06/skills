@@ -28,9 +28,29 @@ treble = avg(lower_treble,mid_treble,air). Evaluate **in order**, first match wi
 7. **均衡 / neutral** — every section within ±1
 8. **混合 / mixed** — none dominates
 
-## Resolution caveat
-The engine is **band-resolution**; it averages within a band. A sharp narrow
-peak/dip (e.g. an 8 kHz spike → 齿音) is *not* captured by the band quanta —
-report it separately as a flagged feature (note Hz + approx dB), and never let a
-narrow artifact masquerade as broad 量感. Choose the target by category:
-`harman_ie_2019`/`ief_neutral` for IEM/TWS, `harman_oe_2018` for headphones.
+## Spectral tilt (continuous nuance) — the `tilt` object
+Alongside the discrete 风格 label, the engine emits **`tilt`**: `tilt_db` = mean
+treble dev − mean bass dev (≤ −2 → 暖向/warm-tilted, ≥ +2 → 亮向/bright-tilted,
+else 中性倾斜/even), plus `low_extension_db` (sub-bass) and `high_extension_db`
+(air). Tilt disambiguates what the label can't: a **V-shape** has elevated bass
+*and* treble, so its tilt is ≈ **even** — "balanced emphasis at both ends", not
+"warm". Use `tilt_db` to grade *how* warm/bright a device is within its label, and
+the two extension figures to describe low/high reach.
+
+## Sharp features (peaks/dips) — the `features` array
+The band quanta are **band-resolution** (they average within a band), so they can
+miss a sharp narrow peak/dip. The engine therefore ALSO runs a peak/dip pass and
+emits a **`features[]`** array: each entry is a local deviation from the
+log-frequency-smoothed trend exceeding the prominence threshold
+(`targets.peak_detection.min_prominence_db`), reported as `hz`, `residual_db`,
+`type` (peak/dip), and a perceptual `hint` — e.g. **5–9 kHz peak → 齿音/sibilance**,
+3–5 kHz peak → 咬字突出/presence-bite, 9–12 kHz peak → 刺耳/treble-glare, a treble
+dip → 齿音抑制/de-essed.
+
+**Always surface `features`** in the writeup: a curve can read "均衡/neutral" by
+bands yet hide an 8 kHz sibilance spike — the `features` array is exactly where that
+shows up. Rule of thumb: band quanta = *how much* energy per region; features =
+*sharp character* (sibilance, glare, resonance dips) that量感 averages away. Never
+let a narrow artifact masquerade as broad 量感, and never let broad 量感 hide a
+narrow peak. Choose the target by category: `harman_ie_2019`/`ief_neutral` for
+IEM/TWS, `harman_oe_2018` for headphones.

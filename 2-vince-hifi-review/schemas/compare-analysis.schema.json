@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["device_a", "device_b", "target", "comparable", "comparability_notes", "signature_a", "signature_b", "tilt_a_db", "tilt_b_db", "tilt_delta_db", "band_deltas", "summary", "warnings"],
+  "additionalProperties": false,
+  "properties": {
+    "device_a": {"type": "string"}, "device_b": {"type": "string"}, "target": {"type": "string"},
+    "comparable": {"type": "boolean"},
+    "comparability_notes": {"type": "array", "items": {"type": "string"}},
+    "signature_a": {"type": "string"}, "signature_b": {"type": "string"},
+    "tilt_a_db": {"type": "number"}, "tilt_b_db": {"type": "number"}, "tilt_delta_db": {"type": "number"},
+    "band_deltas": {"type": "array", "items": {
+      "type": "object", "required": ["id", "hz", "a_quanta", "b_quanta", "quanta_delta", "dev_db_delta"],
+      "additionalProperties": false,
+      "properties": {"id": {"type": "string"}, "hz": {"type": "array", "items": {"type": "number"}},
+        "a_quanta": {"type": "integer"}, "b_quanta": {"type": "integer"},
+        "quanta_delta": {"type": "integer"}, "dev_db_delta": {"type": "number"}}}},
+    "summary": {"type": "object", "required": ["a_more_in", "b_more_in", "similar_in"], "additionalProperties": false,
+      "properties": {"a_more_in": {"type": "array", "items": {"type": "string"}},
+        "b_more_in": {"type": "array", "items": {"type": "string"}},
+        "similar_in": {"type": "array", "items": {"type": "string"}}}},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  }
+}

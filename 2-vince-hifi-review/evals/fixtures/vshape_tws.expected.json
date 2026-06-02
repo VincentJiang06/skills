@@ -5,7 +5,7 @@
   "rig": "iec711",
   "alignment": {
     "method": "anchor_center_mids",
-    "offset_db": -64.0
+    "offset_db": -64.1
   },
   "bands": [
     {
@@ -14,7 +14,7 @@
         20,
         60
       ],
-      "dev_db": 5.0,
+      "dev_db": 4.0,
       "quanta": 2,
       "label_zh": "偏多",
       "label_en": "elevated"
@@ -25,7 +25,7 @@
         60,
         200
       ],
-      "dev_db": 3.0,
+      "dev_db": 2.8,
       "quanta": 1,
       "label_zh": "略多",
       "label_en": "slightly elevated"
@@ -36,7 +36,7 @@
         200,
         500
       ],
-      "dev_db": -1.0,
+      "dev_db": -0.1,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -58,7 +58,7 @@
         1000,
         3000
       ],
-      "dev_db": -1.0,
+      "dev_db": -0.7,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -69,10 +69,10 @@
         3000,
         6000
       ],
-      "dev_db": 2.0,
-      "quanta": 1,
-      "label_zh": "略多",
-      "label_en": "slightly elevated"
+      "dev_db": 0.7,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
     },
     {
       "id": "mid_treble",
@@ -80,7 +80,7 @@
         6000,
         10000
       ],
-      "dev_db": 3.0,
+      "dev_db": 2.2,
       "quanta": 1,
       "label_zh": "略多",
       "label_en": "slightly elevated"
@@ -91,10 +91,10 @@
         10000,
         20000
       ],
-      "dev_db": 3.0,
-      "quanta": 1,
-      "label_zh": "略多",
-      "label_en": "slightly elevated"
+      "dev_db": 4.5,
+      "quanta": 2,
+      "label_zh": "偏多",
+      "label_en": "elevated"
     }
   ],
   "signature": {
@@ -102,6 +102,14 @@
     "label_en": "V-shape",
     "rule_fired": "bass>=1 & treble>=1 & mids<=0.5"
   },
+  "tilt": {
+    "tilt_db": -0.9,
+    "label_zh": "中性倾斜",
+    "label_en": "even",
+    "low_extension_db": 4.0,
+    "high_extension_db": 4.5
+  },
+  "features": [],
   "precision": "quantitative",
   "warnings": []
 }

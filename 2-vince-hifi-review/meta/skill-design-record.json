@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "skill_id": "skill.2-vince-hifi-review",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "trigger": {
     "must_activate_on": ["objective evaluation/comparison of IEM/headphone/TWS", "DAC/amp/DAP quality + drive-match", "supplying an FR link/CSV/screenshot to interpret"],
     "must_not_activate_on": ["buying/价格 recommendation", "EQ tuning", "speakers", "non-audio"],
@@ -12,9 +12,10 @@
   "resources": {
     "rules": ["retrieval-playbook", "data-cleaning", "tonal-mapping", "technicalities-from-reviews", "source-gear-eval", "accuracy-guardrails", "literary-rendering", "comparison-mode", "longform-review"],
     "references": ["source-registry", "band-taxonomy", "targets", "source-gear-thresholds", "signature-glossary", "research-bibliography"],
-    "scripts": ["fr_analyze", "source_analyze", "validate_output", "check_longform"],
+    "scripts": ["fr_analyze", "source_analyze", "validate_output", "check_longform", "compare"],
     "assets": ["longform-template"]
   },
+  "engine_depth": "fr_analyze emits per-band 量感 + a continuous tilt (warm<->bright + low/high extension) + a features[] peak/dip pass (sharp peaks/dips band-averaging hides, e.g. 8kHz sibilance, with perceptual hints). compare.py gives deterministic per-band + tilt deltas with a cross-rig comparability guard. targets.json band levels validated vs authoritative raw target curves.",
   "output_modes": ["compact bilingual summary", "long-form 评测长文 (~4000字, Chinese-primary, traceability appendix + backing evaluation.json)"],
   "source_orientation_model": "Per-source 2-3 sentence style_profile + lean_tags; NO fixed faction enum. Orientation judged dynamically at search time: measurement-backed claims high-trust regardless of source; impression-led subjective + bias-corrected; dissent recorded.",
   "control_boundaries": {

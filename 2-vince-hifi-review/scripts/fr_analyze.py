@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Transducer objective engine: FR (freq,dB) + target -> band deviations, 量感, 风格."""
-import argparse, json, os, sys
+import argparse, json, math, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REF = os.path.join(HERE, "..", "references")
@@ -86,23 +86,87 @@ def signature(bands):
     return L("混合", "mixed", "no dominant rule")
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("fr")
-    ap.add_argument("--target", required=True)
-    ap.add_argument("--rig", default="unknown")
-    ap.add_argument("--device", default="")
-    ap.add_argument("--category", default="iem")
-    args = ap.parse_args()
+def feature_hint(hz, t):
+    """Perceptual hint for a sharp peak/dip by center frequency."""
+    if t == "peak":
+        if hz < 250:
+            return "中低频隆起 / boom"
+        if hz < 1000:
+            return "中频厚凸 / honky"
+        if hz < 3000:
+            return "中频突出 / forward"
+        if hz < 5000:
+            return "咬字突出 / presence-bite"
+        if hz < 9000:
+            return "齿音风险 / sibilance"
+        if hz < 12000:
+            return "刺耳 / treble-glare"
+        return "高频毛刺 / sharp-air"
+    if hz < 1000:
+        return "中下盘凹陷 / scooped-lower"
+    if hz < 3000:
+        return "人声凹陷 / recessed-vocal"
+    if hz < 6000:
+        return "齿音抑制 / de-essed"
+    return "高频凹陷 / dark-dip"
 
+
+def detect_features(pts, prom):
+    """Sharp peaks/dips that band-averaging hides: local extrema of the residual
+    against a log-frequency smoothed baseline, exceeding +/- prominence (dB).
+    Returns up to 5, strongest first."""
+    n = len(pts)
+    if n < 8:
+        return []
+    logf = [math.log10(h) for h, _ in pts]
+    db = [d for _, d in pts]
+    base = []
+    for i in range(n):
+        lo, hi = logf[i] - 0.2, logf[i] + 0.2   # ~2/3-octave window each side
+        win = [db[j] for j in range(n) if lo <= logf[j] <= hi]
+        base.append(sum(win) / len(win))
+    resid = [db[i] - base[i] for i in range(n)]
+    feats = []
+    for i in range(1, n - 1):
+        if resid[i] > prom and resid[i] >= resid[i - 1] and resid[i] >= resid[i + 1]:
+            feats.append((pts[i][0], resid[i], "peak"))
+        elif resid[i] < -prom and resid[i] <= resid[i - 1] and resid[i] <= resid[i + 1]:
+            feats.append((pts[i][0], resid[i], "dip"))
+    feats.sort(key=lambda f: -abs(f[1]))
+    return [{"hz": round(hz, 1), "residual_db": round(r, 1), "type": t, "hint": feature_hint(hz, t)}
+            for hz, r, t in feats[:5]]
+
+
+def spectral_tilt(bands):
+    """Continuous bass<->treble balance (a nuance complement to the discrete 风格
+    label), plus low/high extension. Uses dev_db for precision."""
+    dev = {b["id"]: b["dev_db"] for b in bands}
+
+    def g(k):
+        return dev.get(k, 0.0)
+
+    bass = (g("sub_bass") + g("mid_bass")) / 2.0
+    treb = (g("lower_treble") + g("mid_treble") + g("air")) / 3.0
+    tilt = round(treb - bass, 1)
+    if tilt <= -2:
+        zh, en = "暖向", "warm-tilted"
+    elif tilt >= 2:
+        zh, en = "亮向", "bright-tilted"
+    else:
+        zh, en = "中性倾斜", "even"
+    return {"tilt_db": tilt, "label_zh": zh, "label_en": en,
+            "low_extension_db": round(g("sub_bass"), 1), "high_extension_db": round(g("air"), 1)}
+
+
+def analyze(fr, target, rig="unknown", device="", category="iem"):
     taxo, targets = load_json("band-taxonomy.json"), load_json("targets.json")
-    if args.target not in targets["targets"]:
-        sys.exit("ERR_TARGET_UNKNOWN: %s" % args.target)
-    tgt = targets["targets"][args.target]
+    if target not in targets["targets"]:
+        sys.exit("ERR_TARGET_UNKNOWN: %s" % target)
+    tgt = targets["targets"][target]
     thr = targets["quanta_thresholds_db"]
     anchor = targets["anchor_band"]
 
-    pts = parse_fr(args.fr)
+    pts = parse_fr(fr)
     raw = {b["id"]: band_avg(pts, b["hz"][0], b["hz"][1]) for b in taxo["bands"]}
     if raw.get(anchor) is None:
         sys.exit("ERR_NO_ANCHOR: no data in %s" % anchor)
@@ -119,9 +183,23 @@ def main():
         lab = qlabel(taxo, q)
         bands.append({"id": bid, "hz": b["hz"], "dev_db": round(dev, 1), "quanta": q,
                       "label_zh": lab["zh"], "label_en": lab["en"]})
-    out = {"device": args.device, "category": args.category, "target": args.target,
-           "rig": args.rig, "alignment": {"method": "anchor_%s" % anchor, "offset_db": round(offset, 1)},
-           "bands": bands, "signature": signature(bands), "precision": "quantitative", "warnings": warnings}
+    prom = targets.get("peak_detection", {}).get("min_prominence_db", 3.0)
+    return {"device": device, "category": category, "target": target,
+            "rig": rig, "alignment": {"method": "anchor_%s" % anchor, "offset_db": round(offset, 1)},
+            "bands": bands, "signature": signature(bands), "tilt": spectral_tilt(bands),
+            "features": detect_features(pts, prom),
+            "precision": "quantitative", "warnings": warnings}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("fr")
+    ap.add_argument("--target", required=True)
+    ap.add_argument("--rig", default="unknown")
+    ap.add_argument("--device", default="")
+    ap.add_argument("--category", default="iem")
+    args = ap.parse_args()
+    out = analyze(args.fr, args.target, args.rig, args.device, args.category)
     print(json.dumps(out, ensure_ascii=False, indent=2))
 
 

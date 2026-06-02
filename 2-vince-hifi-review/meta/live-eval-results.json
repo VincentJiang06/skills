@@ -37,6 +37,11 @@
       "action": "hardened rules/technicalities-from-reviews.md + rules/longform-review.md with a 'no provenance inflation' guardrail; canonical fixture verified clean"
     }
   },
-  "deterministic_regression": "evals/run_all.py GREEN (L0 schema + L1 golden both engines + determinism + output gate + long-form 评测长文 + token budget)",
-  "limitations": "targets.json band_levels_db are seed approximations (see research-bibliography.md); agent-level pass@k / cost-per-success at scale and a full with/without-skill paired lift remain future work."
+  "depth_v0_3": {
+    "method": "fed a band-neutral peaky_iem analysis (signature 均衡, tilt even) that hides an 8127Hz +4.9dB sibilance feature to a subagent writing the 风格/三频 section",
+    "result": "the subagent surfaced the 8kHz 齿音 peak as the headline character and explicitly noted that stopping at '中性顺滑' would miss the device's real character — confirms the peak/dip + tilt depth reaches the written result, not just the engine JSON",
+    "engine_upgrades": "fr_analyze features[] (peak/dip + perceptual hint) + continuous tilt; compare.py deterministic deltas; targets.json validated vs authoritative raw curves (treble bands corrected ~+7dB)"
+  },
+  "deterministic_regression": "evals/run_all.py GREEN (L0 schema + L1 golden both engines incl. peaky + determinism + output gate + long-form + compare engine + token budget)",
+  "limitations": "diffuse_field target peak height is a range (med conf); agent-level pass@k / cost-per-success at scale and a full with/without-skill paired lift remain future work."
 }
