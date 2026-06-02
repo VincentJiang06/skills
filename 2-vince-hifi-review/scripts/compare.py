@@ -10,7 +10,7 @@ import argparse, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from fr_analyze import analyze  # noqa: E402
+from fr_analyze import analyze, load_json  # noqa: E402
 
 IN_EAR = {"iem", "tws"}
 
@@ -37,13 +37,19 @@ def main():
 
     A = analyze(args.fr_a, args.target, args.ra, args.da, args.ca)
     B = analyze(args.fr_b, args.target, args.rb, args.db, args.cb)
+    tgt_rig = load_json("targets.json")["targets"].get(args.target, {}).get("rig", "")
 
     comparable, notes = True, []
     if (args.ca in IN_EAR) != (args.cb in IN_EAR):
         comparable = False
-        notes.append("cross-rig: IEM/TWS (711) vs headphone (GRAS) not directly comparable")
+        notes.append("cross-type: IEM/TWS vs headphone not directly comparable")
     if args.ra != args.rb:
-        notes.append("different measurer/rig (%s vs %s): cross-measurer variance applies" % (args.ra, args.rb))
+        comparable = False
+        notes.append("devices on different rigs (%s vs %s) - not directly comparable" % (args.ra, args.rb))
+    if tgt_rig:
+        for nm, r in (("A", args.ra), ("B", args.rb)):
+            if r != "unknown" and r != tgt_rig:
+                notes.append("%s rig (%s) != target rig (%s) - rig/target mismatch" % (nm, r, tgt_rig))
 
     band_deltas, a_more, b_more, similar = [], [], [], []
     for ba in A["bands"]:

@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "1.0.0",
   "judging_note": "style_profile is a PRIOR, not a verdict. At search time, judge each source's actual content: measurement-backed claims are high-trust regardless of source; impression-led claims are subjective and bias-corrected per the noted lean. Record dissent; never force a source into a fixed bucket.",
   "sources": [
     {"id": "asr", "name": "Audio Science Review (Amir)",

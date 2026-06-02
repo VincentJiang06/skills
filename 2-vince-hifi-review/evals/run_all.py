@@ -41,6 +41,9 @@ def l0():
     inf_s = json.load(open(os.path.join(SCH, "infer-analysis.schema.json")))
     ig = os.path.join(FIX, "infer_jm1_5128.expected.json")
     errs += [f"infer: {e}" for e in validate(json.load(open(ig)), inf_s)]
+    src_s = json.load(open(os.path.join(SCH, "source-analysis.schema.json")))
+    for g in ("transparent_dac.expected.json", "weak_amp_300ohm.expected.json"):
+        errs += [f"{g}: {e}" for e in validate(json.load(open(os.path.join(FIX, g))), src_s)]
     return errs
 
 
@@ -70,9 +73,11 @@ def l1():
 
 
 def gate():
-    rc_good, _, _ = run(os.path.join(ROOT, "scripts", "validate_output.py"), os.path.join(FIX, "eval_good.json"))
-    rc_bad, _, _ = run(os.path.join(ROOT, "scripts", "validate_output.py"), os.path.join(FIX, "eval_bad_untraced.json"))
-    return rc_good == 0 and rc_bad == 1
+    vo = os.path.join(ROOT, "scripts", "validate_output.py")
+    rc_good, _, _ = run(vo, os.path.join(FIX, "eval_good.json"))
+    rc_bad, _, _ = run(vo, os.path.join(FIX, "eval_bad_untraced.json"))
+    rc_inaud, _, _ = run(vo, os.path.join(FIX, "eval_inaudible_ok.json"))  # "inaudible" must NOT fail
+    return rc_good == 0 and rc_bad == 1 and rc_inaud == 0
 
 
 def longform():
@@ -146,10 +151,12 @@ def main():
     print("== SKILL.md tokens ==")
     if os.path.exists(os.path.join(ROOT, "SKILL.md")):
         t = entry_tokens()
-        # Budget 1000: bilingual (中/EN) trigger surface + two device-class
-        # protocol. Everything heavy is on-demand in rules/references.
-        print(f"  {t} (budget 1000)")
-        ok &= t < 1000
+        # Budget 1100 (v1.0): bilingual trigger surface + 8-step two-class protocol
+        # + module/script tables covering 9 rules and 6 deterministic engines. All
+        # heavy detail stays on-demand in rules/references (entry:on-demand ~1:10+).
+        # This homegrown heuristic is ~half a standard tokenizer estimate.
+        print(f"  {t} (budget 1100)")
+        ok &= t < 1100
     else:
         print("  (SKILL.md not present yet)")
         ok = False

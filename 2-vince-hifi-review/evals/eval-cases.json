@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "1.0.0",
   "cases": [
     {"id": "happy.transducer.warm_iem", "type": "happy", "device_class": "transducer", "must_activate": true, "note": "raw FR -> warm 量感 vector"},
     {"id": "happy.transducer.compare", "type": "happy", "device_class": "transducer", "must_activate": true, "note": "two devices -> aligned delta table"},

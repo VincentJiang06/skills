@@ -173,6 +173,8 @@ def analyze(fr, target, rig="unknown", device="", category="iem"):
     offset = tgt["band_levels_db"][anchor] - raw[anchor]
 
     bands, warnings = [], []
+    if rig != "unknown" and tgt.get("rig") and rig != tgt["rig"]:
+        warnings.append("rig_target_mismatch:%s_vs_%s (711 and 5128 are not interchangeable)" % (rig, tgt["rig"]))
     for b in taxo["bands"]:
         bid = b["id"]
         if raw[bid] is None:

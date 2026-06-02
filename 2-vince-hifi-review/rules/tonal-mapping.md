@@ -61,6 +61,6 @@ Targets in `references/targets.json` are **rig-specific** (`rig`: iec711 / gras_
 the 711's 10–14 kHz dip). Defaults by rig + category: 711 IEM → `harman_ie_2019` or
 `ief_neutral`; GRAS headphone → `harman_oe_2018` (or `harman_oe_2013`); **5128 IEM →
 `jm1` / `bk5128_df`**. For **Vince's IEM reviews, ALSO report against `vince_iem_ref`**
-(his personal 5128 reference: JM-1 −0.6 dB/oct +4 dB bass). When the rig/intended
+(his personal 5128 reference: JM-1 −1 dB/oct + 4 dB bass — warm, down-tilted). When the rig/intended
 target is unclear, run `python3 scripts/infer_target.py <fr> --rig <rig>` — it ranks
 same-rig targets by RMS fit and guesses which one the device was tuned toward.
