@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["version", "sources"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string"},
+    "judging_note": {"type": "string"},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "style_profile", "covers", "tier", "lang", "search_hints", "publishes_raw"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "style_profile": {"type": "string"},
+          "lean_tags": {"type": "array", "items": {"type": "string"}},
+          "covers": {"type": "array", "items": {"enum": ["iem", "headphone", "tws", "dac", "amp", "dap"]}},
+          "publishes_raw": {"type": "boolean"},
+          "rig": {"type": "string"},
+          "tier": {"type": "integer", "minimum": 1, "maximum": 4},
+          "platforms": {"type": "array", "items": {"type": "string"}},
+          "search_hints": {"type": "array", "items": {"type": "string"}},
+          "lang": {"enum": ["en", "zh", "bi"]},
+          "verify_status": {"enum": ["seeded", "web_verified"]}
+        }
+      }
+    }
+  }
+}

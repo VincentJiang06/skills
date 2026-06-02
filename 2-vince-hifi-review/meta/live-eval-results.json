@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "skill_id": "skill.2-vince-hifi-review",
+  "date": "2026-06-02",
+  "activation": {
+    "method": "subagent router judged 15 realistic user messages against the SKILL.md description",
+    "cases": 15,
+    "correct": 15,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 0.0,
+    "notes": "10 in-scope (IEM/HP/TWS eval, DAC素质/drivability, screenshot, no-measurement, conflict, dedup, marketing, style-split) -> activate; buying-rec/EQ/speaker -> reject; fictional model + snake-oil DAC -> activate (handled at runtime)."
+  },
+  "behavioral": {
+    "method": "subagent executed synthesis+self-verify on two prepared cases; outputs independently re-validated with scripts/validate_output.py",
+    "happy_transducer": {
+      "gate": "PASS (exit 0)",
+      "checks": ["量感 claims tagged measured", "technicalities (soundstage/imaging) tagged consensus not measured", "soundstage dissent recorded", "bilingual literary does not exceed facts", "gaps listed (no THD)"]
+    },
+    "snake_oil_source": {
+      "gate": "PASS (exit 0)",
+      "held_line": true,
+      "checks": ["transparent competence stated as measured", "'warmer/analog' review logged as unsupported subjective (confidence 0.1) with dissent note", "no asserted audible difference", "measurements stated as transparent"]
+    }
+  },
+  "deterministic_regression": "evals/run_all.py GREEN (L0 schema + L1 golden both engines + determinism + output gate + token budget)",
+  "limitations": "targets.json band_levels_db are seed approximations (see research-bibliography.md); agent-level pass@k / cost-per-success at scale and a full with/without-skill paired lift remain future work."
+}

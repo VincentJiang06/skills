@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "skill_id": "skill.2-vince-hifi-review",
+  "version": "0.1.0",
+  "trigger": {
+    "must_activate_on": ["objective evaluation/comparison of IEM/headphone/TWS", "DAC/amp/DAP quality + drive-match", "supplying an FR link/CSV/screenshot to interpret"],
+    "must_not_activate_on": ["buying/价格 recommendation", "EQ tuning", "speakers", "non-audio"],
+    "device_classes": ["transducer", "source"],
+    "risk_level": "low (read-only); primary risk is accuracy"
+  },
+  "execution_protocol_steps": ["scope_classify", "identify", "gather_live", "clean_normalize", "measure_quantize", "corroborate", "synthesize", "self_verify"],
+  "resources": {
+    "rules": ["retrieval-playbook", "data-cleaning", "tonal-mapping", "technicalities-from-reviews", "source-gear-eval", "accuracy-guardrails", "literary-rendering", "comparison-mode"],
+    "references": ["source-registry", "band-taxonomy", "targets", "source-gear-thresholds", "signature-glossary", "research-bibliography"],
+    "scripts": ["fr_analyze", "source_analyze", "validate_output"]
+  },
+  "source_orientation_model": "Per-source 2-3 sentence style_profile + lean_tags; NO fixed faction enum. Orientation judged dynamically at search time: measurement-backed claims high-trust regardless of source; impression-led subjective + bias-corrected; dissent recorded.",
+  "control_boundaries": {
+    "allowed_tools": ["Read", "Write(report only)", "Bash(engines/validator)", "network(retrieval)"],
+    "forbidden": ["fabricating measured values/curves", "unsupported audible-difference claims", "unflagged cross-rig comparison", "wholesale copyright reproduction"],
+    "evidence_rule": "every claim links >=1 source_id + provenance tag; dissent recorded"
+  },
+  "test_assets": {"eval_cases": "evals/eval-cases.json", "fixtures": "evals/fixtures/", "runner": "evals/run_all.py"},
+  "metric_plan_id": "meta/metric-plan.json",
+  "reference_ids": ["develop-principle:industrial_skill_design", "develop-principle:skill_testing_process", "develop-principle:quantitative_skill_metrics", "develop-principle:skill_lifecycle_governance"]
+}

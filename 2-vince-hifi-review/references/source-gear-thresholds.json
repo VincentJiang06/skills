@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "competence_tiers_by_sinad_db": [
+    {"tier": "transparent",  "min_sinad": 100},
+    {"tier": "very_good",    "min_sinad": 90},
+    {"tier": "adequate",     "min_sinad": 80},
+    {"tier": "compromised",  "min_sinad": 0}
+  ],
+  "audible_transparency_note": "Most listeners cannot ABX distinguish sources above ~SINAD 90 / THD+N ~0.003% at matched level. Differences above this are engineering/feature, not sound.",
+  "output_impedance_rule": {"damping_factor_min": 8, "explanation": "zout must be <= load/8 for <~1 dB FR deviation; multi-BA IEMs are most sensitive."},
+  "drive_target_spl_db": 110,
+  "hiss_risk_rule": {"high_if_target_sens_db_mw_gte": 118, "and_snr_db_lt": 110}
+}

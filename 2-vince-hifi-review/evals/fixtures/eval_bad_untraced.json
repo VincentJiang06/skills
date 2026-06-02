@@ -1,0 +1,9 @@
+{
+  "device": "Bad Example", "device_class": "transducer", "language": "en",
+  "evidence": [{"source_id": "asr", "source_lean": "measurement-absolutist", "tier": 1, "freshness": "2026-01"}],
+  "claims": [
+    {"text": "Best soundstage ever.", "provenance": "measured", "source_ids": [], "confidence": 0.5, "attribute": "soundstage"}
+  ],
+  "gaps": [],
+  "trace": {"skill_version": "0.1.0", "loaded_source_ids": ["asr"], "environment_stability": "unstable"}
+}
