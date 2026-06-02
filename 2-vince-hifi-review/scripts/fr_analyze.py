@@ -158,23 +158,15 @@ def spectral_tilt(bands):
             "low_extension_db": round(g("sub_bass"), 1), "high_extension_db": round(g("air"), 1)}
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("fr")
-    ap.add_argument("--target", required=True)
-    ap.add_argument("--rig", default="unknown")
-    ap.add_argument("--device", default="")
-    ap.add_argument("--category", default="iem")
-    args = ap.parse_args()
-
+def analyze(fr, target, rig="unknown", device="", category="iem"):
     taxo, targets = load_json("band-taxonomy.json"), load_json("targets.json")
-    if args.target not in targets["targets"]:
-        sys.exit("ERR_TARGET_UNKNOWN: %s" % args.target)
-    tgt = targets["targets"][args.target]
+    if target not in targets["targets"]:
+        sys.exit("ERR_TARGET_UNKNOWN: %s" % target)
+    tgt = targets["targets"][target]
     thr = targets["quanta_thresholds_db"]
     anchor = targets["anchor_band"]
 
-    pts = parse_fr(args.fr)
+    pts = parse_fr(fr)
     raw = {b["id"]: band_avg(pts, b["hz"][0], b["hz"][1]) for b in taxo["bands"]}
     if raw.get(anchor) is None:
         sys.exit("ERR_NO_ANCHOR: no data in %s" % anchor)
@@ -192,11 +184,22 @@ def main():
         bands.append({"id": bid, "hz": b["hz"], "dev_db": round(dev, 1), "quanta": q,
                       "label_zh": lab["zh"], "label_en": lab["en"]})
     prom = targets.get("peak_detection", {}).get("min_prominence_db", 3.0)
-    out = {"device": args.device, "category": args.category, "target": args.target,
-           "rig": args.rig, "alignment": {"method": "anchor_%s" % anchor, "offset_db": round(offset, 1)},
-           "bands": bands, "signature": signature(bands), "tilt": spectral_tilt(bands),
-           "features": detect_features(pts, prom),
-           "precision": "quantitative", "warnings": warnings}
+    return {"device": device, "category": category, "target": target,
+            "rig": rig, "alignment": {"method": "anchor_%s" % anchor, "offset_db": round(offset, 1)},
+            "bands": bands, "signature": signature(bands), "tilt": spectral_tilt(bands),
+            "features": detect_features(pts, prom),
+            "precision": "quantitative", "warnings": warnings}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("fr")
+    ap.add_argument("--target", required=True)
+    ap.add_argument("--rig", default="unknown")
+    ap.add_argument("--device", default="")
+    ap.add_argument("--category", default="iem")
+    args = ap.parse_args()
+    out = analyze(args.fr, args.target, args.rig, args.device, args.category)
     print(json.dumps(out, ensure_ascii=False, indent=2))
 
 

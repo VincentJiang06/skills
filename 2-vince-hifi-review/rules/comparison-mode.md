@@ -10,7 +10,12 @@ Comparison reuses the single-device engines, then adds an alignment + delta laye
   with identical `--target` / thresholds.
 
 ## Per-band delta (transducer)
-Emit a table: for each band, `A.quanta − B.quanta` and the dB deltas. Summarize:
+Run the deterministic engine: `python3 scripts/compare.py <a.csv> <b.csv> --target
+<id> [--category-a --category-b --rig-a --rig-b]`. It emits per-band
+`quanta_delta` / `dev_db_delta`, `tilt_a_db`/`tilt_b_db`/`tilt_delta_db`, a
+`summary` of `a_more_in` / `b_more_in` / `similar_in`, and a `comparable` flag with
+`comparability_notes`. **Narrate from that output — don't eyeball two curves.**
+Then, per the table: for each band, `A.quanta − B.quanta` and the dB deltas. Summarize:
 which bands A has more/less than B, and the resulting 风格 contrast (e.g. "A is
 warmer, B is more neutral-bright"). Tie technicalities to consensus deltas with N/M.
 

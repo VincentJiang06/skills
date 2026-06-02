@@ -32,9 +32,12 @@ def l0():
         errs += [f"{inst}: {e}" for e in validate_file(os.path.join(ROOT, inst), os.path.join(ROOT, sch))]
     fr_s = json.load(open(os.path.join(SCH, "fr-analysis.schema.json")))
     for g in glob.glob(os.path.join(FIX, "*_*.expected.json")):
-        if any(x in g for x in ("dac", "amp", "eval_")):
+        if any(x in g for x in ("dac", "amp", "eval_", "compare")):
             continue
         errs += [f"{os.path.basename(g)}: {e}" for e in validate(json.load(open(g)), fr_s)]
+    cmp_s = json.load(open(os.path.join(SCH, "compare-analysis.schema.json")))
+    cg = os.path.join(FIX, "compare_warm_vs_vshape.expected.json")
+    errs += [f"compare: {e}" for e in validate(json.load(open(cg)), cmp_s)]
     return errs
 
 
@@ -42,7 +45,7 @@ def l1():
     res = []
     for g in sorted(glob.glob(os.path.join(FIX, "*.expected.json"))):
         base = os.path.basename(g)
-        if base in ("eval_good.json", "eval_bad_untraced.json"):
+        if base in ("eval_good.json", "eval_bad_untraced.json") or base.startswith("compare"):
             continue
         if base.endswith("_dac.expected.json") or base.endswith("amp_300ohm.expected.json"):
             inp = json.load(open(g[:-len(".expected.json")] + ".json"))
@@ -76,6 +79,17 @@ def longform():
     return rc == 0
 
 
+def compare_layer():
+    rc, out, _ = run(os.path.join(ROOT, "scripts", "compare.py"),
+                     os.path.join(FIX, "warm_iem.csv"), os.path.join(FIX, "vshape_tws.csv"),
+                     "--target", "harman_ie_2019", "--device-a", "WarmIEM", "--device-b", "VShapeTWS",
+                     "--rig-a", "iec711", "--rig-b", "iec711", "--category-a", "iem", "--category-b", "tws")
+    if rc != 0:
+        return False
+    golden = json.load(open(os.path.join(FIX, "compare_warm_vs_vshape.expected.json")))
+    return json.loads(out) == golden
+
+
 def entry_tokens():
     txt = open(os.path.join(ROOT, "SKILL.md"), encoding="utf-8").read()
     return round((len(txt) / 4 + len(txt.split()) * 1.3) / 2)
@@ -105,6 +119,11 @@ def main():
     lf = longform()
     print("  PASS" if lf else "  FAIL")
     ok &= lf
+
+    print("== compare engine ==")
+    cmp_ok = compare_layer()
+    print("  PASS" if cmp_ok else "  FAIL")
+    ok &= cmp_ok
 
     print("== SKILL.md tokens ==")
     if os.path.exists(os.path.join(ROOT, "SKILL.md")):
