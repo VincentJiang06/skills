@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["version", "anchor_band", "quanta_thresholds_db", "targets"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string"},
+    "anchor_band": {"type": "string"},
+    "quanta_thresholds_db": {"type": "object",
+      "required": ["neutral", "slight", "notable"], "additionalProperties": false,
+      "properties": {"neutral": {"type": "number"}, "slight": {"type": "number"}, "notable": {"type": "number"}}},
+    "peak_detection": {"type": "object"},
+    "targets": {"type": "object"}
+  }
+}

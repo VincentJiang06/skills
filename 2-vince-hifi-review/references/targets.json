@@ -1,0 +1,20 @@
+{
+  "version": "0.1.0",
+  "anchor_band": "center_mids",
+  "quanta_thresholds_db": {"neutral": 1.5, "slight": 4.0, "notable": 7.0},
+  "peak_detection": {"min_prominence_db": 3.0},
+  "targets": {
+    "harman_ie_2019": {"label": "Harman In-Ear 2019", "applies_to": ["iem", "tws"],
+      "band_levels_db": {"sub_bass": 6.0, "mid_bass": 4.0, "lower_mids": 0.5, "center_mids": 0.0,
+        "upper_mids": 3.0, "lower_treble": 1.0, "mid_treble": -2.0, "air": -4.0}},
+    "harman_oe_2018": {"label": "Harman Over-Ear 2018", "applies_to": ["headphone"],
+      "band_levels_db": {"sub_bass": 4.0, "mid_bass": 3.0, "lower_mids": 0.5, "center_mids": 0.0,
+        "upper_mids": 3.0, "lower_treble": 0.0, "mid_treble": -3.0, "air": -5.0}},
+    "ief_neutral": {"label": "Crinacle IEF Neutral", "applies_to": ["iem", "tws"],
+      "band_levels_db": {"sub_bass": 4.0, "mid_bass": 2.0, "lower_mids": 0.0, "center_mids": 0.0,
+        "upper_mids": 2.0, "lower_treble": 0.5, "mid_treble": -2.0, "air": -3.0}},
+    "diffuse_field": {"label": "Diffuse Field", "applies_to": ["iem", "headphone"],
+      "band_levels_db": {"sub_bass": 0.0, "mid_bass": 0.0, "lower_mids": 0.0, "center_mids": 0.0,
+        "upper_mids": 3.0, "lower_treble": 1.0, "mid_treble": 0.0, "air": -2.0}}
+  }
+}
