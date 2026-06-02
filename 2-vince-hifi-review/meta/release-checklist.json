@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "skill_id": "skill.2-vince-hifi-review",
+  "version": "0.1.0",
+  "gates": [
+    {"id": "structure", "desc": "trigger/protocol/resources/controls/tests/metrics/lifecycle present", "status": "pending"},
+    {"id": "activation", "desc": "activation_precision>=0.9 on routing cases", "status": "pending"},
+    {"id": "behavior", "desc": "end-to-end + trajectory + output-contract pass", "status": "pending"},
+    {"id": "cost", "desc": "loaded_context recorded; SKILL.md<1000 tokens", "status": "pending"},
+    {"id": "control", "desc": "policy_violation_rate==0 (no fabrication, no unflagged cross-rig)", "status": "pending"},
+    {"id": "regression", "desc": "run_all.py GREEN", "status": "pending"},
+    {"id": "paired", "desc": "marginal_lift>0 vs no-skill (accuracy + traceability)", "status": "pending"},
+    {"id": "version", "desc": "semver + CHANGELOG", "status": "pending"},
+    {"id": "rollback", "desc": "known-good version + steps", "status": "pending"},
+    {"id": "observability", "desc": "trace has skill_version + loaded_source_ids + environment_stability", "status": "pending"}
+  ]
+}
