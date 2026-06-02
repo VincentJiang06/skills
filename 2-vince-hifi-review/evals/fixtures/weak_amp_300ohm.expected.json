@@ -1,0 +1,23 @@
+{
+  "device": "fixture:weak_amp",
+  "class": "amp",
+  "measured": {
+    "sinad_db": 95.0,
+    "thdn_pct": 0.002,
+    "snr_db": 105.0,
+    "zout_ohm": 10.0
+  },
+  "competence_tier": "very_good",
+  "system_matching": {
+    "target_z_ohm": 300.0,
+    "damping_factor": 30.0,
+    "damping_ok": true,
+    "max_spl_db": 106.5,
+    "drives_adequately": false,
+    "hiss_risk": "low",
+    "target_sens_db_mw": 97.0
+  },
+  "warnings": [
+    "insufficient_power_for_300_ohm"
+  ]
+}

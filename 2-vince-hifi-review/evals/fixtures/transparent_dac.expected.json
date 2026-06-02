@@ -1,0 +1,21 @@
+{
+  "device": "fixture:transparent_dac",
+  "class": "dac",
+  "measured": {
+    "sinad_db": 118.0,
+    "thdn_pct": 0.00016,
+    "snr_db": 122.0,
+    "zout_ohm": 0.4
+  },
+  "competence_tier": "transparent",
+  "system_matching": {
+    "target_z_ohm": 32.0,
+    "damping_factor": 80.0,
+    "damping_ok": true,
+    "max_spl_db": 131.0,
+    "drives_adequately": true,
+    "hiss_risk": "low",
+    "target_sens_db_mw": 104.0
+  },
+  "warnings": []
+}
