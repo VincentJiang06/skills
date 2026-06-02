@@ -1,0 +1,8 @@
+interface:
+  display_name: "Low-Visibility UI Fix"
+  short_description: "Audit & fix field UIs for low-visibility conditions"
+  brand_color: "#FFD400"
+  default_prompt: "Use $low-visibility-ui-fix to audit and fix this UI for outdoor sunlight + gloved field use."
+
+policy:
+  allow_implicit_invocation: true
