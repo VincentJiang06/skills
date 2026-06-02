@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build `2-vince-hifi-review`, a Claude Code skill that produces objective, source-traceable evaluations of HiFi gear — transducers (IEM/headphone/TWS) via 量感+风格 from FR-vs-target, and source gear (DAC/amp/DAP) via measured competence + system matching — with a mandatory data-cleaning stage, a faction-tagged media roster, and bilingual output.
+**Goal:** Build `2-vince-hifi-review`, a Claude Code skill that produces objective, source-traceable evaluations of HiFi gear — transducers (IEM/headphone/TWS) via 量感+风格 from FR-vs-target, and source gear (DAC/amp/DAP) via measured competence + system matching — with a mandatory data-cleaning stage, a style-profiled media roster (no rigid faction buckets), and bilingual output.
 
 **Architecture:** Two deterministic Python engines (`fr_analyze.py`, `source_analyze.py`) sit behind one agent-driven backbone (retrieve → clean → measure → corroborate → synthesize → self-verify). Reference JSON files are single sources of truth; a shared `validate_output.py` enforces the traceability contract. Tests follow the develop-principle L0–L5 pyramid against cached offline fixtures. Mirrors the sibling skill `vince-low-visibility-fix` (stdlib-only Python, golden fixtures, `run_all.py`).
 
@@ -18,7 +18,7 @@
 
 - **Band ids** (8, fixed order): `sub_bass, mid_bass, lower_mids, center_mids, upper_mids, lower_treble, mid_treble, air`.
 - **Quanta scale**: integers `-3..+3` (0 = neutral). Mapping from |deviation_dB|: `≤1.5→0`, `≤4.0→±1`, `≤7.0→±2`, `>7.0→±3`.
-- **Faction enum**: `kefi` (科fi, measurement-led), `mixed`, `hufi` (听感-led).
+- **Source orientation**: NOT a fixed enum — each roster source has a 2–3 sentence `style_profile` + optional `lean_tags`; orientation is judged dynamically at search time (measurement-backed → high trust regardless of source; impression-led → subjective + bias-corrected).
 - **Provenance tag enum**: `measured | consensus | prior`.
 - **device_class enum**: `transducer | source`.
 - **Python**: stdlib only; every script prints JSON with `ensure_ascii=False`; deterministic (no clocks/RNG in core output).
@@ -75,18 +75,18 @@ git commit -m "chore(2-vince-hifi-review): scaffold package directories"
   "additionalProperties": false,
   "properties": {
     "version": {"type": "string"},
-    "faction_definitions": {"type": "object"},
+    "judging_note": {"type": "string"},
     "sources": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "faction", "covers", "tier", "lang", "search_hints", "publishes_raw"],
+        "required": ["id", "name", "style_profile", "covers", "tier", "lang", "search_hints", "publishes_raw"],
         "additionalProperties": false,
         "properties": {
           "id": {"type": "string"},
           "name": {"type": "string"},
-          "faction": {"enum": ["kefi", "mixed", "hufi"]},
-          "bias_profile": {"type": "array", "items": {"type": "string"}},
+          "style_profile": {"type": "string"},
+          "lean_tags": {"type": "array", "items": {"type": "string"}},
           "covers": {"type": "array", "items": {"enum": ["iem", "headphone", "tws", "dac", "amp", "dap"]}},
           "publishes_raw": {"type": "boolean"},
           "rig": {"type": "string"},
@@ -102,72 +102,80 @@ git commit -m "chore(2-vince-hifi-review): scaffold package directories"
 }
 ```
 
-- [ ] **Step 2: Write the seed roster (best-knowledge tags, `verify_status:"seeded"`)**
+- [ ] **Step 2: Write the seed roster (each source gets a 2–3 sentence `style_profile`, `verify_status:"seeded"`)**
 
-`references/source-registry.json` — seed with these real entries (exact `faction` is confirmed in Task 2 via web research; start seeded):
+`references/source-registry.json` — seed with these real entries. The `style_profile` is the calibration prior; the skill refines orientation dynamically at search time (Task 2 / runtime). NO faction enum.
 ```json
 {
   "version": "0.1.0",
-  "faction_definitions": {
-    "kefi": "科fi — objectivist/measurement-led. Publishes or centers measurements (FR, SINAD, THD). Objective claims weighted high.",
-    "mixed": "Measurement + trained subjective listening, methodology disclosed.",
-    "hufi": "听感-led/subjectivist. Impression-driven, little/no measurement. Read as subjective; bias-correct a warm-preference lean. NOT pejorative — a methodology axis."
-  },
+  "judging_note": "style_profile is a PRIOR, not a verdict. At search time, judge each source's actual content: measurement-backed claims are high-trust regardless of source; impression-led claims are subjective and bias-corrected per the noted lean. Record dissent; never force a source into a fixed bucket.",
   "sources": [
-    {"id": "asr", "name": "Audio Science Review (Amir)", "faction": "kefi",
-     "bias_profile": ["measurement-absolutist", "source-gear-focused"],
+    {"id": "asr", "name": "Audio Science Review (Amir)",
+     "style_profile": "Measurement-absolutist: every verdict anchors to Audio Precision bench data (SINAD, THD+N, output impedance) and treats audibility thresholds as the arbiter. Strongest on source gear (DAC/amp); routinely debunks marketing and is skeptical of subjective tone claims. Trust its objective numbers highly; note it can under-weight genuine transducer preference, fit and usability.",
+     "lean_tags": ["measurement-led", "objectivist", "source-gear-strong", "subjectivity-skeptic"],
      "covers": ["dac", "amp", "dap", "headphone"], "publishes_raw": true,
      "rig": "AP APx555 / GRAS 43AG", "tier": 1, "platforms": ["audiosciencereview.com"],
      "search_hints": ["site:audiosciencereview.com \"<model>\" review measurements"],
      "lang": "en", "verify_status": "seeded"},
-    {"id": "oratory1990", "name": "oratory1990", "faction": "kefi",
-     "bias_profile": ["measurement-led", "harman-aligned", "eq-provider"],
+    {"id": "oratory1990", "name": "oratory1990",
+     "style_profile": "Rigorous transducer measurer on an industry-standard GRAS rig; publishes raw data and parametric EQ aligned to the Harman target. Reasoning is measurement-first and reproducible, with cautious, understated subjective notes. Trust its FR/measurements as Tier-1; its tuning judgments lean Harman-neutral.",
+     "lean_tags": ["measurement-led", "harman-aligned", "eq-provider"],
      "covers": ["headphone", "iem"], "publishes_raw": true,
      "rig": "GRAS 43AG-7 (industry std)", "tier": 1, "platforms": ["reddit u/oratory1990", "oratory1990.github.io"],
      "search_hints": ["oratory1990 <model> measurement", "site:reddit.com/r/oratory1990 <model>"],
      "lang": "en", "verify_status": "seeded"},
-    {"id": "crinacle", "name": "Crinacle (graph.hangout.audio / squig)", "faction": "mixed",
-     "bias_profile": ["measurement-anchored", "subjective-ranking", "ief-target"],
+    {"id": "crinacle", "name": "Crinacle (graph.hangout.audio / squig)",
+     "style_profile": "Measures a huge IEM/headphone library (IEC-711 / GRAS) and hosts squig.link, but pairs the data with opinionated subjective ranking against his own IEF target. Blends objective curves with personal preference (somewhat note-weight and mid-bass sensitive). Trust the curves; treat the letter-grade rankings as informed-subjective.",
+     "lean_tags": ["measurement-anchored", "subjective-ranking", "ief-target"],
      "covers": ["iem", "headphone"], "publishes_raw": true,
      "rig": "IEC 711 (IEMs) / GRAS (HP)", "tier": 1, "platforms": ["crinacle.com", "squig.link"],
      "search_hints": ["crinacle <model> review", "<model> site:squig.link"],
      "lang": "en", "verify_status": "seeded"},
-    {"id": "rtings", "name": "RTINGS", "faction": "kefi",
-     "bias_profile": ["standardized-test", "consumer-focused"],
+    {"id": "rtings", "name": "RTINGS",
+     "style_profile": "Highly standardized, repeatable consumer testing with published measurements and category scores. Methodical and consumer-framed (battery, ANC, comfort weigh into the score), less tuned to audiophile nuance. Trust its measurements and reproducibility; remember the headline scores are usage-weighted, not pure sound quality.",
+     "lean_tags": ["standardized-test", "consumer-focused"],
      "covers": ["headphone", "tws", "iem"], "publishes_raw": true,
      "rig": "HMS II.3 / standardized", "tier": 1, "platforms": ["rtings.com"],
      "search_hints": ["rtings <model> review"], "lang": "en", "verify_status": "seeded"},
-    {"id": "goldensound", "name": "GoldenSound", "faction": "kefi",
-     "bias_profile": ["measurement-led", "anti-marketing"],
+    {"id": "goldensound", "name": "GoldenSound",
+     "style_profile": "Measurement-driven with an engineering and anti-marketing bent (notably technical debunks such as MQA). Combines bench data with careful subjective listening and discloses methodology. Trust its measurements and technical claims; its opinions are reasoned but carry a stated preference lean.",
+     "lean_tags": ["measurement-led", "anti-marketing", "engineering"],
      "covers": ["dac", "amp", "dap", "headphone"], "publishes_raw": true,
      "rig": "AP analyzer", "tier": 2, "platforms": ["youtube GoldenSound", "goldensound.audio"],
      "search_hints": ["GoldenSound <model> review measurements"], "lang": "en", "verify_status": "seeded"},
-    {"id": "resolve_ths", "name": "Resolve / The Headphone Show (Headphones.com)", "faction": "mixed",
-     "bias_profile": ["measurement-informed", "trained-subjective"],
+    {"id": "resolve_ths", "name": "Resolve / The Headphone Show (Headphones.com)",
+     "style_profile": "Measurement-informed trained-subjective: reasons from FR and a preference target while articulating perceptual nuance (timbre, stage) well. Balanced and education-oriented, with a mild commercial affiliation (Headphones.com). Trust the measurement framing; weigh subjective calls as expert-but-interested.",
+     "lean_tags": ["measurement-informed", "trained-subjective"],
      "covers": ["headphone", "iem"], "publishes_raw": true,
      "rig": "GRAS / 711", "tier": 2, "platforms": ["youtube The Headphone Show", "headphones.com"],
      "search_hints": ["Resolve <model> review", "The Headphone Show <model>"], "lang": "en", "verify_status": "seeded"},
-    {"id": "superreview", "name": "Super* Review", "faction": "mixed",
-     "bias_profile": ["measurement-anchored", "subjective"], "covers": ["iem", "headphone"],
-     "publishes_raw": true, "rig": "711", "tier": 2, "platforms": ["squig.link", "youtube Super Review"],
+    {"id": "superreview", "name": "Super* Review",
+     "style_profile": "IEM-focused reviewer who measures (711), writes detailed subjective impressions, and hosts a squig database. Pragmatic and tuning-literate, with a mild preference toward balanced/neutral-bright. Trust the curves; the impressions are informed and fairly calibrated.",
+     "lean_tags": ["measurement-anchored", "subjective", "iem-focused"],
+     "covers": ["iem", "headphone"], "publishes_raw": true, "rig": "711", "tier": 2,
+     "platforms": ["squig.link", "youtube Super Review"],
      "search_hints": ["Super Review <model> iem"], "lang": "en", "verify_status": "seeded"},
-    {"id": "zreviews", "name": "Z Reviews (Zeos)", "faction": "hufi",
-     "bias_profile": ["impression-led", "entertainment", "warm-tolerant"],
+    {"id": "zreviews", "name": "Z Reviews (Zeos)",
+     "style_profile": "Entertainment-first, impression-led reviews with no formal measurements; high volume, enthusiastic, value-hunting. Tolerant of warm/colored and bass-forward sound, and hyperbole is common. Treat as a subjective signal and crowd-interest indicator; bias-correct the enthusiasm and warm tolerance.",
+     "lean_tags": ["impression-led", "entertainment", "warm-tolerant", "value-focused"],
      "covers": ["headphone", "iem", "dac", "amp"], "publishes_raw": false,
      "rig": "none", "tier": 3, "platforms": ["youtube Z Reviews"],
      "search_hints": ["Z Reviews <model>"], "lang": "en", "verify_status": "seeded"},
-    {"id": "erji", "name": "耳机大家坛 (erji.net)", "faction": "hufi",
-     "bias_profile": ["impression-led", "forum-consensus", "cn-community"],
+    {"id": "erji", "name": "耳机大家坛 (erji.net)",
+     "style_profile": "Veteran Chinese enthusiast forum with deep, experience-rich subjective impressions and long-term ownership notes, but little formal measurement. The community leans toward musicality, warm/analog tone and DAP/source-synergy discussion. Treat as subjective consensus with a warm-preference and gear-synergy lean; cross-check tonality against measurements.",
+     "lean_tags": ["impression-led", "forum-consensus", "cn-community", "synergy-talk"],
      "covers": ["iem", "headphone", "dap"], "publishes_raw": false,
      "rig": "varies", "tier": 3, "platforms": ["erji.net", "bbs"],
      "search_hints": ["<model> site:erji.net 听感", "<model> 耳机大家坛 评测"], "lang": "zh", "verify_status": "seeded"},
-    {"id": "smzdm", "name": "什么值得买 (smzdm)", "faction": "hufi",
-     "bias_profile": ["impression-led", "consumer", "promo-risk"],
+    {"id": "smzdm", "name": "什么值得买 (smzdm)",
+     "style_profile": "Consumer deal-and-review platform where impression rigor varies widely and posts carry promotional/affiliate risk. More useful for popularity, packaging and price-context signals than precise tonal accuracy. Treat as low-tier; verify any sound claim against a measurement source.",
+     "lean_tags": ["impression-led", "consumer", "promo-risk"],
      "covers": ["iem", "headphone", "tws", "dac", "amp", "dap"], "publishes_raw": false,
      "rig": "none", "tier": 4, "platforms": ["smzdm.com"],
      "search_hints": ["<model> site:smzdm.com 评测"], "lang": "zh", "verify_status": "seeded"},
-    {"id": "bilibili_audio", "name": "B站 数码/耳机区 (aggregate)", "faction": "mixed",
-     "bias_profile": ["mixed-quality", "per-uploader-varies"],
+    {"id": "bilibili_audio", "name": "B站 数码/耳机区 (aggregate)",
+     "style_profile": "Aggregate of Chinese video reviewers of very uneven methodology — a few measure, many are pure impression or sponsored. Judge each uploader individually at search time rather than trusting the platform. Useful for fit/feature demos and zeitgeist; verify tonal claims against measurements.",
+     "lean_tags": ["mixed-quality", "per-uploader-varies", "video"],
      "covers": ["iem", "headphone", "tws", "dac", "amp", "dap"], "publishes_raw": false,
      "rig": "varies", "tier": 4, "platforms": ["bilibili.com"],
      "search_hints": ["<model> 测评 site:bilibili.com"], "lang": "zh", "verify_status": "seeded"}
@@ -184,25 +192,21 @@ Expected: `ok`
 
 ```bash
 git add 2-vince-hifi-review/references/source-registry.json 2-vince-hifi-review/schemas/source-registry.schema.json
-git commit -m "feat(2-vince-hifi-review): seed faction-tagged media roster + schema"
+git commit -m "feat(2-vince-hifi-review): seed style-profiled media roster + schema"
 ```
 
-### Task 2: Web-verify roster factions (flip `verify_status` to `web_verified`)
+### Task 2: Web-refine roster style profiles (flip `verify_status` to `web_verified`)
 
 **Files:**
 - Modify: `references/source-registry.json`
 
 - [ ] **Step 1: For each `sources[]` entry, run a verification search**
 
-For each entry, use the WebSearch tool with a query like `"<name>" headphone review methodology measurements`. Decide `faction` strictly on **methodology evidence**, not reputation:
-- Publishes its own measurement rigs/graphs and centers them → `kefi`.
-- Measures **and** gives disclosed trained-subjective impressions → `mixed`.
-- Impression-only, no measurements → `hufi`.
-Record one-line evidence in a scratch note; if evidence contradicts the seed, update `faction` and `bias_profile`.
+For each entry, use the WebSearch tool with a query like `"<name>" headphone review methodology measurements`. Refine the `style_profile` from **methodology evidence**, not reputation — confirm/adjust: does it publish measurements? what does it lean toward? how should its claims be weighted? Tighten the 2–3 sentences and `lean_tags` to match what the source actually does. Never compress a source into a single bucket.
 
-- [ ] **Step 2: Set `verify_status` to `web_verified` on every confirmed entry**
+- [ ] **Step 2: Set `verify_status` to `web_verified` on every refined entry**
 
-Edit each entry's `verify_status`. Leave `seeded` only if a source could not be verified (note why in `bias_profile`).
+Edit each entry's `verify_status`. Leave `seeded` only if a source could not be verified (note why in the `style_profile`).
 
 - [ ] **Step 3: Re-validate JSON parses** (same command as Task 1 Step 3) → `ok`.
 
@@ -210,7 +214,7 @@ Edit each entry's `verify_status`. Leave `seeded` only if a source could not be 
 
 ```bash
 git add 2-vince-hifi-review/references/source-registry.json
-git commit -m "feat(2-vince-hifi-review): web-verify roster faction tags"
+git commit -m "feat(2-vince-hifi-review): web-refine roster style profiles"
 ```
 
 ### Task 3: `references/band-taxonomy.json` + schema
@@ -389,7 +393,7 @@ git commit -m "feat(2-vince-hifi-review): source-gear competence + matching thre
 - Create: `references/signature-glossary.md`, `references/research-bibliography.md`
 
 - [ ] **Step 1: Write `references/signature-glossary.md`** with these exact sections (real content, not placeholders):
-  - **Faction axis (科fi/kefi ↔ hufi)** — copy the operational definitions from `source-registry.json.faction_definitions`; state explicitly the axis is methodology, neutral, never an insult.
+  - **Source orientation (writing a style_profile)** — a 2–3 sentence neutral description of *methodology* (does the source measure? what does it lean toward? how to weight it), never an insult; plus the rule that the skill re-judges orientation dynamically from each source's actual content rather than using fixed buckets.
   - **量感 descriptor → band table** — for each of the 8 bands, the canonical zh/en term and the perception phrase (mirror `band-taxonomy.json`).
   - **风格 labels** — `暖声/warm, 明亮/bright, V形/V-shape, 中频前倾/mid-forward, 暗声/dark, 均衡/neutral, 低频猛/bass-heavy, 混合/mixed` each with its one-line band-rule.
   - **Technicality terms (review-only)** — `声场/soundstage, 结像/imaging, 解析/resolution, 动态/dynamics, 瞬态/transient, 音色/timbre, 齿音/sibilance, 染色/coloration` each with a neutral definition.
@@ -601,7 +605,7 @@ git commit -m "test(2-vince-hifi-review): transducer FR fixtures + golden skelet
     {"id": "boundary.conflicting_sources", "type": "boundary", "device_class": "transducer", "must_activate": true, "note": "Tier-1 vs dissent -> flag"},
     {"id": "cleaning.syndicated_dupes", "type": "cleaning", "device_class": "transducer", "must_activate": true, "note": "dedup to one, keep 3 source ids"},
     {"id": "cleaning.marketing_copy", "type": "cleaning", "device_class": "transducer", "must_activate": true, "note": "strip hype"},
-    {"id": "cleaning.faction_weighting", "type": "cleaning", "device_class": "transducer", "must_activate": true, "note": "hufi impression vs kefi measurement -> weight + record dissent"},
+    {"id": "cleaning.style_weighting", "type": "cleaning", "device_class": "transducer", "must_activate": true, "note": "pure-impression review vs measurement-backed source -> style-weight + record dissent"},
     {"id": "negative.buying_rec", "type": "negative", "must_activate": false, "note": "推荐 ¥1000 耳机"},
     {"id": "negative.eq_request", "type": "negative", "must_activate": false, "note": "EQ tuning"},
     {"id": "negative.speaker", "type": "negative", "must_activate": false, "note": "speakers out of scope"},
@@ -983,9 +987,9 @@ git commit -m "feat(2-vince-hifi-review): source-gear engine + frozen goldens"
     "literary_zh": {"type": "string"},
     "literary_en": {"type": "string"},
     "evidence": {"type": "array", "items": {
-      "type": "object", "required": ["source_id", "faction", "tier", "freshness"],
+      "type": "object", "required": ["source_id", "tier", "freshness"],
       "additionalProperties": false,
-      "properties": {"source_id": {"type": "string"}, "faction": {"enum": ["kefi", "mixed", "hufi"]},
+      "properties": {"source_id": {"type": "string"}, "source_lean": {"type": "string"},
         "tier": {"type": "integer", "minimum": 1, "maximum": 4}, "freshness": {"type": "string"},
         "url": {"type": "string"}, "snippet": {"type": "string"}}}},
     "claims": {"type": "array", "items": {
@@ -1011,8 +1015,8 @@ git commit -m "feat(2-vince-hifi-review): source-gear engine + frozen goldens"
 {
   "device": "Example IEM", "device_class": "transducer", "language": "bi",
   "evidence": [
-    {"source_id": "crinacle", "faction": "mixed", "tier": 1, "freshness": "2026-04", "snippet": "bass +6 dB vs IEF"},
-    {"source_id": "erji", "faction": "hufi", "tier": 3, "freshness": "2026-03"}
+    {"source_id": "crinacle", "source_lean": "measurement-anchored + subjective ranking", "tier": 1, "freshness": "2026-04", "snippet": "bass +6 dB vs IEF"},
+    {"source_id": "erji", "source_lean": "impression-led, warm lean", "tier": 3, "freshness": "2026-03"}
   ],
   "claims": [
     {"text": "Sub-bass elevated (+2 量感).", "provenance": "measured", "source_ids": ["crinacle"], "confidence": 0.9, "attribute": "sub_bass"},
@@ -1027,7 +1031,7 @@ git commit -m "feat(2-vince-hifi-review): source-gear engine + frozen goldens"
 ```json
 {
   "device": "Bad Example", "device_class": "transducer", "language": "en",
-  "evidence": [{"source_id": "asr", "faction": "kefi", "tier": 1, "freshness": "2026-01"}],
+  "evidence": [{"source_id": "asr", "source_lean": "measurement-absolutist", "tier": 1, "freshness": "2026-01"}],
   "claims": [
     {"text": "Best soundstage ever.", "provenance": "measured", "source_ids": [], "confidence": 0.5, "attribute": "soundstage"}
   ],
@@ -1217,7 +1221,7 @@ description: >
   source gear (DAC / amp / DAP): measured competence (SINAD/THD/output-Z/power)
   + system matching + chip/topology — a competent source is audibly transparent.
   Searches all sources (measurements, media reviews, specs/family) via a
-  faction-tagged (科fi↔hufi) media roster, cleans them, and renders a bilingual
+  style-profiled media roster (orientation judged dynamically), cleans them, renders a bilingual
   verdict where every claim traces to evidence. Triggers: "客观评价这条耳机",
   "对比 A 和 B 的声音", "这个 DAC 素质如何 / 推得动吗", "$2-vince-hifi-review".
   Not for: buying/价格 recommendations; EQ tuning; speakers; non-audio.
@@ -1242,10 +1246,10 @@ Two device classes, two objective models:
 
 1. **Scope & classify** — confirm objective eval/compare; set `device_class ∈ {transducer, source}`. Reject buying-rec / EQ / speakers / non-audio (redirect).
 2. **Identify** — exact model + variant (cable/filter/pad/firmware), driver or chip/topology, sub-category (→ rig+target or measurement set). Disambiguate only if genuinely ambiguous.
-3. **Gather (live)** — fetch per class; use `references/source-registry.json` to target known reviewers and locate a person's content. Record each source's tier + **faction** + freshness + language. See `rules/retrieval-playbook.md`.
+3. **Gather (live)** — fetch per class; use `references/source-registry.json` to target known reviewers and locate a person's content. Record each source's tier + **style-lean** + freshness + language. See `rules/retrieval-playbook.md`.
 4. **Clean & normalize (mandatory)** — dedup, strip marketing/non-evidence, normalize descriptors to the glossary, reconcile scales, flag outliers, **preserve provenance**. See `rules/data-cleaning.md`.
 5. **Measure & quantize** — transducer: `python3 scripts/fr_analyze.py <fr> --target <id>`; source: `python3 scripts/source_analyze.py --sinad … --zout … [--target-z …]`. Screenshot-only FR → qualitative path. See `rules/tonal-mapping.md`, `rules/source-gear-eval.md`.
-6. **Corroborate** — transducer: technicalities from cleaned consensus, **faction-weighted** (科fi high-trust; hufi bias-corrected), N/M agreement, flag conflicts (`rules/technicalities-from-reviews.md`). source: engineering + transparency verdict.
+6. **Corroborate** — transducer: technicalities from cleaned consensus, **style-weighted** (measurement-backed high-trust; impression-led bias-corrected), N/M agreement, flag conflicts (`rules/technicalities-from-reviews.md`). source: engineering + transparency verdict.
 7. **Synthesize** — class-discriminated profile + bilingual literary render; tag each claim `measured|consensus|prior` + confidence; mark gaps "证据不足". See `rules/literary-rendering.md`; compare → `rules/comparison-mode.md`.
 8. **Self-verify** — `python3 scripts/validate_output.py <out.json>` (schema + traceability). Emit `trace`. Never proceed past a FAIL.
 
@@ -1259,15 +1263,15 @@ compare incompatible rigs/targets without a flag; record dissent, don't average 
 | `rules/retrieval-playbook.md` | Step 3 — where to find curves/reviews/specs per class; squig export; screenshot read; stop rule |
 | `rules/data-cleaning.md` | Step 4 — dedup / de-market / normalize / reconcile / flag / provenance |
 | `rules/tonal-mapping.md` | Step 5 (transducer) — band table, dB→量感 thresholds, 风格 rules |
-| `rules/technicalities-from-reviews.md` | Step 6 (transducer) — review-only attributes, consensus + faction weighting |
+| `rules/technicalities-from-reviews.md` | Step 6 (transducer) — review-only attributes, consensus + style weighting |
 | `rules/source-gear-eval.md` | Step 5–6 (source) — SINAD/THD/Zout/power tiers, transparency, chip/topology, matching |
 | `rules/accuracy-guardrails.md` | Always — rig/target compatibility, never-invent, conflict handling, EOL/freshness |
 | `rules/literary-rendering.md` | Step 7 — anchored 文学化, provenance tags, bilingual rendering, forbidden over-claims |
 | `rules/comparison-mode.md` | Comparison — target/rig alignment, per-band delta table, not-comparable rule |
-| `references/source-registry.json` | Step 3/6 — faction-tagged media roster + search hints |
+| `references/source-registry.json` | Step 3/6 — style-profiled media roster + search hints |
 | `references/band-taxonomy.json`, `references/targets.json` | Step 5 transducer single sources of truth |
 | `references/source-gear-thresholds.json` | Step 5 source single source of truth |
-| `references/signature-glossary.md` | Steps 4,7 — bilingual term + normalization map; 科fi/hufi definitions |
+| `references/signature-glossary.md` | Steps 4,7 — bilingual term + normalization map; how to write a source style_profile |
 
 ## Scripts
 
@@ -1302,11 +1306,11 @@ Each file is prose guidance the agent loads on demand. Write the **actual conten
 
 - [ ] **Step 1: `rules/retrieval-playbook.md`** — sections: *Per-class source order* (transducer: squig.link/Crinacle → oratory1990 → RTINGS → reviews → specs; source: ASR → manufacturer/AP measurements → reviews → chip/topology). *Finding a person's content*: read `source-registry.json[].search_hints`, substitute `<model>`. *Reading squig.link*: how to get raw txt (the `?share=` export / the per-measurement `.txt`); prefer raw over screenshot. *Screenshot path*: when only an image exists, read the curve shape qualitatively, set `precision:"qualitative"`, never invent dB. *Stop rule*: stop when you have ≥1 Tier-1 measurement + ≥2 independent reviews (or have exhausted sources); log what's missing.
 
-- [ ] **Step 2: `rules/data-cleaning.md`** — the mandatory Step-4 pipeline, in order: *Ingest* (each item → source_id + tier + faction + freshness + lang). *Dedup* (collapse syndicated/identical text; keep all contributing source_ids). *De-market* (drop manufacturer copy, sponsored/affiliate hype, unsubstantiated superlatives; keep only evidence-bearing claims). *Normalize* (map descriptors to canonical attributes via `signature-glossary.md`). *Reconcile scales* (star/“8/10”/“good” → direction+magnitude or keep qualitative). *Flag* (mark sources contradicting Tier-1 measurement or consensus; down-weight low tier; **record dissent, never delete it**). *Provenance* (every surviving claim keeps backward links). Output = canonical evidence set feeding Steps 5–6.
+- [ ] **Step 2: `rules/data-cleaning.md`** — the mandatory Step-4 pipeline, in order: *Ingest* (each item → source_id + tier + style-lean + freshness + lang). *Dedup* (collapse syndicated/identical text; keep all contributing source_ids). *De-market* (drop manufacturer copy, sponsored/affiliate hype, unsubstantiated superlatives; keep only evidence-bearing claims). *Normalize* (map descriptors to canonical attributes via `signature-glossary.md`). *Reconcile scales* (star/“8/10”/“good” → direction+magnitude or keep qualitative). *Flag* (mark sources contradicting Tier-1 measurement or consensus; down-weight low tier; **record dissent, never delete it**). *Provenance* (every surviving claim keeps backward links). Output = canonical evidence set feeding Steps 5–6.
 
 - [ ] **Step 3: `rules/tonal-mapping.md`** — restate the 8 bands + Hz from `band-taxonomy.json`; the dB→量感 thresholds (≤1.5→0, ≤4→±1, ≤7→±2, >7→±3); the 风格 rules **exactly as encoded in `fr_analyze.py.signature()`** (bass-heavy, V-shape, warm, bright, mid-forward, dark, neutral, mixed) so prose and code stay in lockstep; a note that the engine is band-resolution and sharp peaks are handled as separate flagged features.
 
-- [ ] **Step 4: `rules/technicalities-from-reviews.md`** — the review-only attribute set (soundstage, imaging, resolution, dynamics, transient, timbre); each rated on a 5-point scale **with an N/M agreement count**; **faction weighting**: 科fi/kefi measurement-backed → high trust; mixed → medium; hufi → treat as subjective, bias-correct a warm-preference lean and **down-weight but never discard**; the hard rule that none of these may be tagged `provenance:"measured"`.
+- [ ] **Step 4: `rules/technicalities-from-reviews.md`** — the review-only attribute set (soundstage, imaging, resolution, dynamics, transient, timbre); each rated on a 5-point scale **with an N/M agreement count**; **style weighting**: measurement-backed claims → high trust regardless of source; impression-led → treat as subjective, bias-correct a warm-preference lean and **down-weight but never discard**; orientation judged from each source's actual content, not a fixed bucket; the hard rule that none of these may be tagged `provenance:"measured"`.
 
 - [ ] **Step 5: `rules/source-gear-eval.md`** — the SINAD competence tiers (from `source-gear-thresholds.json`); the audible-transparency principle (above ~SINAD 90 differences are engineering/feature, not sound); output-impedance damping rule (`zout ≤ load/8`) and what high zout does to multi-BA IEMs; power→max-SPL drive check; hiss-risk heuristic; chip/topology (ESS/AKM/Cirrus/BB/R-2R, op-amp vs discrete, Class A/AB) as **low-weight priors only**; the explicit snake-oil guardrail.
 
@@ -1427,7 +1431,7 @@ git commit -m "docs(2-vince-hifi-review): meta four-piece (design record, metric
 
 ## 0.1.0 — 2026-06-02
 - Initial release. Two-track objective evaluation (transducer 量感/风格 + source-gear
-  competence/matching), mandatory data-cleaning, faction-tagged media roster, bilingual
+  competence/matching), mandatory data-cleaning, style-profiled media roster, bilingual
   output, evidence-traceability gate. L0–L1 + output-gate regression green.
 ```
 
@@ -1508,6 +1512,6 @@ git merge --no-ff 2-vince-hifi-review -m "merge(2-vince-hifi-review): objective 
 
 **Two-track + cleaning + roster + bilingual + accuracy-gating** all have concrete tasks. ✓
 
-**Type consistency:** band ids, quanta range −3..3, faction enum `kefi|mixed|hufi`, provenance `measured|consensus|prior`, device_class `transducer|source`, engine output keys, and the `system_matching` field names are identical across schemas, engines, validator, and goldens. ✓
+**Type consistency:** band ids, quanta range −3..3, source `style_profile`/`lean_tags` (no faction enum), provenance `measured|consensus|prior`, device_class `transducer|source`, engine output keys, and the `system_matching` field names are identical across schemas, engines, validator, and goldens. ✓
 
 **No placeholders:** every code/schema/data step contains the actual content; rules files specify real section content, not "write rules here." ✓
