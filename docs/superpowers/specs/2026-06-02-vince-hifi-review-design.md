@@ -47,8 +47,14 @@ measurement world).
 | Source-gear model | **Separate rule set — circuit/chip/measurement angle** | SINAD/THD+N/output-Z/power + transparency reasoning + system matching; not 量感. |
 | Priority | **Accuracy ≫ speed** | Thorough fetch + a mandatory **data-cleaning** stage; cost/latency are recorded but **non-gating**. |
 | File mutation | **Non-mutating** — reads sources, writes only its own new report file | No edit-gate on the user's files needed; the gate is the traceability self-verification. |
+| Media roster | **Curated reviewer/outlet registry, faction-tagged (科fi ↔ hufi)** — built first | Drives search targeting (locate a given reviewer's content) AND faction-aware interpretation weighting. |
 
 ### Carried assumptions (correct unless challenged)
+- **Reviewer factions**: each roster entry is tagged on a methodology axis —
+  **科fi** (objectivist / measurement-led: claims weighted high for *objective*
+  facts) ↔ **hufi** (subjectivist / impression-led: read as *subjective*,
+  bias-corrected for a warm-preference lean), with **mixed** in between. The tag
+  *calibrates* how a source's claims are weighted; it never dismisses a source.
 - **Targets**: Harman OE 2018 (over-ear), Harman IE 2019 + Crinacle IEF (in-ear);
   Diffuse-Field as secondary reference. Stored as the single source of truth.
 - **Rigs**: IEC 60318-4 (711) coupler for IEMs; GRAS/HATS-class for headphones.
@@ -120,8 +126,10 @@ claim that is not already in the evidence set.
    Disambiguate with one question only when genuinely ambiguous.
 3. **Gather (autonomous live)** — priority order per class (transducer: FR data →
    THD/impedance/sensitivity → reviews → specs/family; source: ASR-class
-   measurements → power/Zout tables → reviews → chip/topology/specs). Record every
-   source with tier + freshness + language. Stop at the coverage threshold.
+   measurements → power/Zout tables → reviews → chip/topology/specs). Consult
+   `source-registry.json` to target known reviewers/outlets and locate a given
+   person's content (per-source search hints). Record every source with tier +
+   **faction** + freshness + language. Stop at the coverage threshold.
 4. **Clean & normalize (mandatory)** — dedup syndicated copies, strip marketing /
    sponsored / non-evidence text, map free-text descriptors to the controlled
    vocabulary (中英), reconcile reviewer scales, flag outliers/low-reliability,
@@ -131,7 +139,9 @@ claim that is not already in the evidence set.
    system matching). Screenshot-only FR → qualitative path, `precision` flagged.
 6. **Corroborate** — *transducer*: fill technicalities (soundstage/imaging/
    resolution/dynamics/transient/timbre) from cleaned **review consensus only**,
-   with N/M agreement; cross-check tonality claims vs measured, flag conflicts.
+   **faction-weighted** (科fi measurement-backed claims high-trust; hufi impressions
+   down-weighted + bias-corrected), with N/M agreement; cross-check tonality claims
+   vs measured, flag conflicts.
    *source*: engineering notes (chip/topology/PSU as low-weight priors) +
    transparency-vs-coloration character verdict from measurements.
 7. **Synthesize** — class-discriminated profile JSON + bilingual literary render;
@@ -227,6 +237,7 @@ metric; a cross-rig comparison without a flag.
 - `boundary.conflicting_sources` — Tier-1 measurement vs a dissenting review → flagged conflict.
 - `cleaning.syndicated_dupes` — same review across 3 sites → collapsed to one, 3 source ids.
 - `cleaning.marketing_copy` — manufacturer hype mixed in → stripped, only evidence kept.
+- `cleaning.faction_weighting` — a hufi subjective impression vs a 科fi measurement on the same trait → faction-aware weighting applied, dissent recorded not averaged away.
 - `negative.buying_rec` — "推荐 ¥1000 耳机" → must_not_activate.
 - `negative.eq_request` / `negative.speaker` — out of scope.
 - `adversarial.fictional_model` — nonexistent device → refuse / "no evidence".
@@ -288,8 +299,8 @@ deprecation paths reserved.
     targets.json                 # ★ Harman OE2018 / IE2019 / IEF / DF target curves + band thresholds
     band-taxonomy.json           # ★ 8 bands + Hz + 量感 scale (shared by script + rules)
     source-gear-thresholds.json  # ★ SINAD/THD/Zout/power competence tiers + matching formulas
-    source-registry.json         # known sources: tier, what they measure, rig, URL patterns, language
-    signature-glossary.md        # ★ bilingual term + normalization map (V/染色/解析/声场/结像/齿音/暖声 …)
+    source-registry.json         # ★ MEDIA ROSTER (built first): reviewers/outlets — faction (科fi↔hufi↔mixed), bias profile, tier, what they cover, rig, platform/handles + search hints, language, publishes-raw-data?
+    signature-glossary.md        # ★ bilingual term + normalization map (V/染色/解析/声场/结像/齿音/暖声 …); defines 科fi / hufi operationally (methodology axis, neutral)
     research-bibliography.md      # Harman research, IEC 711, why bands map to perception, transparency thresholds
   scripts/
     fr_analyze.py                # transducer engine: FR + target → band Δ / 量感 / 风格 (deterministic)
@@ -299,6 +310,7 @@ deprecation paths reserved.
     evaluation.schema.json       # class-discriminated output contract (transducer | source sub-schemas)
     fr-analysis.schema.json      # fr_analyze.py output (L1)
     source-analysis.schema.json  # source_analyze.py output (L1)
+    source-registry.schema.json  # media-roster contract: faction enum, bias, search hints, tier (L0)
     eval-cases.schema.json       # eval set (L0)
   evals/
     eval-cases.json              # happy / boundary / cleaning / negative / adversarial (single source)
@@ -328,8 +340,12 @@ deprecation paths reserved.
 
 ## 8. Implementation approach (TDD ordering, → `tdd_for_skill_development`)
 Red → green per the methodology:
-1. Write the reference single-sources-of-truth (`targets.json`, `band-taxonomy.json`,
-   `source-gear-thresholds.json`) + their schemas (L0) first.
+1. **Compile the media roster FIRST** — `source-registry.json` (reviewers/outlets with
+   faction 科fi↔hufi↔mixed, bias profile, coverage, platform/handles + search hints,
+   tier, publishes-raw?), then the other reference single-sources-of-truth
+   (`targets.json`, `band-taxonomy.json`, `source-gear-thresholds.json`) + all schemas
+   (L0). Faction tags are evidence-based (does the source publish measurements / how it
+   reasons), verified via light web research — not asserted from memory.
 2. Write `evals/fixtures/` (FR CSVs, metric sheets, messy review samples) + expected
    goldens (failing L1) before the engines.
 3. Implement `fr_analyze.py`, then `source_analyze.py`, until fixtures pass.
@@ -345,6 +361,7 @@ Red → green per the methodology:
 | Trigger | `doc.architecture.industrial_skill_design` §3; `metric.activation_precision` |
 | Protocol (8-step, class branch) | §4; `principle.executable_acceptance` |
 | Data cleaning / normalization | `doc.operations.knowledge_base_architecture`; `research_doc_quality.checklist` (claim_traceability) |
+| Media roster / faction weighting | `doc.operations.local_retrieval_workflow` (source targeting); source-reliability-tier concept in `skill_lifecycle_governance` |
 | Progressive disclosure / resources | §5; `principle.progressive_disclosure` |
 | Deterministic engines | §4; `principle.executable_acceptance` |
 | Controls | §6; `anti_pattern.prompted_architecture` |
@@ -367,3 +384,6 @@ Red → green per the methodology:
   cited research during implementation.
 - **Copyright/ToS**: quote short review snippets with citation; never republish full
   reviews; respect source rate limits during autonomous retrieval.
+- **Faction tags must stay neutral & current**: tag on *methodology* (publishes
+  measurements / impression-led reasoning), not reputation or insult; revisit as
+  reviewers evolve; the 科fi/hufi label is calibration for weighting, never defamation.
