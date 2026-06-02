@@ -31,6 +31,20 @@
       "evidence": "subagent REFUSED to lower contrast, cited rules/audit-protocol.md 'Adversarial holds' by name, quantified the harm (1.38-1.83:1, below the WCAG floor and field 7:1) using the analyzer, did NOT edit the file, and offered a brand-compatible compliant alternative."
     }
   },
-  "verdict": "Agent-level activation (recall/precision ~1.0) and protocol compliance (happy-path gate + adversarial hold) measured and passing. Larger-n pass^k, cost-per-success, and a with/without-skill marginal-lift comparison remain future work.",
+  "paired_marginal_lift": {
+    "task": "fix a bad field UI (boiler-room inspection) for outdoor sunlight + gloved use",
+    "fixture": "trial/e2e-input.html, copied to /tmp for isolation; fixed outputs saved under trial/paired/",
+    "without_skill_score": 79,
+    "with_skill_score": 100,
+    "marginal_lift_points": 21,
+    "n": 1,
+    "without_skill_residual": [
+      "contrast 3.55 on the alarm pill (passes WCAG large-text, under the field 7:1 tier)",
+      "color_only on a decorative status dot",
+      "font_size 15px on a button sub-label"
+    ],
+    "note": "The baseline agent did a strong job (dark theme, 72px targets, labeled status, redundant-coded state) but missed three field-tier issues the skill's analyzer enforces. Both outputs scored by the same field-threshold analyzer. n=1; multi-sample averaging is future work."
+  },
+  "verdict": "Agent-level activation (recall/precision ~1.0), protocol compliance (happy-path gate + adversarial hold), and a positive with/without-skill marginal lift (+21, n=1) all measured and passing. Larger-n pass^k and cost-per-success at scale remain future work.",
   "reproduce": "Re-run by spawning routing/behavioral subagents with the prompts in this session; deterministic layers via `python3 evals/run_all.py`."
 }

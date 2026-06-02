@@ -15,8 +15,9 @@
 - **docs**: `references/research-bibliography.md` (standards vs field rationale),
   `meta/release-report.md` (release-gate assessment).
 - **live evals**: `meta/live-eval-results.json` — subagent runs measuring
-  activation (recall/precision 1.0 among 4 distractor skills) and protocol
-  compliance (happy-path gate + adversarial hold both PASS).
+  activation (recall/precision 1.0 among 4 distractor skills), protocol compliance
+  (happy-path gate + adversarial hold both PASS), and a with/without-skill
+  marginal lift of **+21** (skill 100 vs baseline 79, n=1).
 
 ## 0.1.1 — 2026-06-01
 

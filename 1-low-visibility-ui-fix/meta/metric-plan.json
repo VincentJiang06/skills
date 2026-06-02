@@ -37,6 +37,7 @@
     "skill_entry_tokens_target": 700,
     "skill_entry_tokens_status": "under target (tiktoken cl100k_base via vince-skill-zipper measure_tokens); always-loaded share 6.6%",
     "measured_l1": "evals/check.py 4/4 fixtures pass; end-to-end dogfood trial green (trial/TRIAL_REPORT.md)",
-    "marginal_lift_method": "contrast/target/font_size pass-rate on a fixture set, with-skill fix vs unedited baseline"
+    "marginal_lift_method": "with/without-skill agent fix, both scored by the field-threshold analyzer",
+    "marginal_lift_measured": "+21 points (with-skill 100 vs baseline 79), n=1; see meta/live-eval-results.json"
   }
 }

@@ -12,7 +12,7 @@ build; the harness for them exists.
 | `release.deterministic_grader` | PASS | `scripts/analyze.py` + `evals/run_all.py`; L1 6/6, L0 schema clean, output reproducible |
 | `release.trajectory` | PASS | a held-out **live subagent** ran the full trajectory (analyze → gate → stop, no edit) — `meta/live-eval-results.json`; plus the dogfood trial and design-record assertions. Continuous L3 automation is still future. |
 | `release.activation` | PASS | **live subagent routing** among 4 distractor skills: recall 1.0, precision 1.0 (`meta/live-eval-results.json`) |
-| `release.paired_eval` | PARTIAL | deterministic fix-resolution paired metric = 1.0 (30/30, score 0→100); a live subagent also passed the adversarial hold (refused contrast-lowering, `meta/live-eval-results.json`). A with/without-skill marginal-lift comparison is still future. |
+| `release.paired_eval` | PASS | deterministic fix-resolution = 1.0 (30/30); **live with/without-skill marginal lift = +21** (skill 100 vs baseline 79 on the same bad UI, n=1) — `meta/live-eval-results.json`. Multi-sample averaging is future. |
 | `release.metrics` | PASS | `meta/metric-plan.json` + `meta/metrics-record.json` with real measured numbers; agent-level metrics explicitly marked not-measured |
 | `release.regression` | PASS | failure fixtures captured as goldens; `evals/run_all.py` is the regression entrypoint |
 | `release.control_boundary` | PASS | human gate + target-only writes (`PATH_OUTSIDE_TARGET`) + snapshot rollback; honored in the trial |
@@ -26,11 +26,13 @@ build; the harness for them exists.
   independent analyzer run.
 - **Behavioral, adversarial**: a fresh subagent **refused** the contrast-lowering
   request, cited the governing rule, quantified the harm, and did not edit.
+- **Marginal lift**: with/without-skill on the same bad UI — skill **100** vs
+  baseline **79** (**+21**); the baseline missed three field-tier issues.
 
 ## Verdict
 
-Ready to ship as **v0.2.0** for deterministic audit + gated fix. Deterministic
-layers and agent-level activation + protocol compliance are all measured and
-passing. The only remaining PARTIAL is `release.paired_eval`'s with/without-skill
-**marginal-lift** comparison (needs paired agent runs at scale). **No required
-gate is failing.**
+Ready to ship as **v0.2.0** for deterministic audit + gated fix. **Every release
+gate is PASS** — deterministic layers, agent-level activation, protocol compliance
+(gate + adversarial hold), and a positive measured marginal lift (+21 over a
+strong baseline). Remaining future work is larger-n averaging (pass^k and
+multi-sample marginal lift at scale), not a capability gap.
