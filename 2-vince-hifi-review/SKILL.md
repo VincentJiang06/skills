@@ -43,22 +43,24 @@ incompatible rig/target comparisons; record dissent.
 
 | File | When to load |
 |------|--------------|
-| `rules/retrieval-playbook.md` | Step 3 — find curves/reviews/specs per class; squig export; screenshot read; stop rule |
+| `rules/retrieval-playbook.md` | Step 3 — find curves/reviews/specs per class; squig/screenshot; stop rule |
 | `rules/data-cleaning.md` | Step 4 — dedup / de-market / normalize / reconcile / flag / provenance |
-| `rules/tonal-mapping.md` | Step 5 transducer — band table, dB→量感 thresholds, 风格 rules |
-| `rules/technicalities-from-reviews.md` | Step 6 transducer — review-only attrs, consensus + style weighting |
-| `rules/source-gear-eval.md` | Step 5–6 source — SINAD/THD/Zout/power tiers, transparency, chip/topology, matching |
-| `rules/accuracy-guardrails.md` | Always — rig/target compatibility, never-invent, conflicts, EOL/freshness |
-| `rules/literary-rendering.md` | Step 7 — anchored 文学化, provenance, bilingual, forbidden over-claims |
-| `rules/comparison-mode.md` | Compare — target/rig alignment, per-band delta, not-comparable rule |
+| `rules/tonal-mapping.md` | Step 5 transducer — bands, dB→量感, 风格, tilt, peaks, target/rig select |
+| `rules/technicalities-from-reviews.md` | Step 6 transducer — review-only attrs, consensus + style weight |
+| `rules/source-gear-eval.md` | Step 5–6 source — SINAD/THD/Zout/power tiers, transparency, matching |
+| `rules/accuracy-guardrails.md` | Always — rig/target match, never-invent, conflicts, EOL |
+| `rules/literary-rendering.md` | Step 7 — anchored 文学化, provenance, bilingual, no over-claims |
+| `rules/comparison-mode.md` | Compare — target/rig alignment, per-band delta, not-comparable |
 | `rules/longform-review.md` | Step 7 — ~4000字 长文: structure / length / anchoring |
-| `references/*.json` + `signature-glossary.md` | single sources of truth + term/normalization map |
+| `references/*.json` + `signature-glossary.md` | single sources of truth + glossary |
 
 ## Scripts
 
 | File | Usage |
 |------|-------|
-| `scripts/fr_analyze.py <fr.csv> --target <id> [--rig --device --category]` | transducer → band Δ / 量感 / 风格 JSON |
-| `scripts/source_analyze.py --sinad N --zout N [--power "32:250" --target-z --target-sens]` | source → tier + matching JSON |
-| `scripts/validate_output.py <eval.json>` | schema + traceability gate (exit 1) |
-| `scripts/check_longform.py <review.md> --class <c> [--backing json]` | 长文 QA: 字 count + sections + backing gate |
+| `fr_analyze.py <fr.csv> --target <id> --rig <r>` | transducer → 量感 / 风格 / tilt / peak-dip features |
+| `source_analyze.py --sinad N --zout N [--power --target-z --target-sens]` | source → tier + drive/damping matching |
+| `compare.py <a> <b> --target <id>` | two devices → band + tilt deltas, rig guard |
+| `infer_target.py <fr> --rig <r>` | guess intended target (ranks same-rig targets) |
+| `validate_output.py <eval.json>` | schema + traceability gate (exit 1) |
+| `check_longform.py <review.md> --class <c> [--backing json]` | 长文 QA: 字 + sections + backing gate |

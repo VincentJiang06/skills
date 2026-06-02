@@ -151,10 +151,12 @@ def main():
     print("== SKILL.md tokens ==")
     if os.path.exists(os.path.join(ROOT, "SKILL.md")):
         t = entry_tokens()
-        # Budget 1000: bilingual (中/EN) trigger surface + two device-class
-        # protocol. Everything heavy is on-demand in rules/references.
-        print(f"  {t} (budget 1000)")
-        ok &= t < 1000
+        # Budget 1100 (v1.0): bilingual trigger surface + 8-step two-class protocol
+        # + module/script tables covering 9 rules and 6 deterministic engines. All
+        # heavy detail stays on-demand in rules/references (entry:on-demand ~1:10+).
+        # This homegrown heuristic is ~half a standard tokenizer estimate.
+        print(f"  {t} (budget 1100)")
+        ok &= t < 1100
     else:
         print("  (SKILL.md not present yet)")
         ok = False

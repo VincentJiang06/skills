@@ -72,12 +72,13 @@ New targets:
   (sub +1.4 vs +3.8), a ~0.6 dB taller 3 kHz peak, and less 6–10 kHz — i.e. 2018 is
   *warmer* with marginally smoother 3 kHz. (Corrects the common "2013 had more bass &
   treble" belief.)
-- **vince_iem_ref** (Vince's personal IEM reference): JM-1 + −0.6 dB/oct tilt + 4 dB
-  bass shelf — see `_construction` in `targets.json`.
+- **vince_iem_ref** (Vince's personal IEM reference): JM-1 + **−1.0 dB/oct** tilt +
+  4 dB bass shelf — a warm, down-tilted target ("similar to the Crinacle reference
+  but ~1 dB less bass"). See `_construction` in `targets.json`.
 
-The −0.6 dB/oct tilt: `gain = −0.6·log2(f/1kHz)` → +3.4 dB @20 Hz, 0 @1 kHz,
-−2.4 dB @16 kHz (Vince's cited +2.9 @20 Hz implies a bass-flattened / ~−0.52 variant
-— flagged in the target's `_construction` for him to confirm).
+The downward tilt: `gain = −k·log2(f/1kHz)`. Vince's `vince_iem_ref` uses **k = 1.0
+dB/oct** → +5.6 dB @20 Hz, 0 @1 kHz, −4.0 dB @16 kHz (steeper/warmer than the prior
+−0.6 version). Verify the bass-shelf corner/shape against his own tool.
 
 Sources: AutoEq target CSVs (github.com/jaakkopasanen/AutoEq); Headphones.com
 ("The Shape of IEMs To Come" / JM-1, the 5128 graph guide); Crinacle IEF 2025; the
