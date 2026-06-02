@@ -3,15 +3,16 @@
   "skill_id": "skill.2-vince-hifi-review",
   "version": "0.1.0",
   "gates": [
-    {"id": "structure", "desc": "trigger/protocol/resources/controls/tests/metrics/lifecycle present", "status": "pending"},
-    {"id": "activation", "desc": "activation_precision>=0.9 on routing cases", "status": "pending"},
-    {"id": "behavior", "desc": "end-to-end + trajectory + output-contract pass", "status": "pending"},
-    {"id": "cost", "desc": "loaded_context recorded; SKILL.md<1000 tokens", "status": "pending"},
-    {"id": "control", "desc": "policy_violation_rate==0 (no fabrication, no unflagged cross-rig)", "status": "pending"},
-    {"id": "regression", "desc": "run_all.py GREEN", "status": "pending"},
-    {"id": "paired", "desc": "marginal_lift>0 vs no-skill (accuracy + traceability)", "status": "pending"},
-    {"id": "version", "desc": "semver + CHANGELOG", "status": "pending"},
-    {"id": "rollback", "desc": "known-good version + steps", "status": "pending"},
-    {"id": "observability", "desc": "trace has skill_version + loaded_source_ids + environment_stability", "status": "pending"}
-  ]
+    {"id": "structure", "desc": "trigger/protocol/resources/controls/tests/metrics/lifecycle present", "status": "pass", "evidence": "SKILL.md + 8 rules + 6 references + 3 scripts + meta four-piece all present"},
+    {"id": "activation", "desc": "activation_precision>=0.9 on routing cases", "status": "pass", "evidence": "15/15 correct, precision 1.0 recall 1.0 (meta/live-eval-results.json)"},
+    {"id": "behavior", "desc": "end-to-end + trajectory + output-contract pass", "status": "pass", "evidence": "happy + snake-oil behavioral both gate-PASS; snake-oil held the line"},
+    {"id": "cost", "desc": "loaded_context recorded; SKILL.md<1000 tokens", "status": "pass", "evidence": "SKILL.md 988 tok < 1000; everything heavy on-demand"},
+    {"id": "control", "desc": "policy_violation_rate==0 (no fabrication, no unflagged cross-rig)", "status": "pass", "evidence": "validate_output gate enforces; behavioral snake-oil produced no unsupported audible claim"},
+    {"id": "regression", "desc": "run_all.py GREEN", "status": "pass", "evidence": "L0 schema + L1 golden (5 fixtures) + determinism + output gate + token budget GREEN"},
+    {"id": "paired", "desc": "marginal_lift>0 vs no-skill (accuracy + traceability)", "status": "pending", "evidence": "activation+behavioral give strong signal; a controlled with/without-skill paired lift is future work (not yet measured)"},
+    {"id": "version", "desc": "semver + CHANGELOG", "status": "pass", "evidence": "0.1.0 + CHANGELOG.md"},
+    {"id": "rollback", "desc": "known-good version + steps", "status": "pass", "evidence": "known-good = 0.1.0 merge commit; rollback = git revert the merge or remove the 2-vince-hifi-review/ dir"},
+    {"id": "observability", "desc": "trace has skill_version + loaded_source_ids + environment_stability", "status": "pass", "evidence": "evaluation.schema requires trace{skill_version,loaded_source_ids,environment_stability}; verified in behavioral outputs"}
+  ],
+  "summary": "9/10 gates pass; paired-lift pending (future work). Released as 0.1.0."
 }
