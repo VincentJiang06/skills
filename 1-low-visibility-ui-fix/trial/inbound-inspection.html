@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>入库质检</title>
+<style>
+  :root { --muted: #9aa7b4; --paper: #f4f6f8; }
+  body { margin: 0; background-color: #f4f6f8; color: #5a6b7b;
+         font-size: 14px; font-family: system-ui, sans-serif; }
+  header { background-color: #2f6fb0; color: #cfe0f2; padding: 16px; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .hero { background-image: url("dock-4.jpg"); color: #ffffff; padding: 24px; }
+  .card { background-color: #ffffff; padding: 16px; }
+  .qty { color: #b0b0b0; font-size: 14px; }
+  .toolbar { display: flex; }
+  .icon-btn { width: 36px; height: 36px; background-color: #ffffff;
+              color: #2f6fb0; margin: 2px; border: none; }
+  .tabbar { display: flex; }
+  .tab { width: 44px; height: 44px; color: #8fa3b3; text-decoration: none; }
+  .status { background-color: #e0a800; width: 14px; height: 14px;
+            border-radius: 50%; display: inline-block; }
+  .primary { background-color: #2f6fb0; color: #bcd3ec;
+             width: 100%; height: 44px; border: none; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="title">入库质检 · 批次 PO-20493</div>
+    <div class="meta">仓库 B / 月台 4 / 2026-06-01 14:20</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-title">月台 4 实拍</div>
+  </div>
+
+  <div class="card">
+    <div class="qty">应收 120 · 实收 <span class="status"></span></div>
+    <p>请核对每箱数量，发现破损请拍照并标记。完成后点击下方提交质检结果。</p>
+    <div class="toolbar">
+      <button class="icon-btn" aria-label="拍照"><svg viewBox="0 0 24 24"></svg></button>
+      <button class="icon-btn"><svg viewBox="0 0 24 24"></svg></button>
+      <button class="icon-btn"><svg viewBox="0 0 24 24"></svg></button>
+    </div>
+  </div>
+
+  <nav class="tabbar">
+    <a class="tab" href="#scan">扫码</a>
+    <a class="tab" href="#list">列表</a>
+    <a class="tab" href="#me">我的</a>
+  </nav>
+
+  <button class="primary">提交质检</button>
+</body>
+</html>
