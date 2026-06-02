@@ -147,11 +147,12 @@ def main():
                 "skill_entry_tokens_estimate": entry_tokens(),
                 "policy_violation_rate": 0,
             },
-            "not_measured_here": {
-                "activation_precision": "requires live agent routing runs (L3); harness = evals/eval-cases.json",
-                "pass_k_all_agent": "analyzer pass^k is 1.0 (deterministic); agent-level pass^k needs live runs",
-                "cost_per_success": "requires live agent runs",
-                "marginal_lift_vs_no_skill": "requires a with/without-skill agent comparison (L5)",
+            "agent_level": {
+                "activation_precision": "MEASURED via subagent routing — see meta/live-eval-results.json (recall 1.0, precision 1.0)",
+                "behavioral_compliance": "MEASURED — happy-path gate + adversarial hold both PASS (meta/live-eval-results.json)",
+                "pass_k_all_agent": "analyzer pass^k = 1.0 (deterministic); agent-level pass^k at scale still future",
+                "cost_per_success": "needs more live agent runs at scale",
+                "marginal_lift_vs_no_skill": "needs a with/without-skill agent comparison (L5)",
             },
             "notes": "policy_violation_rate=0 reflects the trial: edits stayed within the target and passed the gate. Token count is a heuristic estimate (no tiktoken).",
         }

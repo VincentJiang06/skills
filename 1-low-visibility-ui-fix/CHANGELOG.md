@@ -14,6 +14,9 @@
 - **perf**: SKILL.md entry 812 → 689 tokens (< 700 target; tiktoken).
 - **docs**: `references/research-bibliography.md` (standards vs field rationale),
   `meta/release-report.md` (release-gate assessment).
+- **live evals**: `meta/live-eval-results.json` — subagent runs measuring
+  activation (recall/precision 1.0 among 4 distractor skills) and protocol
+  compliance (happy-path gate + adversarial hold both PASS).
 
 ## 0.1.1 — 2026-06-01
 
