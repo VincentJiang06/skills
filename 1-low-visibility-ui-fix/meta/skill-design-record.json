@@ -59,9 +59,9 @@
     ]
   },
   "resources": {
-    "docs": ["rules/audit-protocol.md", "rules/fix-patterns.md", "references/field-conditions.md"],
+    "docs": ["rules/audit-protocol.md", "rules/fix-patterns.md", "references/field-conditions.md", "references/research-bibliography.md"],
     "templates": [],
-    "scripts": ["scripts/analyze.py", "evals/check.py"],
+    "scripts": ["scripts/analyze.py", "evals/run_all.py", "evals/check.py", "evals/schema_check.py"],
     "fixtures": [
       "evals/fixtures/bad_field_ui.html",
       "evals/fixtures/needs_judgment.html",

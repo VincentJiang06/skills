@@ -20,8 +20,8 @@ acceptance signal after fixing.
 # deterministic audit of an existing UI file
 python3 scripts/analyze.py path/to/ui.html
 
-# run the L1 golden test suite
-python3 evals/check.py
+# run the full regression suite (L0 schema + L1 golden + determinism + metric)
+python3 evals/run_all.py
 ```
 
 The skill then prioritizes findings, presents a plan, **waits for your approval**
@@ -48,11 +48,12 @@ a11y tooling.
 
 ## Status
 
-**v0.1.1** — analyzer covers contrast, target_size (incl. `min-*` floors),
-icon_only (visible-text aware), color_only, spacing, font_size; L1 golden suite
-passes 4/4 and an end-to-end dogfood trial is green (see `trial/TRIAL_REPORT.md`
-and `CHANGELOG.md`). The analyzer handles inline + `<style>`-block styles and
-explicit/min dimensions; unresolved CSS (variables, theme colors, background
-images, JS state) is reported as `needs_judgment`. Paired eval (L5), `:root`
-custom-property resolution, and a cited field-threshold bibliography are deferred
-to a later version.
+**v0.2.0** — analyzer covers contrast, target_size (incl. `min-*` floors),
+icon_only (visible-text aware), color_only, spacing, font_size, and resolves
+`:root` CSS variables; L1 golden suite 6/6, L0 schema clean, end-to-end dogfood
+trial green. Validate with `python3 evals/run_all.py`. Real metrics in
+`meta/metrics-record.json`; gate status in `meta/release-report.md`; standards in
+`references/research-bibliography.md`. Unresolved CSS (runtime/undefined vars,
+theme colors, background images, JS state, external stylesheets) →
+`needs_judgment`. **Deferred** (need live agent runs): L3 trajectory automation
+and L5 with/without-skill paired eval; empirical field-threshold citations.

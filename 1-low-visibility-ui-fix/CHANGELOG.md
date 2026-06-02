@@ -1,5 +1,20 @@
 # Changelog — low-visibility-ui-fix
 
+## 0.2.0 — 2026-06-01
+
+"Complete + optimized" pass.
+
+- **analyzer**: resolve `:root`/`html` CSS custom properties (`var(--x[,fallback])`);
+  undefined/runtime vars still fall to `needs_judgment`. Flag external stylesheets.
+- **tests**: `evals/schema_check.py` (stdlib JSON-Schema-lite) + `evals/run_all.py`
+  unified runner (L0 schema + L1 golden + smoke/determinism + deterministic paired
+  metric). Fixtures 4 → 6 (`themed_vars`, `external_link`).
+- **metrics**: `meta/metrics-record.json` with real measured numbers (L1 6/6,
+  determinism 1.0, fix-resolution 1.0, score 0→100).
+- **perf**: SKILL.md entry 812 → 689 tokens (< 700 target; tiktoken).
+- **docs**: `references/research-bibliography.md` (standards vs field rationale),
+  `meta/release-report.md` (release-gate assessment).
+
 ## 0.1.1 — 2026-06-01
 
 Evidence-gated refinements surfaced by the first end-to-end dogfood trial

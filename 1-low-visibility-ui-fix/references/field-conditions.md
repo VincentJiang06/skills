@@ -48,9 +48,9 @@ the comfortable target is 80px.
   of color), §2.5.8 (target size minimum). Field tiers push toward §1.4.6 (AAA).
 - **Material Design** — 48dp minimum touch target.
 - **Apple HIG** — 44pt minimum hit target.
-- **Field research basis** (to be expanded with citations): outdoor-readability
-  and gloved-operation studies motivate the elevation from baseline to field
-  thresholds. v0.1 values are calibrated estimates pending a cited bibliography.
+- **Field elevations** above the standard floors are engineering rationale (not
+  yet empirically cited). See `research-bibliography.md` for the explicit
+  standards-vs-rationale split.
 
 > Threshold values are versioned in `design-tokens.json` (currently `0.1.0`) and
 > may evolve independently of the skill version as research is added.
