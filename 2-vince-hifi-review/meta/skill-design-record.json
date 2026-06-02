@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "skill_id": "skill.2-vince-hifi-review",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "trigger": {
     "must_activate_on": ["objective evaluation/comparison of IEM/headphone/TWS", "DAC/amp/DAP quality + drive-match", "supplying an FR link/CSV/screenshot to interpret"],
     "must_not_activate_on": ["buying/价格 recommendation", "EQ tuning", "speakers", "non-audio"],

@@ -30,9 +30,9 @@
       "_note": "rarely used as a tuning target; sharper ~3kHz peak, darker upper treble than DF; directional, no canonical raw file located",
       "band_levels_db": {"sub_bass": -4.5, "mid_bass": -4.0, "lower_mids": -3.0, "center_mids": 0.0,
         "upper_mids": 6.0, "lower_treble": 10.0, "mid_treble": 4.0, "air": -3.0}},
-    "vince_iem_ref": {"label": "Vince IEM reference (JM-1 -0.6dB/oct +4dB bass)", "rig": "bk5128", "confidence": "med", "applies_to": ["iem", "tws"],
-      "_construction": "JM-1 (5128 DF-based neutral baseline) + a -0.6 dB/oct downward tilt (gain = -0.6*log2(f/1000), pivot 1kHz) + a +4dB bass low-shelf (~105Hz corner: +4 sub_bass, +3 mid_bass, +0.5 lower_mids), then re-anchored to center_mids=0. Vince's personal IEM reference; a mild-bass, gently down-tilted target. Verify the bass-shelf corner/shape and tilt low-end against your own tool (Vince cited +2.9dB @20Hz, ~ -0.52dB/oct or a bass-flattened tilt).",
-      "band_levels_db": {"sub_bass": 2.4, "mid_bass": 0.7, "lower_mids": -1.3, "center_mids": 0.0,
-        "upper_mids": 3.7, "lower_treble": 5.5, "mid_treble": 2.4, "air": -4.1}}
+    "vince_iem_ref": {"label": "Vince IEM reference (JM-1 -1dB/oct +4dB bass)", "rig": "bk5128", "confidence": "med", "applies_to": ["iem", "tws"],
+      "_construction": "JM-1 (5128 DF-based neutral baseline) + a -1.0 dB/oct downward tilt (gain = -1.0*log2(f/1000), pivot 1kHz) + a +4dB bass low-shelf (~105Hz corner: +4 sub_bass, +3 mid_bass, +0.5 lower_mids), re-anchored to center_mids=0. Vince's personal IEM reference: a warm, down-tilted target Vince describes as 'similar to the Crinacle reference but ~1dB less bass'. The steeper -1dB/oct tilt makes it warmer/darker than the prior -0.6 version. Verify the bass-shelf corner/shape against your own tool.",
+      "band_levels_db": {"sub_bass": 4.2, "mid_bass": 1.8, "lower_mids": -0.8, "center_mids": 0.0,
+        "upper_mids": 3.2, "lower_treble": 4.4, "mid_treble": 1.0, "air": -5.8}}
   }
 }

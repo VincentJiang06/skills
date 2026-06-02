@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 — 2026-06-02
+- Updated `vince_iem_ref` to Vince's revised recipe: **JM-1 − 1 dB/oct tilt + 4 dB
+  bass** (steeper tilt than the prior − 0.6, so warmer/darker: more bass, less
+  treble). Vince characterizes it as "similar to the Crinacle reference but ~1 dB
+  less bass." Re-froze the inference golden.
+
 ## 0.4.0 — 2026-06-02 (multi-target + rig-aware inference)
 - Targets are now **rig-tagged** (iec711 / gras_43ag / bk5128) + confidence. Added
   **JM-1**, **B&K 5128 DF/FF**, **Harman OE 2013**, and **`vince_iem_ref`** (Vince's

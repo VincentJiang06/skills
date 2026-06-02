@@ -38,9 +38,9 @@
     },
     {
       "target": "vince_iem_ref",
-      "label": "Vince IEM reference (JM-1 -0.6dB/oct +4dB bass)",
-      "rms_db": 3.17,
-      "bias_db": -0.7,
+      "label": "Vince IEM reference (JM-1 -1dB/oct +4dB bass)",
+      "rms_db": 4.26,
+      "bias_db": -0.5,
       "confidence": "med",
       "applies_to": [
         "iem",
