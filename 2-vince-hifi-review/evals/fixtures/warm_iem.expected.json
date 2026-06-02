@@ -1,0 +1,107 @@
+{
+  "device": "fixture:warm_iem",
+  "category": "iem",
+  "target": "harman_ie_2019",
+  "rig": "iec711",
+  "alignment": {
+    "method": "anchor_center_mids",
+    "offset_db": -64.0
+  },
+  "bands": [
+    {
+      "id": "sub_bass",
+      "hz": [
+        20,
+        60
+      ],
+      "dev_db": 3.0,
+      "quanta": 1,
+      "label_zh": "略多",
+      "label_en": "slightly elevated"
+    },
+    {
+      "id": "mid_bass",
+      "hz": [
+        60,
+        200
+      ],
+      "dev_db": 3.0,
+      "quanta": 1,
+      "label_zh": "略多",
+      "label_en": "slightly elevated"
+    },
+    {
+      "id": "lower_mids",
+      "hz": [
+        200,
+        500
+      ],
+      "dev_db": 1.0,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "center_mids",
+      "hz": [
+        500,
+        1000
+      ],
+      "dev_db": 0.0,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "upper_mids",
+      "hz": [
+        1000,
+        3000
+      ],
+      "dev_db": 0.0,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "lower_treble",
+      "hz": [
+        3000,
+        6000
+      ],
+      "dev_db": -2.0,
+      "quanta": -1,
+      "label_zh": "略少",
+      "label_en": "slightly lacking"
+    },
+    {
+      "id": "mid_treble",
+      "hz": [
+        6000,
+        10000
+      ],
+      "dev_db": -3.0,
+      "quanta": -1,
+      "label_zh": "略少",
+      "label_en": "slightly lacking"
+    },
+    {
+      "id": "air",
+      "hz": [
+        10000,
+        20000
+      ],
+      "dev_db": -3.0,
+      "quanta": -1,
+      "label_zh": "略少",
+      "label_en": "slightly lacking"
+    }
+  ],
+  "signature": {
+    "label_zh": "暖声",
+    "label_en": "warm",
+    "rule_fired": "bass>=1 & treble<=-0.5"
+  },
+  "precision": "quantitative",
+  "warnings": []
+}

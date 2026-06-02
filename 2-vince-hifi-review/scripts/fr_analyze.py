@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""Transducer objective engine: FR (freq,dB) + target -> band deviations, 量感, 风格."""
+import argparse, json, os, sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REF = os.path.join(HERE, "..", "references")
+
+
+def load_json(name):
+    with open(os.path.join(REF, name), encoding="utf-8") as f:
+        return json.load(f)
+
+
+def parse_fr(path):
+    pts = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = [p for p in line.replace(",", " ").replace("\t", " ").split() if p]
+            if len(parts) < 2:
+                continue
+            try:
+                pts.append((float(parts[0]), float(parts[1])))
+            except ValueError:
+                continue
+    if len(pts) < 8:
+        sys.exit("ERR_FR_PARSE: <8 numeric points from %s" % path)
+    pts.sort()
+    return pts
+
+
+def band_avg(pts, lo, hi):
+    vals = [db for hz, db in pts if lo <= hz <= hi]
+    return sum(vals) / len(vals) if vals else None
+
+
+def to_quanta(dev, thr):
+    a, s = abs(dev), (1 if dev >= 0 else -1)
+    if a <= thr["neutral"]:
+        return 0
+    if a <= thr["slight"]:
+        return s
+    if a <= thr["notable"]:
+        return s * 2
+    return s * 3
+
+
+def qlabel(taxo, q):
+    for it in taxo["quanta_scale"]:
+        if it["q"] == q:
+            return it
+    return {"zh": "?", "en": "?"}
+
+
+def qof(bands, bid):
+    for b in bands:
+        if b["id"] == bid:
+            return b["quanta"]
+    return 0
+
+
+def signature(bands):
+    bass = (qof(bands, "sub_bass") + qof(bands, "mid_bass")) / 2.0
+    mids = (qof(bands, "lower_mids") + qof(bands, "center_mids") + qof(bands, "upper_mids")) / 3.0
+    treb = (qof(bands, "lower_treble") + qof(bands, "mid_treble") + qof(bands, "air")) / 3.0
+
+    def L(zh, en, rule):
+        return {"label_zh": zh, "label_en": en, "rule_fired": rule}
+
+    if max(qof(bands, "sub_bass"), qof(bands, "mid_bass")) >= 2 and treb <= 0:
+        return L("低频猛", "bass-heavy", "a bass band>=2 & treble<=0")
+    if bass >= 1 and treb >= 1 and mids <= 0.5:
+        return L("V 形", "V-shape", "bass>=1 & treble>=1 & mids<=0.5")
+    if bass >= 1 and treb <= -0.5:
+        return L("暖声", "warm", "bass>=1 & treble<=-0.5")
+    if treb >= 1 and bass <= 0:
+        return L("明亮", "bright", "treble>=1 & bass<=0")
+    if qof(bands, "upper_mids") >= 1 and bass <= 0:
+        return L("中频前倾", "mid-forward", "upper_mids>=1 & bass<=0")
+    if treb <= -1:
+        return L("暗声", "dark", "treble<=-1")
+    if max(abs(bass), abs(mids), abs(treb)) <= 1:
+        return L("均衡", "neutral", "all sections within +/-1")
+    return L("混合", "mixed", "no dominant rule")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("fr")
+    ap.add_argument("--target", required=True)
+    ap.add_argument("--rig", default="unknown")
+    ap.add_argument("--device", default="")
+    ap.add_argument("--category", default="iem")
+    args = ap.parse_args()
+
+    taxo, targets = load_json("band-taxonomy.json"), load_json("targets.json")
+    if args.target not in targets["targets"]:
+        sys.exit("ERR_TARGET_UNKNOWN: %s" % args.target)
+    tgt = targets["targets"][args.target]
+    thr = targets["quanta_thresholds_db"]
+    anchor = targets["anchor_band"]
+
+    pts = parse_fr(args.fr)
+    raw = {b["id"]: band_avg(pts, b["hz"][0], b["hz"][1]) for b in taxo["bands"]}
+    if raw.get(anchor) is None:
+        sys.exit("ERR_NO_ANCHOR: no data in %s" % anchor)
+    offset = tgt["band_levels_db"][anchor] - raw[anchor]
+
+    bands, warnings = [], []
+    for b in taxo["bands"]:
+        bid = b["id"]
+        if raw[bid] is None:
+            warnings.append("no_data_band:%s" % bid)
+            continue
+        dev = (raw[bid] + offset) - tgt["band_levels_db"][bid]
+        q = to_quanta(dev, thr)
+        lab = qlabel(taxo, q)
+        bands.append({"id": bid, "hz": b["hz"], "dev_db": round(dev, 1), "quanta": q,
+                      "label_zh": lab["zh"], "label_en": lab["en"]})
+    out = {"device": args.device, "category": args.category, "target": args.target,
+           "rig": args.rig, "alignment": {"method": "anchor_%s" % anchor, "offset_db": round(offset, 1)},
+           "bands": bands, "signature": signature(bands), "precision": "quantitative", "warnings": warnings}
+    print(json.dumps(out, ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()
