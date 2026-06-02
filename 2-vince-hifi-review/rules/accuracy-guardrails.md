@@ -14,8 +14,12 @@ have it, it's a `gap`. A qualitative screenshot read is marked
   note the measurer + rig; don't treat one as ground truth.
 - The >8–10 kHz region on a 711 coupler is resonance-dominated and unreliable;
   treat `air`-band detail cautiously.
-- Choose the target by category: Harman IE 2019 / IEF for IEM·TWS, Harman OE 2018
-  for headphones; DF as a neutral fallback.
+- **Match the target's rig to the device's rig** (`targets.json` tags each `rig`:
+  iec711 / gras_43ag / bk5128). A **B&K 5128** curve must use a 5128 target
+  (`jm1`/`bk5128_df`/`vince_iem_ref`), a 711 curve a 711 target — the 711↔5128 delta
+  is ~+6 dB @8 kHz / +12 @14 kHz, so mixing rigs invents tilt that isn't there. When
+  the device's rig or intended target is unclear, run `scripts/infer_target.py
+  <fr> --rig <rig>` to rank same-rig targets by fit. DF as a neutral fallback.
 
 ## Conflicting sources
 Report disagreement explicitly with counts ("3/4 sources say A>B; 1 says B>A").

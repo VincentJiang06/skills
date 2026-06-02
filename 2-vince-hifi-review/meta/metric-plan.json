@@ -9,7 +9,8 @@
     "activation_precision", "false_positive_rate", "false_negative_rate",
     "pass_k_all", "variance", "cost_per_success", "loaded_context_tokens_p50",
     "longform_length_ok", "longform_structure_ok", "longform_traceability",
-    "feature_detection_recall", "tilt_correctness", "compare_correctness"
+    "feature_detection_recall", "tilt_correctness", "compare_correctness",
+    "target_inference_correctness"
   ],
   "gates": {
     "tonal_band_accuracy_min": 0.85,

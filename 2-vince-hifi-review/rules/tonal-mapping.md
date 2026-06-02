@@ -52,5 +52,15 @@ bands yet hide an 8 kHz sibilance spike — the `features` array is exactly wher
 shows up. Rule of thumb: band quanta = *how much* energy per region; features =
 *sharp character* (sibilance, glare, resonance dips) that量感 averages away. Never
 let a narrow artifact masquerade as broad 量感, and never let broad 量感 hide a
-narrow peak. Choose the target by category: `harman_ie_2019`/`ief_neutral` for
-IEM/TWS, `harman_oe_2018` for headphones.
+narrow peak.
+
+## Target & rig selection
+Targets in `references/targets.json` are **rig-specific** (`rig`: iec711 / gras_43ag
+/ bk5128). **Feed the engine a target measured on the SAME rig as the device curve**
+— 711 and 5128 are not interchangeable (5128 reads ~+6 dB hotter at 8 kHz and lacks
+the 711's 10–14 kHz dip). Defaults by rig + category: 711 IEM → `harman_ie_2019` or
+`ief_neutral`; GRAS headphone → `harman_oe_2018` (or `harman_oe_2013`); **5128 IEM →
+`jm1` / `bk5128_df`**. For **Vince's IEM reviews, ALSO report against `vince_iem_ref`**
+(his personal 5128 reference: JM-1 −0.6 dB/oct +4 dB bass). When the rig/intended
+target is unclear, run `python3 scripts/infer_target.py <fr> --rig <rig>` — it ranks
+same-rig targets by RMS fit and guesses which one the device was tuned toward.

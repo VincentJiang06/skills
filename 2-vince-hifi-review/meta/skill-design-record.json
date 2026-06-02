@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "skill_id": "skill.2-vince-hifi-review",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "trigger": {
     "must_activate_on": ["objective evaluation/comparison of IEM/headphone/TWS", "DAC/amp/DAP quality + drive-match", "supplying an FR link/CSV/screenshot to interpret"],
     "must_not_activate_on": ["buying/价格 recommendation", "EQ tuning", "speakers", "non-audio"],
@@ -12,10 +12,10 @@
   "resources": {
     "rules": ["retrieval-playbook", "data-cleaning", "tonal-mapping", "technicalities-from-reviews", "source-gear-eval", "accuracy-guardrails", "literary-rendering", "comparison-mode", "longform-review"],
     "references": ["source-registry", "band-taxonomy", "targets", "source-gear-thresholds", "signature-glossary", "research-bibliography"],
-    "scripts": ["fr_analyze", "source_analyze", "validate_output", "check_longform", "compare"],
+    "scripts": ["fr_analyze", "source_analyze", "validate_output", "check_longform", "compare", "infer_target"],
     "assets": ["longform-template"]
   },
-  "engine_depth": "fr_analyze emits per-band 量感 + a continuous tilt (warm<->bright + low/high extension) + a features[] peak/dip pass (sharp peaks/dips band-averaging hides, e.g. 8kHz sibilance, with perceptual hints). compare.py gives deterministic per-band + tilt deltas with a cross-rig comparability guard. targets.json band levels validated vs authoritative raw target curves.",
+  "engine_depth": "fr_analyze emits per-band 量感 + a continuous tilt (warm<->bright + low/high extension) + a features[] peak/dip pass (sharp peaks/dips band-averaging hides, e.g. 8kHz sibilance, with perceptual hints). compare.py gives deterministic per-band + tilt deltas with a cross-rig guard. infer_target.py ranks SAME-RIG targets by RMS fit to guess a device's intended target. targets.json carries rig-tagged, confidence-graded targets (711/GRAS/5128) incl. JM-1, 5128 DF/FF, Harman OE 2013/2018, IEF, DF, and vince_iem_ref (Vince's personal IEM reference); values validated vs authoritative raw curves.",
   "output_modes": ["compact bilingual summary", "long-form 评测长文 (~4000字, Chinese-primary, traceability appendix + backing evaluation.json)"],
   "source_orientation_model": "Per-source 2-3 sentence style_profile + lean_tags; NO fixed faction enum. Orientation judged dynamically at search time: measurement-backed claims high-trust regardless of source; impression-led subjective + bias-corrected; dissent recorded.",
   "control_boundaries": {

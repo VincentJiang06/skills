@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0 — 2026-06-02 (multi-target + rig-aware inference)
+- Targets are now **rig-tagged** (iec711 / gras_43ag / bk5128) + confidence. Added
+  **JM-1**, **B&K 5128 DF/FF**, **Harman OE 2013**, and **`vince_iem_ref`** (Vince's
+  personal IEM reference = JM-1 − 0.6 dB/oct + 4 dB bass shelf, with documented
+  `_construction`).
+- New **`scripts/infer_target.py`**: ranks SAME-RIG targets by RMS fit to guess which
+  target a device was tuned toward ("looks tuned toward JM-1"). Rig-aware — a 5128
+  curve is never matched against 711 targets (the same curve infers JM-1 on 5128 vs
+  Diffuse Field on 711, proving rig choice matters).
+- Rules: rig-matched target selection; `vince_iem_ref` reported for Vince's IEM
+  reviews. Bibliography records the rigs, the 711↔5128 delta, and the OE 2013-vs-2018
+  correction (2018 has *more* bass, not less).
+- `run_all` gains a target-inference layer; GREEN.
+
 ## 0.3.0 — 2026-06-02 (accuracy & depth)
 - `fr_analyze` now emits a **`features[]`** peak/dip pass (log-f smoothed baseline →
   residual extrema → hz/db/type + perceptual hint) that catches sharp peaks/dips the
