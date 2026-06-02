@@ -2,7 +2,7 @@
   "device": "fixture:neutral_hp",
   "category": "headphone",
   "target": "harman_oe_2018",
-  "rig": "gras",
+  "rig": "gras_43ag",
   "alignment": {
     "method": "anchor_center_mids",
     "offset_db": -64.2

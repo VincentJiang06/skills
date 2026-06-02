@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Traceability + schema gate for an evaluation JSON. Exit 1 on any violation."""
-import json, os, sys
+import json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "evals"))
@@ -19,9 +19,10 @@ def check(doc, schema):
             if sid not in ev_ids:
                 errs.append(f"claims[{i}]: source_id '{sid}' not in evidence")
         if doc.get("device_class") == "transducer" and c.get("attribute") in TECHNICALITIES \
-                and c.get("provenance") == "measured":
-            errs.append(f"claims[{i}]: technicality '{c.get('attribute')}' tagged measured (must be consensus)")
-        if doc.get("device_class") == "source" and "audibl" in c.get("text", "").lower() \
+                and c.get("provenance") != "consensus":
+            errs.append(f"claims[{i}]: technicality '{c.get('attribute')}' provenance '{c.get('provenance')}' (must be consensus)")
+        # "audibl" but NOT "inaudible": a source audible-difference claim needs a measurement.
+        if doc.get("device_class") == "source" and re.search(r"(?<!in)audibl", c.get("text", "").lower()) \
                 and c.get("provenance") != "measured":
             errs.append(f"claims[{i}]: audible-difference claim not backed by measurement")
     return errs
