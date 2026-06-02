@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "_note": "Single source of truth for low-visibility-ui-fix thresholds. Consumed by scripts/analyze.py and documented for humans in field-conditions.md. Baseline = WCAG 2.2 floor; field = elevated for low-light/glare/gloves. Values are v0.1 estimates pending research validation.",
+  "_note": "Single source of truth for vince-low-visibility-fix thresholds. Consumed by scripts/analyze.py and documented for humans in field-conditions.md. Baseline = WCAG 2.2 floor; field = elevated for low-light/glare/gloves. Values are v0.1 estimates pending research validation.",
   "contrast": {
     "baseline": { "text": 4.5, "large_text": 3.0, "ui": 3.0 },
     "field": { "text": 7.0, "large_text": 4.5, "ui": 4.5 },

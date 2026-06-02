@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "low-visibility-ui-fix/analyzer-output",
+  "$id": "vince-low-visibility-fix/analyzer-output",
   "title": "Low-visibility analyzer output",
   "type": "object",
   "required": ["summary", "findings", "needs_judgment"],

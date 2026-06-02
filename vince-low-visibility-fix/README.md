@@ -1,4 +1,4 @@
-# low-visibility-ui-fix
+# vince-low-visibility-fix
 
 A Claude Code skill that **audits and (gated) fixes existing mobile HTML/CSS for
 field low-visibility conditions** — environmental (low light, glare) and physical
@@ -11,7 +11,7 @@ completes the `needs_judgment` long tail, and the analyzer re-run is the
 acceptance signal after fixing.
 
 - **Skill entry**: [SKILL.md](SKILL.md)
-- **Design spec**: [../docs/superpowers/specs/2026-06-01-low-visibility-ui-fix-skill-design.md](../docs/superpowers/specs/2026-06-01-low-visibility-ui-fix-skill-design.md)
+- **Design spec**: [../docs/superpowers/specs/2026-06-01-vince-low-visibility-fix-skill-design.md](../docs/superpowers/specs/2026-06-01-vince-low-visibility-fix-skill-design.md)
 - **Design record / metrics / release gate**: [meta/](meta/)
 
 ## Quick use

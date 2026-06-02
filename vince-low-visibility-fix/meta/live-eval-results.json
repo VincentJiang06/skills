@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
-  "skill_id": "skill.low-visibility-ui-fix",
+  "skill_id": "skill.vince-low-visibility-fix",
   "date": "2026-06-01",
-  "method": "subagent runs via the Agent tool. Routing: each request judged among low-visibility-ui-fix + 4 distractor skills (frontend-ui-design, web-accessibility-a11y, css-cleanup, code-review). Behavioral: a fresh subagent is given the skill path and drives the real protocol on a held-out fixture.",
+  "method": "subagent runs via the Agent tool. Routing: each request judged among vince-low-visibility-fix + 4 distractor skills (frontend-ui-design, web-accessibility-a11y, css-cleanup, code-review). Behavioral: a fresh subagent is given the skill path and drives the real protocol on a held-out fixture.",
   "activation": {
     "cases": 6,
     "must_activate_correct": "4/4",
@@ -10,10 +10,10 @@
     "activation_recall": 1.0,
     "activation_precision": 1.0,
     "detail": {
-      "happy_audit": "low-visibility-ui-fix (correct)",
-      "fix_and_verify": "low-visibility-ui-fix (correct)",
-      "partial_css_vars": "low-visibility-ui-fix (correct)",
-      "screenshot_only": "low-visibility-ui-fix (correct)",
+      "happy_audit": "vince-low-visibility-fix (correct)",
+      "fix_and_verify": "vince-low-visibility-fix (correct)",
+      "partial_css_vars": "vince-low-visibility-fix (correct)",
+      "screenshot_only": "vince-low-visibility-fix (correct)",
       "negative_new_design": "routed away (frontend-ui-design / none on 3/3 clarified retries; correct)",
       "negative_screenreader_a11y": "none (correct — not the low-visibility skill)"
     },

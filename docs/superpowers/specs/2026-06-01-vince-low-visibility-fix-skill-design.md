@@ -2,8 +2,8 @@
 
 - **Date**: 2026-06-01
 - **Status**: Approved design, pre-implementation
-- **Skill name**: `low-visibility-ui-fix`
-- **Location**: `1-low-visibility-ui-fix/`
+- **Skill name**: `vince-low-visibility-fix`
+- **Location**: `vince-low-visibility-fix/`
 - **Methodology**: built strictly against the `develop-principle` knowledge base
   (industrial skill = reusable capability package with 8 design units).
 
@@ -66,7 +66,7 @@ items are an explicit handoff list, never silently dropped.
 - **adjacent_confusions**: "design a new field UI" (→ design, not fix);
   "make it usable for blind users" (→ a11y populations, out of scope);
   "just prettify this CSS" (→ no field angle).
-- **manual_activation_phrases**: `$low-visibility-ui-fix`, "audit this for field/low-light".
+- **manual_activation_phrases**: `$vince-low-visibility-fix`, "audit this for field/low-light".
 - **risk_level**: medium — edits files → human gate mandatory.
 
 ### 4.2 Execution protocol (→ §4)
@@ -202,7 +202,7 @@ evolve); deprecation path reserved.
 
 ## 6. File / package layout
 ```
-1-low-visibility-ui-fix/
+vince-low-visibility-fix/
   SKILL.md                  # entry: identity / trigger / protocol / module table (<700 tokens)
   rules/
     audit-protocol.md       # detailed audit runbook + severity model (Step 3–4)

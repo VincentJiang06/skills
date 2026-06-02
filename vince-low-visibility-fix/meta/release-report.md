@@ -1,4 +1,4 @@
-# Release Gate Report — low-visibility-ui-fix
+# Release Gate Report — vince-low-visibility-fix
 
 Assessed against `meta/release-checklist.json`. Legend: **PASS** / **PARTIAL** /
 **DEFERRED**. As of v0.2.0 every gate is **PASS** — the agent-level gates were

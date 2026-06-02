@@ -2,7 +2,7 @@
 """Deterministic low-visibility UI analyzer (v0.1).
 
 Reads an HTML file (inline + <style>-block styles, explicit dimensions) and
-emits scored JSON findings per the low-visibility-ui-fix skill contract.
+emits scored JSON findings per the vince-low-visibility-fix skill contract.
 Stdlib only — no third-party dependencies.
 
 Scope (v0.1): inline `style` attributes and `<style>` blocks with simple

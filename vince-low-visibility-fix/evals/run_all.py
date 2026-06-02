@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unified regression runner for low-visibility-ui-fix (stdlib only).
+"""Unified regression runner for vince-low-visibility-fix (stdlib only).
 
 Layers:
   L0  schema validation  — design-tokens.json, eval-cases.json, every golden
@@ -135,7 +135,7 @@ def main():
     if args.write_metrics:
         rec = {
             "schema_version": "1.0.0",
-            "skill_id": "skill.low-visibility-ui-fix",
+            "skill_id": "skill.vince-low-visibility-fix",
             "generated_by": "evals/run_all.py --write-metrics",
             "measured": {
                 "l1_pass_rate": round(l1_pass / len(g), 3),

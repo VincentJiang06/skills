@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "template_id": "template.skill_design_record",
-  "skill_id": "skill.low-visibility-ui-fix",
+  "skill_id": "skill.vince-low-visibility-fix",
   "name_zh": "现场低能见度 UI 审计与修复",
   "name_en": "Low-Visibility UI Fix",
   "target_users": ["agent_developer", "frontend_engineer", "field_app_maintainer"],
@@ -23,7 +23,7 @@
       "make it accessible for blind users (a11y populations, out of scope)",
       "prettify CSS with no field angle"
     ],
-    "manual_activation_phrases": ["$low-visibility-ui-fix", "audit this for field/low-light"]
+    "manual_activation_phrases": ["$vince-low-visibility-fix", "audit this for field/low-light"]
   },
   "execution_protocol": {
     "preflight": [
@@ -99,7 +99,7 @@
       "analyzer re-runs after fix"
     ]
   },
-  "metric_plan_id": "metric_plan.low-visibility-ui-fix",
+  "metric_plan_id": "metric_plan.vince-low-visibility-fix",
   "reference_ids": [
     "doc.architecture.industrial_skill_design",
     "doc.testing.skill_testing_process",

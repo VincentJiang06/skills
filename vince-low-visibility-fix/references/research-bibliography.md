@@ -1,4 +1,4 @@
-# Standards & Rationale — low-visibility-ui-fix
+# Standards & Rationale — vince-low-visibility-fix
 
 The thresholds in `design-tokens.json` come from two sources, kept deliberately
 distinct for honesty: **published standards** (verifiable) and **field-elevation

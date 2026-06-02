@@ -35,5 +35,4 @@ refinement (1). L1 suite: **4/4**.
 
 ## Rollback
 
-The pre-fix demo is preserved in git (commit `1a85ba0`); restore with
-`git checkout 1a85ba0 -- 1-low-visibility-ui-fix/trial/inbound-inspection.html`.
+The pre-fix demo is preserved in git history (commit `1a85ba0`).

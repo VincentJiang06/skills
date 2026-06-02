@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
   "template_id": "template.metric_plan",
-  "metric_plan_id": "metric_plan.low-visibility-ui-fix",
-  "skill_id": "skill.low-visibility-ui-fix",
+  "metric_plan_id": "metric_plan.vince-low-visibility-fix",
+  "skill_id": "skill.vince-low-visibility-fix",
   "baseline": {
     "without_skill_run_id": "",
     "old_skill_run_id": ""

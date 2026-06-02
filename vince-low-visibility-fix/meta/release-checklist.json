@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
-  "checklist_id": "checklist.low-visibility-ui-fix.release",
-  "title_zh": "low-visibility-ui-fix 发布检查清单",
-  "title_en": "low-visibility-ui-fix Release Checklist",
+  "checklist_id": "checklist.vince-low-visibility-fix.release",
+  "title_zh": "vince-low-visibility-fix 发布检查清单",
+  "title_en": "vince-low-visibility-fix Release Checklist",
   "items": [
     {"id": "release.design_record", "required": true, "check_zh": "meta/skill-design-record.json 完整（触发/边界/协议/资源/测试/风险）。", "check_en": "meta/skill-design-record.json covers trigger, boundaries, protocol, resources, tests, risk."},
     {"id": "release.node_budget", "required": true, "check_zh": "SKILL.md 入口尽量短；长内容在 rules/references 按需加载。", "check_en": "SKILL.md entry kept short; long content lives on-demand in rules/references."},

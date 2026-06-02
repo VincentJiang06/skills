@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "skill_id": "skill.low-visibility-ui-fix",
+  "skill_id": "skill.vince-low-visibility-fix",
   "generated_by": "evals/run_all.py --write-metrics",
   "measured": {
     "l1_pass_rate": 1.0,

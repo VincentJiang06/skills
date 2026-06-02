@@ -1,12 +1,12 @@
 ---
-name: low-visibility-ui-fix
+name: vince-low-visibility-fix
 description: >
   Audit and fix existing mobile HTML/CSS for field low-visibility conditions —
   low light, glare, gloves, wet hands, vibration. Use when the user has an
   existing UI to make usable outdoors / in low light / with gloves, or to fix
   contrast, tap-target size, color-only state, or icon-only buttons in a
   field/industrial context. Triggers: "make this usable in the field", "fix
-  contrast/tap targets", "$low-visibility-ui-fix". Not for: designing new UI from
+  contrast/tap targets", "$vince-low-visibility-fix". Not for: designing new UI from
   scratch; disability/screen-reader a11y (colorblind, low-vision); generic CSS
   review with no low-visibility angle.
 ---

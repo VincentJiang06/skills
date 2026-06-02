@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "low-visibility-ui-fix/design-tokens",
+  "$id": "vince-low-visibility-fix/design-tokens",
   "title": "Low-visibility design tokens",
   "type": "object",
   "required": ["version", "contrast", "target_size", "spacing", "font_size"],

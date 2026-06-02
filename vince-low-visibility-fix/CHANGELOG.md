@@ -1,4 +1,4 @@
-# Changelog — low-visibility-ui-fix
+# Changelog — vince-low-visibility-fix
 
 ## 0.2.0 — 2026-06-01
 
