@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "1.0.0",
   "anchor_band": "center_mids",
   "quanta_thresholds_db": {"neutral": 1.5, "slight": 4.0, "notable": 7.0},
   "peak_detection": {"min_prominence_db": 3.0},

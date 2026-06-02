@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "1.0.0",
   "competence_tiers_by_sinad_db": [
     {"tier": "transparent",  "min_sinad": 100},
     {"tier": "very_good",    "min_sinad": 90},

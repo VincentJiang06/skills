@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0 — 2026-06-02 (final submission)
+- **Final release.** An independent pre-submission audit was run and cleared.
+  Correctness hardening: `fr_analyze` + `compare` now **enforce** rig↔target
+  compatibility (warn / not-comparable on a 5128 curve vs a 711 target — previously
+  documented but unchecked); the traceability gate no longer FAILs the word
+  "inaudible" and requires a transducer technicality to be `consensus`; `run_all` now
+  schema-validates the source goldens.
+- Submission polish: README refreshed (all 6 engines + targets/rigs), SKILL.md scripts
+  table completed, `.gitignore` added, stale `vince_iem_ref` recipe corrected, all
+  version stamps unified to 1.0.0.
+- **Capability summary** (built 0.1 → 1.0): two-track objective evaluation
+  (transducer 量感/风格 + tilt + peak/dip features; source competence + system
+  matching), style-profiled media roster, mandatory data-cleaning, evidence-
+  traceability gate, **compact + ~4000字 long-form** bilingual output, rig-tagged
+  multi-target set (711/GRAS/5128) with deterministic **compare** + **target-inference**
+  engines. `evals/run_all.py` GREEN across L0 schema + L1 goldens + gates.
+
 ## 0.4.1 — 2026-06-02
 - Updated `vince_iem_ref` to Vince's revised recipe: **JM-1 − 1 dB/oct tilt + 4 dB
   bass** (steeper tilt than the prior − 0.6, so warmer/darker: more bass, less
