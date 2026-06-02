@@ -21,9 +21,11 @@ direction indicator, not a grade — always report the underlying counts.
 - **contrast** — `measured` is the computed ratio, `threshold` the required one.
   Critical < baseline (4.5 text / 3.0 large); major < field (7.0 / 4.5).
 - **target_size** — `measured` is the smaller of width/height (or
-  font-size + vertical padding when no explicit box). Field floor 64px.
-- **icon_only** — an interactive control with no accessible name (no text,
-  `aria-label`, `title`, or child `img[alt]`).
+  font-size + vertical padding when no explicit box). Critical < 48px, major <
+  64px (field floor). 64px passes; 80px is ideal but not flagged.
+- **icon_only** — an interactive control with no **visible** text label. No
+  accessible name at all → major; `aria-label`/`title` only (no visible text) →
+  minor, because a glyph-only button is hard to identify under glare.
 - **color_only** — a non-interactive status element conveying state by color
   alone (no text/icon/shape).
 - **spacing** — adjacent interactive targets closer than the field gap (12px).

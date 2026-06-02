@@ -4,9 +4,9 @@
     "by_severity": {
       "critical": 14,
       "major": 12,
-      "minor": 3
+      "minor": 4
     },
-    "resolved_count": 29,
+    "resolved_count": 30,
     "needs_judgment_count": 2
   },
   "findings": [
@@ -110,6 +110,14 @@
     },
     {
       "id": "f11",
+      "rule": "icon_only",
+      "severity": "minor",
+      "location": "button.icon-btn (line 41)",
+      "axis": "glare",
+      "fix_hint": "add a visible text label (aria-label alone is weak under glare)"
+    },
+    {
+      "id": "f12",
       "rule": "spacing",
       "severity": "minor",
       "location": "button.icon-btn (line 41)",
@@ -119,7 +127,7 @@
       "fix_hint": "increase gap to >= 12px between targets"
     },
     {
-      "id": "f12",
+      "id": "f13",
       "rule": "target_size",
       "severity": "critical",
       "location": "button.icon-btn (line 42)",
@@ -127,17 +135,17 @@
       "threshold": 48,
       "axis": "gloves",
       "fix_hint": "enlarge target to >= 64px (gloves)"
-    },
-    {
-      "id": "f13",
-      "rule": "icon_only",
-      "severity": "major",
-      "location": "button.icon-btn (line 42)",
-      "axis": "glare",
-      "fix_hint": "add a visible text label or aria-label"
     },
     {
       "id": "f14",
+      "rule": "icon_only",
+      "severity": "major",
+      "location": "button.icon-btn (line 42)",
+      "axis": "glare",
+      "fix_hint": "add a visible text label or aria-label"
+    },
+    {
+      "id": "f15",
       "rule": "spacing",
       "severity": "minor",
       "location": "button.icon-btn (line 42)",
@@ -147,7 +155,7 @@
       "fix_hint": "increase gap to >= 12px between targets"
     },
     {
-      "id": "f15",
+      "id": "f16",
       "rule": "target_size",
       "severity": "critical",
       "location": "button.icon-btn (line 43)",
@@ -157,7 +165,7 @@
       "fix_hint": "enlarge target to >= 64px (gloves)"
     },
     {
-      "id": "f16",
+      "id": "f17",
       "rule": "icon_only",
       "severity": "major",
       "location": "button.icon-btn (line 43)",
@@ -165,7 +173,7 @@
       "fix_hint": "add a visible text label or aria-label"
     },
     {
-      "id": "f17",
+      "id": "f18",
       "rule": "spacing",
       "severity": "minor",
       "location": "button.icon-btn (line 43)",
@@ -175,7 +183,7 @@
       "fix_hint": "increase gap to >= 12px between targets"
     },
     {
-      "id": "f18",
+      "id": "f19",
       "rule": "font_size",
       "severity": "major",
       "location": "a.tab (line 48)",
@@ -183,19 +191,19 @@
       "threshold": 16,
       "axis": "low_light",
       "fix_hint": "raise font-size to >= 16px (18px for critical labels)"
-    },
-    {
-      "id": "f19",
-      "rule": "contrast",
-      "severity": "critical",
-      "location": "a.tab (line 48)",
-      "measured": 2.41,
-      "threshold": 4.5,
-      "axis": "glare",
-      "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 2.41:1)"
     },
     {
       "id": "f20",
+      "rule": "contrast",
+      "severity": "critical",
+      "location": "a.tab (line 48)",
+      "measured": 2.41,
+      "threshold": 4.5,
+      "axis": "glare",
+      "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 2.41:1)"
+    },
+    {
+      "id": "f21",
       "rule": "target_size",
       "severity": "critical",
       "location": "a.tab (line 48)",
@@ -205,7 +213,7 @@
       "fix_hint": "enlarge target to >= 64px (gloves)"
     },
     {
-      "id": "f21",
+      "id": "f22",
       "rule": "font_size",
       "severity": "major",
       "location": "a.tab (line 49)",
@@ -213,19 +221,19 @@
       "threshold": 16,
       "axis": "low_light",
       "fix_hint": "raise font-size to >= 16px (18px for critical labels)"
-    },
-    {
-      "id": "f22",
-      "rule": "contrast",
-      "severity": "critical",
-      "location": "a.tab (line 49)",
-      "measured": 2.41,
-      "threshold": 4.5,
-      "axis": "glare",
-      "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 2.41:1)"
     },
     {
       "id": "f23",
+      "rule": "contrast",
+      "severity": "critical",
+      "location": "a.tab (line 49)",
+      "measured": 2.41,
+      "threshold": 4.5,
+      "axis": "glare",
+      "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 2.41:1)"
+    },
+    {
+      "id": "f24",
       "rule": "target_size",
       "severity": "critical",
       "location": "a.tab (line 49)",
@@ -235,7 +243,7 @@
       "fix_hint": "enlarge target to >= 64px (gloves)"
     },
     {
-      "id": "f24",
+      "id": "f25",
       "rule": "font_size",
       "severity": "major",
       "location": "a.tab (line 50)",
@@ -245,7 +253,7 @@
       "fix_hint": "raise font-size to >= 16px (18px for critical labels)"
     },
     {
-      "id": "f25",
+      "id": "f26",
       "rule": "contrast",
       "severity": "critical",
       "location": "a.tab (line 50)",
@@ -255,7 +263,7 @@
       "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 2.41:1)"
     },
     {
-      "id": "f26",
+      "id": "f27",
       "rule": "target_size",
       "severity": "critical",
       "location": "a.tab (line 50)",
@@ -265,7 +273,7 @@
       "fix_hint": "enlarge target to >= 64px (gloves)"
     },
     {
-      "id": "f27",
+      "id": "f28",
       "rule": "font_size",
       "severity": "major",
       "location": "button.primary (line 53)",
@@ -275,7 +283,7 @@
       "fix_hint": "raise font-size to >= 16px (18px for critical labels)"
     },
     {
-      "id": "f28",
+      "id": "f29",
       "rule": "contrast",
       "severity": "critical",
       "location": "button.primary (line 53)",
@@ -285,7 +293,7 @@
       "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 3.4:1)"
     },
     {
-      "id": "f29",
+      "id": "f30",
       "rule": "target_size",
       "severity": "critical",
       "location": "button.primary (line 53)",

@@ -48,8 +48,11 @@ a11y tooling.
 
 ## Status
 
-**v0.1** — analyzer covers contrast, target_size, icon_only, color_only, spacing,
-font_size; L1 golden suite passes 3/3. Analyzer v0.1 handles inline + `<style>`-block
-styles and explicit dimensions; unresolved CSS (variables, theme colors,
-background images, JS state) is reported as `needs_judgment`. Paired eval (L5) and
-a cited field-threshold bibliography are deferred to a later version.
+**v0.1.1** — analyzer covers contrast, target_size (incl. `min-*` floors),
+icon_only (visible-text aware), color_only, spacing, font_size; L1 golden suite
+passes 4/4 and an end-to-end dogfood trial is green (see `trial/TRIAL_REPORT.md`
+and `CHANGELOG.md`). The analyzer handles inline + `<style>`-block styles and
+explicit/min dimensions; unresolved CSS (variables, theme colors, background
+images, JS state) is reported as `needs_judgment`. Paired eval (L5), `:root`
+custom-property resolution, and a cited field-threshold bibliography are deferred
+to a later version.

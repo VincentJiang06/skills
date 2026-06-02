@@ -126,6 +126,12 @@ def expand_box(decls, prop):
     return sides["top"], sides["right"], sides["bottom"], sides["left"]
 
 
+def floor_dim(*vals):
+    """Guaranteed lower-bound dimension from width/min-width style values."""
+    present = [v for v in vals if v is not None]
+    return max(present) if present else None
+
+
 # --- CSS parsing -------------------------------------------------------------
 
 def parse_decls(text):
@@ -413,9 +419,11 @@ def analyze(root, rules, tokens):
 
         # --- interactive checks ---
         if is_interactive(node):
-            # target_size
-            w = parse_length_px(own.get("width"))
-            h = parse_length_px(own.get("height"))
+            # target_size — honor min-width/min-height as a guaranteed floor
+            w = floor_dim(parse_length_px(own.get("width")),
+                          parse_length_px(own.get("min-width")))
+            h = floor_dim(parse_length_px(own.get("height")),
+                          parse_length_px(own.get("min-height")))
             if h is None:
                 pt, _, pb, _ = expand_box(own, "padding")
                 fsize = parse_length_px(resolved(node, rules, "font-size", inherit=True,
@@ -434,16 +442,18 @@ def analyze(root, rules, tokens):
                 elif size < tg["field_px"]:
                     add("target_size", "major", node, measured=size,
                         threshold=tg["field_px"], axis="gloves",
-                        fix_hint=f"enlarge target to >= {tg['field_px']}px (gloves)")
-                elif size < tg["recommended_px"]:
-                    add("target_size", "minor", node, measured=size,
-                        threshold=tg["recommended_px"], axis="gloves",
-                        fix_hint=f"consider >= {tg['recommended_px']}px")
+                        fix_hint=f"enlarge target to >= {tg['field_px']}px (gloves; "
+                        f"{tg['recommended_px']}px ideal)")
 
-            # icon_only (no accessible name)
-            if not accessible_name(node):
-                add("icon_only", "major", node, axis="glare",
-                    fix_hint="add a visible text label or aria-label")
+            # icon_only: field needs a VISIBLE text label; an aria-label alone is
+            # a weak fallback under glare, so it downgrades rather than clears.
+            if not text_content(node):
+                if accessible_name(node):
+                    add("icon_only", "minor", node, axis="glare",
+                        fix_hint="add a visible text label (aria-label alone is weak under glare)")
+                else:
+                    add("icon_only", "major", node, axis="glare",
+                        fix_hint="add a visible text label or aria-label")
 
             # spacing vs adjacent interactive siblings
             siblings = [c for c in node.parent.children if is_interactive(c)] \

@@ -1,0 +1,32 @@
+{
+  "summary": {
+    "score": 90,
+    "by_severity": {
+      "critical": 0,
+      "major": 1,
+      "minor": 1
+    },
+    "resolved_count": 2,
+    "needs_judgment_count": 0
+  },
+  "findings": [
+    {
+      "id": "f1",
+      "rule": "icon_only",
+      "severity": "minor",
+      "location": "button.iconbtn (line 14)",
+      "axis": "glare",
+      "fix_hint": "add a visible text label (aria-label alone is weak under glare)"
+    },
+    {
+      "id": "f2",
+      "rule": "icon_only",
+      "severity": "major",
+      "location": "button.iconbtn (line 16)",
+      "axis": "glare",
+      "fix_hint": "add a visible text label or aria-label"
+    }
+  ],
+  "needs_judgment": [],
+  "target": "icon_aria_only.html"
+}

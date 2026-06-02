@@ -9,7 +9,7 @@
   },
   "candidate": {
     "with_skill_run_id": "",
-    "new_skill_version": "0.1.0"
+    "new_skill_version": "0.1.1"
   },
   "required_metrics": [
     "metric.task_success_rate",
@@ -36,7 +36,7 @@
     "skill_entry_tokens_estimate": 760,
     "skill_entry_tokens_target": 700,
     "skill_entry_tokens_status": "slightly over target; tracked optimization, not a release blocker",
-    "measured_l1": "evals/check.py 3/3 fixtures pass",
+    "measured_l1": "evals/check.py 4/4 fixtures pass; end-to-end dogfood trial green (trial/TRIAL_REPORT.md)",
     "marginal_lift_method": "contrast/target/font_size pass-rate on a fixture set, with-skill fix vs unedited baseline"
   }
 }
