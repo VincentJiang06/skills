@@ -5,7 +5,7 @@
   "rig": "iec711",
   "alignment": {
     "method": "anchor_center_mids",
-    "offset_db": -64.1
+    "offset_db": -64.3
   },
   "bands": [
     {
@@ -14,7 +14,7 @@
         20,
         60
       ],
-      "dev_db": -0.3,
+      "dev_db": -0.9,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -25,7 +25,7 @@
         60,
         200
       ],
-      "dev_db": -0.0,
+      "dev_db": -0.2,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -36,7 +36,7 @@
         200,
         500
       ],
-      "dev_db": 0.9,
+      "dev_db": 0.1,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -58,7 +58,7 @@
         1000,
         3000
       ],
-      "dev_db": -1.4,
+      "dev_db": -0.5,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -69,7 +69,7 @@
         3000,
         6000
       ],
-      "dev_db": -2.3,
+      "dev_db": -3.4,
       "quanta": -1,
       "label_zh": "略少",
       "label_en": "slightly lacking"
@@ -80,7 +80,7 @@
         6000,
         10000
       ],
-      "dev_db": 2.6,
+      "dev_db": 2.3,
       "quanta": 1,
       "label_zh": "略多",
       "label_en": "slightly elevated"
@@ -91,7 +91,7 @@
         10000,
         20000
       ],
-      "dev_db": -0.6,
+      "dev_db": 1.4,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -103,24 +103,18 @@
     "rule_fired": "all sections within +/-1"
   },
   "tilt": {
-    "tilt_db": 0.1,
+    "tilt_db": 0.7,
     "label_zh": "中性倾斜",
     "label_en": "even",
-    "low_extension_db": -0.3,
-    "high_extension_db": -0.6
+    "low_extension_db": -0.9,
+    "high_extension_db": 1.4
   },
   "features": [
     {
       "hz": 8127.0,
-      "residual_db": 3.5,
+      "residual_db": 4.9,
       "type": "peak",
       "hint": "齿音风险 / sibilance"
-    },
-    {
-      "hz": 4064.0,
-      "residual_db": -3.4,
-      "type": "dip",
-      "hint": "齿音抑制 / de-essed"
     }
   ],
   "precision": "quantitative",

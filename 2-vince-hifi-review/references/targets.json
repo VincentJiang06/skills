@@ -1,20 +1,21 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "anchor_band": "center_mids",
   "quanta_thresholds_db": {"neutral": 1.5, "slight": 4.0, "notable": 7.0},
   "peak_detection": {"min_prominence_db": 3.0},
+  "_provenance": "band_levels_db are band-averages relative to the 500Hz-1kHz anchor (=0), derived from raw target .txt files (squig.link mirrors) cross-checked vs Olive/Harman + Crinacle docs. High confidence: harman_ie_2019, harman_oe_2018, ief_neutral. Medium: diffuse_field (3kHz peak height varies +10..+12 dB across DF sources). 711-coupler air-band (>8-10kHz) is resonance-dominated; treat air values as directional. See research-bibliography.md.",
   "targets": {
     "harman_ie_2019": {"label": "Harman In-Ear 2019", "applies_to": ["iem", "tws"],
-      "band_levels_db": {"sub_bass": 6.0, "mid_bass": 4.0, "lower_mids": 0.5, "center_mids": 0.0,
-        "upper_mids": 3.0, "lower_treble": 1.0, "mid_treble": -2.0, "air": -4.0}},
+      "band_levels_db": {"sub_bass": 7.5, "mid_bass": 3.0, "lower_mids": -0.5, "center_mids": 0.0,
+        "upper_mids": 4.5, "lower_treble": 8.5, "mid_treble": 4.0, "air": -7.0}},
     "harman_oe_2018": {"label": "Harman Over-Ear 2018", "applies_to": ["headphone"],
-      "band_levels_db": {"sub_bass": 4.0, "mid_bass": 3.0, "lower_mids": 0.5, "center_mids": 0.0,
-        "upper_mids": 3.0, "lower_treble": 0.0, "mid_treble": -3.0, "air": -5.0}},
-    "ief_neutral": {"label": "Crinacle IEF Neutral", "applies_to": ["iem", "tws"],
-      "band_levels_db": {"sub_bass": 4.0, "mid_bass": 2.0, "lower_mids": 0.0, "center_mids": 0.0,
-        "upper_mids": 2.0, "lower_treble": 0.5, "mid_treble": -2.0, "air": -3.0}},
+      "band_levels_db": {"sub_bass": 4.0, "mid_bass": 1.0, "lower_mids": -1.0, "center_mids": 0.0,
+        "upper_mids": 4.0, "lower_treble": 7.5, "mid_treble": 2.5, "air": -7.5}},
+    "ief_neutral": {"label": "Crinacle IEF Neutral (2020)", "applies_to": ["iem", "tws"],
+      "band_levels_db": {"sub_bass": 0.0, "mid_bass": 0.0, "lower_mids": -0.3, "center_mids": 0.0,
+        "upper_mids": 3.5, "lower_treble": 5.5, "mid_treble": 1.5, "air": -3.5}},
     "diffuse_field": {"label": "Diffuse Field", "applies_to": ["iem", "headphone"],
-      "band_levels_db": {"sub_bass": 0.0, "mid_bass": 0.0, "lower_mids": 0.0, "center_mids": 0.0,
-        "upper_mids": 3.0, "lower_treble": 1.0, "mid_treble": 0.0, "air": -2.0}}
+      "band_levels_db": {"sub_bass": -3.0, "mid_bass": -3.0, "lower_mids": -1.5, "center_mids": 0.0,
+        "upper_mids": 5.0, "lower_treble": 8.0, "mid_treble": 5.5, "air": 0.0}}
   }
 }

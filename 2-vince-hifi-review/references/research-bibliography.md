@@ -22,10 +22,30 @@ Citations are by name/standard; resolve exact editions during a deeper audit.
   Basis for `targets.json: ief_neutral`. *Relevance:* widely used alternative to
   Harman IE for analytical listeners.
 
-⚠️ **Values needing validation:** the `band_levels_db` in `targets.json` are
-band-averaged *approximations* of each published target's balance relative to the
-`center_mids` anchor. Validate against the published curves in Phase 8 (plan
-Task 18) before treating any single dB as authoritative.
+✅ **Validated (v0.3):** `targets.json` `band_levels_db` are band-averages relative
+to the 500 Hz–1 kHz anchor, derived from the raw target `.txt` files (squig.link
+mirrors) and cross-checked against Olive/Harman + Crinacle's published descriptions.
+- **Harman IE 2019** (high conf): bass shelf ~+7.6 dB (20 Hz re 1 kHz; ~+9 dB re the
+  ~500 Hz midrange dip), ear-gain peak ~+10 dB at ~3 kHz, treble back to ~0 dB by
+  10 kHz then a hard roll-off — so the 3–6 kHz band (lower_treble) averages strongly
+  positive (~+8.5), which earlier seed values badly under-stated.
+- **Harman OE 2018** (high conf, two mirrors agree): ~half the bass shelf (~+4 dB)
+  and a ~+8.7 dB ear-gain.
+- **IEF Neutral 2020** (high conf shape): flat bass (no shelf) + a gentler ~+7.4 dB
+  ear-gain — the headline difference from Harman IE.
+- **Diffuse Field** (med conf): no bass boost; a tall ~+10–12 dB 2.7–3 kHz peak
+  (height varies by DF source) and more treble energy up top.
+
+**Caveats baked in:** (a) a "bass shelf dB" depends on reference point — vs 1 kHz vs
+the ~500 Hz midrange dip differ ~1.4 dB; (b) the DF 3 kHz peak is a range (+10..+12),
+not a fixed number; (c) IEF has multiple vintages (2020 / 2023-5128 / 2025) — we
+encode the 2020 target; (d) the 711-coupler air-band (>8–10 kHz) is
+resonance-dominated, so `air` values are directional only.
+
+Sources: raw target `.txt` (squig.link mirrors: regancipher [Harman IE 2019],
+sai+ish [Harman OE 2018, two mirrors agree], timmyv [IEF Neutral 2020], aftersound
+[Diffuse Field]); Crinacle "IEF Neutral" write-ups (2020, 2025); Olive, *The
+Perception and Measurement of Headphone Sound Quality*, Acoustics Today 2022.
 
 ## Source gear (DAC / amp / DAP)
 
