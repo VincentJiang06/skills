@@ -102,6 +102,13 @@
     "label_en": "warm",
     "rule_fired": "bass>=1 & treble<=-0.5"
   },
+  "tilt": {
+    "tilt_db": -5.7,
+    "label_zh": "暖向",
+    "label_en": "warm-tilted",
+    "low_extension_db": 3.0,
+    "high_extension_db": -3.0
+  },
   "features": [],
   "precision": "quantitative",
   "warnings": []

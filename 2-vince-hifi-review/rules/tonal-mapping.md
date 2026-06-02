@@ -28,6 +28,15 @@ treble = avg(lower_treble,mid_treble,air). Evaluate **in order**, first match wi
 7. **均衡 / neutral** — every section within ±1
 8. **混合 / mixed** — none dominates
 
+## Spectral tilt (continuous nuance) — the `tilt` object
+Alongside the discrete 风格 label, the engine emits **`tilt`**: `tilt_db` = mean
+treble dev − mean bass dev (≤ −2 → 暖向/warm-tilted, ≥ +2 → 亮向/bright-tilted,
+else 中性倾斜/even), plus `low_extension_db` (sub-bass) and `high_extension_db`
+(air). Tilt disambiguates what the label can't: a **V-shape** has elevated bass
+*and* treble, so its tilt is ≈ **even** — "balanced emphasis at both ends", not
+"warm". Use `tilt_db` to grade *how* warm/bright a device is within its label, and
+the two extension figures to describe low/high reach.
+
 ## Sharp features (peaks/dips) — the `features` array
 The band quanta are **band-resolution** (they average within a band), so they can
 miss a sharp narrow peak/dip. The engine therefore ALSO runs a peak/dip pass and

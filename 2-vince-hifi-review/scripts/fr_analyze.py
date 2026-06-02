@@ -137,6 +137,27 @@ def detect_features(pts, prom):
             for hz, r, t in feats[:5]]
 
 
+def spectral_tilt(bands):
+    """Continuous bass<->treble balance (a nuance complement to the discrete 风格
+    label), plus low/high extension. Uses dev_db for precision."""
+    dev = {b["id"]: b["dev_db"] for b in bands}
+
+    def g(k):
+        return dev.get(k, 0.0)
+
+    bass = (g("sub_bass") + g("mid_bass")) / 2.0
+    treb = (g("lower_treble") + g("mid_treble") + g("air")) / 3.0
+    tilt = round(treb - bass, 1)
+    if tilt <= -2:
+        zh, en = "暖向", "warm-tilted"
+    elif tilt >= 2:
+        zh, en = "亮向", "bright-tilted"
+    else:
+        zh, en = "中性倾斜", "even"
+    return {"tilt_db": tilt, "label_zh": zh, "label_en": en,
+            "low_extension_db": round(g("sub_bass"), 1), "high_extension_db": round(g("air"), 1)}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("fr")
@@ -173,7 +194,7 @@ def main():
     prom = targets.get("peak_detection", {}).get("min_prominence_db", 3.0)
     out = {"device": args.device, "category": args.category, "target": args.target,
            "rig": args.rig, "alignment": {"method": "anchor_%s" % anchor, "offset_db": round(offset, 1)},
-           "bands": bands, "signature": signature(bands),
+           "bands": bands, "signature": signature(bands), "tilt": spectral_tilt(bands),
            "features": detect_features(pts, prom),
            "precision": "quantitative", "warnings": warnings}
     print(json.dumps(out, ensure_ascii=False, indent=2))

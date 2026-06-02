@@ -102,6 +102,13 @@
     "label_en": "neutral",
     "rule_fired": "all sections within +/-1"
   },
+  "tilt": {
+    "tilt_db": 0.1,
+    "label_zh": "中性倾斜",
+    "label_en": "even",
+    "low_extension_db": -0.3,
+    "high_extension_db": -0.6
+  },
   "features": [
     {
       "hz": 8127.0,

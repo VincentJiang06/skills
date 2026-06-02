@@ -102,6 +102,13 @@
     "label_en": "V-shape",
     "rule_fired": "bass>=1 & treble>=1 & mids<=0.5"
   },
+  "tilt": {
+    "tilt_db": -1.3,
+    "label_zh": "中性倾斜",
+    "label_en": "even",
+    "low_extension_db": 5.0,
+    "high_extension_db": 3.0
+  },
   "features": [],
   "precision": "quantitative",
   "warnings": []
