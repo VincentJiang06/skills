@@ -149,9 +149,13 @@ claim that is not already in the evidence set.
    flag conflicts.
    *source*: engineering notes (chip/topology/PSU as low-weight priors) +
    transparency-vs-coloration character verdict from measurements.
-7. **Synthesize** — class-discriminated profile JSON + bilingual literary render;
-   every claim tagged `measured|consensus|prior` + confidence; gaps marked
-   "evidence insufficient / 证据不足".
+7. **Synthesize** — class-discriminated profile JSON + ONE of two renderings:
+   (a) **compact** bilingual summary, or (b) a **~4000字 long-form 评测长文**
+   (`rules/longform-review.md` + `assets/longform-template.md`). Both render *only*
+   from the evidence set; every claim tagged `measured|consensus|prior` + confidence;
+   gaps marked "evidence insufficient / 证据不足". The long-form is Chinese-primary
+   (key terms glossed in English), ends with a **traceability appendix**, and ships
+   with its backing `evaluation.json` as the audit trail.
 8. **Self-verify** — `validate_output.py`: schema + traceability (each claim has a
    valid source id; no measured-claim without a curve/metric; no technicality tagged
    `measured`; no source-gear audible-difference claim unsupported by measurement).
@@ -247,6 +251,7 @@ metric; a cross-rig comparison without a flag.
 - `negative.eq_request` / `negative.speaker` — out of scope.
 - `adversarial.fictional_model` — nonexistent device → refuse / "no evidence".
 - `adversarial.snake_oil_source` — "this $2000 DAC sounds warmer" → measurements say transparent; hold the line.
+- `longform.transducer_4000zi` — render the evidence set as a **~4000字 评测长文** → passes `check_longform.py` (字 count + required sections) AND its backing `evaluation.json` passes the traceability gate; an over-claim judge finds no sentence exceeding evidence.
 
 `evals/fixtures/` — cached FR CSVs, ASR-style metric sheets, review-text snapshots,
 each with an `*.expected.json` golden (drives L1/L2; keeps evals offline & stable).
@@ -256,7 +261,7 @@ Pyramid mapping:
 - **L1** — engine output schema; `fr_analyze`/`source_analyze` on fixtures → expected JSON; validator contract.
 - **L2** — trigger-routing cases; cleaning rules on a messy fixture → canonical set; glossary normalization.
 - **L3** — trajectory `gather → clean → measure → corroborate → synthesize → verify`.
-- **L4** — end-to-end on a fixed device (cached sources) for each class.
+- **L4** — end-to-end on a fixed device (cached sources) for each class, incl. a **long-form 评测长文** render checked by `check_longform.py` + its backing JSON through the gate.
 - **L5** — paired eval (with/without skill): tonal-accuracy + traceability lift.
 
 ### 4.7 Metrics (→ `quantitative_skill_metrics`)
@@ -267,6 +272,8 @@ Pyramid mapping:
 - `claim_traceability_rate` — **= 1.0** (gate)
 - `unsupported_claim_rate` — **= 0** (gate)
 - `measured_vs_consensus_mistag_rate` — **= 0** (gate)
+- `longform_length_ok` (CJK 字 within target band) + `longform_structure_ok` (required sections present) — **= 1.0** when a long-form is requested
+- `longform_traceability` (backing `evaluation.json` passes the gate) — **= 1.0** (gate)
 - `cleaning_dedup_recall` + `marketing_strip_precision` — measured on cleaning fixtures
 - `activation_precision` — **≥ 0.9**; `false_positive_rate` / `false_negative_rate` tracked
 - `pass_k_all` (k=3) + `variance` (band vector + label stability)
@@ -300,6 +307,7 @@ deprecation paths reserved.
     accuracy-guardrails.md       # rig/target compatibility, conflict handling, never-invent, EOL/freshness, IEM insertion caveats
     literary-rendering.md        # Step 7: 文学化 but anchored; provenance tags; bilingual rendering; forbidden over-claims
     comparison-mode.md           # head-to-head: target/rig alignment, per-band delta table, not-comparable rule
+    longform-review.md           # Step 7: ~4000字 评测长文 structure, length budget, section→evidence anchoring, traceability appendix
   references/
     targets.json                 # ★ Harman OE2018 / IE2019 / IEF / DF target curves + band thresholds
     band-taxonomy.json           # ★ 8 bands + Hz + 量感 scale (shared by script + rules)
@@ -311,6 +319,9 @@ deprecation paths reserved.
     fr_analyze.py                # transducer engine: FR + target → band Δ / 量感 / 风格 (deterministic)
     source_analyze.py            # source engine: measured metrics → competence tier + system matching (deterministic)
     validate_output.py           # shared schema + traceability gate (exit 1 on violation)
+    check_longform.py            # long-form QA: CJK 字 count (~4000), required section headings, optional backing-JSON gate (exit 1)
+  assets/
+    longform-template.md         # transducer + source long-form skeletons (sections + 字 budgets)
   schemas/
     evaluation.schema.json       # class-discriminated output contract (transducer | source sub-schemas)
     fr-analysis.schema.json      # fr_analyze.py output (L1)

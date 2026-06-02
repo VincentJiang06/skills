@@ -38,3 +38,11 @@ difference? unit variation? insertion depth?) rather than averaging.
 A technicality claim's `provenance` is always `consensus`. The traceability gate
 (`validate_output.py`) rejects any `soundstage/imaging/resolution/dynamics/
 transient/timbre` claim tagged `measured`.
+
+**No provenance inflation — in the JSON *and* in prose.** A measurement-publishing
+source's *subjective* soundstage/detail opinion is still subjective. Never write
+that a technicality is 测量背书 / measurement-backed, even when the same source (or a
+different source) also provides FR/THD data — distortion and frequency response
+cannot establish soundstage, imaging, or resolution. Cite such sources for their
+*impressions*, not as measurement corroboration. Measurement only backs FR-derived
+量感/风格 and bench metrics (SINAD/THD/impedance/power).

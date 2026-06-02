@@ -69,6 +69,13 @@ def gate():
     return rc_good == 0 and rc_bad == 1
 
 
+def longform():
+    rc, _, _ = run(os.path.join(ROOT, "scripts", "check_longform.py"),
+                   os.path.join(FIX, "longform_warm_iem.md"), "--class", "transducer",
+                   "--backing", os.path.join(FIX, "longform_warm_iem.evaluation.json"))
+    return rc == 0
+
+
 def entry_tokens():
     txt = open(os.path.join(ROOT, "SKILL.md"), encoding="utf-8").read()
     return round((len(txt) / 4 + len(txt.split()) * 1.3) / 2)
@@ -93,6 +100,11 @@ def main():
     gg = gate()
     print("  PASS" if gg else "  FAIL")
     ok &= gg
+
+    print("== long-form 评测长文 ==")
+    lf = longform()
+    print("  PASS" if lf else "  FAIL")
+    ok &= lf
 
     print("== SKILL.md tokens ==")
     if os.path.exists(os.path.join(ROOT, "SKILL.md")):
