@@ -24,6 +24,19 @@
       "checks": ["transparent competence stated as measured", "'warmer/analog' review logged as unsupported subjective (confidence 0.1) with dissent note", "no asserted audible difference", "measurements stated as transparent"]
     }
   },
-  "deterministic_regression": "evals/run_all.py GREEN (L0 schema + L1 golden both engines + determinism + output gate + token budget)",
+  "longform_v0_2": {
+    "method": "subagent acted as the skill and generated a ~4000字 长文 from a rich V-shape TWS evidence set; independently re-checked with check_longform.py --backing and audited by an adversarial over-claim judge",
+    "generation": {
+      "length_zi": 4487, "in_band_3500_4500": true, "all_8_sections": true,
+      "backing_gate": "PASS (check_longform exit 0; backing evaluation.json passes validate_output)"
+    },
+    "over_claim_judge": {
+      "verdict": "issues_found (1 subtle)",
+      "finding": "prose twice described consensus-only soundstage/resolution as 测量背书/measurement-backed (provenance inflation)",
+      "held_well": ["stripped tier-4 marketing hype", "preserved the treble-splashiness conflict as flagged dissent", "withheld drivability/CSD/codec claims as gaps", "no technicality tagged measured"],
+      "action": "hardened rules/technicalities-from-reviews.md + rules/longform-review.md with a 'no provenance inflation' guardrail; canonical fixture verified clean"
+    }
+  },
+  "deterministic_regression": "evals/run_all.py GREEN (L0 schema + L1 golden both engines + determinism + output gate + long-form 评测长文 + token budget)",
   "limitations": "targets.json band_levels_db are seed approximations (see research-bibliography.md); agent-level pass@k / cost-per-success at scale and a full with/without-skill paired lift remain future work."
 }
