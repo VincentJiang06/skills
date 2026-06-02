@@ -1,8 +1,8 @@
 # Release Gate Report — low-visibility-ui-fix
 
 Assessed against `meta/release-checklist.json`. Legend: **PASS** / **PARTIAL** /
-**DEFERRED**. PARTIAL/DEFERRED items need live agent runs not available in this
-build; the harness for them exists.
+**DEFERRED**. As of v0.2.0 every gate is **PASS** — the agent-level gates were
+measured via live subagent runs (see the Live evaluation section).
 
 | Gate | Status | Evidence |
 |---|---|---|
