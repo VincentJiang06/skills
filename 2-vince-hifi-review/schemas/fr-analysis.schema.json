@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["device", "category", "target", "rig", "alignment", "bands", "signature", "precision", "warnings"],
+  "required": ["device", "category", "target", "rig", "alignment", "bands", "signature", "features", "precision", "warnings"],
   "additionalProperties": false,
   "properties": {
     "device": {"type": "string"}, "category": {"enum": ["iem", "headphone", "tws"]},
@@ -17,6 +17,10 @@
     "signature": {"type": "object", "required": ["label_zh", "label_en", "rule_fired"],
       "additionalProperties": false,
       "properties": {"label_zh": {"type": "string"}, "label_en": {"type": "string"}, "rule_fired": {"type": "string"}}},
+    "features": {"type": "array", "items": {
+      "type": "object", "required": ["hz", "residual_db", "type", "hint"], "additionalProperties": false,
+      "properties": {"hz": {"type": "number"}, "residual_db": {"type": "number"},
+        "type": {"enum": ["peak", "dip"]}, "hint": {"type": "string"}}}},
     "precision": {"enum": ["quantitative", "qualitative"]},
     "warnings": {"type": "array", "items": {"type": "string"}}
   }

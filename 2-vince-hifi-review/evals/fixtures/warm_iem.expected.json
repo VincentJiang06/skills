@@ -102,6 +102,7 @@
     "label_en": "warm",
     "rule_fired": "bass>=1 & treble<=-0.5"
   },
+  "features": [],
   "precision": "quantitative",
   "warnings": []
 }

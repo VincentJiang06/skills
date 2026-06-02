@@ -1,11 +1,11 @@
 {
-  "device": "fixture:neutral_hp",
-  "category": "headphone",
-  "target": "harman_oe_2018",
-  "rig": "gras",
+  "device": "fixture:peaky_iem",
+  "category": "iem",
+  "target": "harman_ie_2019",
+  "rig": "iec711",
   "alignment": {
     "method": "anchor_center_mids",
-    "offset_db": -70.0
+    "offset_db": -64.1
   },
   "bands": [
     {
@@ -14,7 +14,7 @@
         20,
         60
       ],
-      "dev_db": 0.0,
+      "dev_db": -0.3,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -25,7 +25,7 @@
         60,
         200
       ],
-      "dev_db": 0.0,
+      "dev_db": -0.0,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -36,7 +36,7 @@
         200,
         500
       ],
-      "dev_db": 0.0,
+      "dev_db": 0.9,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -58,7 +58,7 @@
         1000,
         3000
       ],
-      "dev_db": 0.0,
+      "dev_db": -1.4,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -69,10 +69,10 @@
         3000,
         6000
       ],
-      "dev_db": 0.0,
-      "quanta": 0,
-      "label_zh": "中性",
-      "label_en": "neutral"
+      "dev_db": -2.3,
+      "quanta": -1,
+      "label_zh": "略少",
+      "label_en": "slightly lacking"
     },
     {
       "id": "mid_treble",
@@ -80,10 +80,10 @@
         6000,
         10000
       ],
-      "dev_db": 0.0,
-      "quanta": 0,
-      "label_zh": "中性",
-      "label_en": "neutral"
+      "dev_db": 2.6,
+      "quanta": 1,
+      "label_zh": "略多",
+      "label_en": "slightly elevated"
     },
     {
       "id": "air",
@@ -91,7 +91,7 @@
         10000,
         20000
       ],
-      "dev_db": 0.0,
+      "dev_db": -0.6,
       "quanta": 0,
       "label_zh": "中性",
       "label_en": "neutral"
@@ -102,7 +102,20 @@
     "label_en": "neutral",
     "rule_fired": "all sections within +/-1"
   },
-  "features": [],
+  "features": [
+    {
+      "hz": 8127.0,
+      "residual_db": 3.5,
+      "type": "peak",
+      "hint": "齿音风险 / sibilance"
+    },
+    {
+      "hz": 4064.0,
+      "residual_db": -3.4,
+      "type": "dip",
+      "hint": "齿音抑制 / de-essed"
+    }
+  ],
   "precision": "quantitative",
   "warnings": []
 }

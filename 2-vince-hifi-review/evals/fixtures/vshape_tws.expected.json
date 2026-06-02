@@ -102,6 +102,7 @@
     "label_en": "V-shape",
     "rule_fired": "bass>=1 & treble>=1 & mids<=0.5"
   },
+  "features": [],
   "precision": "quantitative",
   "warnings": []
 }
