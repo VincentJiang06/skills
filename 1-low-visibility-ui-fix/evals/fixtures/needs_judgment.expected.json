@@ -13,11 +13,11 @@
   "needs_judgment": [
     {
       "reason": "css_var_unresolved",
-      "location": "div.card (line 14)"
+      "location": "div.card (line 13)"
     },
     {
       "reason": "bg_image",
-      "location": "div.hero (line 15)"
+      "location": "div.hero (line 14)"
     }
   ],
   "target": "needs_judgment.html"

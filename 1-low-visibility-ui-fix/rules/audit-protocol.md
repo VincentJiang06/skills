@@ -38,8 +38,9 @@ yourself — and say *how* you concluded it:
 
 | reason | How to complete |
 |---|---|
-| `css_var_unresolved` | Resolve the variable from `:root`/theme; if it is runtime-themed, assess each theme or flag the worst case. Do not fabricate a ratio. |
+| `css_var_unresolved` | The analyzer auto-resolves `:root`/`html` `var()`; this fires only for runtime-themed, locally-scoped, or undefined variables. Assess each theme or flag the worst case; do not fabricate a ratio. |
 | `bg_image` | Text sits on an image — contrast is not a single number. Recommend a scrim/overlay or a solid text background; estimate visually from any screenshot. |
+| `external_stylesheet` | A `<link rel=stylesheet>` could not be read. Ask for the CSS file (or inline it) for an exact audit; otherwise audit only what is inline and say so explicitly. |
 | `js_state` | State styles are applied at runtime; inspect the JS/class logic or ask which states exist. |
 | `image_only` | Screenshot input — give a visual estimate and label it an estimate, not a measurement. |
 | `target_size_unresolved` | Size is layout-dependent; check the rendered element or computed style before judging. |

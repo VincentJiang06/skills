@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "score": 85,
+    "by_severity": {
+      "critical": 1,
+      "major": 0,
+      "minor": 0
+    },
+    "resolved_count": 1,
+    "needs_judgment_count": 0
+  },
+  "findings": [
+    {
+      "id": "f1",
+      "rule": "contrast",
+      "severity": "critical",
+      "location": "div.card (line 14)",
+      "measured": 4.48,
+      "threshold": 4.5,
+      "axis": "glare",
+      "fix_hint": "increase fg/bg contrast to >= 7.0:1 (currently 4.48:1)"
+    }
+  ],
+  "needs_judgment": [],
+  "target": "themed_vars.html"
+}

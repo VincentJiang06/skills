@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>resolvable :root var fixture</title>
+<style>
+  :root { --muted: #777777; --paper: #ffffff; }
+  body { font-size: 16px; }
+  .card { color: var(--muted); background-color: var(--paper); }
+</style>
+</head>
+<body>
+  <!-- --muted resolves to #777777 on #ffffff = 4.48:1 -> critical contrast (no needs_judgment) -->
+  <div class="card">主题色文字</div>
+</body>
+</html>

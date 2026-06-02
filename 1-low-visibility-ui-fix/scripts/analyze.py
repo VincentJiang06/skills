@@ -172,23 +172,51 @@ def parse_simple_selector(sel):
     return (tag, classes, id_m.group(1) if id_m else None)
 
 
+def resolve_value(value, varmap, _depth=0):
+    """Substitute CSS var(--x[, fallback]) references using varmap. Leaves the
+    value untouched when a variable is undefined and has no fallback, so later
+    parsing fails and the finding falls to needs_judgment rather than guessing."""
+    if _depth > 12 or "var(" not in value:
+        return value
+    m = re.search(r"var\(\s*(--[\w-]+)\s*(?:,\s*([^()]+))?\)", value)
+    if not m:
+        return value
+    name, fallback = m.group(1), m.group(2)
+    if name in varmap:
+        repl = varmap[name]
+    elif fallback is not None:
+        repl = fallback.strip()
+    else:
+        return value
+    return resolve_value(value[:m.start()] + repl + value[m.end():], varmap, _depth + 1)
+
+
 def parse_stylesheet(css):
-    """Return a list of (specificity_tuple, simple_selector, decls)."""
+    """Return (rules, varmap): rules is a list of (specificity, simple_selector,
+    decls); varmap holds :root/html custom properties for var() resolution."""
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
     rules = []
+    varmap = {}
     for m in re.finditer(r"([^{}]+)\{([^{}]*)\}", css):
         selectors, body = m.group(1), m.group(2)
         decls = parse_decls(body)
         if not decls:
             continue
-        for sel in selectors.split(","):
+        sel_list = [s.strip() for s in selectors.split(",")]
+        if any(s.lower() in (":root", "html") for s in sel_list):
+            for k, v in decls.items():
+                if k.startswith("--"):
+                    varmap[k] = v
+        for sel in sel_list:
             simple = parse_simple_selector(sel)
             if simple is None:
                 continue
             tag, classes, sid = simple
             spec = (1 if sid else 0, len(classes), 1 if tag else 0)
             rules.append((spec, simple, decls))
-    return rules
+    for k in list(varmap):
+        varmap[k] = resolve_value(varmap[k], varmap)
+    return rules, varmap
 
 
 # --- HTML tree ---------------------------------------------------------------
@@ -228,6 +256,7 @@ class TreeBuilder(HTMLParser):
         self.stack = [self.root]
         self.style_css = []
         self._in_style = False
+        self.external_links = []
 
     def handle_starttag(self, tag, attrs):
         a = {k: (v or "") for k, v in attrs}
@@ -236,6 +265,8 @@ class TreeBuilder(HTMLParser):
         self.stack[-1].children.append(node)
         if tag == "style":
             self._in_style = True
+        if tag == "link" and "stylesheet" in a.get("rel", "").lower():
+            self.external_links.append(a.get("href", ""))
         if tag not in VOID:
             self.stack.append(node)
 
@@ -538,9 +569,19 @@ def main(argv=None):
     tokens = load_tokens(args.tokens)
     builder = TreeBuilder()
     builder.feed(html)
-    rules = parse_stylesheet("\n".join(builder.style_css))
+    rules, varmap = parse_stylesheet("\n".join(builder.style_css))
+    for _spec, _simple, decls in rules:
+        for k in list(decls):
+            decls[k] = resolve_value(decls[k], varmap)
+    for node in walk(builder.root):
+        for k in list(node.inline):
+            node.inline[k] = resolve_value(node.inline[k], varmap)
     result = analyze(builder.root, rules, tokens)
     result["target"] = os.path.basename(args.target)
+    for href in builder.external_links:
+        result["needs_judgment"].append(
+            {"reason": "external_stylesheet", "location": f"<link href={href!r}>"})
+    result["summary"]["needs_judgment_count"] = len(result["needs_judgment"])
     if args.compare:
         result["comparison"] = compare(args.compare, result)
 
