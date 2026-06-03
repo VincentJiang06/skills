@@ -74,6 +74,18 @@ without a spec there is nothing to build.
      `tdd: partial` at most (never `present`).
    (A pure LLM-behavioral lite skill with no deterministic script is exempt from
    #4 but is still subject to Final Acceptance's independent battery.)
+5. **Every adversarial-checklist edge has a passing case (coverage gate).** Diff
+   the spec's `recommended_design.adversarial_checklist` against the build-report's
+   `tests.checklist_coverage`: **every** checklist entry must map to a case with
+   `passed: true`. Any entry that is uncovered, or covered by a failing case,
+   **fails the E gate → repeat Stage E** to add the case + fix the bug it exposes.
+   This is the point: catch the domain bug **here, in the loop** (where it can be
+   fixed and still reach `industrial`), not at Final Acceptance (where the battery
+   can only demote to `candidate`).
+
+   ```bash
+   node -e "const fs=require('fs');const s=JSON.parse(fs.readFileSync(process.argv[1],'utf8')),r=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const need=s.recommended_design.adversarial_checklist||[];const cov=new Map((r.tests.checklist_coverage||[]).map(c=>[c.edge,c.passed]));const missing=need.filter(e=>cov.get(e)!==true);console.log(missing.length?('CHECKLIST GAP — uncovered/failing: '+JSON.stringify(missing)):('checklist ok: '+need.length+'/'+need.length+' covered'))" <target>/.skill-guidance/handoff-spec.json <target>/.skill-engineer/build-report.json
+   ```
 
 The build-report's `actions_resolved` carries **no** `priority` field, so the
 gate must take the P0 id list from the **spec** and join by id. Pass the

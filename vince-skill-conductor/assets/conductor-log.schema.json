@@ -64,6 +64,18 @@
       "enum": ["done", "stopped_unmet"],
       "description": "done = Final Acceptance cleared the bar; stopped_unmet = budget exhausted with gates still failing (never faked)."
     },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Separates the two quality signals so guidance cannot bless its own build. effective_verdict = min(re_audit_verdict, battery_verdict); industrial ONLY if effective_verdict is industrial (battery clean).",
+      "required": ["re_audit_verdict", "battery_verdict", "effective_verdict"],
+      "properties": {
+        "re_audit_verdict": {"enum": ["draft", "candidate", "industrial"], "description": "guidance pillar-presence re-audit of the built skill."},
+        "battery_verdict": {"enum": ["draft", "candidate", "industrial"], "description": "fresh-subagent independent battery: industrial only if zero bugs incl. green-but-wrong."},
+        "effective_verdict": {"enum": ["draft", "candidate", "industrial"], "description": "min(re_audit_verdict, battery_verdict) — never exceeds the battery."},
+        "battery_bugs": {"type": "array", "items": {"type": "string"}}
+      }
+    },
     "blocking_gaps": {
       "type": "array",
       "items": {"type": "string"},

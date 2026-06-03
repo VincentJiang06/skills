@@ -78,7 +78,21 @@
           }
         },
         "regression_cases": {"type": "array", "items": {"type": "string"}},
-        "trajectory_checked": {"type": "boolean"}
+        "trajectory_checked": {"type": "boolean"},
+        "checklist_coverage": {
+          "type": "array",
+          "description": "One entry per spec recommended_design.adversarial_checklist edge: which green eval case covers it. The conductor's E gate fails on any checklist edge with no passing case.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["edge", "case_id", "passed"],
+            "properties": {
+              "edge": {"type": "string", "description": "The adversarial_checklist entry (verbatim) this case covers."},
+              "case_id": {"type": "string"},
+              "passed": {"type": "boolean"}
+            }
+          }
+        }
       }
     },
     "actions_resolved": {

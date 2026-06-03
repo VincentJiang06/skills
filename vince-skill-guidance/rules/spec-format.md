@@ -44,8 +44,12 @@ reads it cold — so it must stand alone, with no reference back to this run.
       length-boundary.
     Plus **one case per capability/token the design or docs claim**. The engineer
     binds a passing case to each entry; the conductor's fresh battery attacks each.
-    A checklist missing its class's mandatory entries is a draft, not a plan —
-    this is what stops happy-path suites from shipping silent bugs.
+    Each entry should also state the **expected correct output** for its input
+    (e.g. "mixed numeric+non-numeric sibling keys → object, value NOT dropped"), so
+    a green-but-wrong case is caught, and so the engineer can bind a passing case
+    and record it in the build-report's `tests.checklist_coverage`. A checklist
+    missing its class's mandatory entries is a draft, not a plan — this is what
+    stops happy-path suites from shipping silent bugs.
 
   At lite altitude, `tests`/`metrics`/`lifecycle` may be `["minimal: ..."]` or
   `["N/A: <reason>"]` — but say which, explicitly.

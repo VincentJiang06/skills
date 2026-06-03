@@ -121,6 +121,21 @@ its claims checked by reading + behavioral reasoning, and still caps at
 
 ---
 
+## Verdict = min(re-audit, battery) — guidance can't bless its own build
+
+Record **two** verdicts in the run-log's `quality` object and never conflate them:
+- `re_audit_verdict` — guidance's pillar-presence re-audit (structural; closed-loop).
+- `battery_verdict` — the **fresh-subagent** battery's finding: `industrial` only
+  if it found **zero** bugs (including zero green-but-wrong outputs); `candidate`
+  if it found any.
+
+Then `effective_verdict = min(re_audit_verdict, battery_verdict)` and **the
+written verdict may never exceed `battery_verdict`.** So a build the re-audit
+calls `industrial` but the battery demotes is `candidate`, full stop — that is the
+mechanism that ends inflation. `final_verdict: "done"` requires
+`effective_verdict` to clear the Step-1 bar; a self-claimed `industrial` with no
+clean fresh-battery behind it is invalid.
+
 ## Gap → stage routing
 
 If any criterion fails, identify the gap from the scorecard / intent and loop

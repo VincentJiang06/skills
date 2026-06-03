@@ -71,12 +71,19 @@ counted toward the pass total.
 
 ## 4. Boundary / adversarial coverage (not just happy paths)
 
-Happy-path-only is not green. For transforms/parsers, include at least one
-**passing** case per edge the spec's adversarial checklist names — typically
-empty / null / duplicate-key / collision — plus an **idempotency / metamorphic**
-case for any transform (run twice → same output; round-trip → original). These
-are exactly the cases where shipped bugs hide; the gate is not satisfied until
-they pass.
+Happy-path-only is not green. **Bind one green eval case to EVERY entry in the
+spec's `recommended_design.adversarial_checklist`** — these are first-order
+members of the skill's own input class (mixed numeric+non-numeric sibling keys,
+6-field cron, bare `|` alternation, multi-key `ENV`…), exactly where the bugs
+hide. Record the mapping in the build-report as
+`tests.checklist_coverage[]` = `{edge, case_id, passed}`, one per checklist entry.
+
+**This is gating, not advisory:** the conductor's E gate diffs the spec checklist
+against `checklist_coverage` and loops back on any uncovered or failing entry
+*before* final acceptance — so the catch happens in the build loop (which can
+reach a bug-free `industrial`), not post-hoc (which only caps at `candidate`).
+Also include an **idempotency / metamorphic** case for any transform (run twice →
+same output; round-trip → original).
 
 ## What the build-report must carry
 
