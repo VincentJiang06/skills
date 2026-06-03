@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0.0",
+  "nodes": [
+    {
+      "id": "pillar.research",
+      "type": "pillar",
+      "tier": 1,
+      "title_zh": "证据驱动资料搜集",
+      "title_en": "Evidence-Driven Research",
+      "summary_zh": "为依赖外部事实的 skill 建立可控广度和深度的资料搜集流程：来源花名册、多角度 fan-out、迭代深化、可靠性分级、三角验证和声明可溯源。",
+      "summary_en": "Builds a breadth- and depth-controlled data-collection process for fact-dependent skills: source roster, multi-angle fan-out, iterative deepening, reliability grading, triangulation, and claim traceability.",
+      "tags": ["research", "evidence", "collection"],
+      "parent_ids": [],
+      "child_ids": [
+        "metric.claim_traceability_rate",
+        "metric.source_coverage",
+        "principle.claim_evidence_traceability",
+        "procedure.iterative_deepening",
+        "procedure.search_fan_out",
+        "procedure.source_reliability_grading",
+        "procedure.source_roster",
+        "procedure.triangulation"
+      ],
+      "doc_ids": [
+        "doc.research.evidence_driven_skill_research",
+        "doc.research.skill_reference_library"
+      ],
+      "reference_ids": [
+        "ref.arxiv.agentic_rag_survey",
+        "ref.cochrane.handbook",
+        "ref.prisma.2020"
+      ]
+    },
+    {
+      "id": "procedure.source_roster",
+      "type": "procedure",
+      "tier": 1,
+      "title_zh": "来源花名册",
+      "title_en": "Source Roster",
+      "summary_zh": "为主题建立带类型、取向、可靠性和用途画像的来源清单，确保资料搜集覆盖多个来源类别而不是单一渠道。",
+      "summary_en": "Builds a profiled inventory of sources with type, orientation, reliability, and usage so collection spans multiple source classes rather than one channel.",
+      "tags": ["roster", "sources"],
+      "parent_ids": ["pillar.research"],
+      "child_ids": [],
+      "doc_ids": ["doc.research.evidence_driven_skill_research"],
+      "reference_ids": [
+        "ref.grade.working_group",
+        "ref.nato.admiralty_code",
+        "ref.osintframework.com"
+      ]
+    },
+    {
+      "id": "procedure.search_fan_out",
+      "type": "procedure",
+      "tier": 1,
+      "title_zh": "多角度搜索 fan-out",
+      "title_en": "Search Fan-Out",
+      "summary_zh": "用查询分解、同义扩展和多角度并行搜索扩大资料搜集的广度，每个角度独立命中不同来源，再合并去重。",
+      "summary_en": "Widens collection breadth with query decomposition, synonym expansion, and multi-angle parallel search, each angle hitting different sources before merge and dedup.",
+      "tags": ["breadth", "search", "fan_out"],
+      "parent_ids": ["pillar.research"],
+      "child_ids": [],
+      "doc_ids": ["doc.research.evidence_driven_skill_research"],
+      "reference_ids": [
+        "ref.arxiv.hyde",
+        "ref.arxiv.question_decomp_rag",
+        "ref.niso.z3919"
+      ]
+    },
+    {
+      "id": "procedure.iterative_deepening",
+      "type": "procedure",
+      "tier": 1,
+      "title_zh": "迭代深化检索",
+      "title_en": "Iterative Deepening",
+      "summary_zh": "按信息气味逐步深入高价值来源，自我评估是否已饱和，循环检索-评估-再检索直到边际收益变小，控制深度而非一次到底。",
+      "summary_en": "Dives deeper into high-value sources by information scent, self-assesses saturation, and loops retrieve-evaluate-retrieve until marginal gain falls, controlling depth instead of one-shot diving.",
+      "tags": ["depth", "iterative", "saturation"],
+      "parent_ids": ["pillar.research"],
+      "child_ids": [],
+      "doc_ids": ["doc.research.evidence_driven_skill_research"],
+      "reference_ids": [
+        "ref.arxiv.deeprag",
+        "ref.arxiv.self_rag",
+        "ref.pirolli.information_foraging"
+      ]
+    },
+    {
+      "id": "procedure.source_reliability_grading",
+      "type": "procedure",
+      "tier": 1,
+      "title_zh": "来源可靠性分级",
+      "title_en": "Source Reliability Grading",
+      "summary_zh": "用双轴（来源可靠性 × 信息可信度）和证据质量分级评估每条来源和情报，给低可靠或环境相关的来源打上明确标记。",
+      "summary_en": "Grades each source and claim on a dual axis (source reliability x information credibility) plus evidence-quality levels, flagging low-reliability or environment-specific sources explicitly.",
+      "tags": ["reliability", "grading"],
+      "parent_ids": ["pillar.research"],
+      "child_ids": [],
+      "doc_ids": ["doc.research.evidence_driven_skill_research"],
+      "reference_ids": [
+        "ref.caulfield.sift",
+        "ref.grade.working_group",
+        "ref.nato.admiralty_code"
+      ]
+    },
+    {
+      "id": "procedure.triangulation",
+      "type": "procedure",
+      "tier": 1,
+      "title_zh": "三角验证",
+      "title_en": "Triangulation",
+      "summary_zh": "用多源、多方法交叉印证关键结论，对相互冲突的来源显式记录冲突而不是合并，提升资料搜集结果的可信度。",
+      "summary_en": "Cross-checks key conclusions across multiple sources and methods, recording conflicts explicitly instead of merging them, raising the trustworthiness of collected evidence.",
+      "tags": ["triangulation", "corroboration"],
+      "parent_ids": ["pillar.research"],
+      "child_ids": [],
+      "doc_ids": ["doc.research.evidence_driven_skill_research"],
+      "reference_ids": [
+        "ref.arxiv.deepwidesearch",
+        "ref.betterevaluation.triangulation",
+        "ref.unaids.triangulation"
+      ]
+    },
+    {
+      "id": "principle.claim_evidence_traceability",
+      "type": "principle",
+      "tier": 1,
+      "title_zh": "声明可溯源",
+      "title_en": "Claim-Evidence Traceability",
+      "summary_zh": "skill 输出中每条事实性声明都必须能追溯到具体证据 id，区分来源观察与自身推断，没有证据的声明只能算草稿。",
+      "summary_en": "Every factual claim in a skill's output must trace to a specific evidence id, separating source observation from inference; an unsupported claim is only a draft.",
+      "tags": ["traceability", "provenance", "evidence"],
+      "parent_ids": ["pillar.design", "pillar.research"],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design",
+        "doc.research.evidence_driven_skill_research"
+      ],
+      "reference_ids": [
+        "ref.arxiv.claimaudit",
+        "ref.arxiv.papertrail",
+        "ref.w3c.prov_overview"
+      ]
+    },
+    {
+      "id": "metric.source_coverage",
+      "type": "metric",
+      "tier": 1,
+      "title_zh": "来源覆盖度",
+      "title_en": "Source Coverage",
+      "summary_zh": "实际搜集到的相关来源占应覆盖来源空间（按类别和角度）的比例，用来衡量资料搜集的广度是否充分。",
+      "summary_en": "Share of the intended source space (by class and angle) actually collected, measuring whether research breadth is sufficient.",
+      "tags": ["coverage", "breadth", "metric"],
+      "parent_ids": ["pillar.metrics", "pillar.research"],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics",
+        "doc.research.evidence_driven_skill_research"
+      ],
+      "reference_ids": [
+        "ref.arxiv.deepwidesearch",
+        "ref.prisma.2020"
+      ]
+    },
+    {
+      "id": "metric.claim_traceability_rate",
+      "type": "metric",
+      "tier": 1,
+      "title_zh": "声明可溯源率",
+      "title_en": "Claim Traceability Rate",
+      "summary_zh": "skill 输出中可追溯到具体 evidence id 的事实性声明比例，用来量化证据基础的完整性。",
+      "summary_en": "Share of factual claims in a skill's output that trace to a specific evidence id, quantifying evidence-base completeness.",
+      "tags": ["traceability", "evidence", "metric"],
+      "parent_ids": ["pillar.metrics", "pillar.research"],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics",
+        "doc.research.evidence_driven_skill_research"
+      ],
+      "reference_ids": [
+        "ref.arxiv.claimaudit",
+        "ref.w3c.prov_overview"
+      ]
+    }
+  ]
+}

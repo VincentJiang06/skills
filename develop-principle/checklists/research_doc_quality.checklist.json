@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "checklist_id": "checklist.research_doc_quality",
+  "title_zh": "调研文档质量清单",
+  "title_en": "Research Doc Quality Checklist",
+  "items": [
+    {
+      "id": "research.scope",
+      "required": true,
+      "check_zh": "调研问题、决策目标、范围内和范围外内容已经明确。",
+      "check_en": "Research question, decision target, in-scope items, and out-of-scope items are explicit."
+    },
+    {
+      "id": "research.sources",
+      "required": true,
+      "check_zh": "每个使用的来源都有可解析的 ref id，并标注类型、可靠性和用途。",
+      "check_en": "Every used source has a resolvable ref id with type, reliability, and usage."
+    },
+    {
+      "id": "research.claim_traceability",
+      "required": true,
+      "check_zh": "每条 finding 都绑定 evidence ids，且没有无来源事实声明。",
+      "check_en": "Every finding is tied to evidence ids, with no unsupported factual claims."
+    },
+    {
+      "id": "research.separation",
+      "required": true,
+      "check_zh": "来源观察、推断、决策和未知项被分在不同章节或表格中。",
+      "check_en": "Source observations, inferences, decisions, and unknowns are separated into distinct sections or tables."
+    },
+    {
+      "id": "research.asset_updates",
+      "required": true,
+      "check_zh": "调研结论明确指出需要更新的 node、doc、reference、template、checklist、test 或 metric。",
+      "check_en": "Research conclusions identify required node, doc, reference, template, checklist, test, or metric updates."
+    },
+    {
+      "id": "research.validation",
+      "required": true,
+      "check_zh": "实现前需要的静态检查、查询用例、schema/checklist/template 改动和回归风险已经列出。",
+      "check_en": "Required static checks, query cases, schema/checklist/template changes, and regression risks are listed before implementation."
+    },
+    {
+      "id": "research.ai_constraints",
+      "required": true,
+      "check_zh": "文档包含 AI 写作约束，禁止无来源事实、隐藏不确定性、混合事实和推断。",
+      "check_en": "The document includes AI writing constraints that ban unsupported facts, hidden uncertainty, and mixing facts with inference."
+    }
+  ],
+  "reference_ids": ["ref.docs_as_code", "ref.llms_txt", "ref.diataxis"]
+}

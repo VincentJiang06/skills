@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 
@@ -19,48 +20,20 @@ function walk(dirRel, predicate = () => true) {
   return out;
 }
 
-const aliases = {
-  "触发": ["trigger", "activation", "routing"],
-  "误触发": ["false", "positive", "adjacent", "activation"],
-  "漏触发": ["false", "negative", "activation"],
-  "边界": ["boundary", "control", "scope"],
-  "权限": ["allowed", "forbidden", "permission", "control"],
-  "安全": ["security", "safety", "guardrail", "control"],
-  "上下文": ["context", "tokens", "loading"],
-  "低上下文": ["context", "short", "node", "budget"],
-  "短入口": ["agent", "index", "entrypoint", "short"],
-  "文档库": ["knowledge", "base", "kb", "documentation"],
-  "知识图谱": ["knowledge", "graph", "node", "edge"],
-  "测试": ["test", "testing", "eval"],
-  "评估": ["eval", "evaluation", "metric"],
-  "指标": ["metric", "metrics", "quantitative"],
-  "成本": ["cost", "tokens", "latency"],
-  "稳定": ["reliability", "stability", "pass"],
-  "回归": ["regression", "suite"],
-  "发布": ["release", "gate"],
-  "回滚": ["rollback", "recovery"],
-  "弃用": ["deprecation", "sunset", "migration"],
-  "注册表": ["registry", "distribution", "metadata"],
-  "版本": ["version", "versioning", "semver"],
-  "观测": ["observability", "trace", "span"],
-  "轨迹": ["trajectory", "trace", "tool", "call"],
-  "工具": ["tool", "tools"],
-  "模板": ["template"],
-  "清单": ["checklist"],
-  "契约": ["contract", "schema"],
-  "变异": ["mutation"],
-  "蜕变": ["metamorphic"],
-  "验收": ["acceptance", "verifier"],
-  "失败": ["failure", "red", "regression"],
-  "设计": ["design", "architecture"],
-  "生命周期": ["lifecycle", "release", "deprecation", "rollback"],
-  "工业级": ["industrial", "release", "metrics", "testing", "design"],
-  "审查": ["review", "checklist"]
-};
+const aliases = readJson("testing/search_aliases.json").aliases ?? {};
 
 function tokenize(text) {
   const lower = text.toLowerCase();
   const tokens = new Set(lower.match(/[a-z0-9]+/g) ?? []);
+  for (const cjk of lower.match(/[\u4e00-\u9fff]{2,}/g) ?? []) {
+    const chars = Array.from(cjk);
+    tokens.add(cjk);
+    for (let size = 2; size <= Math.min(4, chars.length); size += 1) {
+      for (let i = 0; i <= chars.length - size; i += 1) {
+        tokens.add(chars.slice(i, i + size).join(""));
+      }
+    }
+  }
   for (const [term, expanded] of Object.entries(aliases)) {
     if (text.includes(term)) {
       tokens.add(term);
@@ -101,6 +74,7 @@ function topIds(items, queryTokens, limit) {
 
 const index = readJson("INDEX.json");
 const cases = readJson("testing/query_effectiveness_cases.json").cases;
+const contextRules = readJson("testing/context_budget_rules.json").rules;
 
 const nodeFiles = walk("knowledge_graph/nodes", (p) => p.endsWith(".json"));
 const nodes = nodeFiles.flatMap((relPath) => readJson(relPath).nodes ?? []);
@@ -118,6 +92,8 @@ const docs = files.filter((file) => file.kind === "long_doc");
 const assets = files.filter((file) => !["long_doc", "node_file", "edge_file", "reference_file"].includes(file.kind));
 
 const failures = [];
+const generatedFailures = [];
+const compactGeneratedFailures = [];
 const reports = [];
 
 for (const testCase of cases) {
@@ -142,7 +118,7 @@ for (const testCase of cases) {
     }
   }
 
-  const matchedAssetIds = new Set(topIds(assets, queryTokens, 12));
+  const matchedAssetIds = new Set(topIds(assets, queryTokens, 24));
 
   const missingDocIds = testCase.expected_doc_ids.filter((id) => !matchedDocIds.has(id));
   const missingNodeIds = testCase.expected_node_ids.filter((id) => !matchedNodeIds.has(id));
@@ -163,10 +139,64 @@ for (const testCase of cases) {
       missing_asset_ids: missingAssetIds
     });
   }
+
+  const generated = JSON.parse(execFileSync(process.execPath, [
+    "tools/query_kb.mjs",
+    testCase.requirement,
+    "--json",
+    "--limit",
+    "50"
+  ], { cwd: root, encoding: "utf8" }));
+  const generatedIds = new Set([
+    ...generated.matches.map((entry) => entry.id),
+    ...(generated.expand.nodes ?? []),
+    ...generated.expand.docs.map((entry) => entry.id),
+    ...(generated.expand.assets ?? []).map((entry) => entry.id),
+    ...generated.expand.neighbor_nodes
+  ]);
+  const generatedMissingDocIds = testCase.expected_doc_ids.filter((id) => !generatedIds.has(id));
+  const generatedMissingNodeIds = testCase.expected_node_ids.filter((id) => !generatedIds.has(id));
+  const generatedMissingAssetIds = testCase.expected_asset_ids.filter((id) => !generatedIds.has(id));
+  if (generatedMissingDocIds.length || generatedMissingNodeIds.length || generatedMissingAssetIds.length) {
+    generatedFailures.push({
+      id: testCase.id,
+      missing_doc_ids: generatedMissingDocIds,
+      missing_node_ids: generatedMissingNodeIds,
+      missing_asset_ids: generatedMissingAssetIds
+    });
+  }
+
+  const compactLimit = testCase.generated_limit ?? contextRules.query_generated_limit;
+  const compactGenerated = JSON.parse(execFileSync(process.execPath, [
+    "tools/query_kb.mjs",
+    testCase.requirement,
+    "--json",
+    "--limit",
+    String(compactLimit)
+  ], { cwd: root, encoding: "utf8" }));
+  const compactGeneratedIds = new Set([
+    ...compactGenerated.matches.map((entry) => entry.id),
+    ...(compactGenerated.expand.nodes ?? []),
+    ...compactGenerated.expand.docs.map((entry) => entry.id),
+    ...(compactGenerated.expand.assets ?? []).map((entry) => entry.id),
+    ...compactGenerated.expand.neighbor_nodes
+  ]);
+  const compactMissingDocIds = testCase.expected_doc_ids.filter((id) => !compactGeneratedIds.has(id));
+  const compactMissingNodeIds = testCase.expected_node_ids.filter((id) => !compactGeneratedIds.has(id));
+  const compactMissingAssetIds = testCase.expected_asset_ids.filter((id) => !compactGeneratedIds.has(id));
+  if (compactMissingDocIds.length || compactMissingNodeIds.length || compactMissingAssetIds.length) {
+    compactGeneratedFailures.push({
+      id: testCase.id,
+      limit: compactLimit,
+      missing_doc_ids: compactMissingDocIds,
+      missing_node_ids: compactMissingNodeIds,
+      missing_asset_ids: compactMissingAssetIds
+    });
+  }
 }
 
-if (failures.length > 0) {
-  console.error(JSON.stringify({ passed: false, failures, reports }, null, 2));
+if (failures.length > 0 || generatedFailures.length > 0 || compactGeneratedFailures.length > 0) {
+  console.error(JSON.stringify({ passed: false, failures, generated_failures: generatedFailures, compact_generated_failures: compactGeneratedFailures, reports }, null, 2));
   process.exit(1);
 }
 
@@ -176,6 +206,8 @@ console.log(JSON.stringify({
   checked: {
     docs: true,
     nodes: true,
-    assets: true
+    assets: true,
+    generated_indexes: true,
+    compact_generated_indexes: true
   }
 }, null, 2));

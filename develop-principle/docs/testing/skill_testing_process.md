@@ -4,7 +4,7 @@ machine_summary_zh: Skill 测试应使用分层结构：结构检查、契约测
 
 machine_summary_en: Skill testing should be layered: structural checks, contract tests, component tests, trajectory evals, real-task evals, paired evals, and continuous regression. Do not rely on one final-output sample.
 
-reference_ids: `ref.openai.eval_best_practices`, `ref.anthropic.agent_evals`, `ref.promptfoo.test_agent_skills`, `ref.google.adk.evaluate_agents`, `ref.martinfowler.test_pyramid`, `ref.stable_toolbench`
+reference_ids: `ref.openai.eval_best_practices`, `ref.anthropic.agent_evals`, `ref.promptfoo.test_agent_skills`, `ref.google.adk.evaluate_agents`, `ref.martinfowler.test_pyramid`, `ref.stable_toolbench`, `ref.langchain.agent_evals`, `ref.google.adk.criteria`, `ref.promptfoo.agent_skill_integration`, `ref.promptfoo.tracing`
 
 node_ids: `pillar.testing`, `procedure.test_pyramid`, `procedure.trajectory_eval`, `procedure.paired_skill_eval`, `procedure.regression_suite`
 
@@ -111,4 +111,3 @@ compare: success, quality, trajectory, cost, latency, risk
 - 有 with/without 或 old/new 对照。
 - 有成本和稳定性记录。
 - 失败样例进入回归套件。
-

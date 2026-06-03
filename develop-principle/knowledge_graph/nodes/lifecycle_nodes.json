@@ -9,11 +9,25 @@
       "title_en": "Release Manifest",
       "summary_zh": "记录 skill 版本、变更类型、兼容性、测试结果、指标、风险、依赖和回滚入口。",
       "summary_en": "Records skill version, change type, compatibility, tests, metrics, risk, dependencies, and rollback entrypoints.",
-      "tags": ["manifest", "versioning", "release"],
-      "parent_ids": ["pillar.lifecycle"],
-      "child_ids": ["procedure.release_gate"],
-      "doc_ids": ["doc.operations.skill_lifecycle_management"],
-      "reference_ids": ["ref.open_agent_skills.specification", "ref.semver"]
+      "tags": [
+        "manifest",
+        "release",
+        "versioning"
+      ],
+      "parent_ids": [
+        "pattern.skill_registry",
+        "pillar.lifecycle"
+      ],
+      "child_ids": [
+        "procedure.release_gate"
+      ],
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.open_agent_skills.specification",
+        "ref.semver"
+      ]
     },
     {
       "id": "procedure.release_gate",
@@ -23,11 +37,26 @@
       "title_en": "Release Gate",
       "summary_zh": "发布前检查结构、触发、行为、回归、成本、安全、版本和回滚，避免未验证 skill 进入复用库。",
       "summary_en": "Checks structure, triggers, behavior, regressions, cost, safety, versioning, and rollback before release.",
-      "tags": ["release", "gate", "quality"],
-      "parent_ids": ["pillar.lifecycle"],
-      "child_ids": ["metric.release_gate_pass_rate", "metric.rollback_readiness"],
-      "doc_ids": ["doc.operations.skill_lifecycle_management"],
-      "reference_ids": ["ref.google_sre.canarying", "ref.open_agent_skills.specification"]
+      "tags": [
+        "gate",
+        "quality",
+        "release"
+      ],
+      "parent_ids": [
+        "concept.skill_release_manifest",
+        "pillar.lifecycle"
+      ],
+      "child_ids": [
+        "metric.release_gate_pass_rate",
+        "metric.rollback_readiness"
+      ],
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.google_sre.canarying",
+        "ref.open_agent_skills.specification"
+      ]
     },
     {
       "id": "pattern.skill_registry",
@@ -37,11 +66,24 @@
       "title_en": "Skill Registry",
       "summary_zh": "用短 metadata 管理发现、版本、分发、信任、依赖、共享资产、弃用和回滚指针。",
       "summary_en": "Uses compact metadata to manage discovery, versions, distribution, trust, dependencies, shared assets, deprecation, and rollback pointers.",
-      "tags": ["registry", "distribution", "metadata"],
-      "parent_ids": ["pillar.lifecycle"],
-      "child_ids": ["concept.skill_release_manifest"],
-      "doc_ids": ["doc.operations.skill_lifecycle_management"],
-      "reference_ids": ["ref.skills_re.registry", "ref.skilldex.package_registry"]
+      "tags": [
+        "distribution",
+        "metadata",
+        "registry"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle"
+      ],
+      "child_ids": [
+        "concept.skill_release_manifest"
+      ],
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.skilldex.package_registry",
+        "ref.skills_re.registry"
+      ]
     },
     {
       "id": "procedure.rollback_plan",
@@ -51,11 +93,24 @@
       "title_en": "Rollback Plan",
       "summary_zh": "发布前定义已知好版本、触发条件、恢复步骤、验证方式和受影响的 registry、缓存、模板或配置。",
       "summary_en": "Defines known-good version, triggers, recovery steps, validation, and affected registry, cache, template, or config state before release.",
-      "tags": ["rollback", "recovery", "release"],
-      "parent_ids": ["pillar.lifecycle"],
-      "child_ids": ["metric.rollback_readiness"],
-      "doc_ids": ["doc.operations.skill_lifecycle_management"],
-      "reference_ids": ["ref.google_sre.canarying", "ref.skills_re.registry"]
+      "tags": [
+        "recovery",
+        "release",
+        "rollback"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle"
+      ],
+      "child_ids": [
+        "metric.rollback_readiness"
+      ],
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.google_sre.canarying",
+        "ref.skills_re.registry"
+      ]
     },
     {
       "id": "procedure.deprecation_policy",
@@ -65,11 +120,22 @@
       "title_en": "Deprecation Policy",
       "summary_zh": "用机器可读元数据声明 deprecated_at、sunset_at、replacement_id、severity 和迁移说明。",
       "summary_en": "Uses machine-readable metadata for deprecated_at, sunset_at, replacement_id, severity, and migration guidance.",
-      "tags": ["deprecation", "migration", "versioning"],
-      "parent_ids": ["pillar.lifecycle"],
+      "tags": [
+        "deprecation",
+        "migration",
+        "versioning"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.skill_lifecycle_management"],
-      "reference_ids": ["ref.semver", "ref.openfeature.feature_flags"]
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.openfeature.feature_flags",
+        "ref.semver"
+      ]
     },
     {
       "id": "procedure.evidence_gated_update",
@@ -79,11 +145,21 @@
       "title_en": "Evidence-Gated Update",
       "summary_zh": "只有通过验收、回归、归因和成本检查的成功发现才能进入 skill，避免噪音污染未来上下文。",
       "summary_en": "Only successful discoveries that pass acceptance, regression, attribution, and cost checks can update a skill.",
-      "tags": ["evolution", "evidence", "governance"],
-      "parent_ids": ["pillar.lifecycle"],
+      "tags": [
+        "evidence",
+        "evolution",
+        "governance"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.skill_lifecycle_management"],
-      "reference_ids": ["ref.skillsvote.lifecycle_governance"]
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.skillsvote.lifecycle_governance"
+      ]
     },
     {
       "id": "metric.lifecycle_trace_coverage",
@@ -93,11 +169,25 @@
       "title_en": "Lifecycle Trace Coverage",
       "summary_zh": "衡量发布、运行、失败、回滚和弃用事件是否都有可追溯 trace、版本和指标记录。",
       "summary_en": "Measures whether release, run, failure, rollback, and deprecation events have traceable records, versions, and metrics.",
-      "tags": ["observability", "trace", "metric"],
-      "parent_ids": ["pillar.lifecycle", "pillar.metrics"],
+      "tags": [
+        "metric",
+        "observability",
+        "trace"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle",
+        "pillar.metrics"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.skill_lifecycle_management", "doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.opentelemetry.genai_agent_spans", "ref.openai.agents_tracing", "ref.langsmith.observability"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.langsmith.observability",
+        "ref.openai.agents_tracing",
+        "ref.opentelemetry.genai_agent_spans"
+      ]
     },
     {
       "id": "metric.rollback_readiness",
@@ -107,11 +197,24 @@
       "title_en": "Rollback Readiness",
       "summary_zh": "衡量每个发布候选是否有已知好版本、恢复步骤、验证命令和受影响状态清单。",
       "summary_en": "Measures whether each release candidate has a known-good version, recovery steps, validation commands, and affected-state inventory.",
-      "tags": ["rollback", "readiness", "metric"],
-      "parent_ids": ["pillar.lifecycle", "pillar.metrics"],
+      "tags": [
+        "metric",
+        "readiness",
+        "rollback"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle",
+        "pillar.metrics",
+        "procedure.release_gate",
+        "procedure.rollback_plan"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.skill_lifecycle_management"],
-      "reference_ids": ["ref.google_sre.canarying"]
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.google_sre.canarying"
+      ]
     },
     {
       "id": "metric.release_gate_pass_rate",
@@ -121,11 +224,23 @@
       "title_en": "Release Gate Pass Rate",
       "summary_zh": "候选版本通过必需门禁项的比例，用于衡量发布准备度而非最终效果。",
       "summary_en": "The proportion of required release gate checks passed by a candidate, measuring readiness rather than final effectiveness.",
-      "tags": ["release", "gate", "metric"],
-      "parent_ids": ["pillar.lifecycle", "pillar.metrics"],
+      "tags": [
+        "gate",
+        "metric",
+        "release"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle",
+        "pillar.metrics",
+        "procedure.release_gate"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.skill_lifecycle_management"],
-      "reference_ids": ["ref.open_agent_skills.specification"]
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.open_agent_skills.specification"
+      ]
     }
   ]
 }

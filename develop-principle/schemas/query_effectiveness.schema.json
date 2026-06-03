@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.dev/develop-principle/schemas/query_effectiveness.schema.json",
+  "title": "Develop Principle Query Effectiveness Suite",
+  "type": "object",
+  "required": ["schema_version", "suite_id", "purpose", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "suite_id": {"type": "string"},
+    "purpose": {"type": "string"},
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "requirement", "expected_doc_ids", "expected_node_ids", "expected_asset_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "requirement": {"type": "string"},
+          "max_expected_total_ids": {"type": "integer", "minimum": 1},
+          "generated_limit": {"type": "integer", "minimum": 1},
+          "expected_doc_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "expected_node_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "expected_asset_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    }
+  }
+}

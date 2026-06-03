@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.dev/develop-principle/schemas/quality_report.schema.json",
+  "title": "Develop Principle Quality Report",
+  "type": "object",
+  "required": ["schema_version", "report_id", "generated_from", "counts", "distributions", "graph", "coverage", "quality_gates"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "report_id": {"type": "string"},
+    "generated_from": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "counts": {
+      "type": "object",
+      "required": [
+        "indexed_files",
+        "coverage_goals",
+        "long_docs",
+        "json_template_files",
+        "nodes",
+        "edges",
+        "references",
+        "metrics",
+        "template_contracts",
+        "search_tokens",
+        "route_goals",
+        "route_query_cases",
+        "compact_query_limit",
+        "compact_query_cases",
+        "summary_doc_cards",
+        "summary_node_cards"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "indexed_files": {"type": "integer", "minimum": 0},
+        "coverage_goals": {"type": "integer", "minimum": 0},
+        "long_docs": {"type": "integer", "minimum": 0},
+        "json_template_files": {"type": "integer", "minimum": 0},
+        "nodes": {"type": "integer", "minimum": 0},
+        "edges": {"type": "integer", "minimum": 0},
+        "references": {"type": "integer", "minimum": 0},
+        "metrics": {"type": "integer", "minimum": 0},
+        "template_contracts": {"type": "integer", "minimum": 0},
+        "search_tokens": {"type": "integer", "minimum": 0},
+        "route_goals": {"type": "integer", "minimum": 0},
+        "route_query_cases": {"type": "integer", "minimum": 0},
+        "compact_query_limit": {"type": "integer", "minimum": 1},
+        "compact_query_cases": {"type": "integer", "minimum": 0},
+        "summary_doc_cards": {"type": "integer", "minimum": 0},
+        "summary_node_cards": {"type": "integer", "minimum": 0}
+      }
+    },
+    "distributions": {
+      "type": "object",
+      "required": ["file_kinds", "node_types", "reference_tiers"],
+      "additionalProperties": false,
+      "properties": {
+        "file_kinds": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "node_types": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "reference_tiers": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}
+      }
+    },
+    "graph": {
+      "type": "object",
+      "required": ["connected_component_sizes", "adjacency_nodes", "adjacency_edges"],
+      "additionalProperties": false,
+      "properties": {
+        "connected_component_sizes": {"type": "array", "items": {"type": "integer", "minimum": 0}},
+        "adjacency_nodes": {"type": "integer", "minimum": 0},
+        "adjacency_edges": {"type": "integer", "minimum": 0}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": [
+        "long_docs_referenced_by_nodes",
+        "long_docs_without_node_reference",
+        "references_used_by_nodes",
+        "references_used_outside_reference_db",
+        "references_total",
+        "references_without_external_use"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "long_docs_referenced_by_nodes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "long_docs_without_node_reference": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "references_used_by_nodes": {"type": "integer", "minimum": 0},
+        "references_used_outside_reference_db": {"type": "integer", "minimum": 0},
+        "references_total": {"type": "integer", "minimum": 0},
+        "references_without_external_use": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "quality_gates": {
+      "type": "object",
+      "required": [
+        "gate_set_id",
+        "verdict",
+        "required_gate_count",
+        "passed_required_gate_count",
+        "failed_required_gate_ids",
+        "all_required_passed",
+        "results"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "gate_set_id": {"type": "string"},
+        "verdict": {"type": "string", "enum": ["pass", "fail"]},
+        "required_gate_count": {"type": "integer", "minimum": 0},
+        "passed_required_gate_count": {"type": "integer", "minimum": 0},
+        "failed_required_gate_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "all_required_passed": {"type": "boolean"},
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "required", "passed", "metric_path", "actual", "expected"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"type": "string"},
+              "required": {"type": "boolean"},
+              "passed": {"type": "boolean"},
+              "metric_path": {"type": "string"},
+              "actual": true,
+              "expected": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

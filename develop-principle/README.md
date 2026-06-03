@@ -18,12 +18,14 @@ The library is optimized for multi-turn agent work:
 - `INDEX.json`: machine-readable file and coverage index.
 - `docs/`: long-form design, testing, TDD, and metrics guidance.
 - `knowledge_graph/`: compact nodes and edges for retrieval.
+- `indexes/`: generated search, route, graph-adjacency, and summary-card indexes.
 - `references/`: bilingual reference database with source summaries.
 - `schemas/`: JSON schemas for core structured files.
 - `templates/`: reusable planning, evaluation, and metric templates.
 - `checklists/`: release and review gates.
 - `testing/`: test planning matrices.
 - `metrics/`: metric catalog and formulas.
+- `reports/`: generated quality and coverage reports.
 - `decisions/`: architecture decision records.
 
 ## Source Policy
@@ -37,28 +39,42 @@ References use an independent `tier` field:
 
 ## Coverage
 
-This library covers four required goals:
+This library covers these goals:
 
 1. Industrial-grade skill design principles and standards.
-2. Skill testing process design.
-3. TDD planning for skill development.
-4. Quantitative skill metrics and operational practice.
+2. Evidence-driven research / 资料搜集: breadth + depth source gathering, reliability grading, and claim traceability.
+3. Skill testing process design.
+4. TDD planning for skill development.
+5. Quantitative skill metrics and operational practice.
 
-It also includes lifecycle infrastructure for industrial use: release gates, versioning, registry/distribution, observability, rollback, deprecation, and evidence-gated updates.
+It also includes lifecycle infrastructure for industrial use: release gates, versioning, registry/distribution, observability, rollback, deprecation, and evidence-gated updates, plus a registry of popular public skill repos (`references/skill_repos.registry.json`) to learn from on demand.
+
+It does NOT write the skill's domain content for you, tune prompt wording, make buying/UX/product decisions, or run another tool's runtime.
 
 ## Validation
 
 Run:
 
 ```bash
-node tools/validate_kb.mjs
-node tools/evaluate_query_cases.mjs
-node tools/check_context_budget.mjs
-node tools/check_doc_traceability.mjs
+node tools/run_all_checks.mjs
 ```
 
-`evaluate_query_cases.mjs` simulates 20 skill-design requirements and verifies that the public indexes can route each requirement to relevant docs, graph nodes, and execution assets.
+Useful single checks:
 
-`check_context_budget.mjs` enforces the low-context contract for entrypoints, graph node summaries, and query fixtures.
+```bash
+node tools/build_indexes.mjs
+node tools/query_kb.mjs "skill 发布前 release gate rollback"
+node tools/scaffold_agent_principle.mjs init --target ../my-agent-project
+node tools/evaluate_query_cases.mjs
+```
 
-`check_doc_traceability.mjs` verifies that long documents declare machine summaries, node ids, and reference ids that resolve in the knowledge graph.
+`query_kb.mjs` uses those generated indexes to return matching docs,
+nodes, assets, references, compressed summaries, and expansion hints for
+a local agent query.
+
+`scaffold_agent_principle.mjs` creates a consumer-side `AGENT.md` and
+`.agent-principle/principle.mjs` wrapper so another local project can use
+this KB for `plan`, `query`, and `audit` commands.
+
+`run_all_checks.mjs` validates structure, generated index freshness,
+query routing, context budgets, and doc traceability.

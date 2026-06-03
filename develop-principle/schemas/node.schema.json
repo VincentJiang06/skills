@@ -6,7 +6,7 @@
   "required": ["id", "type", "tier", "title_zh", "title_en", "summary_zh", "summary_en", "tags", "parent_ids", "child_ids", "doc_ids", "reference_ids"],
   "additionalProperties": false,
   "properties": {
-    "id": {"type": "string", "pattern": "^[a-z]+\\.[a-z0-9_\\.]+$"},
+    "id": {"type": "string", "pattern": "^[a-z_]+\\.[a-z0-9_\\.]+$"},
     "type": {
       "type": "string",
       "enum": ["pillar", "concept", "principle", "procedure", "technique", "metric", "pattern", "anti_pattern", "template", "checklist", "reference"]

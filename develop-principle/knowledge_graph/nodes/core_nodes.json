@@ -9,11 +9,25 @@
       "title_en": "Skill",
       "summary_zh": "面向 agent 的可复用能力包，包含触发条件、行为协议、支撑材料、控制边界、测试资产、量化指标和生命周期规则。",
       "summary_en": "A reusable agent capability package with trigger rules, behavior protocol, supporting materials, control boundaries, test assets, metrics, and lifecycle rules.",
-      "tags": ["definition", "skill"],
-      "parent_ids": ["pillar.design"],
-      "child_ids": ["concept.trigger", "concept.execution_protocol", "concept.test_asset"],
-      "doc_ids": ["doc.architecture.industrial_skill_design"],
-      "reference_ids": ["ref.microsoft.agent_skills", "ref.agentskills.open_standard"]
+      "tags": [
+        "definition",
+        "skill"
+      ],
+      "parent_ids": [
+        "pillar.design"
+      ],
+      "child_ids": [
+        "concept.execution_protocol",
+        "concept.test_asset",
+        "concept.trigger"
+      ],
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "reference_ids": [
+        "ref.agentskills.open_standard",
+        "ref.microsoft.agent_skills"
+      ]
     },
     {
       "id": "concept.trigger",
@@ -23,11 +37,25 @@
       "title_en": "Trigger Rule",
       "summary_zh": "定义 agent 何时应该使用 skill、何时不该使用、哪些邻近任务容易误触发。",
       "summary_en": "Defines when an agent should use a skill, when it should not, and which adjacent tasks cause false activation.",
-      "tags": ["activation", "routing"],
-      "parent_ids": ["concept.skill"],
-      "child_ids": ["metric.activation_precision", "metric.false_positive_rate"],
-      "doc_ids": ["doc.architecture.industrial_skill_design", "doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.promptfoo.test_agent_skills", "ref.toolformer"]
+      "tags": [
+        "activation",
+        "routing"
+      ],
+      "parent_ids": [
+        "concept.skill"
+      ],
+      "child_ids": [
+        "metric.activation_precision",
+        "metric.false_positive_rate"
+      ],
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design",
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.promptfoo.test_agent_skills",
+        "ref.toolformer"
+      ]
     },
     {
       "id": "concept.execution_protocol",
@@ -37,11 +65,24 @@
       "title_en": "Execution Protocol",
       "summary_zh": "skill 给 agent 的可执行工作流，包括预检、步骤、工具调用、失败处理、验收和汇报。",
       "summary_en": "The executable workflow a skill gives an agent: preflight, steps, tool calls, failure handling, acceptance, and reporting.",
-      "tags": ["workflow", "procedure"],
-      "parent_ids": ["concept.skill"],
-      "child_ids": ["procedure.trajectory_eval", "technique.contract_test"],
-      "doc_ids": ["doc.architecture.industrial_skill_design"],
-      "reference_ids": ["ref.anthropic.writing_tools_for_agents", "ref.google.adk.evaluate_agents"]
+      "tags": [
+        "procedure",
+        "workflow"
+      ],
+      "parent_ids": [
+        "concept.skill"
+      ],
+      "child_ids": [
+        "procedure.trajectory_eval",
+        "technique.contract_test"
+      ],
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "reference_ids": [
+        "ref.anthropic.writing_tools_for_agents",
+        "ref.google.adk.evaluate_agents"
+      ]
     },
     {
       "id": "concept.test_asset",
@@ -51,11 +92,26 @@
       "title_en": "Test Asset",
       "summary_zh": "用于验证 skill 的任务集、fixtures、轨迹断言、评分器、回归样例、失败样例和环境模拟器。",
       "summary_en": "Task sets, fixtures, trajectory assertions, graders, regression cases, failure cases, and environment simulators used to validate a skill.",
-      "tags": ["testing", "fixture", "grader"],
-      "parent_ids": ["concept.skill", "pillar.testing"],
-      "child_ids": ["procedure.regression_suite", "technique.mutation_test"],
-      "doc_ids": ["doc.testing.skill_testing_process"],
-      "reference_ids": ["ref.openai.eval_best_practices", "ref.stable_toolbench"]
+      "tags": [
+        "fixture",
+        "grader",
+        "testing"
+      ],
+      "parent_ids": [
+        "concept.skill",
+        "pillar.testing"
+      ],
+      "child_ids": [
+        "procedure.regression_suite",
+        "technique.mutation_test"
+      ],
+      "doc_ids": [
+        "doc.testing.skill_testing_process"
+      ],
+      "reference_ids": [
+        "ref.openai.eval_best_practices",
+        "ref.stable_toolbench"
+      ]
     },
     {
       "id": "principle.progressive_disclosure",
@@ -65,11 +121,25 @@
       "title_en": "Progressive Disclosure",
       "summary_zh": "先暴露短描述和入口，只有任务需要时才加载完整 skill、参考文档、模板或脚本。",
       "summary_en": "Expose short descriptions and entrypoints first; load full skills, references, templates, or scripts only when needed.",
-      "tags": ["context", "loading"],
-      "parent_ids": ["pillar.design", "pillar.kb_architecture"],
-      "child_ids": ["pattern.progressive_loading"],
-      "doc_ids": ["doc.architecture.industrial_skill_design", "doc.operations.knowledge_base_architecture"],
-      "reference_ids": ["ref.microsoft.agent_skills", "ref.llms_txt"]
+      "tags": [
+        "context",
+        "loading"
+      ],
+      "parent_ids": [
+        "pillar.design",
+        "pillar.kb_architecture"
+      ],
+      "child_ids": [
+        "pattern.progressive_loading"
+      ],
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design",
+        "doc.operations.knowledge_base_architecture"
+      ],
+      "reference_ids": [
+        "ref.llms_txt",
+        "ref.microsoft.agent_skills"
+      ]
     },
     {
       "id": "principle.executable_acceptance",
@@ -79,11 +149,25 @@
       "title_en": "Executable Acceptance",
       "summary_zh": "每个重要行为都应映射到可执行测试、可检查状态、轨迹断言或明确 rubric。",
       "summary_en": "Every important behavior should map to executable tests, checkable state, trajectory assertions, or explicit rubrics.",
-      "tags": ["acceptance", "testing"],
-      "parent_ids": ["pillar.design", "pillar.testing"],
-      "child_ids": ["procedure.red_green_refactor_for_skill", "metric.task_success_rate"],
-      "doc_ids": ["doc.testing.tdd_for_skill_development"],
-      "reference_ids": ["ref.swe_skills_bench", "ref.swe_bench"]
+      "tags": [
+        "acceptance",
+        "testing"
+      ],
+      "parent_ids": [
+        "pillar.design",
+        "pillar.testing"
+      ],
+      "child_ids": [
+        "metric.task_success_rate",
+        "procedure.red_green_refactor_for_skill"
+      ],
+      "doc_ids": [
+        "doc.testing.tdd_for_skill_development"
+      ],
+      "reference_ids": [
+        "ref.swe_bench",
+        "ref.swe_skills_bench"
+      ]
     },
     {
       "id": "principle.short_node_budget",
@@ -93,11 +177,23 @@
       "title_en": "Short Node Budget",
       "summary_zh": "图谱节点只放短摘要和 id 关系，不放长解释；长内容通过 doc_ids 和 reference_ids 按需加载。",
       "summary_en": "Graph nodes contain only short summaries and id relationships; long content is loaded on demand through doc_ids and reference_ids.",
-      "tags": ["context", "node"],
-      "parent_ids": ["pillar.kb_architecture"],
+      "tags": [
+        "context",
+        "node"
+      ],
+      "parent_ids": [
+        "pillar.kb_architecture"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.knowledge_base_architecture"],
-      "reference_ids": ["ref.llms_txt", "ref.byterover", "ref.json_ld"]
+      "doc_ids": [
+        "doc.operations.knowledge_base_architecture",
+        "doc.operations.local_retrieval_workflow"
+      ],
+      "reference_ids": [
+        "ref.byterover",
+        "ref.json_ld",
+        "ref.llms_txt"
+      ]
     },
     {
       "id": "principle.id_references",
@@ -107,11 +203,23 @@
       "title_en": "ID References",
       "summary_zh": "上下游关系只存稳定 id，避免重复长文本，支持 agent 逐级检索和按需展开。",
       "summary_en": "Store upstream and downstream relationships as stable ids to avoid text duplication and support stepwise retrieval.",
-      "tags": ["graph", "id", "retrieval"],
-      "parent_ids": ["pillar.kb_architecture"],
+      "tags": [
+        "graph",
+        "id",
+        "retrieval"
+      ],
+      "parent_ids": [
+        "pillar.kb_architecture"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.knowledge_base_architecture"],
-      "reference_ids": ["ref.json_ld", "ref.backstage.catalog"]
+      "doc_ids": [
+        "doc.operations.knowledge_base_architecture",
+        "doc.operations.local_retrieval_workflow"
+      ],
+      "reference_ids": [
+        "ref.backstage.catalog",
+        "ref.json_ld"
+      ]
     },
     {
       "id": "procedure.test_pyramid",
@@ -121,11 +229,24 @@
       "title_en": "Skill Test Pyramid",
       "summary_zh": "底层做结构和静态检查，中层做工具/fixture 集成，顶层做真实任务和多次 trial。",
       "summary_en": "Use structure and static checks at the bottom, tool/fixture integration in the middle, and real tasks with repeated trials at the top.",
-      "tags": ["testing", "pyramid"],
-      "parent_ids": ["pillar.testing"],
-      "child_ids": ["procedure.trajectory_eval", "procedure.regression_suite"],
-      "doc_ids": ["doc.testing.skill_testing_process"],
-      "reference_ids": ["ref.martinfowler.test_pyramid", "ref.google.adk.evaluate_agents"]
+      "tags": [
+        "pyramid",
+        "testing"
+      ],
+      "parent_ids": [
+        "pillar.testing"
+      ],
+      "child_ids": [
+        "procedure.regression_suite",
+        "procedure.trajectory_eval"
+      ],
+      "doc_ids": [
+        "doc.testing.skill_testing_process"
+      ],
+      "reference_ids": [
+        "ref.google.adk.evaluate_agents",
+        "ref.martinfowler.test_pyramid"
+      ]
     },
     {
       "id": "procedure.trajectory_eval",
@@ -135,11 +256,26 @@
       "title_en": "Trajectory Evaluation",
       "summary_zh": "评估 agent 的消息、工具调用、参数、环境状态变化和最终输出，而不是只看最终文本。",
       "summary_en": "Evaluates messages, tool calls, arguments, environment state changes, and final output instead of only final text.",
-      "tags": ["trajectory", "eval"],
-      "parent_ids": ["pillar.testing"],
-      "child_ids": ["metric.progress_rate", "metric.tool_call_correctness"],
-      "doc_ids": ["doc.testing.skill_testing_process"],
-      "reference_ids": ["ref.anthropic.agent_evals", "ref.langsmith.complex_agent_eval"]
+      "tags": [
+        "eval",
+        "trajectory"
+      ],
+      "parent_ids": [
+        "concept.execution_protocol",
+        "pillar.testing",
+        "procedure.test_pyramid"
+      ],
+      "child_ids": [
+        "metric.progress_rate",
+        "metric.tool_call_correctness"
+      ],
+      "doc_ids": [
+        "doc.testing.skill_testing_process"
+      ],
+      "reference_ids": [
+        "ref.anthropic.agent_evals",
+        "ref.langsmith.complex_agent_eval"
+      ]
     },
     {
       "id": "procedure.paired_skill_eval",
@@ -149,11 +285,26 @@
       "title_en": "Paired Skill Evaluation",
       "summary_zh": "固定模型、任务、权限和环境，只比较 with-skill 与 without-skill 或两个 skill 版本的差异。",
       "summary_en": "Hold model, tasks, permissions, and environment constant; compare with-skill vs without-skill or two skill versions.",
-      "tags": ["paired_eval", "ab_test"],
-      "parent_ids": ["pillar.testing", "pillar.metrics"],
-      "child_ids": ["metric.marginal_lift", "metric.cost_per_success"],
-      "doc_ids": ["doc.testing.skill_testing_process", "doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.swe_skills_bench", "ref.promptfoo.test_agent_skills"]
+      "tags": [
+        "ab_test",
+        "paired_eval"
+      ],
+      "parent_ids": [
+        "pillar.metrics",
+        "pillar.testing"
+      ],
+      "child_ids": [
+        "metric.cost_per_success",
+        "metric.marginal_lift"
+      ],
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics",
+        "doc.testing.skill_testing_process"
+      ],
+      "reference_ids": [
+        "ref.promptfoo.test_agent_skills",
+        "ref.swe_skills_bench"
+      ]
     },
     {
       "id": "procedure.regression_suite",
@@ -163,11 +314,25 @@
       "title_en": "Regression Suite",
       "summary_zh": "保存失败样例、边界样例、邻近误触发样例和生产问题，每次 skill 变更后重跑。",
       "summary_en": "Preserve failure cases, boundary cases, adjacent false-trigger cases, and production issues; rerun them after each skill change.",
-      "tags": ["regression", "suite"],
-      "parent_ids": ["pillar.testing"],
-      "child_ids": ["metric.regression_escape_rate"],
-      "doc_ids": ["doc.testing.skill_testing_process"],
-      "reference_ids": ["ref.openai.eval_best_practices", "ref.openai.evals"]
+      "tags": [
+        "regression",
+        "suite"
+      ],
+      "parent_ids": [
+        "concept.test_asset",
+        "pillar.testing",
+        "procedure.test_pyramid"
+      ],
+      "child_ids": [
+        "metric.regression_escape_rate"
+      ],
+      "doc_ids": [
+        "doc.testing.skill_testing_process"
+      ],
+      "reference_ids": [
+        "ref.openai.eval_best_practices",
+        "ref.openai.evals"
+      ]
     },
     {
       "id": "procedure.red_green_refactor_for_skill",
@@ -177,11 +342,26 @@
       "title_en": "Skill Red-Green-Refactor",
       "summary_zh": "先写失败任务和验收，再写最小 skill 指令/脚本让它通过，最后重构结构、文档和测试。",
       "summary_en": "Write failing task and acceptance first, implement minimal instructions/scripts to pass, then refactor structure, docs, and tests.",
-      "tags": ["tdd", "red_green_refactor"],
-      "parent_ids": ["pillar.tdd"],
-      "child_ids": ["technique.contract_test", "technique.mutation_test", "technique.metamorphic_test"],
-      "doc_ids": ["doc.testing.tdd_for_skill_development"],
-      "reference_ids": ["ref.kent_beck.tdd_by_example", "ref.openai.evals"]
+      "tags": [
+        "red_green_refactor",
+        "tdd"
+      ],
+      "parent_ids": [
+        "pillar.tdd",
+        "principle.executable_acceptance"
+      ],
+      "child_ids": [
+        "technique.contract_test",
+        "technique.metamorphic_test",
+        "technique.mutation_test"
+      ],
+      "doc_ids": [
+        "doc.testing.tdd_for_skill_development"
+      ],
+      "reference_ids": [
+        "ref.kent_beck.tdd_by_example",
+        "ref.openai.evals"
+      ]
     },
     {
       "id": "technique.contract_test",
@@ -191,11 +371,22 @@
       "title_en": "Contract Test",
       "summary_zh": "把 skill 的输入、输出、工具参数、文件边界和错误路径写成可验证契约。",
       "summary_en": "Defines verifiable contracts for skill inputs, outputs, tool arguments, file boundaries, and error paths.",
-      "tags": ["contract", "interface"],
-      "parent_ids": ["pillar.tdd"],
+      "tags": [
+        "contract",
+        "interface"
+      ],
+      "parent_ids": [
+        "concept.execution_protocol",
+        "pillar.tdd",
+        "procedure.red_green_refactor_for_skill"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.testing.tdd_for_skill_development"],
-      "reference_ids": ["ref.pact_contract_testing"]
+      "doc_ids": [
+        "doc.testing.tdd_for_skill_development"
+      ],
+      "reference_ids": [
+        "ref.pact_contract_testing"
+      ]
     },
     {
       "id": "technique.mutation_test",
@@ -205,11 +396,24 @@
       "title_en": "Mutation Test",
       "summary_zh": "故意破坏 skill 的触发、边界、步骤或示例，检查测试套件是否能捕获退化。",
       "summary_en": "Deliberately corrupt triggers, boundaries, steps, or examples to see whether the test suite detects degraded behavior.",
-      "tags": ["mutation", "test_strength"],
-      "parent_ids": ["pillar.tdd"],
-      "child_ids": ["metric.mutation_score"],
-      "doc_ids": ["doc.testing.tdd_for_skill_development"],
-      "reference_ids": ["ref.mutation_testing"]
+      "tags": [
+        "mutation",
+        "test_strength"
+      ],
+      "parent_ids": [
+        "concept.test_asset",
+        "pillar.tdd",
+        "procedure.red_green_refactor_for_skill"
+      ],
+      "child_ids": [
+        "metric.mutation_score"
+      ],
+      "doc_ids": [
+        "doc.testing.tdd_for_skill_development"
+      ],
+      "reference_ids": [
+        "ref.mutation_testing"
+      ]
     },
     {
       "id": "technique.metamorphic_test",
@@ -219,11 +423,21 @@
       "title_en": "Metamorphic Test",
       "summary_zh": "当唯一正确答案难定义时，用输入变换前后的输出关系验证 skill 行为。",
       "summary_en": "When a single correct answer is hard to define, validate skill behavior through relations across transformed inputs.",
-      "tags": ["metamorphic", "oracle"],
-      "parent_ids": ["pillar.tdd"],
+      "tags": [
+        "metamorphic",
+        "oracle"
+      ],
+      "parent_ids": [
+        "pillar.tdd",
+        "procedure.red_green_refactor_for_skill"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.testing.tdd_for_skill_development"],
-      "reference_ids": ["ref.metamorphic_testing"]
+      "doc_ids": [
+        "doc.testing.tdd_for_skill_development"
+      ],
+      "reference_ids": [
+        "ref.metamorphic_testing"
+      ]
     },
     {
       "id": "metric.task_success_rate",
@@ -233,11 +447,24 @@
       "title_en": "Task Success Rate",
       "summary_zh": "在定义好的任务集上，skill 帮助 agent 达成验收标准的比例。",
       "summary_en": "The proportion of tasks where the skill helps the agent meet acceptance criteria on a defined task set.",
-      "tags": ["success", "metric"],
-      "parent_ids": ["pillar.metrics"],
-      "child_ids": ["metric.marginal_lift"],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.swe_skills_bench", "ref.tau_bench"]
+      "tags": [
+        "metric",
+        "success"
+      ],
+      "parent_ids": [
+        "pillar.metrics",
+        "principle.executable_acceptance"
+      ],
+      "child_ids": [
+        "metric.marginal_lift"
+      ],
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.swe_skills_bench",
+        "ref.tau_bench"
+      ]
     },
     {
       "id": "metric.activation_precision",
@@ -247,11 +474,25 @@
       "title_en": "Activation Precision",
       "summary_zh": "agent 在目标任务中正确触发 skill，并避免邻近非目标任务误触发的能力。",
       "summary_en": "The agent's ability to activate a skill on target tasks while avoiding false activation on adjacent non-target tasks.",
-      "tags": ["activation", "routing", "metric"],
-      "parent_ids": ["pillar.metrics", "concept.trigger"],
-      "child_ids": ["metric.false_positive_rate", "metric.false_negative_rate"],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.promptfoo.test_agent_skills"]
+      "tags": [
+        "activation",
+        "metric",
+        "routing"
+      ],
+      "parent_ids": [
+        "concept.trigger",
+        "pillar.metrics"
+      ],
+      "child_ids": [
+        "metric.false_negative_rate",
+        "metric.false_positive_rate"
+      ],
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.promptfoo.test_agent_skills"
+      ]
     },
     {
       "id": "metric.pass_k",
@@ -261,11 +502,21 @@
       "title_en": "pass^k Stability",
       "summary_zh": "同一任务重复运行 k 次时的成功模式，用来衡量非确定性下的可靠性。",
       "summary_en": "Success behavior across k repeated trials of the same task, measuring reliability under stochastic execution.",
-      "tags": ["reliability", "repeatability"],
-      "parent_ids": ["pillar.metrics"],
+      "tags": [
+        "reliability",
+        "repeatability"
+      ],
+      "parent_ids": [
+        "pillar.metrics"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.tau_bench", "ref.anthropic.agent_evals"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.anthropic.agent_evals",
+        "ref.tau_bench"
+      ]
     },
     {
       "id": "metric.cost_per_success",
@@ -275,11 +526,22 @@
       "title_en": "Cost per Success",
       "summary_zh": "完成一次成功任务所需的 token、工具调用、时间或费用，用来判断 skill 是否值得。",
       "summary_en": "Tokens, tool calls, time, or money required per successful task, used to judge whether a skill is worth its cost.",
-      "tags": ["cost", "efficiency"],
-      "parent_ids": ["pillar.metrics"],
+      "tags": [
+        "cost",
+        "efficiency"
+      ],
+      "parent_ids": [
+        "pillar.metrics",
+        "procedure.paired_skill_eval"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.agent_token_consumption", "ref.promptfoo.test_agent_skills"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.agent_token_consumption",
+        "ref.promptfoo.test_agent_skills"
+      ]
     },
     {
       "id": "metric.progress_rate",
@@ -289,11 +551,21 @@
       "title_en": "Progress Rate",
       "summary_zh": "即使最终失败，也记录 skill 完成了哪些阶段，用于定位失败点和部分收益。",
       "summary_en": "Records which stages a skill completed even when the final task fails, enabling failure localization and partial-credit analysis.",
-      "tags": ["progress", "trajectory"],
-      "parent_ids": ["pillar.metrics", "procedure.trajectory_eval"],
+      "tags": [
+        "progress",
+        "trajectory"
+      ],
+      "parent_ids": [
+        "pillar.metrics",
+        "procedure.trajectory_eval"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.agentboard"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.agentboard"
+      ]
     },
     {
       "id": "metric.marginal_lift",
@@ -303,11 +575,22 @@
       "title_en": "Marginal Lift",
       "summary_zh": "with-skill 相比 without-skill 或旧版本 skill 的成功率、质量或成本改善。",
       "summary_en": "Improvement in success, quality, or cost for with-skill compared to without-skill or an older skill version.",
-      "tags": ["paired_eval", "lift"],
-      "parent_ids": ["pillar.metrics", "procedure.paired_skill_eval"],
+      "tags": [
+        "lift",
+        "paired_eval"
+      ],
+      "parent_ids": [
+        "metric.task_success_rate",
+        "pillar.metrics",
+        "procedure.paired_skill_eval"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.swe_skills_bench"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.swe_skills_bench"
+      ]
     },
     {
       "id": "metric.false_positive_rate",
@@ -317,11 +600,21 @@
       "title_en": "False Positive Rate",
       "summary_zh": "非目标任务中错误触发 skill 的比例，用来发现描述过宽或邻近 skill 混淆。",
       "summary_en": "The proportion of non-target tasks that incorrectly activate a skill, revealing broad descriptions or adjacent-skill confusion.",
-      "tags": ["activation", "false_positive"],
-      "parent_ids": ["metric.activation_precision"],
+      "tags": [
+        "activation",
+        "false_positive"
+      ],
+      "parent_ids": [
+        "concept.trigger",
+        "metric.activation_precision"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.promptfoo.test_agent_skills"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.promptfoo.test_agent_skills"
+      ]
     },
     {
       "id": "metric.false_negative_rate",
@@ -331,11 +624,20 @@
       "title_en": "False Negative Rate",
       "summary_zh": "目标任务中未触发 skill 的比例，用来发现描述过窄或入口不可检索。",
       "summary_en": "The proportion of target tasks where a skill is not activated, revealing overly narrow descriptions or weak discoverability.",
-      "tags": ["activation", "false_negative"],
-      "parent_ids": ["metric.activation_precision"],
+      "tags": [
+        "activation",
+        "false_negative"
+      ],
+      "parent_ids": [
+        "metric.activation_precision"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.promptfoo.test_agent_skills"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.promptfoo.test_agent_skills"
+      ]
     },
     {
       "id": "metric.tool_call_correctness",
@@ -345,11 +647,22 @@
       "title_en": "Tool Call Correctness",
       "summary_zh": "衡量 agent 是否调用正确工具、传入正确参数，并在错误返回时采取正确恢复路径。",
       "summary_en": "Measures whether the agent calls the right tools with correct arguments and follows proper recovery paths on tool errors.",
-      "tags": ["tool", "trajectory"],
-      "parent_ids": ["procedure.trajectory_eval"],
+      "tags": [
+        "tool",
+        "trajectory"
+      ],
+      "parent_ids": [
+        "procedure.trajectory_eval"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.testing.skill_testing_process", "doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.langsmith.complex_agent_eval", "ref.anthropic.writing_tools_for_agents"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics",
+        "doc.testing.skill_testing_process"
+      ],
+      "reference_ids": [
+        "ref.anthropic.writing_tools_for_agents",
+        "ref.langsmith.complex_agent_eval"
+      ]
     },
     {
       "id": "metric.regression_escape_rate",
@@ -359,11 +672,21 @@
       "title_en": "Regression Escape Rate",
       "summary_zh": "曾经进入回归套件的问题在新版本中再次逃逸的比例，用来衡量测试套件防退化能力。",
       "summary_en": "The proportion of known regression cases that escape again in a new version, measuring anti-regression strength.",
-      "tags": ["regression", "quality"],
-      "parent_ids": ["procedure.regression_suite"],
+      "tags": [
+        "quality",
+        "regression"
+      ],
+      "parent_ids": [
+        "procedure.regression_suite"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.testing.skill_testing_process", "doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.openai.eval_best_practices"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics",
+        "doc.testing.skill_testing_process"
+      ],
+      "reference_ids": [
+        "ref.openai.eval_best_practices"
+      ]
     },
     {
       "id": "metric.mutation_score",
@@ -373,11 +696,21 @@
       "title_en": "Mutation Score",
       "summary_zh": "测试套件杀死故意破坏的 skill mutant 的比例，用来衡量测试是否真的约束行为。",
       "summary_en": "The proportion of deliberately corrupted skill mutants killed by the test suite, measuring whether tests actually constrain behavior.",
-      "tags": ["mutation", "test_strength"],
-      "parent_ids": ["technique.mutation_test"],
+      "tags": [
+        "mutation",
+        "test_strength"
+      ],
+      "parent_ids": [
+        "technique.mutation_test"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.testing.tdd_for_skill_development", "doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.mutation_testing"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics",
+        "doc.testing.tdd_for_skill_development"
+      ],
+      "reference_ids": [
+        "ref.mutation_testing"
+      ]
     },
     {
       "id": "metric.loaded_context_tokens",
@@ -387,11 +720,24 @@
       "title_en": "Loaded Context Tokens",
       "summary_zh": "一次运行实际加载的入口、节点、文档、引用和工具输出 token 数。",
       "summary_en": "The tokens actually loaded from entrypoints, nodes, docs, references, and tool outputs during one run.",
-      "tags": ["context", "length", "metric"],
-      "parent_ids": ["pillar.metrics", "pillar.kb_architecture"],
+      "tags": [
+        "context",
+        "length",
+        "metric"
+      ],
+      "parent_ids": [
+        "pillar.kb_architecture",
+        "pillar.metrics"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics", "doc.operations.knowledge_base_architecture"],
-      "reference_ids": ["ref.llms_txt", "ref.byterover"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.knowledge_base_architecture"
+      ],
+      "reference_ids": [
+        "ref.byterover",
+        "ref.llms_txt"
+      ]
     },
     {
       "id": "metric.policy_violation_rate",
@@ -401,11 +747,22 @@
       "title_en": "Policy Violation Rate",
       "summary_zh": "违反工具、路径、权限、人工确认或输出契约的运行比例。",
       "summary_en": "The share of runs that violate tool, path, permission, human-gate, or output contracts.",
-      "tags": ["control", "safety", "metric"],
-      "parent_ids": ["pillar.metrics"],
+      "tags": [
+        "control",
+        "metric",
+        "safety"
+      ],
+      "parent_ids": [
+        "pillar.metrics"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.metrics.quantitative_skill_metrics"],
-      "reference_ids": ["ref.openai.practical_agents", "ref.owasp.agentic_skills_top10"]
+      "doc_ids": [
+        "doc.metrics.quantitative_skill_metrics"
+      ],
+      "reference_ids": [
+        "ref.openai.practical_agents",
+        "ref.owasp.agentic_skills_top10"
+      ]
     },
     {
       "id": "anti_pattern.prompted_architecture",
@@ -415,11 +772,20 @@
       "title_en": "Prompted Architecture",
       "summary_zh": "把控制流、权限、安全和验收都写在长提示词里，导致关键行为依赖模型记忆而非确定性机制。",
       "summary_en": "Places control flow, permissions, safety, and acceptance in long prompts, making critical behavior depend on model adherence instead of deterministic mechanisms.",
-      "tags": ["anti_pattern", "control"],
-      "parent_ids": ["pillar.design"],
+      "tags": [
+        "anti_pattern",
+        "control"
+      ],
+      "parent_ids": [
+        "pillar.design"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.architecture.industrial_skill_design"],
-      "reference_ids": ["ref.veso.agentic_patterns"]
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "reference_ids": [
+        "ref.veso.agentic_patterns"
+      ]
     },
     {
       "id": "pattern.progressive_loading",
@@ -429,11 +795,23 @@
       "title_en": "Progressive Loading",
       "summary_zh": "用入口、短节点、主题文档和引用库分层加载，保证多轮开发时上下文保持可控。",
       "summary_en": "Loads entrypoints, compact nodes, topic docs, and references in layers to keep context controlled during multi-turn development.",
-      "tags": ["loading", "context"],
-      "parent_ids": ["pillar.kb_architecture", "principle.progressive_disclosure"],
+      "tags": [
+        "context",
+        "loading"
+      ],
+      "parent_ids": [
+        "pillar.kb_architecture",
+        "principle.progressive_disclosure"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.knowledge_base_architecture"],
-      "reference_ids": ["ref.llms_txt", "ref.byterover"]
+      "doc_ids": [
+        "doc.operations.knowledge_base_architecture",
+        "doc.operations.local_retrieval_workflow"
+      ],
+      "reference_ids": [
+        "ref.byterover",
+        "ref.llms_txt"
+      ]
     },
     {
       "id": "procedure.production_feedback_loop",
@@ -443,11 +821,22 @@
       "title_en": "Production Feedback Loop",
       "summary_zh": "把生产失败、误触发、高成本和人工纠正转成回归样例、指标阈值或 skill 修订。",
       "summary_en": "Turns production failures, false activations, high cost, and human corrections into regression cases, thresholds, or skill revisions.",
-      "tags": ["feedback", "regression", "production"],
-      "parent_ids": ["pillar.lifecycle"],
+      "tags": [
+        "feedback",
+        "production",
+        "regression"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.skill_lifecycle_governance"],
-      "reference_ids": ["ref.openai.eval_best_practices", "ref.agent_kb"]
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_governance"
+      ],
+      "reference_ids": [
+        "ref.agent_kb",
+        "ref.openai.eval_best_practices"
+      ]
     },
     {
       "id": "procedure.skill_deprecation",
@@ -457,11 +846,21 @@
       "title_en": "Skill Deprecation",
       "summary_zh": "当 skill 过时、冲突、成本过高或被更好版本替代时，记录替代路径并停止自动触发。",
       "summary_en": "When a skill is outdated, conflicting, too costly, or superseded, record migration paths and disable auto-activation.",
-      "tags": ["deprecation", "versioning"],
-      "parent_ids": ["pillar.lifecycle"],
+      "tags": [
+        "deprecation",
+        "versioning"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle"
+      ],
       "child_ids": [],
-      "doc_ids": ["doc.operations.skill_lifecycle_governance"],
-      "reference_ids": ["ref.slsa", "ref.owasp.agentic_skills_top10"]
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_governance"
+      ],
+      "reference_ids": [
+        "ref.owasp.agentic_skills_top10",
+        "ref.slsa"
+      ]
     }
   ]
 }

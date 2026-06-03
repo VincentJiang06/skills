@@ -39,6 +39,21 @@
       "expected_asset_ids": ["template.eval_case", "schema.eval_case", "template.trajectory_assertion"]
     },
     {
+      "id": "query.template_contracts",
+      "requirement": "我要检查 template 是否包含工业化 agent 需要的 required paths、数组字段、metric ids、reference ids 和枚举占位。",
+      "expected_doc_ids": ["doc.testing.skill_testing_process"],
+      "expected_node_ids": ["concept.test_asset", "principle.executable_acceptance"],
+      "expected_asset_ids": ["testing.template_contracts", "schema.template_contracts", "tool.validate_kb"]
+    },
+    {
+      "id": "query.research_doc_template",
+      "requirement": "我要写调研文档，要求来源证据、findings、inferences、decisions、asset updates、validation plan 和 AI 写作约束。",
+      "max_expected_total_ids": 14,
+      "expected_doc_ids": ["doc.research.evidence_driven_skill_research", "doc.operations.knowledge_base_architecture"],
+      "expected_node_ids": ["pillar.kb_architecture", "principle.id_references", "pattern.progressive_loading"],
+      "expected_asset_ids": ["template.research_doc", "checklist.research_doc_quality"]
+    },
+    {
       "id": "query.trajectory_eval",
       "requirement": "这个 skill 不能只看最终输出，我想评估 tool calls、arguments、loaded docs 和 state changes。",
       "expected_doc_ids": ["doc.testing.skill_testing_process"],
@@ -132,9 +147,37 @@
     {
       "id": "query.documentation_structure",
       "requirement": "我要给 agent 使用的文档库做短入口、ID 引用、知识图谱节点和 Markdown 长文分离。",
-      "expected_doc_ids": ["doc.operations.knowledge_base_architecture"],
+      "expected_doc_ids": ["doc.operations.knowledge_base_architecture", "doc.operations.local_retrieval_workflow"],
       "expected_node_ids": ["pillar.kb_architecture", "principle.id_references", "principle.short_node_budget"],
       "expected_asset_ids": ["tool.validate_kb"]
+    },
+    {
+      "id": "query.local_retrieval_quality",
+      "requirement": "本地 agent 数据库要用生成索引查询，并输出质量报告、coverage gate 和图谱邻接检查。",
+      "expected_doc_ids": ["doc.operations.local_retrieval_workflow", "doc.operations.knowledge_base_architecture"],
+      "expected_node_ids": ["pillar.kb_architecture", "pattern.progressive_loading"],
+      "expected_asset_ids": ["tool.query_kb", "tool.generate_quality_report", "report.kb_quality", "testing.kb_quality_gates", "index.graph_adjacency"]
+    },
+    {
+      "id": "query.agent_principle_scaffold",
+      "requirement": "我要给一个本地 agent 项目生成 AGENT.md 和简单 CLI，让它用 develop-principle 做 plan、query 和 audit。",
+      "expected_doc_ids": ["doc.operations.local_retrieval_workflow", "doc.operations.knowledge_base_architecture"],
+      "expected_node_ids": ["pillar.kb_architecture", "pattern.progressive_loading"],
+      "expected_asset_ids": ["tool.scaffold_agent_principle", "tool.query_kb", "tool.run_all_checks"]
+    },
+    {
+      "id": "query.quality_audit_report",
+      "requirement": "提交前我要看知识库质量审计报告，确认 quality gates、required gate summary、coverage 和 schema 都可靠。",
+      "expected_doc_ids": ["doc.operations.knowledge_base_architecture"],
+      "expected_node_ids": ["pillar.kb_architecture", "pattern.progressive_loading"],
+      "expected_asset_ids": ["report.kb_quality", "schema.quality_report", "testing.kb_quality_gates", "tool.generate_quality_report"]
+    },
+    {
+      "id": "query.summary_card_precommit",
+      "requirement": "本地知识库要保留压缩结论卡片，提交前检查 summary cards 是否覆盖长文和节点。",
+      "expected_doc_ids": ["doc.operations.local_retrieval_workflow", "doc.operations.knowledge_base_architecture"],
+      "expected_node_ids": ["pillar.kb_architecture", "principle.short_node_budget", "pattern.progressive_loading"],
+      "expected_asset_ids": ["index.summary_cards", "schema.summary_cards", "tool.run_all_checks", "report.kb_quality"]
     },
     {
       "id": "query.full_review",
@@ -150,6 +193,13 @@
       ],
       "expected_node_ids": ["pillar.design", "pillar.testing", "pillar.tdd", "pillar.metrics", "pillar.lifecycle", "pillar.kb_architecture"],
       "expected_asset_ids": ["checklist.skill_design_review", "checklist.skill_release_gate", "metrics.catalog"]
+    },
+    {
+      "id": "query.research_collection",
+      "requirement": "依赖外部事实的 skill 要做资料搜集：来源花名册、多角度广度 fan-out、迭代深度、可靠性分级、三角验证，每条结论可溯源到证据。",
+      "expected_doc_ids": ["doc.research.evidence_driven_skill_research"],
+      "expected_node_ids": ["pillar.research", "procedure.source_roster", "procedure.search_fan_out"],
+      "expected_asset_ids": ["template.research_doc"]
     }
   ]
 }

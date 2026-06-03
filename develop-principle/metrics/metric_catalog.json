@@ -42,6 +42,32 @@
       "reference_ids": ["ref.promptfoo.test_agent_skills", "ref.toolformer"]
     },
     {
+      "id": "metric.false_positive_rate",
+      "group": "activation",
+      "title_zh": "误触发率",
+      "title_en": "False Positive Rate",
+      "definition_zh": "不应触发 skill 的相邻或负例任务中，错误触发的比例。",
+      "definition_en": "The share of adjacent or negative tasks where the skill activated when it should not.",
+      "formula": "false_positive / (false_positive + true_negative)",
+      "inputs": ["routing_dataset", "negative_cases", "activation_logs"],
+      "interpretation": "High values mean the skill description or trigger boundary is too broad.",
+      "failure_modes": ["missing_adjacent_cases", "ambiguous_negative_examples", "manual_trigger_override"],
+      "reference_ids": ["ref.promptfoo.test_agent_skills", "ref.toolformer"]
+    },
+    {
+      "id": "metric.false_negative_rate",
+      "group": "activation",
+      "title_zh": "漏触发率",
+      "title_en": "False Negative Rate",
+      "definition_zh": "应该触发 skill 的目标任务中，没有触发的比例。",
+      "definition_en": "The share of target tasks where the skill should activate but does not.",
+      "formula": "false_negative / (false_negative + true_positive)",
+      "inputs": ["routing_dataset", "positive_cases", "activation_logs"],
+      "interpretation": "High values mean the description is too narrow, too implicit, or missing common user phrasing.",
+      "failure_modes": ["positive_cases_too_sparse", "description_missing_trigger_phrases", "overly_strict_router"],
+      "reference_ids": ["ref.promptfoo.test_agent_skills", "ref.toolformer"]
+    },
+    {
       "id": "metric.pass_k",
       "group": "reliability",
       "title_zh": "pass^k 稳定性",
@@ -53,6 +79,19 @@
       "interpretation": "Industrial use should prefer stable all-pass behavior over lucky any-pass behavior.",
       "failure_modes": ["too_few_trials", "shared_state_between_trials", "flaky_external_services"],
       "reference_ids": ["ref.tau_bench", "ref.anthropic.agent_evals"]
+    },
+    {
+      "id": "metric.mutation_score",
+      "group": "test_strength",
+      "title_zh": "变异检出率",
+      "title_en": "Mutation Score",
+      "definition_zh": "故意破坏 skill 触发、边界、步骤或示例后，测试套件能检出的比例。",
+      "definition_en": "The share of intentionally mutated skill defects detected by the test suite.",
+      "formula": "detected_mutations / total_mutations",
+      "inputs": ["mutation_cases", "test_results"],
+      "interpretation": "Low score means tests are too shallow or rely on happy-path examples only.",
+      "failure_modes": ["mutations_too_easy", "no_boundary_mutations", "grader_accepts_regressions"],
+      "reference_ids": ["ref.mutation_testing", "ref.quickcheck"]
     },
     {
       "id": "metric.cost_per_success",
@@ -107,6 +146,32 @@
       "reference_ids": ["ref.agentboard", "ref.agenteval.dag"]
     },
     {
+      "id": "metric.tool_call_correctness",
+      "group": "trajectory",
+      "title_zh": "工具调用正确率",
+      "title_en": "Tool Call Correctness",
+      "definition_zh": "关键工具调用在顺序、参数、路径、权限和返回处理上满足轨迹断言的比例。",
+      "definition_en": "The share of critical tool calls that satisfy trajectory assertions for order, arguments, paths, permissions, and return handling.",
+      "formula": "correct_tool_calls / required_tool_calls",
+      "inputs": ["trajectory_logs", "tool_call_assertions"],
+      "interpretation": "Use this when final output can hide unsafe or incorrect intermediate behavior.",
+      "failure_modes": ["logs_missing_arguments", "assertions_ignore_order", "tool_result_not_checked"],
+      "reference_ids": ["ref.anthropic.agent_evals", "ref.google.adk.evaluate_agents", "ref.braintrust.evaluate"]
+    },
+    {
+      "id": "metric.regression_escape_rate",
+      "group": "regression",
+      "title_zh": "回归逃逸率",
+      "title_en": "Regression Escape Rate",
+      "definition_zh": "已知失败模式在后续版本中未被回归套件阻止而再次出现的比例。",
+      "definition_en": "The share of known failure modes that reappear in later versions without being caught by the regression suite.",
+      "formula": "escaped_regressions / known_regression_cases",
+      "inputs": ["regression_suite_results", "production_failure_log"],
+      "interpretation": "Industrial skill changes should drive this toward zero over time.",
+      "failure_modes": ["failures_not_added_to_suite", "fixtures_drift", "release_without_regression_run"],
+      "reference_ids": ["ref.openai.eval_best_practices", "ref.anthropic.agent_evals"]
+    },
+    {
       "id": "metric.release_gate_pass_rate",
       "group": "lifecycle",
       "title_zh": "发布门禁通过率",
@@ -144,6 +209,32 @@
       "interpretation": "Low coverage means failures cannot be reliably attributed or rolled back.",
       "failure_modes": ["missing_skill_version", "tool_calls_not_logged", "no_trace_id", "registry_events_not_logged"],
       "reference_ids": ["ref.opentelemetry.genai_agent_spans", "ref.openai.agents_tracing", "ref.langsmith.observability"]
+    },
+    {
+      "id": "metric.source_coverage",
+      "group": "research",
+      "title_zh": "来源覆盖度",
+      "title_en": "Source Coverage",
+      "definition_zh": "实际搜集到的相关来源占应覆盖来源空间（按类别和角度）的比例。",
+      "definition_en": "The share of the intended source space (by class and angle) actually collected during research.",
+      "formula": "collected_relevant_sources / target_source_space",
+      "inputs": ["source_roster", "search_plan"],
+      "interpretation": "Low values mean the fan-out missed source classes; widen the breadth search plan before deepening.",
+      "failure_modes": ["single_angle_search", "premature_stop", "unprofiled_roster"],
+      "reference_ids": ["ref.arxiv.deepwidesearch", "ref.prisma.2020"]
+    },
+    {
+      "id": "metric.claim_traceability_rate",
+      "group": "research",
+      "title_zh": "声明可溯源率",
+      "title_en": "Claim Traceability Rate",
+      "definition_zh": "skill 输出中可追溯到具体 evidence id 的事实性声明占全部事实性声明的比例。",
+      "definition_en": "The share of factual claims in a skill's output that trace to a specific evidence id.",
+      "formula": "claims_with_evidence / total_factual_claims",
+      "inputs": ["skill_output", "evidence_map"],
+      "interpretation": "Target 1.0 for fact-dependent skills; an unsupported factual claim is a draft, not output.",
+      "failure_modes": ["inferred_as_fact", "stale_evidence", "uncited_synthesis"],
+      "reference_ids": ["ref.arxiv.claimaudit", "ref.w3c.prov_overview"]
     }
   ]
 }

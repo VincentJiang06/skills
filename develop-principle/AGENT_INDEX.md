@@ -1,47 +1,52 @@
 # Agent Index
 
-Read this file first. Load deeper files only when needed.
+Read first. Load deeper files only when needed.
 
-## Core Definition
+`Skill = reusable agent capability package`: trigger, protocol, resources,
+evidence base, controls, tests, metrics, lifecycle.
 
-`Skill = reusable capability package for an agent.`
+## Scope
 
-A skill contains trigger rules, behavior protocol, supporting materials, control boundaries, test assets, quantitative metrics, and lifecycle rules.
+Covers: industrial skill design; evidence-driven research / 资料搜集 (breadth +
+depth, source grading, claim traceability); testing; TDD; quantitative metrics;
+low-context KB + retrieval; lifecycle (release / version / rollback /
+deprecation); plus a registry of popular public skill repos to learn from.
+Does NOT cover: writing the skill's domain content for you, prompt wording,
+buying / UX / product calls, or running another tool's runtime.
 
-## Fast Routes
+## Routes
 
-- Industrial design: `docs/architecture/industrial_skill_design.md`
-- Testing process: `docs/testing/skill_testing_process.md`
-- TDD planning: `docs/testing/tdd_for_skill_development.md`
-- Quantitative metrics: `docs/metrics/quantitative_skill_metrics.md`
-- Lifecycle management: `docs/operations/skill_lifecycle_management.md`
-- Knowledge base architecture: `docs/operations/knowledge_base_architecture.md`
+- Design: `docs/architecture/industrial_skill_design.md`
+- Research / 资料搜集: `docs/research/evidence_driven_skill_research.md`
+- Testing: `docs/testing/skill_testing_process.md`
+- TDD: `docs/testing/tdd_for_skill_development.md`
+- Metrics: `docs/metrics/quantitative_skill_metrics.md`
+- Lifecycle: `docs/operations/skill_lifecycle_management.md`
+- KB + Retrieval: `docs/operations/knowledge_base_architecture.md`, `docs/operations/local_retrieval_workflow.md`
+- Reading lists: `docs/research/skill_engineering_reading_list.md`, `docs/research/skill_ops_reading_list.md`, `docs/research/skill_reference_library.md`
 
-## Machine Data
+## Data
 
-- File index: `INDEX.json`
-- Nodes: `knowledge_graph/nodes/*.json`
-- Edges: `knowledge_graph/edges/*.json`
-- References: `references/*.references.json`
-- Metric catalog: `metrics/metric_catalog.json`
-- Test strategy: `testing/test_strategy_matrix.json`
-- Query effectiveness: `testing/query_effectiveness_cases.json`
-- TDD planning: `testing/tdd_planning_matrix.json`
-- Schemas: `schemas/*.schema.json`
-- Templates: `templates/*.template.json`
-- Checklists: `checklists/*.json`
+- Files: `INDEX.json`; Indexes: `indexes/*.json`
+- Graph: `knowledge_graph/nodes/*.json`, `knowledge_graph/edges/*.json`
+- References: `references/*.references.json`; Skill repos: `references/skill_repos.registry.json`
+- Metrics: `metrics/metric_catalog.json`; Tests: `testing/*.json`
+- Schemas / Templates / Checklists: `schemas/*`, `templates/*`, `checklists/*`
 
-## Loading Rule
+## Loading
 
-Start with `INDEX.json`, then load only the nodes whose `id`, `tags`, or `doc_ids` match the task. Do not load all Markdown files unless the task explicitly asks for a full audit.
+Start with `INDEX.json` or indexes. Use `summary_cards.json` first, then load
+matching nodes and expand via `doc_ids` / `reference_ids`. Nodes stay short.
+Don't load all Markdown unless doing a full audit.
 
-## Node Budget
+## Retrieval breadth / depth
 
-Each graph node is intentionally short. Use `doc_ids` and `reference_ids` to expand context.
+`query_kb.mjs "<q>"` defaults to low-context `standard`; pass `--broad` /
+`--exhaustive` (or `--routes` / `--hops` / `--limit` / `--max-tier` / `--kinds`)
+for 超多资料搜集. Output `search_plan` echoes the active breadth/depth.
 
-## Validation
+## Commands
 
-- Structure validation: `node tools/validate_kb.mjs`
-- Query effectiveness: `node tools/evaluate_query_cases.mjs`
-- Context budget: `node tools/check_context_budget.mjs`
-- Document traceability: `node tools/check_doc_traceability.mjs`
+- `node tools/query_kb.mjs "<query>"` · `node tools/run_all_checks.mjs`
+- `node tools/scaffold_agent_principle.mjs init --target <dir>`
+- `node tools/fetch_skill_reference.mjs <repo.id> <skill-path>` — fetch a public skill to learn from

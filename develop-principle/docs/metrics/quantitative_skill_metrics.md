@@ -4,7 +4,7 @@ machine_summary_zh: Skill 指标应覆盖效果、触发、稳定性、过程、
 
 machine_summary_en: Skill metrics should cover effectiveness, activation, stability, progress, cost, length, controllability, and safety. Core practices are paired eval, repeated trials, trajectory logging, and normalized cost.
 
-reference_ids: `ref.swe_skills_bench`, `ref.tau_bench`, `ref.agentboard`, `ref.helm`, `ref.metr.long_tasks`, `ref.agent_token_consumption`, `ref.promptfoo.test_agent_skills`
+reference_ids: `ref.swe_skills_bench`, `ref.tau_bench`, `ref.agentboard`, `ref.helm`, `ref.metr.long_tasks`, `ref.agent_token_consumption`, `ref.promptfoo.test_agent_skills`, `ref.agent_safetybench`
 
 node_ids: `pillar.metrics`, `metric.task_success_rate`, `metric.activation_precision`, `metric.pass_k`, `metric.cost_per_success`, `metric.progress_rate`, `metric.marginal_lift`
 
@@ -119,4 +119,3 @@ latency_per_success
 ## 9. 解释原则
 
 指标必须和任务集一起解释。没有任务集定义的成功率没有意义；没有成本记录的提升不完整；没有 repeated trials 的单次结果不稳定。
-

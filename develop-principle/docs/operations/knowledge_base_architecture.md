@@ -4,7 +4,7 @@ machine_summary_zh: develop-principle 使用短入口、短图谱节点、ID 引
 
 machine_summary_en: develop-principle uses short entrypoints, compact graph nodes, ID references, linked long docs, and structured references to save context and preserve traceability during multi-turn agent development.
 
-reference_ids: `ref.llms_txt`, `ref.diataxis`, `ref.dita.topic`, `ref.backstage.catalog`, `ref.json_ld`, `ref.microsoft.graphrag`, `ref.agent_kb`, `ref.byterover`
+reference_ids: `ref.llms_txt`, `ref.diataxis`, `ref.dita.topic`, `ref.backstage.catalog`, `ref.json_ld`, `ref.microsoft.graphrag`, `ref.agent_kb`, `ref.byterover`, `ref.docs_as_code`
 
 node_ids: `pillar.kb_architecture`, `principle.short_node_budget`, `principle.id_references`, `pattern.progressive_loading`
 
@@ -27,10 +27,11 @@ node_ids: `pillar.kb_architecture`, `principle.short_node_budget`, `principle.id
 ```text
 1. AGENT_INDEX.md
 2. INDEX.json
-3. knowledge_graph/nodes/*.json 中相关节点
-4. 节点 doc_ids 指向的 Markdown
-5. 节点 reference_ids 指向的引用条目
-6. templates/checklists/metrics 中的执行资产
+3. indexes/search_index.json / indexes/route_map.json / indexes/graph_adjacency.json
+4. knowledge_graph/nodes/*.json 中相关节点
+5. 节点 doc_ids 指向的 Markdown
+6. 节点 reference_ids 指向的引用条目
+7. templates/checklists/metrics 中的执行资产
 ```
 
 不要默认读取全部 docs 和 references。
@@ -78,11 +79,14 @@ node_ids: `pillar.kb_architecture`, `principle.short_node_budget`, `principle.id
 | File index | `INDEX.json` | 文件和覆盖度索引 |
 | Node | `knowledge_graph/nodes/` | 短知识卡 |
 | Edge | `knowledge_graph/edges/` | 节点关系 |
+| Generated index | `indexes/` | 搜索倒排、路由表、图谱邻接表 |
 | Long doc | `docs/` | 中长解释 |
 | Reference | `references/` | 来源数据库 |
 | Template | `templates/` | 可复用执行资产 |
 | Checklist | `checklists/` | 评审和发布门禁 |
 | Metric | `metrics/` | 指标定义 |
+
+Research doc 使用 `templates/research_doc.template.md`。它不是普通笔记，而是从来源证据到 findings、inferences、decisions、asset updates 和 validation plan 的桥接文档。
 
 ## 6. 双语策略
 
@@ -106,6 +110,6 @@ Markdown 中文为主，关键术语保留英文原词。
 4. 来源放 references。
 5. 执行动作放 templates/checklists/testing/metrics。
 6. 更新 `INDEX.json` 覆盖度。
+7. 运行 `node tools/build_indexes.mjs` 重新生成检索索引。
 
 如果一个节点开始变长，说明它应该拆成一个短节点和一个 Markdown 文档。
-

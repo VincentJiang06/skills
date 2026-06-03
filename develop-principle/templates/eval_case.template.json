@@ -1,4 +1,6 @@
 {
+  "schema_version": "1.0.0",
+  "template_id": "template.eval_case",
   "id": "eval.skill.example.happy_path.001",
   "skill_id": "skill.example",
   "case_type": "happy_path",

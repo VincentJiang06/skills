@@ -38,7 +38,7 @@
     {
       "goal_id": "goal.low_context_kb",
       "title_zh": "低上下文、多轮工业化开发知识库基础设施",
-      "primary_docs": ["doc.operations.knowledge_base_architecture"],
+      "primary_docs": ["doc.operations.knowledge_base_architecture", "doc.operations.local_retrieval_workflow"],
       "primary_nodes": ["pillar.kb_architecture", "principle.short_node_budget", "principle.id_references", "pattern.progressive_loading"]
     },
     {
@@ -46,6 +46,12 @@
       "title_zh": "工业级 skill 生命周期、发布、版本、观测和回滚",
       "primary_docs": ["doc.operations.skill_lifecycle_management"],
       "primary_nodes": ["pillar.lifecycle", "procedure.release_gate", "procedure.rollback_plan", "procedure.deprecation_policy", "pattern.skill_registry"]
+    },
+    {
+      "goal_id": "goal.research_collection",
+      "title_zh": "工业级 skill 的资料搜集、证据基础和来源可溯源",
+      "primary_docs": ["doc.research.evidence_driven_skill_research"],
+      "primary_nodes": ["pillar.research", "procedure.source_roster", "procedure.search_fan_out", "procedure.iterative_deepening", "procedure.triangulation", "principle.claim_evidence_traceability"]
     }
   ],
   "files": [
@@ -80,6 +86,12 @@
       "tags": ["kb", "context", "graph"]
     },
     {
+      "id": "doc.operations.local_retrieval_workflow",
+      "path": "docs/operations/local_retrieval_workflow.md",
+      "kind": "long_doc",
+      "tags": ["kb", "retrieval", "search", "index", "graph", "local"]
+    },
+    {
       "id": "doc.operations.skill_lifecycle_governance",
       "path": "docs/operations/skill_lifecycle_governance.md",
       "kind": "long_doc",
@@ -90,6 +102,30 @@
       "path": "docs/operations/skill_lifecycle_management.md",
       "kind": "long_doc",
       "tags": ["lifecycle", "release", "versioning", "registry", "observability", "rollback"]
+    },
+    {
+      "id": "doc.research.evidence_driven_skill_research",
+      "path": "docs/research/evidence_driven_skill_research.md",
+      "kind": "long_doc",
+      "tags": ["research", "evidence", "collection", "breadth", "depth", "traceability", "source", "triangulation"]
+    },
+    {
+      "id": "doc.research.skill_reference_library",
+      "path": "docs/research/skill_reference_library.md",
+      "kind": "long_doc",
+      "tags": ["research", "registry", "github", "skill", "reference", "fetch", "learn"]
+    },
+    {
+      "id": "doc.research.skill_engineering_reading_list",
+      "path": "docs/research/skill_engineering_reading_list.md",
+      "kind": "long_doc",
+      "tags": ["research", "reading", "design", "testing", "tdd", "bibliography"]
+    },
+    {
+      "id": "doc.research.skill_ops_reading_list",
+      "path": "docs/research/skill_ops_reading_list.md",
+      "kind": "long_doc",
+      "tags": ["research", "reading", "metrics", "lifecycle", "governance", "context", "bibliography"]
     },
     {
       "id": "nodes.pillars",
@@ -107,6 +143,11 @@
       "kind": "node_file"
     },
     {
+      "id": "nodes.research",
+      "path": "knowledge_graph/nodes/research_nodes.json",
+      "kind": "node_file"
+    },
+    {
       "id": "edges.core",
       "path": "knowledge_graph/edges/core_edges.json",
       "kind": "edge_file"
@@ -114,6 +155,11 @@
     {
       "id": "edges.lifecycle",
       "path": "knowledge_graph/edges/lifecycle_edges.json",
+      "kind": "edge_file"
+    },
+    {
+      "id": "edges.research",
+      "path": "knowledge_graph/edges/research_edges.json",
       "kind": "edge_file"
     },
     {
@@ -147,6 +193,27 @@
       "kind": "reference_file"
     },
     {
+      "id": "refs.research_methodology",
+      "path": "references/research_methodology.references.json",
+      "kind": "reference_file"
+    },
+    {
+      "id": "refs.skill_engineering_extended",
+      "path": "references/skill_engineering_extended.references.json",
+      "kind": "reference_file"
+    },
+    {
+      "id": "refs.skill_ops_extended",
+      "path": "references/skill_ops_extended.references.json",
+      "kind": "reference_file"
+    },
+    {
+      "id": "registry.skill_repos",
+      "path": "references/skill_repos.registry.json",
+      "kind": "registry_file",
+      "tags": ["registry", "github", "skill", "repos", "stars", "learn", "reference"]
+    },
+    {
       "id": "schema.node",
       "path": "schemas/node.schema.json",
       "kind": "schema_file"
@@ -155,6 +222,96 @@
       "id": "schema.reference",
       "path": "schemas/reference.schema.json",
       "kind": "schema_file"
+    },
+    {
+      "id": "schema.skill_repo_registry",
+      "path": "schemas/skill_repo_registry.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "registry", "repos", "github", "skill"]
+    },
+    {
+      "id": "schema.index",
+      "path": "schemas/index.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "index", "files", "coverage"]
+    },
+    {
+      "id": "schema.search_aliases",
+      "path": "schemas/search_aliases.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "alias", "query", "retrieval"]
+    },
+    {
+      "id": "schema.quality_gate",
+      "path": "schemas/quality_gate.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "quality", "gate", "threshold"]
+    },
+    {
+      "id": "schema.quality_report",
+      "path": "schemas/quality_report.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "quality", "report", "coverage"]
+    },
+    {
+      "id": "schema.summary_cards",
+      "path": "schemas/summary_cards.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "summary", "cards", "retrieval", "compressed"]
+    },
+    {
+      "id": "schema.template_contracts",
+      "path": "schemas/template_contracts.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "template", "contract", "validation"]
+    },
+    {
+      "id": "schema.query_effectiveness",
+      "path": "schemas/query_effectiveness.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "query", "retrieval", "testing"]
+    },
+    {
+      "id": "schema.context_budget_rules",
+      "path": "schemas/context_budget_rules.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "context", "budget", "tokens"]
+    },
+    {
+      "id": "schema.doc_traceability_rules",
+      "path": "schemas/doc_traceability_rules.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "traceability", "docs", "references"]
+    },
+    {
+      "id": "schema.checklist",
+      "path": "schemas/checklist.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "checklist", "gate", "review"]
+    },
+    {
+      "id": "schema.test_strategy_matrix",
+      "path": "schemas/test_strategy_matrix.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "testing", "strategy", "matrix", "eval"]
+    },
+    {
+      "id": "schema.tdd_workflow",
+      "path": "schemas/tdd_workflow.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "testing", "tdd", "workflow"]
+    },
+    {
+      "id": "schema.tdd_planning_matrix",
+      "path": "schemas/tdd_planning_matrix.schema.json",
+      "kind": "schema_file",
+      "tags": ["schema", "testing", "tdd", "planning", "matrix"]
+    },
+    {
+      "id": "report.kb_quality",
+      "path": "reports/kb_quality_report.json",
+      "kind": "report_file",
+      "tags": ["report", "quality", "coverage", "graph", "index"]
     },
     {
       "id": "metrics.catalog",
@@ -215,6 +372,12 @@
       "tags": ["template", "tdd", "red", "green", "refactor", "plan"]
     },
     {
+      "id": "template.research_doc",
+      "path": "templates/research_doc.template.md",
+      "kind": "template_file",
+      "tags": ["template", "research", "doc", "evidence", "source", "finding", "decision", "ai", "constraints"]
+    },
+    {
       "id": "template.trajectory_assertion",
       "path": "templates/trajectory_assertion.template.json",
       "kind": "template_file",
@@ -257,6 +420,12 @@
       "tags": ["checklist", "release", "gate", "rollback", "cost", "control"]
     },
     {
+      "id": "checklist.research_doc_quality",
+      "path": "checklists/research_doc_quality.checklist.json",
+      "kind": "checklist_file",
+      "tags": ["checklist", "research", "doc", "evidence", "traceability", "ai", "constraints"]
+    },
+    {
       "id": "testing.tdd_planning_matrix",
       "path": "testing/tdd_planning_matrix.json",
       "kind": "testing_file",
@@ -271,7 +440,26 @@
     {
       "id": "testing.query_effectiveness_cases",
       "path": "testing/query_effectiveness_cases.json",
-      "kind": "testing_file"
+      "kind": "testing_file",
+      "tags": ["testing", "query", "retrieval", "routing", "coverage"]
+    },
+    {
+      "id": "testing.search_aliases",
+      "path": "testing/search_aliases.json",
+      "kind": "testing_file",
+      "tags": ["testing", "query", "alias", "retrieval", "routing"]
+    },
+    {
+      "id": "testing.template_contracts",
+      "path": "testing/template_contracts.json",
+      "kind": "testing_file",
+      "tags": ["testing", "template", "contract", "schema", "validation"]
+    },
+    {
+      "id": "testing.kb_quality_gates",
+      "path": "testing/kb_quality_gates.json",
+      "kind": "testing_file",
+      "tags": ["testing", "quality", "gates", "thresholds", "report"]
     },
     {
       "id": "testing.context_budget_rules",
@@ -288,27 +476,92 @@
     {
       "id": "tool.validate_kb",
       "path": "tools/validate_kb.mjs",
-      "kind": "validation_tool"
+      "kind": "validation_tool",
+      "tags": ["tool", "validation", "schema", "graph", "references", "index"]
     },
     {
       "id": "tool.evaluate_query_cases",
       "path": "tools/evaluate_query_cases.mjs",
-      "kind": "validation_tool"
+      "kind": "validation_tool",
+      "tags": ["tool", "validation", "query", "retrieval", "routing"]
     },
     {
       "id": "tool.check_context_budget",
       "path": "tools/check_context_budget.mjs",
-      "kind": "validation_tool"
+      "kind": "validation_tool",
+      "tags": ["tool", "validation", "context", "budget", "tokens"]
     },
     {
       "id": "tool.check_doc_traceability",
       "path": "tools/check_doc_traceability.mjs",
-      "kind": "validation_tool"
+      "kind": "validation_tool",
+      "tags": ["tool", "validation", "traceability", "docs", "nodes", "references"]
+    },
+    {
+      "id": "tool.build_indexes",
+      "path": "tools/build_indexes.mjs",
+      "kind": "validation_tool",
+      "tags": ["tool", "index", "search", "graph", "retrieval", "route"]
+    },
+    {
+      "id": "tool.query_kb",
+      "path": "tools/query_kb.mjs",
+      "kind": "validation_tool",
+      "tags": ["tool", "query", "search", "retrieval", "graph", "route"]
+    },
+    {
+      "id": "tool.scaffold_agent_principle",
+      "path": "tools/scaffold_agent_principle.mjs",
+      "kind": "validation_tool",
+      "tags": ["tool", "scaffold", "agent", "AGENT.md", "cli", "init", "principle"]
+    },
+    {
+      "id": "tool.generate_quality_report",
+      "path": "tools/generate_quality_report.mjs",
+      "kind": "validation_tool",
+      "tags": ["tool", "report", "quality", "coverage", "graph"]
+    },
+    {
+      "id": "tool.run_all_checks",
+      "path": "tools/run_all_checks.mjs",
+      "kind": "validation_tool",
+      "tags": ["tool", "validation", "checks", "ci", "quality", "audit"]
+    },
+    {
+      "id": "tool.fetch_skill_reference",
+      "path": "tools/fetch_skill_reference.mjs",
+      "kind": "validation_tool",
+      "tags": ["tool", "fetch", "skill", "reference", "registry", "github", "download", "learn"]
+    },
+    {
+      "id": "index.search",
+      "path": "indexes/search_index.json",
+      "kind": "search_index",
+      "tags": ["index", "search", "inverted", "retrieval", "tokens"]
+    },
+    {
+      "id": "index.graph_adjacency",
+      "path": "indexes/graph_adjacency.json",
+      "kind": "search_index",
+      "tags": ["index", "graph", "adjacency", "neighbors", "retrieval"]
+    },
+    {
+      "id": "index.route_map",
+      "path": "indexes/route_map.json",
+      "kind": "search_index",
+      "tags": ["index", "route", "query", "goal", "retrieval"]
+    },
+    {
+      "id": "index.summary_cards",
+      "path": "indexes/summary_cards.json",
+      "kind": "search_index",
+      "tags": ["index", "summary", "cards", "compressed", "retrieval"]
     },
     {
       "id": "decision.0001",
       "path": "decisions/0001-low-context-kb-architecture.md",
-      "kind": "decision_record"
+      "kind": "decision_record",
+      "tags": ["decision", "architecture", "context", "knowledge_graph", "index"]
     }
   ],
   "reference_tiers": {
