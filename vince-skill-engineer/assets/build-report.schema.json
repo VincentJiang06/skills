@@ -101,7 +101,10 @@
       "properties": {
         "ran": {"type": "boolean"},
         "all_required_passed": {"type": "boolean"},
-        "evidence": {"type": "string"}
+        "evidence": {"type": "string"},
+        "harness_ran": {"type": "boolean", "description": "Did a committed, re-runnable eval harness actually execute? Required true for any skill that ships a script."},
+        "harness_path": {"type": "string", "description": "Path to the re-runnable harness (e.g. evals/run_all.mjs) the conductor can re-execute."},
+        "command_output": {"type": "string", "description": "Captured stdout + exit code of the harness run — the real evidence, not a self-reported count."}
       }
     },
     "handoff": {

@@ -54,6 +54,13 @@ without a spec there is nothing to build.
 3. **Every P0 is done:** every action whose spec `priority == "P0"` appears in
    `actions_resolved` with `status == "done"`. A `blocked`/`deferred` P0 fails
    the gate.
+4. **Verification is real, not self-reported (script skills):** if the built
+   skill ships a script, the build-report must carry `verification.harness_ran ==
+   true` and a `verification.harness_path`, and **the conductor re-runs that
+   harness itself** (`node <target>/<harness_path>`) and confirms it exits 0. A
+   `verification.ran: true` with no re-runnable harness — or a harness that fails
+   when the conductor runs it — **fails the gate**; do not trust a self-reported
+   pass count. (A pure LLM-behavioral lite skill with no script is exempt.)
 
 The build-report's `actions_resolved` carries **no** `priority` field, so the
 gate must take the P0 id list from the **spec** and join by id. Pass the

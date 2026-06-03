@@ -90,9 +90,9 @@ const signals = {
   body_has_numbered_steps: /^#{1,4}\s*step\s*\d|^\s*\d+\.\s/im.test(raw),
   body_has_modules_table: /\|\s*file\s*\|.*when|\|.*when to load/i.test(raw),
   mentions_triggers: mentions("trigger", "activation", "should trigger"),
-  mentions_tests_or_eval: mentions("eval", "test case", "assertion", "regression"),
+  mentions_tests_or_eval: mentions("eval", "test case", "assertion", "regression", "acceptance", "trajectory") || dirs.evals.present || dirs.tests.present,
   mentions_metrics: mentions("metric", "success rate", "cost per", "pass@", "pass^"),
-  mentions_controls: mentions("allowed tool", "forbidden", "permission", "human gate", "sandbox", "guardrail"),
+  mentions_controls: mentions("allowed tool", "forbidden", "permission", "human gate", "sandbox", "guardrail", "## control", "## guardrail", "halt", "decline", "must not"),
   mentions_lifecycle: mentions("version", "changelog", "deprecat", "rollback", "release gate"),
   mentions_evidence: mentions("source", "evidence", "reference", "citation", "traceab")
 };

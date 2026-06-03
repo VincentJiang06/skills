@@ -30,7 +30,7 @@ Record this as a `stages[]` entry with `stage: "final_audit"`.
 
 ## Pass criteria
 
-**PASS** (`final_verdict: "done"`) only when **all three** hold:
+**PASS** (`final_verdict: "done"`) only when **all four** hold:
 
 1. **Verdict clears the bar:** `overall_readiness.verdict` is **not `draft`**
    (i.e. `candidate` or `industrial`, per the target bar set in Step 1).
@@ -54,6 +54,17 @@ Record this as a `stages[]` entry with `stage: "final_audit"`.
 3. **Intent matches the original goal:** the fresh `intent.summary` still
    matches the **goal recorded in Step 1**. A skill that got built well but
    drifted off the original intent **fails** this criterion.
+4. **Verification was independent and executable** (the anti-inflation gate). A
+   skill may **not** be passed/`industrial` on a verdict that traces only to the
+   engineer's self-reported eval counts or to `score_skill.mjs` file-presence
+   hints. Require BOTH: (a) the E-gate harness was actually **re-run by the
+   conductor** with a captured passing output (`rules/pipeline-loop.md` #4); and
+   (b) a **conductor-owned adversarial battery** — a few edge inputs the engineer
+   did *not* write (empty / null / duplicate / collision / idempotency, per the
+   skill's category) — passes against the built script. If no independent
+   execution backs the verdict, the result is **`candidate` at best** → loop to
+   Stage E to add the missing real tests. Guidance is the planner; it does not
+   get to bless its own build.
 
 When all three hold: write `final_verdict: "done"`, set `blocking_gaps: []`,
 finish. Print a short summary (verdict, loops taken).

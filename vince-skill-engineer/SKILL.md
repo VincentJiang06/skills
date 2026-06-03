@@ -74,14 +74,15 @@ the spine the rest of the build follows — quick, not ceremony.
 
 ### Step 3 — Red: write failing eval cases first
 
-Load `rules/run-evals.md` (the **Write the cases** section). From `intent` +
-`recommended_design.tests`, write eval cases (task prompt + acceptance +
-trajectory assertions) under `<target>/evals/`,
-using develop-principle's `eval_case` / `trajectory_assertion` templates. Confirm
-they **fail** against the current (stub/partial) skill — a test green before you
-build proves nothing. For a from-scratch stub, red is established **by
-construction** (the stub has no logic) — record that rather than theatrically
-running an empty skill.
+Load `rules/run-evals.md` (the **Write the cases** section) **and
+`rules/verification-harness.md`** (the hard bar — it supersedes softer wording
+here). From `intent` + `recommended_design.tests`, write eval cases under
+`<target>/evals/` (cover the spec's boundary/adversarial inputs, not just happy
+paths; no tautological "grep SKILL.md" cases). For a script skill, also write the
+re-runnable harness `evals/run_all.mjs`. Confirm they **fail** against the current
+stub by **actually running them and saving the failing output** to
+`<target>/.skill-engineer/red/red.log` — "red by construction" without that
+artifact does not count as tests-first.
 
 ### Step 4 — Green: implement the design units
 
@@ -93,12 +94,15 @@ red cases pass. Keep SKILL.md a thin orchestrator; push detail into `rules/`
 
 ### Step 5 — Verify (the gate)
 
-Load `rules/run-evals.md` (the **Run the cases** section). Actually run the eval
-cases (with-skill subagents, graded against the assertions; check trajectory, not
-just final text). Loop
-Step 4 ↔ Step 5 until the cases pass or a blocker is recorded. **Do not proceed
-with unrun or failing required cases** — capture real evidence (pass counts,
-command output).
+Load `rules/run-evals.md` (the **Run the cases** section) and obey
+`rules/verification-harness.md`. For a **script skill**, run the committed
+`evals/run_all.mjs` harness and capture its real stdout + exit code into the
+build-report's `verification.command_output` (with `harness_ran: true`,
+`harness_path`); pass counts come from that run, never a mental simulation. For a
+pure LLM-behavioral lite skill, run the cases and grade against the written
+acceptance. Loop Step 4 ↔ Step 5 until the cases pass or a blocker is recorded.
+**Do not proceed with unrun or failing required cases** — and a script skill with
+no re-runnable harness is treated as unverified.
 
 ### Step 6 — Refactor and report
 
@@ -116,6 +120,7 @@ file is the real output.
 | `rules/ingest-spec.md` | Step 1 — read the handoff-spec, handle a missing spec, turn actions into a backlog. |
 | `rules/red-green-refactor.md` | Step 2 — the TDD loop for skills and how to pull develop-principle's tdd/test assets. |
 | `rules/run-evals.md` | Steps 3 & 5 — write eval cases, run them with-skill, grade, check trajectories, regression. |
+| `rules/verification-harness.md` | Steps 3 & 5 — the hard bar: a committed re-runnable harness + captured output for script skills, a real red artifact, no tautological tests, boundary coverage. Supersedes softer wording. |
 | `rules/build-design-units.md` | Step 4 — implement each of the 8 design units into real files; progressive-disclosure conventions. |
 | `rules/build-report.md` | Step 6 — the build-report fields and the handoff to vince-skill-zipper. |
 

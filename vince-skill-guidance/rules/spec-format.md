@@ -27,7 +27,7 @@ reads it cold — so it must stand alone, with no reference back to this run.
   - `resources[]` — on-demand context the skill should ship (references, templates, examples).
   - `evidence_base` — for fact-dependent skills: source roster + claim→evidence; `"N/A: <reason>"` if no external facts.
   - `controls[]` — permission/risk/output/cost boundaries that must be externalized, not prose.
-  - `tests[]` — eval cases, trajectory assertions, regression cases to add.
+  - `tests[]` — eval cases incl. **category-specific boundary/adversarial inputs** (empty / null / duplicate-key / collision / idempotency for transforms), trajectory assertions, and a negative/adjacent case that asserts on **behavior** (never a SKILL.md string-grep). Not just happy paths — these are where shipped bugs hide.
   - `metrics[]` — success rate, activation precision, cost-per-success, pass^k as applicable.
   - `lifecycle` — version, release gate, rollback, deprecation.
 
