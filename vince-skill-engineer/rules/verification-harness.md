@@ -32,11 +32,14 @@ written `acceptance`, and say so in `verification.evidence`.
 "Red by construction" (the stub has no logic, so cases obviously fail) is **not**
 sufficient evidence of tests-first. Before implementing:
 
-- Scaffold the stub so it **imports cleanly and returns a placeholder** (e.g.
-  `return null`) — NOT a missing file. The harness must reach the **assertions**
-  and fail there, producing real `FAIL <case>` lines. A red log that is only a
-  module-not-found crash (`ERR_MODULE_NOT_FOUND`) or a bare `EXIT:1` proves the
-  file didn't exist, not that the assertions were authored first.
+- Scaffold the stub so it **imports cleanly and returns a fixed WRONG sentinel**
+  (e.g. `return { __stub: true }`) — **never `null`/`undefined`** (a null stub
+  makes idempotency/round-trip cases `null === null` trivially pass in red, hiding
+  those contracts) and never a missing file. The harness must reach the
+  **assertions** and fail there — including the idempotency/round-trip case —
+  producing real `FAIL <case>` lines. A red log that is only a module-not-found
+  crash (`ERR_MODULE_NOT_FOUND`) or a bare `EXIT:1` proves the file didn't exist,
+  not that the assertions were authored first.
 - Run the harness against that stub and save the **real captured stdout** to
   `<target>/.skill-engineer/red/red.log`. A valid red log contains **≥1 line
   matching `FAIL `**. Prose, a lone `EXIT:1`, or an import error is **not** a red

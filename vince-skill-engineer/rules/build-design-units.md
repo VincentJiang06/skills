@@ -28,6 +28,25 @@ capabilities* (tool/permission/network/file access) — externalize those into a
 script, schema, or allowed-tools list. It does not demand you script away every
 behavioral guideline on a low-stakes skill.
 
+**CLI entry-point guard (script skills):** the naive
+`import.meta.url === \`file://${process.argv[1]}\`` run-as-main check **breaks on
+macOS** (`/tmp` → `/private/tmp` symlink) and ships a skill that silently exits 0
+with no output. Always normalize both sides:
+```js
+import { fileURLToPath } from "node:url";
+import { realpathSync } from "node:fs";
+const isMain = realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
+```
+And add one eval case that invokes the skill via its **documented CLI** with an
+absolute `/tmp/...` path, so a broken entry point fails the harness (the internal
+function import alone won't catch it).
+
+**Value-pinned assertions:** an assertion must check the **documented value /
+semantics**, not just shape. Ban `typeof x === 'object'` / bare
+`e instanceof Error` as the *only* predicate — error cases assert the error
+**type or a message substring**; fuzzy-oracle cases (collision, idempotency)
+**pin the exact documented output**. A case a wrong answer can pass tests nothing.
+
 ## Progressive disclosure
 
 Keep SKILL.md a thin orchestrator (aim <500 lines; well under for small skills).

@@ -30,14 +30,22 @@ reads it cold — so it must stand alone, with no reference back to this run.
   - `tests[]` — eval cases that name **domain-specific adversarial inputs derived from this skill's actual intent**, not just generic labels. Reason about what the input *really* is and attack it: a delimiter/key transform → a key that **contains the delimiter**; a slug/text tool → **unicode / CJK / emoji**; a parser → **each token / alias / mode** it claims to handle (e.g. cron `@hourly`, `0,7`, step-with-base); plus empty / null / collision / **idempotency or round-trip**. Also one case **per rule/capability the design declares** (so docs can't out-claim behavior), and a negative/adjacent case that asserts on **behavior** (never a SKILL.md string-grep). Happy-path-only is where shipped bugs hide.
   - `metrics[]` — success rate, activation precision, cost-per-success, pass^k as applicable.
   - `lifecycle` — version, release gate, rollback, deprecation.
-  - `adversarial_checklist` — **required.** The explicit list of domain-derived
-    edge inputs the built skill must survive, reasoned from its *actual* input
-    domain (not generic labels). One entry per real hazard (delimiter-in-key,
-    out-of-range field, malformed/truncated input, unicode/CJK, empty/null,
-    collision, idempotency/round-trip) **and** one per capability the design
-    claims. The engineer binds a passing case to each; the conductor's
-    independent battery attacks each. This is what stops happy-path-only suites
-    from shipping silent bugs — make it concrete and skill-specific.
+  - `adversarial_checklist` — **required, domain-typed, and exhaustive for the
+    input class.** Classify the skill's input, then list **every** mandatory edge
+    for that class (not a generic sentence):
+    - **delimiter/key transform** → contains-delimiter key, leading/trailing/double
+      delimiter, literal-key-vs-built-path **collision**, **empty-string key**,
+      empty nested object, round-trip/idempotency.
+    - **parser/describer** → **every** alias, range, step, range-step, list, and
+      **OR-semantic combination** (e.g. cron DOM+DOW), plus each token + malformed.
+    - **security/lint rule** → **every equivalent form** of each flagged value
+      (e.g. `root` == `0` == `root:root` == `Root`), negative (clean input).
+    - **text/slug** → unicode/CJK/emoji, all-punctuation, collision-with-suffix,
+      length-boundary.
+    Plus **one case per capability/token the design or docs claim**. The engineer
+    binds a passing case to each entry; the conductor's fresh battery attacks each.
+    A checklist missing its class's mandatory entries is a draft, not a plan —
+    this is what stops happy-path suites from shipping silent bugs.
 
   At lite altitude, `tests`/`metrics`/`lifecycle` may be `["minimal: ..."]` or
   `["N/A: <reason>"]` — but say which, explicitly.
