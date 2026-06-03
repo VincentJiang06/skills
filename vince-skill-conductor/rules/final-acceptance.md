@@ -194,6 +194,9 @@ the end:
   capped by **MAX_FULL_LOOPS = 3** (`rules/pipeline-loop.md`); in-stage repeats
   show as repeated `stages[]` entries, not here.
 - `final_verdict` — `done` or `stopped_unmet`.
+- `quality` — record `re_audit_verdict`, `battery_verdict`, and
+  `effective_verdict`; `effective_verdict = min(re-audit, battery)` and may
+  never exceed `battery_verdict`.
 - `blocking_gaps[]` — `[]` on `done`; the honest unmet gaps on `stopped_unmet`.
 
 Validate before finishing:

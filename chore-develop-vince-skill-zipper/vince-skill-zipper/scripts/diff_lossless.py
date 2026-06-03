@@ -4,8 +4,8 @@
 Compares two snapshots of a skill (a "before" directory and an "after"
 directory) and answers one question: did the restructure lose any content?
 
-The script flattens every markdown / yaml / json file in each snapshot into a
-multiset of normalized lines, then diffs the two multisets:
+The script flattens every markdown / yaml / json / script file in each snapshot
+into a multiset of normalized lines, then diffs the two multisets:
 
   - KEPT:       lines present in both snapshots
   - REWRITTEN:  lines that disappeared from `before`, but a high-similarity
@@ -15,11 +15,11 @@ multiset of normalized lines, then diffs the two multisets:
   - ADDED:      lines that appear only in `after` (new content)
 
 Exit code:
-  0  — no LOST lines (rewrites are allowed; new content is allowed)
-  1  — at least one LOST line (lossless principle violated)
+  0  — no LOST or REWRITTEN lines (new content is allowed)
+  1  — at least one LOST or REWRITTEN line needs explicit classification
   2  — usage / IO error
 
-Files considered:  *.md, *.yaml, *.yml, *.json
+Files considered:  *.md, *.yaml, *.yml, *.json, *.py, *.js, *.mjs, *.ts, *.tsx, *.jsx, *.sh
 Files skipped:     anything under evals/, test/, tests/, .git/, .*
 
 Lines considered:  non-empty after stripping leading/trailing whitespace
@@ -42,7 +42,10 @@ from dataclasses import dataclass
 from difflib import SequenceMatcher
 from pathlib import Path
 
-CONTENT_SUFFIXES = (".md", ".yaml", ".yml", ".json")
+CONTENT_SUFFIXES = (
+    ".md", ".yaml", ".yml", ".json",
+    ".py", ".js", ".mjs", ".ts", ".tsx", ".jsx", ".sh",
+)
 SKIP_DIRS = {"evals", "test", "tests", ".git", "__pycache__"}
 
 _WS = re.compile(r"\s+")
@@ -152,7 +155,7 @@ def print_report(before_dir: Path, after_dir: Path, result: DiffResult) -> None:
     if not result.lost and not result.rewritten:
         print("✓ Every line in `before` survives verbatim in `after`. Pure compress/encapsulate move.")
     elif not result.lost:
-        print("✓ No lines were lost. All disappearances are accounted for as rewrites.")
+        print(f"✗ {len(result.rewritten)} line(s) were REWRITTEN. Classify each rewrite before accepting.")
     else:
         print(f"✗ {len(result.lost)} line(s) were LOST. Restructure violates the lossless principle.")
 
@@ -203,7 +206,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print_report(before_dir, after_dir, result)
 
-    return 1 if result.lost else 0
+    return 1 if result.lost or result.rewritten else 0
 
 
 if __name__ == "__main__":

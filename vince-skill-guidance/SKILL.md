@@ -1,19 +1,12 @@
 ---
 name: vince-skill-guidance
 description: >
-  Evaluate a Claude Code skill against industrial design principles and emit a
-  machine-handoff spec for the build stage. Use this whenever the user points at
-  a skill or repo and asks "is this skill good / industrial-grade?", "evaluate
-  or audit this skill's design", "what's missing in this skill", "score this
-  SKILL.md", "plan/scope this skill before building", or hands you a SKILL.md or
-  repo path and wants a readiness assessment plus a design plan — even if they
-  don't say the word "evaluate". Stage 1 of the pipeline
-  (vince-skill-guidance -> vince-skill-engineer -> vince-skill-zipper): it
-  plans and evaluates and produces a spec; it does NOT build or compress.
-  Do NOT use for: scaffolding a skill's files from a blank prompt (use
-  skill-creator); actually implementing, wiring, or testing the skill (use
-  vince-skill-engineer); or shortening an existing skill for token efficiency
-  (use vince-skill-zipper).
+  Evaluate a Claude Code skill or skill repo and emit the handoff spec for
+  vince-skill-engineer. Use when the user asks whether a skill is good,
+  industrial-grade, missing pieces, needs scoring/audit/scope, or points at a
+  SKILL.md/repo before build. Stage 1 of the vince-skill pipeline. Do NOT use
+  for implementation (vince-skill-engineer), token restructuring
+  (vince-skill-zipper), or blank scaffolding (skill-creator).
 ---
 
 # vince-skill-guidance

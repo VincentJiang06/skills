@@ -84,7 +84,7 @@ const signals = {
   has_frontmatter: hasFrontmatter,
   name: fmName,
   description_words: countWords(fmDescription),
-  description_has_use_when: /\buse (this )?(skill )?when\b/i.test(fmDescription),
+  description_has_use_when: /\buse\s+(?:this\s+)?(?:skill\s+)?(?:when|whenever)\b/i.test(fmDescription),
   description_has_donot: /do not use|don't use|not for\b/i.test(fmDescription),
   skill_md_lines: lines.length,
   body_has_numbered_steps: /^#{1,4}\s*step\s*\d|^\s*\d+\.\s/im.test(raw),

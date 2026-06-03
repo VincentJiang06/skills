@@ -88,7 +88,16 @@
         "tests": {"type": "array", "items": {"type": "string"}},
         "metrics": {"type": "array", "items": {"type": "string"}},
         "lifecycle": {"type": "string"},
-        "adversarial_checklist": {"type": "array", "items": {"type": "string"}, "description": "Domain-derived edge inputs the built skill MUST be tested against — derived from the actual input domain, not generic labels (e.g. for a delimiter transform: a key containing the delimiter; for a slugger: CJK/emoji; for a parser: each token/alias + malformed; plus empty/null/collision/idempotency). The engineer binds a passing case to each; the conductor's independent battery attacks each."}
+        "adversarial_checklist": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 8,
+            "pattern": "→"
+          },
+          "description": "Domain-derived edge inputs the built skill MUST be tested against, each with the expected correct output or invariant. Derive entries from the actual input domain, not generic labels (e.g. delimiter-in-key, CJK/emoji, parser token/alias/malformed, empty/null/collision/idempotency). Format each item as input/hazard → expected correct output. The engineer binds a passing case to each; the conductor's independent battery attacks each."
+        }
       }
     },
     "prioritized_actions": {

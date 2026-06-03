@@ -5,7 +5,7 @@
   "description": "Run trace emitted by vince-skill-conductor: every stage attempt, its gate result, the loops taken, and the final verdict. The conductor runs no scripts of its own; it orchestrates vince-skill-guidance, vince-skill-engineer, and vince-skill-zipper and records what their artifacts showed.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "generated_by", "target", "goal", "stages", "loops_taken", "final_verdict", "blocking_gaps"],
+  "required": ["schema_version", "generated_by", "target", "goal", "stages", "loops_taken", "final_verdict", "quality", "blocking_gaps"],
   "properties": {
     "schema_version": {"const": "1.0.0"},
     "generated_by": {"const": "vince-skill-conductor"},
@@ -58,7 +58,7 @@
     "loops_taken": {
       "type": "integer",
       "minimum": 0,
-      "description": "Count of full pipeline loops (Final-Acceptance-driven returns to an earlier stage). In-stage repeats are not counted here; they appear as repeated stages[] entries."
+      "description": "Count of full pipeline loops: Final-Acceptance returns and Stage-E to Stage-G design-wrong loopbacks. In-stage repeats are not counted here; they appear as repeated stages[] entries."
     },
     "final_verdict": {
       "enum": ["done", "stopped_unmet"],

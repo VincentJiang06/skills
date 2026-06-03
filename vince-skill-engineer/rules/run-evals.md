@@ -28,11 +28,12 @@ and a **boundary** (the tricky edge from the scorecard's gaps). Save under
 `<target>/evals/`.
 
 **Confirm red:** run each case against the current stub/partial skill and verify
-it fails (or the behavior is absent). A case green before implementation is not
-testing anything — fix the case. At `lite` with inline running, "red" can be a
-visual confirmation that the scaffolded stub holds only placeholder content (no
-domain logic yet) — record that as red; you don't need to theatrically run an
-empty skill.
+it fails for the assertion it is meant to protect. A case green before
+implementation is not testing anything — fix the case. For deterministic script
+skills, follow `rules/verification-harness.md`: the stub must import cleanly,
+return a wrong sentinel, and produce real `FAIL <case>` lines in
+`.skill-engineer/red/red.log`. Do not count "red by construction", missing-file
+crashes, or a bare `EXIT:1` as TDD evidence.
 
 ## Run the cases (Step 5)
 
@@ -76,11 +77,10 @@ fix for one case doesn't silently break another (`metric.regression_escape_rate`
 ## Altitude
 
 - `lite`: 2–3 cases (positive + adjacent), grade acceptance + a key trajectory
-  assertion; inline running is acceptable — but you lose independence (the builder
-  is also the grader), so note that in the report's `verification.evidence`. To
-  counter self-grading bias, grade strictly against the **written**
-  `acceptance` / `trajectory_assertions` (not your impression), and keep at least
-  one negative/adjacent case in the set.
+  assertion. Inline running is acceptable only for pure LLM-behavioral skills
+  with no deterministic script; note that lost independence in
+  `verification.evidence`, grade strictly against the written `acceptance` /
+  `trajectory_assertions`, and keep at least one negative/adjacent case.
 - `full`: positive/negative/boundary per major behavior, independent subagent
   runs, full trajectory checks, a maintained regression set, and a mutation
   spot-check (break the trigger → a case must catch it).
@@ -90,4 +90,8 @@ fix for one case doesn't silently break another (`metric.regression_escape_rate`
 Step 5 is a gate, not a formality. Required cases (per altitude + the spec's
 required pillars) must actually run and pass before Step 6. Capture real evidence
 (pass/fail counts, command output) for the build report's `verification` block.
-A skill reported "done" without run evals is a draft, not a build.
+For deterministic/script skills, set `harness_required: true` and include the
+rerunnable harness fields required by `rules/verification-harness.md`; for pure
+LLM-behavioral skills with no scripts, set `harness_required: false` and say why
+in `verification.evidence`. A skill reported "done" without run evals is a
+draft, not a build.

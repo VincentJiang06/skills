@@ -22,7 +22,8 @@ user whether to apply for real. See "Dry-run procedure" below.
 Write in this exact order to preserve losslessness:
 
 1. **Snapshot the before state.** If the skill is under git, the
-   current HEAD is your snapshot — note the commit hash. Otherwise,
+   current HEAD is your snapshot — note the commit hash and `git status --short`
+   for the skill path. Otherwise,
    copy the skill directory to a temp location (e.g.,
    `/tmp/<skillname>-before/`). You need this for `diff_lossless.py`
    in Step 5.
@@ -81,6 +82,10 @@ When the user requests a preview before applying:
    `cp -RL` dereferences symlinks and gives you a genuine copy. If you
    forget this, the entire purpose of dry-run mode is defeated.
 
+   Record the source snapshot too: git commit/status if under git, or a compact
+   file hash list for non-git directories. The preview is valid only for that
+   exact source state.
+
 2. Apply all the planned changes to `<skill_dir>_preview/`, following
    the same write order above.
 
@@ -102,13 +107,18 @@ When the user requests a preview before applying:
    - "tweak X" — revise the plan; rebuild the preview
    ```
 
-5. Only on explicit "apply" do you write to the real skill directory.
-   The fastest correct path is to `cp -RL <skill_dir>_preview/* <skill_dir>/`
-   (after `rm` of the originals), but it's safer to re-run the
-   structured writes against the real directory so any half-applied
-   state from a previous attempt gets overwritten cleanly. Either way,
-   the same symlink caveat from step 1 applies — use `-L` so the copy
-   actually lands on the real underlying files.
+5. Only on explicit "apply" do you write to the real skill directory. Before
+   applying, re-check the source snapshot recorded in step 1. If the source
+   changed, **abort the apply** and rebuild the preview from the new source.
+
+   Apply by re-running the structured writes against the real directory in the
+   same order (new files first, `SKILL.md` last). Do not bulk `rm` and copy the
+   preview over the source: that can erase user edits, hidden files, symlink
+   targets, or files the preview did not include.
+
+6. After the real apply, run both Step 5 verification scripts again against the
+   original before-snapshot and the real skill directory. Preview verification is
+   not a substitute for real-apply verification.
 
 ---
 
@@ -121,6 +131,10 @@ When the user requests a preview before applying:
   dry-run is to be reversible without git.
 - **Skipping the snapshot.** Without a before-state, `diff_lossless.py`
   has nothing to compare against and the lossless guarantee is unverifiable.
+- **Applying a stale preview.** If the source changed after preview generation,
+  rebuild the preview before touching the real skill.
+- **Bulk replacing the skill dir from preview.** This can delete user edits or
+  symlink targets; use structured writes and verify the real result.
 - **Removing content from SKILL.md "incrementally"** while still writing
   to other files. Either content is in its destination, or it is in
   SKILL.md — never neither.

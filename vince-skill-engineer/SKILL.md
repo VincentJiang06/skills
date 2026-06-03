@@ -1,20 +1,12 @@
 ---
 name: vince-skill-engineer
 description: >
-  Build and test a Claude Code skill test-driven from a guidance handoff-spec,
-  then hand off to compression. Use this whenever the user wants to actually
-  implement, develop, or wire up a skill — "build this skill", "implement the
-  guidance spec / the handoff-spec", "develop and test this skill", "make the
-  eval cases pass", "turn this plan into a working skill", "write the skill and
-  its tests" — or points you at a `.skill-guidance/handoff-spec.json` and wants
-  it built. Stage 2 of the pipeline
-  (vince-skill-guidance -> vince-skill-engineer -> vince-skill-zipper): it
-  turns a plan into a tested skill. It runs red-green-refactor and will not
-  declare done until the eval cases actually pass.
-  Do NOT use for: planning, scoring, or auditing a skill's design (use
-  vince-skill-guidance — and if no handoff-spec exists yet, run that first);
-  shortening a finished skill for token efficiency (use vince-skill-zipper);
-  or scaffolding files from a blank prompt with no plan (use skill-creator).
+  Build and test a Claude Code skill from a vince-skill-guidance handoff spec.
+  Use when the user wants to implement/develop/wire a skill, make eval cases
+  pass, turn a handoff-spec into files, or points at
+  `.skill-guidance/handoff-spec.json`. Stage 2 of the vince-skill pipeline. Do
+  NOT use for planning/auditing (vince-skill-guidance), compression
+  (vince-skill-zipper), or blank scaffolding without a spec.
 ---
 
 # vince-skill-engineer

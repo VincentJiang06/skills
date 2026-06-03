@@ -2,42 +2,27 @@
 name: vince-skill-zipper
 description: >
   Restructure an existing Claude Code skill for token efficiency, reliability,
-  and triggering accuracy. Use when the user says "my skill is too long",
-  "split this skill", "reduce token usage", "make this rule precise",
-  "my skill isn't triggering", "audit this skill's structure", or shows
-  you a SKILL.md and asks how to improve it. Applies five lossless
-  operations: Compress, Encapsulate, Enrich, Harden, Retrigger.
-  Do NOT use for creating skills from scratch (use skill-creator),
-  measuring skill output quality across runs (use skill-track), or
-  general writing/editing requests unrelated to a Claude Code skill.
+  and trigger accuracy. Use when a skill is too long, needs splitting/token
+  reduction, has vague rules, fails to trigger, or needs structure audit. Do NOT
+  use for creating skills from scratch (skill-creator), measuring output quality
+  across runs, or non-skill writing/editing.
 ---
 
 # vince-skill-zipper
 
-Restructure an existing Claude Code skill. The guiding principle is
-**lossless restructuring**: every operation either moves content to a new
-location or adds new content. Nothing is ever deleted without being placed
-somewhere else first.
-
-There are **five** operations. Analyze which apply, then propose a plan:
-
-1. **Compress** — move verbose content from SKILL.md into an on-demand
-   rules file. Saves always-loaded tokens *if* the content isn't always
-   Read back in.
-2. **Encapsulate** — move content gated by a clear condition into a
-   conditionally-loaded rules file. Highest-leverage operation.
-3. **Enrich** — create a new rules / template / script / reference file
-   for something the skill currently handles by ad-hoc reasoning.
-4. **Harden** — rewrite vague instructions to be precise.
-5. **Retrigger** — rewrite the frontmatter `description` so the skill
-   triggers on the right turns. Often the single highest-impact change.
+Restructure an existing Claude Code skill without losing content. The five
+operations are **Compress**, **Encapsulate**, **Enrich**, **Harden**, and
+**Retrigger**; analyze which apply, then propose a plan.
 
 Before reasoning about any of these, **read `rules/progressive-disclosure-model.md`**
 to internalize what "always-loaded" vs "on-demand" means and the role of
 each directory (`rules/`, `references/`, `assets/`, `scripts/`). Without
 that model the token-cost reasoning below is meaningless.
 
-Always show a plan first. Wait for user confirmation before writing.
+Direct user mode: always show a plan first and wait for "go" before writing.
+Pipeline mode: if invoked by **vince-skill-conductor** as **Stage Z**, the user's
+end-to-end pipeline request is the approval. Use only conservative lossless
+writes, then report token impact and diff evidence.
 
 ---
 
@@ -53,13 +38,7 @@ Read:
 Run `scripts/measure_tokens.py <skill_dir>` and capture the output. This
 gives you the actual always-loaded vs on-demand split.
 
-Print a one-line inventory plus the measurement summary:
-
-```
-skill-track — SKILL.md (59 lines, 620 tokens always-loaded)
-              + 6 rules files (640 lines, 6,120 tokens on-demand)
-              Always-loaded share: 9.2%
-```
+Print a one-line inventory plus always-loaded/on-demand token totals.
 
 ## Step 2: Analyze each dimension
 
@@ -84,25 +63,18 @@ requested a dry-run, use the dry-run procedure in that same file.
 ## Step 5: Verify
 
 Load `rules/verification-checklist.md`. Run both scripts (lossless
-diff + token impact), classify any LOST lines, and print the done
+diff + token impact), classify any LOST / REWRITTEN lines, and print the done
 summary.
 
 ---
 
 ## Losslessness rules
 
-The restructuring is lossless when:
-- Every line removed from SKILL.md appears verbatim (or as an explicit
-  Harden/Retrigger rewrite, or as an Enrich extraction to a new
-  artifact) in another file
-- No new rules file is created without a corresponding reference added
-  to SKILL.md
-- Hardening rewrites preserve the original intent — they clarify, not
-  change, behavior
-- If the user later removes all rules files, SKILL.md still describes
-  the skill's full scope (even when detail lives elsewhere)
-- `scripts/diff_lossless.py` returns exit 0, or every LOST line is
-  explicitly classified per `rules/verification-checklist.md`
+The restructure is lossless when removed SKILL.md lines appear elsewhere
+verbatim, or are explicitly classified as Harden/Retrigger rewrites or Enrich
+extractions; every new rules file is referenced from SKILL.md; rewrites preserve
+intent; and `diff_lossless.py` exits 0 or all LOST / REWRITTEN lines are
+classified.
 
 If the user asks you to delete a section with no destination, propose a
 destination first. If no destination makes sense, suggest keeping the
@@ -129,7 +101,7 @@ section in SKILL.md even if it's long — losslessness trumps brevity.
 | File | Usage |
 |------|-------|
 | `scripts/measure_tokens.py` | `python3 scripts/measure_tokens.py <skill_dir>` — line + token counts grouped by load discipline. Supports `--diff <before> <after>`. |
-| `scripts/diff_lossless.py` | `python3 scripts/diff_lossless.py <before> <after>` — verify a restructure preserved every line. Exit 0 = lossless, exit 1 = content lost. |
+| `scripts/diff_lossless.py` | `python3 scripts/diff_lossless.py <before> <after>` — verify a restructure preserved every line. Exit 0 = verbatim lossless, exit 1 = LOST/REWRITTEN needs classification. |
 
 ## Assets
 

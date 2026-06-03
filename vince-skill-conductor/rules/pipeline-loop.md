@@ -46,7 +46,7 @@ without a spec there is nothing to build.
 **Artifact:** `<target>/.skill-engineer/build-report.json`
 (contract: `vince-skill-engineer/assets/build-report.schema.json`).
 
-**PASS when all three hold:**
+**PASS when all five hold:**
 1. **Verification actually ran:** `verification.ran == true`.
 2. **All required eval cases pass:** `verification.all_required_passed == true`
    **and** `tests.totals.failed == 0` (`tests.totals.total > 0` — a build with
@@ -76,15 +76,16 @@ without a spec there is nothing to build.
    #4 but is still subject to Final Acceptance's independent battery.)
 5. **Every adversarial-checklist edge has a passing case (coverage gate).** Diff
    the spec's `recommended_design.adversarial_checklist` against the build-report's
-   `tests.checklist_coverage`: **every** checklist entry must map to a case with
-   `passed: true`. Any entry that is uncovered, or covered by a failing case,
+   `tests.checklist_coverage`: **every** checklist entry must map to an existing
+   `tests.eval_cases[].id` whose own `passed` is `true`. Any entry that is
+   uncovered, mapped to a nonexistent `case_id`, or covered by a failing case,
    **fails the E gate → repeat Stage E** to add the case + fix the bug it exposes.
    This is the point: catch the domain bug **here, in the loop** (where it can be
    fixed and still reach `industrial`), not at Final Acceptance (where the battery
    can only demote to `candidate`).
 
    ```bash
-   node -e "const fs=require('fs');const s=JSON.parse(fs.readFileSync(process.argv[1],'utf8')),r=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const need=s.recommended_design.adversarial_checklist||[];const cov=new Map((r.tests.checklist_coverage||[]).map(c=>[c.edge,c.passed]));const missing=need.filter(e=>cov.get(e)!==true);console.log(missing.length?('CHECKLIST GAP — uncovered/failing: '+JSON.stringify(missing)):('checklist ok: '+need.length+'/'+need.length+' covered'))" <target>/.skill-guidance/handoff-spec.json <target>/.skill-engineer/build-report.json
+   node -e "const fs=require('fs');const s=JSON.parse(fs.readFileSync(process.argv[1],'utf8')),r=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const need=s.recommended_design.adversarial_checklist||[];const cases=new Map((r.tests.eval_cases||[]).map(c=>[c.id,c.passed===true]));const cov=new Map((r.tests.checklist_coverage||[]).map(c=>[c.edge,c]));const missing=need.filter(e=>{const c=cov.get(e);return !c||c.passed!==true||cases.get(c.case_id)!==true});if(missing.length){console.error('CHECKLIST GAP — uncovered/failing: '+JSON.stringify(missing));process.exit(1)}console.log('checklist ok: '+need.length+'/'+need.length+' covered')" <target>/.skill-guidance/handoff-spec.json <target>/.skill-engineer/build-report.json
    ```
 
 The build-report's `actions_resolved` carries **no** `priority` field, so the
@@ -93,7 +94,7 @@ handoff-spec as the **second** argument so the P0 ids are real (not invented fro
 the report):
 
 ```bash
-node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8')),s=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const p0=s.prioritized_actions.filter(a=>a.priority==='P0').map(a=>a.id);const done=new Set(r.actions_resolved.filter(a=>a.status==='done').map(a=>a.id));const p0ok=p0.every(id=>done.has(id));const t=r.tests.totals;const ok=r.verification.ran===true&&r.verification.all_required_passed===true&&t.failed===0&&t.total>0&&p0ok;console.log('E gate',ok?'ok':'FAIL','| ran',r.verification.ran,'| pass',t.passed+'/'+t.total,'| P0',p0.filter(id=>done.has(id)).length+'/'+p0.length+' done')" <target>/.skill-engineer/build-report.json <target>/.skill-guidance/handoff-spec.json
+node -e "const fs=require('fs'),cp=require('child_process'),path=require('path');const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8')),s=JSON.parse(fs.readFileSync(process.argv[2],'utf8')),target=process.argv[3];const p0=s.prioritized_actions.filter(a=>a.priority==='P0').map(a=>a.id);const done=new Set(r.actions_resolved.filter(a=>a.status==='done').map(a=>a.id));const p0ok=p0.every(id=>done.has(id));const t=r.tests.totals;const need=s.recommended_design.adversarial_checklist||[];const cases=new Map((r.tests.eval_cases||[]).map(c=>[c.id,c.passed===true]));const cov=new Map((r.tests.checklist_coverage||[]).map(c=>[c.edge,c]));const covered=need.filter(e=>{const c=cov.get(e);return c&&c.passed===true&&cases.get(c.case_id)===true}).length;const covok=covered===need.length;const touched=[...(r.built?.files_created||[]),...(r.built?.files_modified||[])];const scriptTouched=touched.some(f=>/(^|\/)scripts\/.+\.(mjs|js|py|sh|ts|tsx|jsx)$/.test(f));const v=r.verification||{};const hreq=v.harness_required===true||scriptTouched;let hok=!hreq;if(hreq){const hp=v.harness_path||'',out=v.command_output||'';hok=v.harness_ran===true&&!!hp&&/^PASS\s+\S+/m.test(out);if(hok&&target){const full=path.join(target,hp);if(fs.existsSync(full)){const bin=hp.endsWith('.py')?'python3':hp.endsWith('.sh')?'bash':'node';const p=cp.spawnSync(bin,[full],{encoding:'utf8'});hok=p.status===0&&/^PASS\s+\S+/m.test(p.stdout)}else hok=false}}const ok=r.verification.ran===true&&r.verification.all_required_passed===true&&t.failed===0&&t.total>0&&p0ok&&covok&&hok;console.log('E gate',ok?'ok':'FAIL','| ran',r.verification.ran,'| pass',t.passed+'/'+t.total,'| P0',p0.filter(id=>done.has(id)).length+'/'+p0.length+' done','| checklist_coverage',covered+'/'+need.length,'| harness',hreq?(hok?'ok':'FAIL'):'exempt');process.exit(ok?0:1)" <target>/.skill-engineer/build-report.json <target>/.skill-guidance/handoff-spec.json <target>
 ```
 The gate `ok` boolean now **enforces** criterion #3: it is false unless every
 spec-`P0` id appears with `status: "done"` in `actions_resolved`. A
@@ -134,27 +135,31 @@ tests listed in `blocking_gaps`. Do not silently keep repeating E past its cap.
 **Artifact:** the restructured skill in place. The zipper proves losslessness
 with `scripts/diff_lossless.py` (its `rules/verification-checklist.md`).
 
-**PASS when:** the restructure is **lossless** — 0 LOST lines, **OR** every
-`LOST` line is **explicitly classified** as an accepted Harden / Enrich /
-Retrigger rewrite per the zipper's checklist. No content is silently lost.
+**PASS when:** the restructure is **lossless** — 0 LOST and 0 REWRITTEN lines,
+**OR** every `LOST` / `REWRITTEN` line is **explicitly classified** as an
+accepted Harden / Enrich / Retrigger rewrite per the zipper's checklist. No
+content is silently lost or silently reworded.
 
 **Where the lossless verdict comes from (the conductor runs no scripts of its
 own):** the zipper creates its own before-snapshot (git HEAD, or
 `/tmp/<skillname>-before/` per its `rules/write-procedure.md`), runs
 `scripts/diff_lossless.py` itself, and reports the diff result in its **Done
-summary**. Read that summary's **LOST count** (and any classification of LOST
-lines) as `gate_evidence`; the conductor does **not** re-run `diff_lossless.py`.
+summary**. Read that summary's **LOST / REWRITTEN counts** (and any
+classification of those lines) as `gate_evidence`; the conductor does **not**
+re-run `diff_lossless.py`.
 
-If the zipper's Done summary does not state a LOST count, fall back: snapshot the
-skill dir **before** invoking Stage Z to `/tmp/<name>-before/` (`cp -r <target>
-/tmp/<name>-before`), then after Z run
+If the zipper's Done summary does not state LOST / REWRITTEN counts, fall back:
+snapshot the skill dir **before** invoking Stage Z to `/tmp/<name>-before/`
+(`cp -r <target> /tmp/<name>-before`), then after Z run
 `python3 ../chore-develop-vince-skill-zipper/vince-skill-zipper/scripts/diff_lossless.py /tmp/<name>-before <target>`
-and read its exit code + LOST count.
+and read its exit code + LOST / REWRITTEN counts.
 
-Record `gate_evidence` as the diff result (LOST count, plus the classification of
-any LOST lines) — e.g. `0 LOST` or `3 LOST, all classified Harden/Retrigger`.
+Record `gate_evidence` as the diff result (LOST / REWRITTEN counts, plus the
+classification of any such lines) — e.g. `0 LOST / 0 REWRITTEN` or
+`3 LOST / 2 REWRITTEN, all classified Harden/Retrigger`.
 
-**On fail** (true content loss, or LOST lines that can't be classified):
+**On fail** (true content loss, unclassified rewrite, or lines that can't be
+classified):
 - `action: "repeat"` Stage Z (re-run with a tighter, more conservative plan),
   up to **MAX_Z** attempts; **or**
 - **skip compression**: leave the built+tested skill uncompressed, set this

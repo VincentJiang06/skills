@@ -17,7 +17,8 @@ most skills are), it MUST ship a committed harness the conductor can re-execute:
 - The harness runs **every** eval case against the `scripts/` mechanism, prints
   one `PASS/FAIL <case>` line each, and **exits non-zero if any case fails**.
 - **Run it for real** and record in the build-report's `verification`:
-  `harness_ran: true`, `harness_path: "evals/run_all.mjs"`, and
+  `harness_required: true`, `harness_ran: true`,
+  `harness_path: "evals/run_all.mjs"`, and
   `command_output` = the actual captured stdout/exit code. Pass counts come from
   **this run**, never from a mental simulation.
 - A `verification.ran: true` with no re-runnable harness is **not** acceptance
@@ -87,8 +88,9 @@ same output; round-trip → original).
 
 ## What the build-report must carry
 
-`verification`: `ran`, `all_required_passed`, `evidence`, and — for a script
-skill — `harness_ran: true`, `harness_path`, `command_output`. The conductor's E
-gate (and final acceptance) re-runs `harness_path`; if it can't, or the skill
-ships a script with no harness, the gate fails. Honesty over green: a real
-`partial`/`stopped` beats a fake `done`.
+`verification`: `ran`, `all_required_passed`, `evidence`, and
+`harness_required`. For a script skill, also carry `harness_ran: true`,
+`harness_path`, and `command_output`. The conductor's E gate (and final
+acceptance) re-runs `harness_path`; if it can't, or the skill ships a script
+with no harness, the gate fails. Honesty over green: a real `partial`/`stopped`
+beats a fake `done`.

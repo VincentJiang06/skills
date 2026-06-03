@@ -51,7 +51,7 @@
     "tests": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["eval_cases", "totals", "trajectory_checked"],
+      "required": ["eval_cases", "totals", "trajectory_checked", "checklist_coverage"],
       "properties": {
         "eval_cases": {
           "type": "array",
@@ -81,14 +81,15 @@
         "trajectory_checked": {"type": "boolean"},
         "checklist_coverage": {
           "type": "array",
+          "minItems": 1,
           "description": "One entry per spec recommended_design.adversarial_checklist edge: which green eval case covers it. The conductor's E gate fails on any checklist edge with no passing case.",
           "items": {
             "type": "object",
             "additionalProperties": false,
             "required": ["edge", "case_id", "passed"],
             "properties": {
-              "edge": {"type": "string", "description": "The adversarial_checklist entry (verbatim) this case covers."},
-              "case_id": {"type": "string"},
+              "edge": {"type": "string", "minLength": 1, "description": "The adversarial_checklist entry (verbatim) this case covers."},
+              "case_id": {"type": "string", "minLength": 1},
               "passed": {"type": "boolean"}
             }
           }
@@ -111,14 +112,15 @@
     "verification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ran", "all_required_passed", "evidence"],
+      "required": ["ran", "all_required_passed", "evidence", "harness_required"],
       "properties": {
         "ran": {"type": "boolean"},
         "all_required_passed": {"type": "boolean"},
         "evidence": {"type": "string"},
+        "harness_required": {"type": "boolean", "description": "true for deterministic/script skills; false only for pure LLM-behavioral skills with no scripts."},
         "harness_ran": {"type": "boolean", "description": "Did a committed, re-runnable eval harness actually execute? Required true for any skill that ships a script."},
-        "harness_path": {"type": "string", "description": "Path to the re-runnable harness (e.g. evals/run_all.mjs) the conductor can re-execute."},
-        "command_output": {"type": "string", "description": "Captured stdout + exit code of the harness run — the real evidence, not a self-reported count."}
+        "harness_path": {"type": "string", "minLength": 1, "description": "Path to the re-runnable harness (e.g. evals/run_all.mjs) the conductor can re-execute."},
+        "command_output": {"type": "string", "minLength": 1, "description": "Captured stdout + exit code of the harness run — the real evidence, not a self-reported count."}
       }
     },
     "handoff": {
