@@ -35,3 +35,7 @@ A thin stub SKILL.md is a first-class input, not an error. When maturity is
 `stub`, Step 3's scorecard will be mostly `absent` — that's expected. The value
 you add is the **recommended design** (Step 6), which for a stub is essentially a
 from-scratch plan across all 8 design units, seeded by comparable research.
+
+But distinguish this from a target with **no SKILL.md at all**: a stub (minimal
+frontmatter, no body) is valid input; a directory with zero SKILL.md is out of
+scope and the agent must refuse at Step 1 (it never reaches this rule).

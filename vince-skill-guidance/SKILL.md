@@ -50,7 +50,17 @@ pillars**: `design`, `research` (资料搜集), `testing`, `tdd`, `metrics`,
 Accept a **SKILL.md path** or a **repo path** (both supported; a "blank idea"
 arrives as a thin/stub SKILL.md — that is normal input, not an error). If a repo,
 find its `SKILL.md` (and note sibling `rules/ scripts/ references/ assets/
-evals/`). Run the deterministic signal pass:
+evals/`).
+
+**If a repo contains more than one `SKILL.md`**, disambiguate in order, don't
+stall: (1) the one whose parent dir name best matches the repo/worktree name — or
+the sole non-fixture dir once (2) is applied — is primary; (2) treat `SKILL.md`
+under fixture-named dirs (`dogfood-*`, `fixtures/`, `test-*`, `examples/`) as
+input data, not targets; (3) if still ambiguous, list all candidates in
+`handoff.blocking_unknowns` and evaluate the highest-content one as best-effort.
+Record which one you chose and why.
+
+Run the deterministic signal pass:
 
 ```bash
 node scripts/score_skill.mjs <skill-dir | SKILL.md path>
@@ -58,6 +68,11 @@ node scripts/score_skill.mjs <skill-dir | SKILL.md path>
 
 Capture its JSON: `maturity_hint`, `dirs`, `signals`, `pillar_hints`. These are
 **evidence seeds**, not verdicts — you refine them.
+
+**If `score_skill.mjs` exits non-zero (no `SKILL.md` at the target), stop here.**
+The target is not a skill. Refuse clearly ("vince-skill-guidance evaluates
+skills; no SKILL.md found at `<path>`"), write no spec, and suggest `skill-creator`
+to scaffold one. Do not proceed to Steps 2–6.
 
 ### Step 2 — Detect intent and maturity
 

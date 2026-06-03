@@ -14,9 +14,12 @@ application of develop-principle's research pillar.
    paths but not the "what to learn" hints — those live in the registry JSON, so
    read it when choosing:
    ```bash
-   node <kb>/tools/fetch_skill_reference.mjs --list
-   cat <kb>/references/skill_repos.registry.json   # what_to_learn_zh/en per repo
+   node <kb>/tools/fetch_skill_reference.mjs --list   # ids/stars/paths only — NOT the learn hints
+   cat <kb>/references/skill_repos.registry.json      # the what_to_learn_zh/en hints live here
    ```
+   (`<kb>` is the develop-principle dir, default
+   `develop-principle/references/skill_repos.registry.json` — read the JSON file,
+   don't rely on `--list` for the learn hints.)
    Quick gap → comparable map (a starting point; refine by domain):
 
    | Weak pillar / need | Comparable to fetch |

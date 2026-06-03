@@ -18,10 +18,15 @@ Default mapping (override with judgment, and record the reason in the spec):
 
 | Situation | Altitude |
 |---|---|
+| Touches dangerous capabilities (runs code/git/network, writes files), field-safety, or adversarial controls | `full` (regardless of maturity) |
 | High stakes, or wide surface, or "make this production/industrial" | `full` |
 | Low stakes + narrow surface + mature | `lite` |
-| Stub with real ambition (the user wants a serious skill) | `full` |
+| Stub with real ambition — description signals multi-user / production / pipeline / reuse, not a one-off | `full` |
 | Small personal/one-off utility | `lite` |
+
+The first row wins ties: a mature, narrow skill that still gates a dangerous
+capability is `full`, not `lite` — don't make the evaluator argue the override
+from scratch each time.
 
 ## What each altitude includes
 
@@ -50,6 +55,10 @@ This resolves the cap rule in `rules/scorecard.md`. A **required** pillar scorin
 
 "expected" means: don't mark N/A lightly, but a 0 here does not by itself cap the
 verdict (it still produces a P1/P2 action).
+
+**Exception for from-scratch stubs:** when the target maturity is `stub` (you're
+planning from scratch), keep `tdd` *scored* (`absent`/`partial`), not `na`, even
+at lite — forcing red-first before the engineer builds is the whole point.
 
 State the altitude and its one-line rationale in the spec (`altitude`,
 `altitude_rationale` — both required by the schema). The downstream
