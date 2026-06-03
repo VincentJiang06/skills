@@ -65,10 +65,13 @@ without a spec there is nothing to build.
      `evals/` instead of importing it from a separate `scripts/` file — it tests
      its own copy, not the shipped logic. Require the mechanism in `scripts/` (or
      equivalent) and the harness to import it.
-   - **Fabricated red phase.** `.skill-engineer/red/red.log` is prose rather than
-     captured stdout. A real red log shows process output (FAIL lines, exit code,
-     stack/assertion traces); narrative sentences with hand-assigned verdicts do
-     not count — treat the red phase as missing.
+   - **Fabricated or hollow red phase.** `.skill-engineer/red/red.log` is prose,
+     or it is only a module-not-found crash / a bare `EXIT:1` with **no `FAIL `
+     line**. A real red log shows assertion-level process output (`FAIL <case>`
+     lines against an importable-but-wrong stub). Narrative sentences, import
+     errors, or a lone exit code prove the file was absent, not that the
+     assertions were authored first — treat the red phase as missing and score
+     `tdd: partial` at most (never `present`).
    (A pure LLM-behavioral lite skill with no deterministic script is exempt from
    #4 but is still subject to Final Acceptance's independent battery.)
 

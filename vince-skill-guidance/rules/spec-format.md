@@ -30,6 +30,14 @@ reads it cold — so it must stand alone, with no reference back to this run.
   - `tests[]` — eval cases that name **domain-specific adversarial inputs derived from this skill's actual intent**, not just generic labels. Reason about what the input *really* is and attack it: a delimiter/key transform → a key that **contains the delimiter**; a slug/text tool → **unicode / CJK / emoji**; a parser → **each token / alias / mode** it claims to handle (e.g. cron `@hourly`, `0,7`, step-with-base); plus empty / null / collision / **idempotency or round-trip**. Also one case **per rule/capability the design declares** (so docs can't out-claim behavior), and a negative/adjacent case that asserts on **behavior** (never a SKILL.md string-grep). Happy-path-only is where shipped bugs hide.
   - `metrics[]` — success rate, activation precision, cost-per-success, pass^k as applicable.
   - `lifecycle` — version, release gate, rollback, deprecation.
+  - `adversarial_checklist` — **required.** The explicit list of domain-derived
+    edge inputs the built skill must survive, reasoned from its *actual* input
+    domain (not generic labels). One entry per real hazard (delimiter-in-key,
+    out-of-range field, malformed/truncated input, unicode/CJK, empty/null,
+    collision, idempotency/round-trip) **and** one per capability the design
+    claims. The engineer binds a passing case to each; the conductor's
+    independent battery attacks each. This is what stops happy-path-only suites
+    from shipping silent bugs — make it concrete and skill-specific.
 
   At lite altitude, `tests`/`metrics`/`lifecycle` may be `["minimal: ..."]` or
   `["N/A: <reason>"]` — but say which, explicitly.

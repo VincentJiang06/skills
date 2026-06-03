@@ -42,7 +42,8 @@
     "controls": ["already losslessness-gated via diff_lossless.py"],
     "tests": ["add a regression case for a known under-trigger", "keep diff_lossless as the contract"],
     "metrics": ["before/after always-loaded token delta", "triggering accuracy on a held-out eval set"],
-    "lifecycle": "Add a version field + changelog; define when a restructure is breaking."
+    "lifecycle": "Add a version field + changelog; define when a restructure is breaking.",
+    "adversarial_checklist": ["a skill whose SKILL.md is a single >150-line block (compress must fire)", "a skill with an empty description (retrigger must not crash)", "a skill already minimal (must propose no lossy change — idempotency)", "a Harden rewrite that changes intent (diff_lossless must flag it)"]
   },
   "prioritized_actions": [
     {"id": "A1", "pillar": "metrics", "action": "Define and record before/after always-loaded token delta and a held-out triggering-accuracy score.", "priority": "P0", "rationale": "Metrics absent caps the verdict at candidate."},

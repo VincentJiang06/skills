@@ -42,8 +42,10 @@ For each, the KB query gives the authoritative checklist; judge against it.
 2. Compare the target's SKILL.md + dirs (use the `scripts/score_skill.mjs`
    `pillar_hints` as a starting seed, then verify by reading). The hints are
    file-presence heuristics — trust them loosely. For `tdd` especially, an
-   `evals/` dir does NOT prove tests-first: require evidence (red-first cases, or
-   changelog/commit ordering showing tests preceded behavior) or score `partial`.
+   `evals/` dir does NOT prove tests-first: require a `.skill-engineer/red/red.log`
+   with **≥1 real `FAIL ` line** (assertion-level red against an importable stub).
+   A module-not-found / bare `EXIT:1` / prose red log scores `tdd: partial` at
+   most — it proves the file was absent, not that assertions came first.
    A `low_context_kb` `partial` seed may also be vacuous (thin because *empty*,
    not because well-factored) — confirm the thinness is architectural.
 3. Write `status`, `score`, one line of `evidence` (quote/point at the target),

@@ -75,8 +75,15 @@ eval cases and the conductor re-runs *that same battery*, so "11/11 green"
 proves only that the builder's chosen inputs pass — never the inputs they didn't
 think of, which is where every shipped bug lives. Break the loop here.
 
-**You (the conductor) generate this battery yourself** — do NOT reuse the
-engineer's `evals/`. Derive it two ways and run it against the built artifact:
+**Run the battery in a FRESH subagent, not in your own context.** This is the
+crux: a battery you generate in the same context that just built and blessed the
+skill inherits the builder's blind spots and reproduces the closed loop — it
+reports "16/16 pass" while real bugs sail through. Dispatch a subagent (Task)
+that **never saw the build**, handing it only: the built skill's path, the spec's
+`recommended_design.adversarial_checklist`, and the skill's own doc-claims to
+verify. Tell it to *attack the input domain and report any wrong answer*. Do NOT
+reuse the engineer's `evals/`. The subagent derives cases two ways and runs them
+against the built artifact:
 
 1. **Domain-derived edges** from the skill's *actual input domain* (not generic
    labels). Reason about what the input really is and attack it:
@@ -93,11 +100,21 @@ engineer's `evals/`. Derive it two ways and run it against the built artifact:
    is a **P0 gap** → loop to Stage E. This converts "no tautological tests" into
    an enforced *positive-coverage* requirement.
 
-Run these as throwaway commands against the built script (e.g.
-`node <target>/<script> <edge-input>`); capture results as `gate_evidence`.
-**`industrial` is unreachable unless this battery passes.** If any case fails or
-reveals a silent wrong answer, the verdict is **`candidate`**, the failure is a
-`blocking_gap`, and you loop to the owning stage (almost always **Stage E** to
+Run these against the skill **the way a user invokes it** — its documented CLI /
+entry point, not just an internal function import (this catches entry-point
+wiring bugs, e.g. a broken `import.meta.url === file://${argv[1]}` guard). Capture
+results as `gate_evidence`.
+
+**Adjudicate the output, don't just trust exit codes.** Re-read the battery's
+captured stdout: a case that "passes" while printing a visibly wrong answer (a
+`@hourly` described as "daily", a `(#)` empty anchor, a `'on the  of every
+month'`) is a **gate failure**, not a pass. A green exit with a wrong string is
+exactly the inflation this gate exists to stop.
+
+**`industrial` is unreachable unless this battery passes clean.** If any case
+fails or reveals a silent wrong answer, the verdict is **`candidate`**, the
+failure is a `blocking_gap`, and you loop to the owning stage (almost always
+**Stage E** to
 add the missing real case + fix). A skill that ships no executable script gets
 its claims checked by reading + behavioral reasoning, and still caps at
 `candidate` without an independent executable check.
