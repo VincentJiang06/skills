@@ -29,7 +29,7 @@ node -e "const s=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));
 - **`prioritized_actions`** — the ordered backlog. P0 first; P0 = blocks "industrial".
 - **`scorecard`** — `absent`/`partial` pillars tell you what's missing vs. present; don't rebuild what already scores `present`.
 - **`altitude`** (`lite`/`full`) — sizes your rigor. Honor it: a lite skill gets fewer eval cases and no mutation pass; do not gold-plate.
-- **`handoff.blocking_unknowns`** — resolve these before building past the point they affect. To record one: carry it into the build report's `handoff.blocking` (and, if you need a mid-build scratchpad, `<target>/.skill-engineer/blockers.md`), then build everything *not* gated by it. Only a P0-gating unknown should stop a unit; mark that action `blocked`. Never silently guess past a P0 unknown.
+- **`handoff.blocking_unknowns`** — resolve these before building past the point they affect. To record one: carry it into the build report's `handoff.blocking` (and, if you need a mid-build scratchpad, `<target>/.skill-engineer/blockers.md`), then build everything *not* gated by it. **Gating vs touching:** an unknown *gates* a unit only if no correct implementation is possible until it's resolved (a true prerequisite) — mark that action `blocked` and never guess past it. If it's merely a choice between valid implementations, it only *touches* the unit — pick one, note the decision in `handoff.blocking` (or a `rules/*.md` note), and keep building (the action stays `done`). If the two valid options would differ in observable test behavior, add an eval case covering the path you chose so the decision is pinned down.
 
 ## Turn actions into a backlog
 

@@ -68,8 +68,9 @@ Load `rules/red-green-refactor.md` and pull develop-principle's `tdd_plan` /
 `test_strategy_matrix`. Turn the spec's `prioritized_actions` into an ordered
 TDD backlog: each action becomes (failing check → minimal implementation →
 refactor). Sequence P0 → P1 → P2, and never more rigor than the `altitude` asks.
-This backlog is a **mental model** by default — go straight to Step 3. At `full`
-altitude, optionally persist it to `<target>/.skill-engineer/tdd-plan.md`.
+Keep the ordered backlog as a short working list (in-context is fine; at `full`
+altitude persist it to `<target>/.skill-engineer/tdd-plan.md`). This ordering is
+the spine the rest of the build follows — quick, not ceremony.
 
 ### Step 3 — Red: write failing eval cases first
 
@@ -77,8 +78,10 @@ Load `rules/run-evals.md` (the **Write the cases** section). From `intent` +
 `recommended_design.tests`, write eval cases (task prompt + acceptance +
 trajectory assertions) under `<target>/evals/`,
 using develop-principle's `eval_case` / `trajectory_assertion` templates. Confirm
-they **fail** against the current (stub/partial) skill — a test that passes before
-you build proves nothing.
+they **fail** against the current (stub/partial) skill — a test green before you
+build proves nothing. For a from-scratch stub, red is established **by
+construction** (the stub has no logic) — record that rather than theatrically
+running an empty skill.
 
 ### Step 4 — Green: implement the design units
 

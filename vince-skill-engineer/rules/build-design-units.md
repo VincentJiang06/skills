@@ -16,6 +16,11 @@ orchestrator with detail pushed into `rules/`.
 | `metrics` | a short note in SKILL.md or `rules/` | How success/activation/cost is measured. Don't over-instrument a lite skill. |
 | `lifecycle` | a `version` + `CHANGELOG` | `N/A` / minimal at lite. |
 
+**Resources / references content:** author *real, minimal* content for any
+resource the protocol actually depends on — don't ship an empty stub — but don't
+gold-plate past what the eval cases exercise. `scaffold_skill.mjs` creates
+`references/` automatically when the spec has `resources`; you just populate it.
+
 **Controls — lite exception:** purely *behavioral* controls (e.g. "never run
 git", "output text only") may stay as inline prose in SKILL.md.
 `anti_pattern.prompted_architecture` targets the structural gating of *dangerous

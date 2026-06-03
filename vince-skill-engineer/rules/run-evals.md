@@ -36,8 +36,12 @@ empty skill.
 
 ## Run the cases (Step 5)
 
-For each case, run the skill in a fresh context and capture the trajectory.
-With subagents (preferred): spawn one agent per case, in parallel —
+If the skill's mechanism is a **deterministic script** (e.g. a redaction CLI),
+run the script directly over fixtures and assert on its output — that IS the eval;
+don't spawn an LLM subagent for deterministic logic. For LLM-behavioral skills,
+run the skill in a fresh context and capture the trajectory.
+
+With subagents (preferred for behavioral skills): spawn one agent per case, in parallel —
 
 ```
 Task: <eval prompt>
@@ -64,15 +68,19 @@ prompt one case at a time, and grade. Less independent, but a real sanity check.
 ## Regression
 
 Keep failures, adjacent false-trigger cases, and any production issue as a
-regression set. Rerun the whole set after every change (Step 4↔5 loop and after
-the Step 6 refactor) so a fix for one case doesn't silently break another
-(`metric.regression_escape_rate`).
+regression set. **Seed it on the first build** with the negative/adjacent cases
+(they're exactly what you rerun); add real failures as they occur. Rerun the
+whole set after every change (Step 4↔5 loop and after the Step 6 refactor) so a
+fix for one case doesn't silently break another (`metric.regression_escape_rate`).
 
 ## Altitude
 
 - `lite`: 2–3 cases (positive + adjacent), grade acceptance + a key trajectory
   assertion; inline running is acceptable — but you lose independence (the builder
-  is also the grader), so note that in the report's `verification.evidence`.
+  is also the grader), so note that in the report's `verification.evidence`. To
+  counter self-grading bias, grade strictly against the **written**
+  `acceptance` / `trajectory_assertions` (not your impression), and keep at least
+  one negative/adjacent case in the set.
 - `full`: positive/negative/boundary per major behavior, independent subagent
   runs, full trajectory checks, a maintained regression set, and a mutation
   spot-check (break the trigger → a case must catch it).

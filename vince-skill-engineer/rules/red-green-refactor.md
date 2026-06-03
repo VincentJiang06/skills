@@ -21,9 +21,10 @@ For each `prioritized_action` (P0 → P1 → P2):
 2. **Green** — make the smallest change that passes it (Step 4 builds the design
    unit the action serves). Don't implement beyond the action.
 3. **Refactor** — once green, tidy (extract a rules file, clarify wording) and
-   re-run to confirm still green. If altitude is `lite` and SKILL.md is thin
-   (under ~100 lines, no repeated guidance to extract), refactor is a legitimate
-   no-op: re-confirm green and move on — don't manufacture structure.
+   re-run to confirm still green. Refactor is a legitimate no-op when no
+   structural debt has accrued (SKILL.md still thin, no repeated guidance) — this
+   holds at `full` as well as `lite`: re-confirm green and move on, don't
+   manufacture structure.
 
 Keep the backlog ordered: a P0 action gates "industrial"; finish P0s before P1s.
 
@@ -34,7 +35,7 @@ Keep the backlog ordered: a P0 action gates "industrial"; finish P0s before P1s.
 | **Contract test** | The skill has a defined I/O, tool-arg, file-path, or error contract. | lite + full |
 | **Trajectory assertion** | Behavior is about *how* it works (right tool, right files loaded, right order), not just final text. | lite + full |
 | **Metamorphic** | No single correct output, but input→output *relations* hold (e.g. reorder inputs → same verdict). | full |
-| **Mutation** | You want to know the tests actually bite: deliberately break a trigger/step and confirm a case catches it. | full |
+| **Mutation** | You want to know the tests actually bite: deliberately break the **safety-relevant logic** (a control script's pattern/regex, or the trigger, or one protocol step) and confirm a case catches it. For a script-based skill the meaningful mutation is inside the script, not the YAML trigger. | full |
 
 `lite`: contract + a couple of trajectory cases; skip metamorphic/mutation;
 regression optional. `full`: add metamorphic where the oracle is fuzzy, a
