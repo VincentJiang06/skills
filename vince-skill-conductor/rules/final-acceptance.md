@@ -54,20 +54,53 @@ Record this as a `stages[]` entry with `stage: "final_audit"`.
 3. **Intent matches the original goal:** the fresh `intent.summary` still
    matches the **goal recorded in Step 1**. A skill that got built well but
    drifted off the original intent **fails** this criterion.
-4. **Verification was independent and executable** (the anti-inflation gate). A
-   skill may **not** be passed/`industrial` on a verdict that traces only to the
-   engineer's self-reported eval counts or to `score_skill.mjs` file-presence
-   hints. Require BOTH: (a) the E-gate harness was actually **re-run by the
-   conductor** with a captured passing output (`rules/pipeline-loop.md` #4); and
-   (b) a **conductor-owned adversarial battery** — a few edge inputs the engineer
-   did *not* write (empty / null / duplicate / collision / idempotency, per the
-   skill's category) — passes against the built script. If no independent
-   execution backs the verdict, the result is **`candidate` at best** → loop to
-   Stage E to add the missing real tests. Guidance is the planner; it does not
-   get to bless its own build.
+4. **An INDEPENDENT behavioral battery passes** (the anti-inflation gate — the
+   one that matters). Pillar-presence scoring (`score_skill.mjs` + the engineer's
+   self-authored, self-passing eval suite) **caps at `candidate`** — re-running
+   the builder's own cases certifies nothing about the inputs they didn't think
+   of, which is exactly where bugs hide. To reach **`industrial`** the conductor
+   must build and run its **own** battery against the built artifact and have it
+   pass — see "The independent battery" below. Guidance is the planner; it does
+   not get to bless its own build.
 
-When all three hold: write `final_verdict: "done"`, set `blocking_gaps: []`,
+When all four hold: write `final_verdict: "done"`, set `blocking_gaps: []`,
 finish. Print a short summary (verdict, loops taken).
+
+---
+
+## The independent battery (criterion 4)
+
+The pipeline's worst failure is a **closed loop**: the engineer writes its own
+eval cases and the conductor re-runs *that same battery*, so "11/11 green"
+proves only that the builder's chosen inputs pass — never the inputs they didn't
+think of, which is where every shipped bug lives. Break the loop here.
+
+**You (the conductor) generate this battery yourself** — do NOT reuse the
+engineer's `evals/`. Derive it two ways and run it against the built artifact:
+
+1. **Domain-derived edges** from the skill's *actual input domain* (not generic
+   labels). Reason about what the input really is and attack it:
+   - a delimiter/key transform → a key that **contains the delimiter**, leading/
+     trailing/double delimiters, collisions between a literal key and a built path;
+   - a slug/text transform → **unicode / CJK / accents**, emoji, all-punctuation;
+   - a parser → each **token / alias / mode** the grammar allows, plus malformed;
+   - any transform → an **idempotency / round-trip** case (run twice, or
+     forward-then-back → original).
+2. **Doc-claim coverage** — extract **every rule / capability / token-type the
+   skill's own `SKILL.md` and `rules/` assert**, and run one case demonstrating
+   each on a real input. A capability the docs claim but the implementation does
+   not honor (e.g. "flag `USER root`" but the linter only checks for any `USER`)
+   is a **P0 gap** → loop to Stage E. This converts "no tautological tests" into
+   an enforced *positive-coverage* requirement.
+
+Run these as throwaway commands against the built script (e.g.
+`node <target>/<script> <edge-input>`); capture results as `gate_evidence`.
+**`industrial` is unreachable unless this battery passes.** If any case fails or
+reveals a silent wrong answer, the verdict is **`candidate`**, the failure is a
+`blocking_gap`, and you loop to the owning stage (almost always **Stage E** to
+add the missing real case + fix). A skill that ships no executable script gets
+its claims checked by reading + behavioral reasoning, and still caps at
+`candidate` without an independent executable check.
 
 ---
 

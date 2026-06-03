@@ -54,13 +54,23 @@ without a spec there is nothing to build.
 3. **Every P0 is done:** every action whose spec `priority == "P0"` appears in
    `actions_resolved` with `status == "done"`. A `blocked`/`deferred` P0 fails
    the gate.
-4. **Verification is real, not self-reported (script skills):** if the built
-   skill ships a script, the build-report must carry `verification.harness_ran ==
-   true` and a `verification.harness_path`, and **the conductor re-runs that
-   harness itself** (`node <target>/<harness_path>`) and confirms it exits 0. A
-   `verification.ran: true` with no re-runnable harness — or a harness that fails
-   when the conductor runs it — **fails the gate**; do not trust a self-reported
-   pass count. (A pure LLM-behavioral lite skill with no script is exempt.)
+4. **Verification is real, independent, and executable (script skills).** If the
+   built skill ships deterministic logic, **the conductor re-runs the harness
+   itself** (`node <target>/<harness_path>`) and confirms exit 0 — never trust a
+   self-reported pass count. Fail the gate, and **fail closed** (the skill is
+   `candidate` at best, never `done`/`industrial`), if any of these hold:
+   - **No executable harness.** `harness_ran != true`, `harness_path` missing, or
+     the file does not exist / does not run.
+   - **Tautological harness.** The harness implements the skill's mechanism inside
+     `evals/` instead of importing it from a separate `scripts/` file — it tests
+     its own copy, not the shipped logic. Require the mechanism in `scripts/` (or
+     equivalent) and the harness to import it.
+   - **Fabricated red phase.** `.skill-engineer/red/red.log` is prose rather than
+     captured stdout. A real red log shows process output (FAIL lines, exit code,
+     stack/assertion traces); narrative sentences with hand-assigned verdicts do
+     not count — treat the red phase as missing.
+   (A pure LLM-behavioral lite skill with no deterministic script is exempt from
+   #4 but is still subject to Final Acceptance's independent battery.)
 
 The build-report's `actions_resolved` carries **no** `priority` field, so the
 gate must take the P0 id list from the **spec** and join by id. Pass the

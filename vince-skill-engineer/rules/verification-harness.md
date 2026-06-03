@@ -10,9 +10,12 @@ The bar: verification a *third party can re-run*, not a number you assert.
 If the skill's mechanism is a deterministic script (a CLI/parser/transform —
 most skills are), it MUST ship a committed harness the conductor can re-execute:
 
-- Write `evals/run_all.mjs` (or `.py`) that runs **every** eval case against the
-  skill's script, prints one `PASS/FAIL <case>` line each, and **exits non-zero
-  if any case fails**.
+- Put the **mechanism in `scripts/`** (a separate file) and have
+  `evals/run_all.mjs` (or `.py`) **import** it. Never embed the implementation
+  inside the harness — a harness that tests its own copy proves nothing, and the
+  conductor rejects it as tautological.
+- The harness runs **every** eval case against the `scripts/` mechanism, prints
+  one `PASS/FAIL <case>` line each, and **exits non-zero if any case fails**.
 - **Run it for real** and record in the build-report's `verification`:
   `harness_ran: true`, `harness_path: "evals/run_all.mjs"`, and
   `command_output` = the actual captured stdout/exit code. Pass counts come from
@@ -29,9 +32,17 @@ written `acceptance`, and say so in `verification.evidence`.
 "Red by construction" (the stub has no logic, so cases obviously fail) is **not**
 sufficient evidence of tests-first. Before implementing:
 
-- Run the eval/harness against the **stub** and **save the failing output** to
-  `<target>/.skill-engineer/red/red.log` (or per-case logs).
+- Run the eval/harness against the **stub** and **save the real captured stdout**
+  (FAIL lines + exit code / stack traces) to `<target>/.skill-engineer/red/red.log`.
+  Prose ("a response would be ad-hoc") is **not** a red log — it must be actual
+  process output; the conductor rejects a fabricated one.
 - Only then implement to green.
+
+**1:1 doc-claim coverage:** every rule / capability / token-type / mode your
+SKILL.md or `rules/` *assert* must have at least one passing case demonstrating
+it on a real input. A capability you document but never test is dead
+documentation — the conductor's final acceptance extracts your doc claims and
+loops back on any with no green case.
 
 Absent a real failing-run artifact, report `tdd: partial` in the build — do not
 imply tests-first. At **full** altitude the **mutation** spot-check is mandatory
