@@ -34,6 +34,23 @@ test("doctor succeeds on a minimal project fixture without runtime side effects"
   assert.deepEqual(result.json.sideEffects, []);
 });
 
+test("documented common flags (--port, --no-session) are tolerated on non-session commands", () => {
+  // capabilities does not connect; it must accept the universal flags without erroring.
+  const cap = runCli(["capabilities", "--port", "9420", "--no-session", "--json"]);
+  assert.equal(cap.status, 0);
+  assert.equal(cap.json.command, "capabilities");
+
+  // doctor likewise (on a minimal fixture).
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "vince-mp-cli-"));
+  const project = path.join(root, "project");
+  fs.mkdirSync(project);
+  fs.writeFileSync(path.join(project, "app.json"), "{\"pages\":[\"pages/index/index\"]}\n");
+  fs.writeFileSync(path.join(project, "project.config.json"), "{\"appid\":\"touristappid\"}\n");
+  const doc = runCli(["doctor", "--project", project, "--workspace-root", root, "--port", "9420", "--skip-typecheck", "--json"]);
+  assert.equal(doc.status, 0);
+  assert.equal(doc.json.checks.project.ok, true);
+});
+
 test("capabilities exposes element screenshot and explicit side-effect defaults", () => {
   const result = runCli(["capabilities", "--json"]);
 

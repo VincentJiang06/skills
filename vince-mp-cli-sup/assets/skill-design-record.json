@@ -1,48 +1,54 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "template_id": "template.skill_design_record",
   "skill_id": "skill.vince-mp-cli-sup",
   "name_zh": "微信小程序本地 CLI 调试支持",
   "name_en": "Vince Mini Program CLI Support",
   "target_users": ["agent_developer", "human_reviewer"],
-  "problem_statement_zh": "让 agent 只通过本地 JSON CLI 稳定调试微信小程序运行时，避免混用其他自动化后端造成连接副作用。",
-  "problem_statement_en": "Enable agents to debug WeChat Mini Program runtimes only through the local JSON CLI, avoiding side effects from mixed automation backends.",
+  "problem_statement_zh": "让 agent 通过本地 JSON CLI 稳定、低延迟地调试微信小程序运行时：一条命令连上（自动解析 miniprogramRoot + 自动化端口），常驻 session 复用同一条连接，重复命令近乎瞬时且 uid 跨命令保持，避免每步重连造成的卡顿和混用其他后端的副作用。",
+  "problem_statement_en": "Let agents debug a WeChat Mini Program runtime through the local JSON CLI reliably and with low latency: one-command connect (auto-resolve miniprogramRoot + automation port), a persistent session reusing one connection so repeat commands are near-instant and element uids persist across calls — eliminating the per-call reconnect lag and avoiding mixed-backend side effects.",
   "trigger": {
-    "must_activate_on": ["WeChat DevTools runtime inspection", "Mini Program live smoke", "Skyline Canvas or Camera debugging"],
-    "must_not_activate_on": ["generic browser automation", "source-only Mini Program refactors"],
-    "adjacent_confusions": ["implicit launch recovery", "DevTools URL autoPort confusion"],
-    "manual_activation_phrases": ["$vince-mp-cli-sup", "use vince-mp-cli"]
+    "must_activate_on": ["start a mp session / connect to DevTools", "inspect pageData / route / console", "query then tap/input an element by uid", "camera-less scan smoke", "project doctor (tsc + .js freshness)", "switch backend env / pull server error log by requestId", "Skyline Canvas or Camera debugging", "won't-connect / 模拟器启动失败 diagnosis"],
+    "must_not_activate_on": ["generic browser automation", "source-only Mini Program refactors without runtime", "non-WeChat connector workflows"],
+    "adjacent_confusions": ["launch-to-recover-attach-failure (prefer doctor + attach)", "DevTools URL autoPort confusion", "APP_NOT_RUNNING mistaken for a hang"],
+    "manual_activation_phrases": ["$vince-mp-cli-sup", "debug WeChat DevTools", "连上小程序"]
   },
   "execution_protocol": {
-    "preflight": ["classify connection safety", "read cli-contract", "validate workspace-root"],
-    "steps": ["choose narrow CLI command", "send structured JSON", "read JSON result", "verify side effects"],
-    "verification": ["CLI ok field", "error code", "route/pageData/snapshot/media evidence"],
-    "reporting": ["summarize evidence", "state side effects", "include recovery command on failure"],
-    "failure_paths": ["PATH_OUTSIDE_WORKSPACE", "AUTOMATOR_CONNECT_FAILED", "SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT"]
+    "preflight": ["vince-mp session start (auto-resolve project + ensure automation port + attach)", "optional vince-mp doctor health check", "validate workspace-root / output paths"],
+    "steps": ["read via shorthands (page/data/query/snapshot/console)", "act by persisted uid (tap/input) or scan/shot/step", "re-query only after navigation/mutation", "verify the effect with a follow-up read"],
+    "verification": ["CLI ok field + JSON evidence", "error code", "route/pageData/snapshot/console/media evidence"],
+    "reporting": ["summarize evidence", "name failing error codes", "separate confirmed evidence from next steps", "include the exact recovery command on failure"],
+    "failure_paths": ["INVALID_PROJECT / PROJECT_NOT_FOUND", "AUTOMATION_PORT_TIMEOUT", "APP_NOT_RUNNING", "SESSION_CONNECTION_LOST", "SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT", "STALE_OR_UNKNOWN_UID", "PATH_OUTSIDE_WORKSPACE", "ADMIN_TOKEN_REQUIRED"]
   },
   "resources": {
-    "docs": ["references/cli-contract.md", "references/skyline-media.md", "references/evidence-and-failures.md"],
+    "docs": ["rules/runtime-protocol.md", "rules/ui-element-workflow.md", "references/cli-contract.md", "references/skyline-media.md", "references/evidence-and-failures.md"],
     "templates": [],
     "scripts": ["scripts/validate-skill.mjs", "scripts/live-smoke-existing.mjs"],
     "fixtures": []
   },
   "control_boundaries": {
-    "allowed_tools": ["shell local CLI"],
+    "allowed_tools": ["system vince-mp CLI"],
     "forbidden_tools": ["non-CLI automation backend for new workflows"],
     "allowed_paths": ["cwd", "--workspace-root"],
-    "human_gate_conditions": ["launch/reLaunch", "camera takePhoto", "camera mock", "unsafe wx methods"],
+    "human_gate_conditions": ["launch/reLaunch (beyond session start ensuring the port)", "navigation", "camera takePhoto / mock", "network/media instrumentation", "unsafe wx methods", "storageClear"],
     "cost_budget": null,
     "context_budget_tokens": 5000
   },
   "test_assets": {
     "eval_case_ids": [
-      "eval.vince_mp_cli.doctor.happy",
-      "eval.vince_mp_cli.smoke_existing.non_invasive",
-      "eval.vince_mp_cli.skyline_snapshot_timeout",
-      "eval.vince_mp_cli.camera_mock_explicit"
+      "eval.vince_mp.session_read_act",
+      "eval.vince_mp.doctor_health",
+      "eval.vince_mp.camera_less_scan",
+      "eval.vince_mp.requestid_logs",
+      "eval.vince_mp.non_invasive_smoke",
+      "eval.vince_mp.app_not_running",
+      "eval.vince_mp.path_escape",
+      "eval.vince_mp.camera_mock_explicit",
+      "eval.vince_mp.avoid_launch_recovery",
+      "eval.vince_mp.negative_source_edit"
     ],
     "fixture_paths": [],
-    "trajectory_assertions": ["CLI backend only", "attach never launches", "paths stay within workspace"]
+    "trajectory_assertions": ["system vince-mp backend only", "session-first; attach never silently launches", "uids persist in a session, stale only after navigation/mutation", "paths stay within workspace"]
   },
   "metric_plan_id": "metric_plan.vince-mp-cli-sup",
   "reference_ids": ["doc.architecture.industrial_skill_design", "doc.testing.tdd_for_skill_development", "doc.metrics.quantitative_skill_metrics"]

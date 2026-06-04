@@ -2,36 +2,67 @@ import fs from "node:fs";
 
 import { connectMiniProgram, disconnectMiniProgram, inspectWechatCli } from "./automator-client.js";
 import { getCapabilities } from "./capabilities.js";
+import { ensureSession, requestSession } from "./client.js";
+import { detectSelectedDomain, findStaleTsJsPairs, localIpv4, runTypecheck } from "./doctor.js";
 import { CliError } from "./errors.js";
 import { parseJson, readStdin } from "./json.js";
 import { runMediaAction } from "./media.js";
 import { validateMediaOptions } from "./media.js";
-import { assertProjectShape, resolveInsideWorkspace, resolveWorkspaceRoot } from "./path-policy.js";
+import { resolveInsideWorkspace, resolveWorkspaceRoot } from "./path-policy.js";
+import { resolveProject } from "./project-resolve.js";
 import { getPageSnapshot } from "./snapshot.js";
 import { runWorkflow } from "./workflow.js";
 
 export async function commandDoctor(args) {
   const workspaceRoot = resolveWorkspaceRoot(args["workspace-root"] ?? process.cwd());
-  const projectPath = resolveInsideWorkspace(args.project, workspaceRoot, "project", { mustExist: true });
-  const projectShape = assertProjectShape(projectPath);
-  const cli = inspectWechatCli(args["cli-path"]);
+  const searchRoot = args.project
+    ? resolveInsideWorkspace(args.project, workspaceRoot, "project", { mustExist: true })
+    : workspaceRoot;
+
+  let project = null;
+  let projectCheck;
+  try {
+    project = resolveProject(searchRoot);
+    projectCheck = {
+      ok: true,
+      projectRoot: project.projectRoot,
+      appRoot: project.appRoot,
+      appJson: project.appJsonPath,
+      miniprogramRoot: project.miniprogramRoot,
+      appId: project.appId,
+      source: project.source,
+    };
+  } catch (error) {
+    projectCheck = {
+      ok: false,
+      code: error instanceof CliError ? error.code : "PROJECT_RESOLVE_FAILED",
+      message: error instanceof Error ? error.message : String(error),
+    };
+  }
+
+  let typecheck = { ran: false, ok: null, reason: "project not resolved" };
+  let jsFreshness = null;
+  let selectedDomain = null;
+  if (project) {
+    typecheck = args["skip-typecheck"]
+      ? { ran: false, ok: null, reason: "skipped (--skip-typecheck)" }
+      : await runTypecheck(project.projectRoot);
+    jsFreshness = findStaleTsJsPairs(project.appRoot);
+    selectedDomain = detectSelectedDomain(project.appRoot);
+  }
 
   return {
     ok: true,
     command: "doctor",
     workspaceRoot,
     checks: {
-      node: {
-        version: process.version,
-        ok: Number(process.versions.node.split(".")[0]) >= 18,
-      },
-      project: {
-        path: projectPath,
-        appJson: projectShape.appJson,
-        projectConfig: projectShape.projectConfig,
-        hasProjectConfig: projectShape.hasProjectConfig,
-      },
-      wechatCli: cli,
+      node: { version: process.version, ok: Number(process.versions.node.split(".")[0]) >= 18 },
+      project: projectCheck,
+      wechatCli: inspectWechatCli(args["cli-path"]),
+      typecheck,
+      jsFreshness,
+      selectedDomain,
+      localIpv4: localIpv4(),
     },
     sideEffects: [],
   };
@@ -112,7 +143,35 @@ export async function commandRun(args) {
   const input = args.stdin ? await readStdin() : args.workflow;
   const workflow = parseJson(input, "workflow");
   const connectOverride = args.connect ? parseJson(args.connect, "connect") : undefined;
-  return runWorkflow(workflow, { connectOverride, workspaceRoot });
+
+  // Prefer the persistent session (reuse one connection) unless an explicit connection is
+  // requested — via --connect OR an embedded workflow.connect — or the caller opts out. This
+  // keeps `run --connect ...` and self-describing workflows one-shot & backward compatible.
+  if (!connectOverride && !workflow.connect && !args["no-session"]) {
+    if (!Array.isArray(workflow.steps)) {
+      throw new CliError("INVALID_ARGUMENT", "workflow.steps must be an array");
+    }
+    await ensureSession(workspaceRoot, {
+      port: args.port ? Number(args.port) : undefined,
+      cliPath: args["cli-path"],
+      idleTimeoutMs: args["idle-timeout-ms"] ? Number(args["idle-timeout-ms"]) : undefined,
+    });
+    const resp = await requestSession(workspaceRoot, {
+      op: "batch",
+      steps: workflow.steps,
+      continueOnError: workflow.options?.continueOnError,
+    });
+    return {
+      ok: resp.ok,
+      command: "run",
+      via: "session",
+      steps: resp.steps,
+      sideEffects: (resp.steps ?? []).flatMap((item) => item.result?.sideEffects ?? []),
+    };
+  }
+
+  const result = await runWorkflow(workflow, { connectOverride, workspaceRoot });
+  return { ...result, via: "one-shot" };
 }
 
 export async function commandScreenshot(args) {

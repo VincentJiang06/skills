@@ -7,7 +7,7 @@ import test from "node:test";
 import { PNG } from "pngjs";
 
 import { CliError } from "../src/errors.js";
-import { executeStep } from "../src/workflow.js";
+import { createSessionContext, executeStep, startConsoleCapture } from "../src/workflow.js";
 
 function writeGradientPng(filePath, width, height) {
   const png = new PNG({ width, height });
@@ -39,6 +39,36 @@ test("snapshot step returns bounded Skyline-style timeout", async () => {
   await assert.rejects(
     () => executeStep(context, { type: "snapshot", timeoutMs: 20 }, 0),
     (error) => error instanceof CliError && error.code === "SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT",
+  );
+});
+
+test("console coalesces the automation's duplicate deliveries of one log", () => {
+  let handler;
+  const mp = { on: (event, h) => { if (event === "console") handler = h; }, off: () => undefined };
+  const context = createSessionContext({ miniProgram: mp, workspaceRoot: process.cwd() });
+  startConsoleCapture(context);
+
+  // The SDK re-delivers the SAME console.log 8x back-to-back (byte-identical payload).
+  for (let i = 0; i < 8; i += 1) handler({ type: "log", args: ["[x] increment ->", 6] });
+  // A genuinely different log is preserved.
+  handler({ type: "log", args: ["[x] other"] });
+
+  assert.equal(context.console.messages.length, 2);
+  assert.equal(context.console.messages[0].message, "[x] increment -> 6");
+  assert.equal(context.console.messages[1].message, "[x] other");
+});
+
+test("currentPage fails fast with APP_NOT_RUNNING when no page ever loads", async () => {
+  const context = {
+    miniProgram: { currentPage: () => new Promise(() => undefined) }, // never resolves
+    currentPage: null,
+    elementMap: new Map(),
+    workspaceRoot: process.cwd(),
+    pageTimeoutMs: 30,
+  };
+  await assert.rejects(
+    () => executeStep(context, { type: "currentPage" }, 0),
+    (error) => error instanceof CliError && error.code === "APP_NOT_RUNNING",
   );
 });
 

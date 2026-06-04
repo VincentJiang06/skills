@@ -1,51 +1,61 @@
 # Skyline and Media Workflow
 
-Use this file for Skyline, Canvas, Camera preview, or media mock tasks.
+For Skyline snapshot, Canvas, Camera, or media-mock tasks.
 
-## Skyline Snapshot
+## Skyline renderer reference (official skills)
+
+This skill only covers *debugging* a Skyline page through `vince-mp`. For renderer behavior — why
+`$$` enumeration hangs, what components/CSS are supported, scroll/route/worklet specifics — defer to
+the official WeChat Skyline skills and invoke the matching one:
+
+- `skyline-overview` — architecture, migration, when a page is Skyline vs WebView.
+- `skyline-config` — `app.json`/page `renderer`, `rendererOptions`, `componentFramework`.
+- `skyline-components` — scroll-view, swiper, forms, draggable sheets, shared-element transitions.
+- `skyline-scroll-api` / `skyline-worklet` — programmatic scroll, SharedValue/worklet animations.
+- `skyline-route` — custom routes / page transitions (half-screen, open-container).
+- `skyline-wxss` — supported CSS properties and limitations.
+
+When a Skyline page misbehaves (layout, scroll, animation, route), read the relevant official skill
+for the renderer contract, then use `vince-mp` (pageData / snapshot / screenshot) to gather evidence.
+
+## Skyline snapshot
 
 Skyline/native pages may allow route/pageData reads while element enumeration hangs.
 
-Protocol:
+1. `vince-mp session start`, then `vince-mp data` / `stack` — route + pageData are valid partial evidence.
+2. Only when uid interaction is needed, run one bounded `vince-mp snapshot <selector>` (concrete
+   selector, not `*`).
+3. On `SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT`, stop uid actions and report snapshot as the blocker;
+   keep route/pageData/full-screenshot evidence.
 
-1. Run `smoke-existing` without `--probe-elements`.
-2. Treat route, pageStack, systemInfo, and pageData keys as valid partial evidence.
-3. Only when uid interaction is required, run one bounded `snapshot` or `--probe-elements`.
-4. If the CLI returns `SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT`, stop uid actions and report snapshot as the blocker.
+## Camera-less scan (scanners)
 
-## Canvas
+DevTools/webview has no real Skyline camera preview, so the scan/decode path can't run from a real
+camera. Drive it without hardware via the page's scan handler:
 
-Canvas work is experimental and evidence-first.
+```bash
+vince-mp scan PKG-2026-0605 --type qrcode            # callPageMethod onScanCode {result,scanType}
+vince-mp scan 123 --method onDecodeResult            # custom handler name
+```
 
-Use:
+Then read the effect with `vince-mp data` (e.g. the new record / `latest`). This is the supported
+way to smoke a scanner; real-camera frames still require a device.
+
+## Canvas / Camera / media (one-shot `media`, or via the session `step`)
 
 ```bash
 vince-mp media --connect '<json>' --action install --json
 vince-mp media --connect '<json>' --action list --target canvas --json
 vince-mp media --connect '<json>' --action canvas-export --canvas-id main --json
 vince-mp media --connect '<json>' --action canvas-sample --canvas-id main --json
-```
-
-Prefer API event evidence, snapshot temp path, and pixel checksum. If Skyline/runtime lacks `canvasToTempFilePath` or `canvasGetImageData`, report unsupported/partial evidence instead of retrying blindly.
-
-## Camera
-
-Default Camera probing is metadata-only:
-
-```bash
-vince-mp media --connect '<json>' --action camera-probe --json
-```
-
-Camera mock is an explicit side effect. Require a fixture image or mock config:
-
-```bash
+vince-mp media --connect '<json>' --action camera-probe --json          # metadata-only default
 vince-mp media --connect '<json>' --action camera-mock --fixture-image fixtures/camera.png --json
-```
-
-Restore after mock work:
-
-```bash
 vince-mp media --connect '<json>' --action restore --json
+# In a session, the same actions route via: vince-mp step '{"type":"mediaAction","action":"camera-probe"}'
 ```
 
-Do not collect real photos or frames unless the user explicitly asks and the report states that capture was enabled.
+Prefer API-event evidence, snapshot temp path, and pixel checksum. If the runtime lacks
+`canvasToTempFilePath`/`canvasGetImageData`, report unsupported/partial evidence rather than retrying
+blindly. Camera mock is an explicit, reversible side effect — require a fixture/mock config and
+`restore` after. Do not collect real photos/frames unless the user explicitly asks and the report
+states capture was enabled.

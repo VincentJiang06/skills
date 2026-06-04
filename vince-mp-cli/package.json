@@ -1,7 +1,7 @@
 {
   "name": "vince-mp-cli",
-  "version": "0.1.0",
-  "description": "Local JSON CLI for WeChat Mini Program automation through miniprogram-automator",
+  "version": "0.2.0",
+  "description": "Local JSON CLI for WeChat Mini Program automation through miniprogram-automator — persistent session (one connect, stable uids), one-command connect, shorthands, scan/doctor/env/logs",
   "type": "module",
   "author": "Vince",
   "license": "MIT",

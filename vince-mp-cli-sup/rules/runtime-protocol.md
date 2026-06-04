@@ -1,60 +1,74 @@
-# runtime-protocol — safe vince-mp execution rules
+# runtime-protocol — safe, session-first vince-mp execution
 
-Read this before executing `vince-mp`, constructing workflow JSON, or reporting CLI failure evidence.
+Read this before running `vince-mp`, building workflow JSON, or reporting CLI failure evidence.
 
-## Backend Contract
+## Backend contract
 
-Use the system-installed CLI package as the backend:
+The backend is the system-installed CLI package:
 
 ```bash
-vince-mp
+vince-mp <command> --json
 ```
 
-This skill intentionally uses the system-installed `vince-mp-cli` npm package. Apply CLI discipline: structured JSON input, JSON output, standard error codes, explicit side effects, explicit path boundaries, and narrow commands.
+Apply CLI discipline: structured JSON in/out, standard error codes, explicit side effects,
+explicit path boundaries, narrow commands. Load `references/cli-contract.md` only when exact
+command/step/error schema is needed; otherwise keep this high-level protocol in context.
 
-Load `references/cli-contract.md` only when exact command schema, workflow step names, or error codes are needed. Otherwise keep the high-level protocol here in context.
+## Execution protocol
 
-## Execution Protocol
+1. **Connect once with a session.** Start with `vince-mp session start` (optionally `--port`,
+   `--connect`, `--workspace-root`). It resolves the project via `project.config.json`
+   `miniprogramRoot` (so a `miniprogram/`-subdir layout works), ensures the automation port is
+   live (spawning `cli auto` only if needed — no "port in use" fight), then attaches. All later
+   commands reuse that one connection.
+2. **Classify the command:** read (`page`/`stack`/`data`/`sysinfo`/`query`/`snapshot`/`console`/
+   `eval`), act (`tap`/`input`/`scan`/`shot`/`nav`/`step`/`run`), or diagnose (`doctor`/`env`/`logs`).
+3. **Classify connection safety:**
+   - non-invasive inspection of the current client → the session's default `attach`, or
+     `smoke-existing --ws-endpoint` for a one-shot read;
+   - opening/focusing a project → allowed only as the connect-time side effect of `session start`
+     ensuring the port, or an explicit `--connect '{"mode":"launch",...}'`.
+4. **UI work:** `query`/`snapshot` to mint a uid, then `tap`/`input`/`longpress`/`elementScreenshot`
+   by that uid. In a session a uid stays valid across separate CLI calls — refresh only after
+   navigation or page mutation. For one element's image use `shot`/`elementScreenshot` with an
+   explicit output path under `--workspace-root`.
+5. **Diagnostics:** read route/pageStack/pageData before snapshot. Treat a Skyline snapshot
+   timeout as a partial-evidence blocker, not a full failure. If reads hang, expect a fast
+   `APP_NOT_RUNNING` — check the simulator for a build/startup error.
+6. **Canvas/Camera:** load `references/skyline-media.md`; instrumentation and mocks must be
+   explicit and reversible.
+7. **Verify** every action with CLI JSON. On failure report: command, error code, connection
+   mode, side effects attempted, and the next deterministic recovery command.
 
-1. Classify intent: `capabilities`, `doctor`, `smoke-existing`, `run`, `screenshot`, or `media`.
-2. Classify connection safety:
-   - current client must not be disturbed: use `attach` only via `smoke-existing` or `run.connect.mode:"attach"`;
-   - opening/focusing a project is allowed: use `launch` with explicit `projectPath`.
-3. Keep paths under `cwd` or `--workspace-root`; output files require explicit `--output`.
-4. For UI work, query or snapshot first, act by returned `uid`, then refresh query/snapshot after navigation or mutation. For a single element screenshot, use `elementScreenshot` with an explicit `output` path under `--workspace-root`.
-5. For page diagnostics, read route/pageStack/pageData before snapshot. Treat Skyline snapshot timeout as a partial evidence blocker, not a full smoke failure.
-6. For Canvas/Camera, load `references/skyline-media.md`; instrumentation and mocks must be explicit and reversible.
-7. Verify every action with CLI JSON evidence. On failure, report the CLI command, error code, connection mode, side effects attempted, and next deterministic recovery command.
+## Hard rules
 
-## Hard Rules
-
-- Do not use any non-CLI automation backend or connector for new workflows.
-- Do not use `launch`, `reLaunch`, navigation, media instrumentation, or mocks when the user asked for non-invasive live smoke.
-- Do not infer the automation WebSocket from an unrelated DevTools URL parameter; verify the actual endpoint.
+- Use only the system `vince-mp` backend; no other automation backend/connector for new work.
+- Do not navigate, `reLaunch`, instrument media/network, or mock APIs when the user asked for
+  non-invasive inspection. (`session start` ensuring the port is the one allowed connect-time effect.)
+- Do not infer the automation WebSocket from an unrelated DevTools URL parameter; let
+  `session start` resolve/verify it, or pass a verified `--connect`.
 - Do not write outside `--workspace-root`.
-- Do not call unsafe `wx` methods unless the workflow step explicitly sets `allowUnsafe:true`.
-- Do not collect Camera photos/frames by default; Camera work is metadata-only unless the user explicitly requests mock/take-photo behavior.
+- Do not call unsafe `wx` methods unless the step explicitly sets `allowUnsafe:true`.
+- Camera work is metadata-only unless the user explicitly requests mock/take-photo behavior.
 
-## Output Discipline
+## Output discipline
 
-Final responses should be at most 2 short paragraphs or 6 bullets unless the user asks for full JSON evidence.
-
-Keep responses concise:
-
-- summarize observed route/page data/log/media evidence;
-- name failing error codes such as `PATH_OUTSIDE_WORKSPACE` or `SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT`;
-- separate confirmed runtime evidence from planned next steps;
-- include exact command shape when recovery requires a rerun.
+At most 2 short paragraphs or 6 bullets unless full JSON evidence is requested. Summarize the
+observed route/pageData/log/media evidence; name failing codes (`PATH_OUTSIDE_WORKSPACE`,
+`SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT`, `APP_NOT_RUNNING`); separate confirmed runtime evidence
+from planned next steps; include the exact command shape when a rerun is needed.
 
 ## Anti-patterns
 
-- Do not run `launch` to recover from an attach failure unless the user explicitly allowed opening/focusing DevTools.
+- Do not fall back to `launch`/`cli auto` against a port to "recover" an attach failure unless the
+  user allowed opening DevTools — first run `doctor` and read the error code.
 - Do not hide side effects behind helper scripts; the CLI JSON must show the action and output path.
-- Do not retry Skyline element enumeration indefinitely. Use bounded timeouts and report partial evidence.
+- Do not retry Skyline element enumeration indefinitely — bounded timeouts, report partial evidence.
+- Do not treat a slow read as success: a real hang surfaces fast as `APP_NOT_RUNNING` (app not
+  running in the simulator) — investigate the build, don't paper over it.
 
 ## Verification
 
-After applying this file:
-1. Confirm the command used the system `vince-mp` binary.
-2. Confirm any file write stayed inside `--workspace-root`.
-3. Confirm failures are reported with CLI error code, command shape, connection mode, and attempted side effects.
+After applying this file: (1) commands used the system `vince-mp` binary and the session where
+possible; (2) any file write stayed inside `--workspace-root`; (3) failures were reported with CLI
+error code, command shape, connection mode, and attempted side effects.

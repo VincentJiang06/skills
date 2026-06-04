@@ -2,3 +2,5 @@
 __pycache__/
 *.pyc
 learning_from_the_best/
+# Local WeChat Mini Program test fixture used to live-debug vince-mp (not skill content)
+miniprogram_test/

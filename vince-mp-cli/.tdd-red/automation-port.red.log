@@ -1,0 +1,4 @@
+✖ isPortLive: true for a listening port, false once closed (4.249042ms)
+✖ ensureAutomationPort returns the live endpoint WITHOUT spawning (no port fight) (0.137416ms)
+✖ ensureAutomationPort spawns `cli auto` and waits for liveness (0.1065ms)
+✖ ensureAutomationPort throws AUTOMATION_PORT_TIMEOUT when the port never comes up (0.145042ms)

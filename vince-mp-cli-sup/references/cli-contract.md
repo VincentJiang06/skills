@@ -1,96 +1,122 @@
 # CLI Contract
 
-Backend command:
+Backend command (installed npm package; `npm install -g <vince-mp-cli pkg>`):
 
 ```bash
-vince-mp <command> --json
+vince-mp <command> [args] --json
 ```
 
-`vince-mp` must be installed as a system npm package, for example from the local package source with `npm install -g /Users/vince/playground/skill-developer/vince-mp-cli`. The CLI is short-lived. For multi-step runtime work, use one `run` workflow so the same automator connection owns query/snapshot uid state.
+Common flags: `--json`, `--workspace-root <dir>`, `--port <n>` (automation port, default 9420),
+`--no-session` (force a one-shot connect instead of the session).
 
-## Commands
+## Session lifecycle (the primary path)
 
-- `doctor --project <path> --workspace-root <path> --json`
-- `capabilities --json`
-- `smoke-existing --ws-endpoint <ws> [--probe-elements] --json`
-- `run --connect '<json>' --stdin --json`
-- `screenshot --connect '<json>' --output <path> --json`
-- `media --connect '<json>' --action <install|list|canvas-export|canvas-sample|camera-probe|camera-mock|restore> --json`
+```bash
+vince-mp session start [--port 9420] [--connect '<json>'] [--idle-timeout-ms <ms>]
+vince-mp session status        # running? connection, uptime, uidCount, reconnects, currentPage
+vince-mp session stop          # disconnect + remove socket
+vince-mp session restart
+vince-mp session reconnect     # force a fresh attach (uids reset); also happens automatically on a dropped connection
+```
+
+`session start` resolves the project from `project.config.json` `miniprogramRoot`, ensures the
+automation port is live (spawns `cli auto --project <root> --auto-port <port>` only if it isn't —
+already-live ports are reused, never re-spawned), attaches, and leaves a background daemon holding
+ONE connection. A per-workspace Unix socket lives under `~/.vince-mp/sessions/`; the daemon
+idle-reaps itself. Every later command auto-starts a session if none is running.
+
+## Read / act shorthands (route through the session)
+
+| Command | Step built | Notes |
+|---|---|---|
+| `page` / `stack` | currentPage / pageStack | route + page stack |
+| `data [path]` | pageData | default cap 200KB (no silent <6KB truncation); `--max-bytes` to override |
+| `sysinfo` | systemInfo | |
+| `query <sel> [--all] [--position]` | query | mints uid(s) like `view_0`; `--all` for multiple |
+| `snapshot [<sel>] [--position]` | snapshot | batched reads; pass a concrete selector (`*` is unsupported on some renderers) |
+| `tap <uid>` / `input <uid> <text>` | tap / input | uid from a prior query/snapshot; valid across calls in a session |
+| `eval '<js expr>'` | evaluate | wraps as `function(){ return (<expr>); }` |
+| `scan <code> [--type qrcode] [--method onScanCode]` | callPageMethod | camera-less: fakes a scan via the page's scan handler |
+| `shot <output>` | screenshot | full-page PNG under `--workspace-root` |
+| `nav <url>` | navigateTo | navigation (invalidates uids) |
+| `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (capped 1000) |
+| `step '<json>'` | any step | escape hatch: a step object, or an array → batch |
+
+## Diagnose / cross-stack
+
+```bash
+vince-mp doctor [--project <dir>] [--skip-typecheck] --json
+# checks: node, resolved project (miniprogramRoot-aware), wechat cli, tsc --noEmit,
+#         .ts/.js freshness, selected backend domain, local LAN IPv4
+vince-mp env list | current | use <key> | token <ADMIN_TOKEN>     # mockLan|caoliaoDevNet|caoliaoProdIm
+vince-mp logs --request-id <id> | --user-id <id> | --code <n> [--route r] [--since t] [--limit n]
+# POSTs <env.base>/admin/error-logs/list with Authorization: Bearer <token>
+# token from VINCE_MP_ADMIN_TOKEN or `env token`; pull a client failure's server-side error log.
+```
+
+## One-shot / explicit-connection commands
+
+```bash
+vince-mp smoke-existing --ws-endpoint ws://127.0.0.1:9420 [--probe-elements] --json
+vince-mp run --stdin --json                       # batch; routes through the session
+vince-mp run --connect '<json>' --stdin --json    # one-shot with an explicit connection
+vince-mp screenshot --connect '<json>' --output <path> --json
+vince-mp media --connect '<json>' --action <install|list|canvas-export|canvas-sample|camera-probe|camera-mock|restore> --json
+vince-mp capabilities --json                       # full manifest: commands, shorthands, sessionOps, steps
+```
 
 ## Connection JSON
 
-Attach, non-invasive:
-
 ```json
 {"mode":"attach","wsEndpoint":"ws://127.0.0.1:9420"}
+{"mode":"launch","projectPath":"/absolute/project","port":9420}
 ```
 
-Launch, explicit side effect:
+`attach` must not include `projectPath`. `launch` includes `projectPath` and may open/focus DevTools.
 
-```json
-{"mode":"launch","projectPath":"/absolute/workspace/project","port":9420}
-```
-
-`attach` must not include `projectPath`. `launch` must include `projectPath` and may open or focus DevTools.
-
-## Workflow JSON
+## Workflow JSON (`run`)
 
 ```json
 {
-  "connect": {"mode":"attach","wsEndpoint":"ws://127.0.0.1:9420"},
   "steps": [
     {"type":"currentPage"},
-    {"type":"pageStack"},
-    {"type":"pageData","maxJsonBytes":20000},
-    {"type":"snapshot","timeoutMs":3000,"maxElements":50}
+    {"type":"pageData","maxJsonBytes":200000},
+    {"type":"query","selector":".item","all":true,"includePosition":true},
+    {"type":"elementScreenshot","uid":"view_0","output":"captures/item.png","padding":4}
   ],
   "options": {"continueOnError": false}
 }
 ```
 
-Supported step types:
+A `run` with no `connect` (and without `--no-session`) reuses the session. A `run` that embeds its
+own `connect`, or uses `--connect`, is one-shot. Supported step types:
+`currentPage, pageStack, pageData, systemInfo, appGlobalData, launchOptions, navigateTo, reLaunch,
+switchTab, wait, query, snapshot, tap, longpress, input, elementText, elementValue,
+elementAttribute, elementProperty, elementTrigger, elementScreenshot, callWxMethod, mockWxMethod,
+restoreWxMethod, storageGet, storageSet, storageRemove, storageClear, setPageData, callPageMethod,
+pageSize, scrollTop, pageScrollTo, evaluate, screenshot, startConsole, listConsole, clearConsole,
+networkInstall, networkList, networkClear, networkRestore, mediaInstall, mediaList, mediaAction`.
 
-`currentPage`, `pageStack`, `pageData`, `systemInfo`, `appGlobalData`, `launchOptions`, `navigateTo`, `reLaunch`, `switchTab`, `wait`, `query`, `snapshot`, `tap`, `longpress`, `input`, `elementText`, `elementValue`, `elementAttribute`, `elementProperty`, `elementTrigger`, `elementScreenshot`, `callWxMethod`, `mockWxMethod`, `restoreWxMethod`, `storageGet`, `storageSet`, `storageRemove`, `storageClear`, `setPageData`, `callPageMethod`, `pageSize`, `scrollTop`, `pageScrollTo`, `evaluate`, `screenshot`, `startConsole`, `listConsole`, `clearConsole`, `networkInstall`, `networkList`, `networkClear`, `networkRestore`, `mediaInstall`, `mediaList`, `mediaAction`.
+## Error contract
 
-Single element screenshot workflow:
+All failures: `{"ok":false,"code":"ERROR_CODE","message":"...","details":{},"suggestions":[]}`. Key codes:
 
-```json
-{
-  "connect": {"mode":"attach","wsEndpoint":"ws://127.0.0.1:9420"},
-  "steps": [
-    {"type":"query","selector":".target","includePosition":true,"timeoutMs":3000},
-    {"type":"elementScreenshot","uid":"view_0","output":"captures/target.png","padding":4}
-  ]
-}
-```
+- `INVALID_PROJECT` / `PROJECT_NOT_FOUND`: no resolvable Mini Program (check `miniprogramRoot`).
+- `WECHAT_CLI_NOT_FOUND`: DevTools `cli` binary missing (`--cli-path` / `WECHAT_DEVTOOLS_CLI`).
+- `AUTOMATION_PORT_TIMEOUT`: `cli auto` ran but the port never came up — enable DevTools automation/安全设置.
+- `AUTOMATOR_CONNECT_FAILED`: attach to the ws endpoint failed.
+- `APP_NOT_RUNNING`: no current page within the page-acquire timeout — the app isn't running in the
+  simulator (build/startup error). Investigate the build, don't retry blindly.
+- `SESSION_NOT_RUNNING` / `SESSION_TIMEOUT`: the daemon is gone/slow; a stale socket is auto-cleaned and re-started.
+- `SESSION_CONNECTION_LOST`: the connection dropped and the auto-reconnect also failed — confirm DevTools is open, then `session restart`.
+- `STEP_TIMEOUT`: a single step exceeded the daemon backstop (unresponsive connection/app).
+- `SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT`: element enumeration timed out (common on Skyline).
+- `STALE_OR_UNKNOWN_UID`: uid was used after navigation/mutation, or never queried.
+- `UNSAFE_CONNECTION_MODE` / `UNSAFE_WX_METHOD` / `PATH_OUTSIDE_WORKSPACE` / `STORAGE_CLEAR_REQUIRES_CONFIRMATION`
+  / `CAMERA_MOCK_REQUIRES_FIXTURE`: safety contracts (unchanged).
+- `ADMIN_TOKEN_REQUIRED` / `BACKEND_UNREACHABLE` / `BACKEND_ERROR` / `UNKNOWN_ENV`: `env`/`logs` issues.
 
-`elementScreenshot` writes only to the explicit `output` path under `--workspace-root`. It depends on a fresh uid from `query` or `snapshot`, then takes a full runtime screenshot and crops by `offset()`/`size()`. On Skyline pages where element enumeration or geometry hangs, report the bounded query/snapshot error instead of guessing a rectangle.
+## Safe defaults
 
-## Error Contract
-
-All failures use:
-
-```json
-{"ok":false,"code":"ERROR_CODE","message":"...","details":{},"suggestions":[]}
-```
-
-Key codes:
-
-- `PATH_OUTSIDE_WORKSPACE`: path escaped `--workspace-root`.
-- `UNSAFE_CONNECTION_MODE`: attach/launch contract was violated.
-- `AUTOMATOR_CONNECT_FAILED`: DevTools automation connection failed.
-- `SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT`: element enumeration timed out, common on Skyline.
-- `STALE_OR_UNKNOWN_UID`: uid was reused after mutation/navigation or never queried.
-- `UNSAFE_WX_METHOD`: `callWxMethod` is not in the read-only allowlist.
-- `ELEMENT_GEOMETRY_UNAVAILABLE`: element screenshot cannot read `offset()`/`size()`.
-- `ELEMENT_SCREENSHOT_BOUNDS_INVALID`: computed element crop rectangle is outside the screenshot.
-- `STORAGE_CLEAR_REQUIRES_CONFIRMATION`: `storageClear` was requested without `confirm:true`.
-- `CAMERA_MOCK_REQUIRES_FIXTURE`: camera mock was requested without explicit fixture/mock config.
-
-## Safe Defaults
-
-- No implicit launch.
-- No implicit relaunch.
-- No implicit network/canvas/camera instrumentation.
-- No implicit file writes.
-- No implicit Camera frame/photo capture.
+No implicit `launch`/`reLaunch` beyond `session start` ensuring the port; no implicit
+network/canvas/camera instrumentation; no implicit file writes; no implicit Camera frame/photo capture.

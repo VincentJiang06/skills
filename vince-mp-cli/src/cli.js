@@ -1,12 +1,19 @@
 import { parseArgs } from "node:util";
 
+import { commandEnv, commandLogs } from "./backend.js";
 import { commandCapabilities, commandDoctor, commandMedia, commandRun, commandScreenshot, commandSmokeExisting } from "./commands.js";
 import { CliError, isCliError, toErrorResponse } from "./errors.js";
 import { writeJson } from "./json.js";
+import { commandSession, commandSessionDaemon } from "./session-commands.js";
+import { commandStepGeneric, commandStepShorthand, STEP_OPTIONS, STEP_SHORTHANDS } from "./step-commands.js";
 
 const COMMON_OPTIONS = {
   json: { type: "boolean" },
   "workspace-root": { type: "string" },
+  // Documented as universal "common flags" — tolerated on every command so passing them never
+  // errors under strict parsing; they are no-ops on commands that don't connect.
+  port: { type: "string" },
+  "no-session": { type: "boolean" },
 };
 
 function parseCommandArgs(command, argv) {
@@ -14,6 +21,7 @@ function parseCommandArgs(command, argv) {
     doctor: {
       project: { type: "string" },
       "cli-path": { type: "string" },
+      "skip-typecheck": { type: "boolean" },
     },
     capabilities: {},
     "smoke-existing": {
@@ -26,6 +34,10 @@ function parseCommandArgs(command, argv) {
       connect: { type: "string" },
       stdin: { type: "boolean" },
       workflow: { type: "string" },
+      "no-session": { type: "boolean" },
+      port: { type: "string" },
+      "cli-path": { type: "string" },
+      "idle-timeout-ms": { type: "string" },
     },
     screenshot: {
       connect: { type: "string" },
@@ -42,7 +54,33 @@ function parseCommandArgs(command, argv) {
       "capture-mode": { type: "string" },
       mock: { type: "string" },
     },
-  }[command];
+    session: {
+      connect: { type: "string" },
+      port: { type: "string" },
+      "cli-path": { type: "string" },
+      "idle-timeout-ms": { type: "string" },
+    },
+    "__session-daemon": {
+      sock: { type: "string" },
+      meta: { type: "string" },
+      connect: { type: "string" },
+      port: { type: "string" },
+      "idle-timeout-ms": { type: "string" },
+    },
+    env: {},
+    logs: {
+      "request-id": { type: "string" },
+      "user-id": { type: "string" },
+      code: { type: "string" },
+      route: { type: "string" },
+      since: { type: "string" },
+      level: { type: "string" },
+      limit: { type: "string" },
+      offset: { type: "string" },
+      base: { type: "string" },
+      token: { type: "string" },
+    },
+  }[command] ?? (STEP_SHORTHANDS.has(command) ? STEP_OPTIONS : undefined);
 
   if (!commandOptions) {
     throw new CliError("UNSUPPORTED_COMMAND", `unsupported command: ${command}`, {
@@ -59,7 +97,7 @@ function parseCommandArgs(command, argv) {
     },
     allowPositionals: true,
     strict: true,
-  }).values;
+  });
 }
 
 export async function dispatch(argv) {
@@ -68,12 +106,23 @@ export async function dispatch(argv) {
     return {
       ok: true,
       command: "help",
-      commands: ["capabilities", "doctor", "smoke-existing", "run", "screenshot", "media"],
-      note: "All commands return JSON. Use --stdin for complex run workflows.",
+      commands: ["capabilities", "doctor", "session", "run", "smoke-existing", "screenshot", "media"],
+      session: "session start|status|stop|restart — one persistent connection; repeat commands are instant and uids persist.",
+      shorthands: ["page", "stack", "data", "sysinfo", "query", "snapshot", "tap", "input", "eval", "scan", "console", "shot", "nav", "step"],
+      examples: [
+        "vince-mp session start                 # connect once (auto-resolves project + automation port)",
+        "vince-mp data                          # read pageData (instant; reuses the session)",
+        "vince-mp query .submit-btn             # mint a uid, then: vince-mp tap <uid>",
+        "vince-mp scan PKG-123                  # camera-less: callPageMethod onScanCode",
+      ],
+      note: "All commands return JSON. Shorthands auto-start a session; pass --no-session for a one-shot connect.",
     };
   }
 
-  const values = parseCommandArgs(command, rest);
+  const { values, positionals } = parseCommandArgs(command, rest);
+  if (STEP_SHORTHANDS.has(command)) {
+    return command === "step" ? commandStepGeneric(values, positionals) : commandStepShorthand(command, values, positionals);
+  }
   switch (command) {
     case "doctor":
       return commandDoctor(values);
@@ -87,6 +136,15 @@ export async function dispatch(argv) {
       return commandScreenshot(values);
     case "media":
       return commandMedia(values);
+    case "session":
+      return commandSession(values, positionals);
+    case "env":
+      return commandEnv(values, positionals);
+    case "logs":
+      return commandLogs(values);
+    case "__session-daemon":
+      await commandSessionDaemon(values);
+      return await new Promise(() => {}); // run forever; never print JSON
     default:
       return {
         ok: false,

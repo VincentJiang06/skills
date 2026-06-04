@@ -1,22 +1,66 @@
 # Evidence and Known Failures
 
-These rules describe known CLI automation edge cases and should remain backend-independent.
+Backend-independent edge cases for live `vince-mp` debugging.
 
-## Connection
+## Connecting (session start)
 
-- `attach` means `automator.connect({ wsEndpoint })`; it must not fall back to launch.
-- `launch` means `automator.launch({ projectPath })`; it may open or focus DevTools.
-- A DevTools page URL `autoPort` parameter is not automatically the automation WebSocket. Verify the endpoint before using it.
-- If startup logs are needed, connect first, then explicitly `reLaunch` only when the user allows that side effect.
+- `session start` does the whole connect: resolve project (`miniprogramRoot`-aware, so app.json
+  under `miniprogram/` is fine — no more spurious `INVALID_PROJECT`), ensure the automation port,
+  attach. An already-live port is reused, never re-spawned (no "port in use" fight).
+- `attach` = `automator.connect({ wsEndpoint })`; it never falls back to launch. `launch` /
+  `cli auto` may open or focus DevTools — a connect-time side effect, only when ensuring the port.
+- A DevTools page-URL `autoPort` parameter is not automatically the automation WebSocket — let
+  `session start` resolve/verify it.
+- `AUTOMATION_PORT_TIMEOUT`: `cli auto` ran but the port never answered → enable DevTools 安全设置 →
+  服务端口 (CLI/HTTP automation), confirm the project opens. `WECHAT_CLI_NOT_FOUND` → pass
+  `--cli-path` or set `WECHAT_DEVTOOLS_CLI`.
+- **`APP_NOT_RUNNING`** (fast, ~8s — not a hang): reads got no current page because the app isn't
+  running in the simulator. Almost always a build/startup error (e.g. "模拟器启动失败 … Cannot read
+  property 'subPackages' of undefined" = a stale/broken build). Run `vince-mp doctor` and fix the
+  build (`npm run build:devtools` for TS projects); do not retry blindly.
 
-## Snapshot and UID
+## Session lifetime and uids
 
-- Snapshot/query returns uid state owned by that single CLI `run` process.
-- Navigation and page mutation make old uid values stale.
-- Skyline snapshot timeout does not invalidate route/pageData evidence.
+- One background daemon per workspace holds ONE connection; commands reuse it (near-instant) and the
+  element map (uids) lives in the daemon, so **uids persist across separate CLI calls**.
+- A uid is stale only after navigation (`nav`/`reLaunch`/`switchTab`) or a node-replacing mutation —
+  re-query then. `STALE_OR_UNKNOWN_UID` means re-query.
+- A dead daemon's stale socket/meta is auto-detected and cleaned; the next command restarts a
+  session. `session status` shows whether one is live; `STEP_TIMEOUT` means a single step exceeded
+  the daemon backstop (unresponsive app/connection).
+- A dropped connection (DevTools closed/restarted) auto-reconnects once on the next step and retries
+  it (uids reset — re-query); `session reconnect` forces it. If reconnect fails → `SESSION_CONNECTION_LOST`.
+- Without a session (`--no-session` / a one-shot `run`), uid state lives only for that one process.
 
-## Console and Network
+## Snapshot
 
-This CLI intentionally does not auto-inject network monitoring. If a future command adds network capture, it must start before the observed action and state that earlier requests are unavailable.
+- `snapshot`/`query` reads are batched (parallel, bounded concurrency) — fast even for many elements.
+- Skyline/native pages may allow route/pageData reads while element enumeration hangs;
+  `SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT` blocks uid actions but does NOT invalidate route/pageData.
+- The universal `*` selector is unsupported on some renderers (`SNAPSHOT_ELEMENT_ENUMERATION_FAILED`)
+  — pass a concrete selector.
 
-Console/network evidence from earlier non-CLI runs must not be claimed as current CLI evidence.
+## Console and network
+
+- The session auto-captures console from start (buffered, capped at the most recent 1000) — `console`
+  lists it, `console --clear` resets it. It only has output since the session started.
+- WeChat automation re-delivers each `console.log` several times (5–8×); the CLI coalesces identical
+  messages arriving back-to-back so one log = one entry. Distinct or time-separated logs are kept; to
+  count rapid identical repeats, put a counter in the log text.
+- Network monitoring is NOT auto-injected; `networkInstall` must precede the observed request, and any
+  report must state that earlier requests are unavailable. Never claim console/network evidence from a
+  prior non-CLI run as current.
+
+## Doctor — "green tests but broken build"
+
+`doctor` is the pre-debug health check: it runs the project's `tsc --noEmit`, flags `.ts` files newer
+than their committed `.js` sibling (DevTools runs the `.js`; a newer `.ts` means a missing rebuild),
+and surfaces the selected backend domain + LAN IPv4. A passing `npm test` that regex-matches `.ts`
+can hide a non-compiling/stale build — trust `doctor` (tsc + freshness), not just the test runner.
+
+## Cross-stack (env / logs)
+
+- `env use <key>` switches the named backend (mockLan/caoliaoDevNet/caoliaoProdIm = mock/.net/.im).
+- `logs --request-id <id>` pulls the matching server error log (needs an admin token via
+  `VINCE_MP_ADMIN_TOKEN` or `env token`). `--user-id` filters by account; `BACKEND_UNREACHABLE`
+  means the env isn't deployed/reachable, `ADMIN_TOKEN_REQUIRED` means no token is set.

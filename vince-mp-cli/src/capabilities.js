@@ -52,18 +52,23 @@ export function getCapabilities() {
     command: "capabilities",
     package: {
       name: "vince-mp-cli",
-      version: "0.1.0",
+      version: "0.2.0",
       backend: "miniprogram-automator",
     },
     commands: [
       "help",
       "capabilities",
       "doctor",
+      "session",
       "smoke-existing",
       "run",
       "screenshot",
       "media",
+      "env",
+      "logs",
     ],
+    shorthands: ["page", "stack", "data", "sysinfo", "query", "snapshot", "tap", "input", "eval", "scan", "console", "shot", "nav", "step"],
+    sessionOps: ["ping", "status", "step", "batch", "shutdown"],
     workflowSteps: WORKFLOW_STEPS,
     connectionModes: {
       attach: {

@@ -8,6 +8,23 @@ function makeUid(tagName, index) {
   return `${normalizeTagName(tagName)}_${index}`;
 }
 
+// Run async `fn` over items with bounded concurrency, preserving result order. Replaces the
+// old serial per-element loop so a Skyline snapshot of N elements is N/limit round-trips of
+// latency instead of N (the dominant in-call cost on large pages).
+async function mapLimit(items, limit, fn) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      results[index] = await fn(items[index], index);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 async function maybeRead(label, reader, timeoutMs) {
   try {
     return await withTimeout(Promise.resolve().then(reader), timeoutMs, () => new CliError(
@@ -35,23 +52,25 @@ export async function summarizeElement(element, uid, options = {}) {
     tagName: element?.tagName ?? null,
   };
 
+  // Fire the property reads concurrently — they are independent CDP round-trips.
+  const reads = [];
   if (includeText && typeof element?.text === "function") {
-    summary.text = await maybeRead("text", () => element.text(), propertyTimeoutMs);
+    reads.push(["text", () => element.text()]);
   }
-
   if (includeValue && typeof element?.value === "function") {
-    summary.value = await maybeRead("value", () => element.value(), propertyTimeoutMs);
+    reads.push(["value", () => element.value()]);
+  }
+  if (includePosition && typeof element?.size === "function") {
+    reads.push(["size", () => element.size()]);
+  }
+  if (includePosition && typeof element?.offset === "function") {
+    reads.push(["offset", () => element.offset()]);
   }
 
-  if (includePosition) {
-    if (typeof element?.size === "function") {
-      summary.size = await maybeRead("size", () => element.size(), propertyTimeoutMs);
-    }
-    if (typeof element?.offset === "function") {
-      summary.offset = await maybeRead("offset", () => element.offset(), propertyTimeoutMs);
-    }
+  const settled = await Promise.all(reads.map(async ([key, reader]) => [key, await maybeRead(key, reader, propertyTimeoutMs)]));
+  for (const [key, value] of settled) {
+    summary[key] = value;
   }
-
   return summary;
 }
 
@@ -73,12 +92,12 @@ export async function queryElements(page, selector, elementMap, options = {}) {
   );
 
   const elements = all ? rawElements ?? [] : rawElements ? [rawElements] : [];
-  const summaries = [];
-  for (const [index, element] of elements.entries()) {
-    const uid = makeUid(element?.tagName ?? "element", elementMap.size + index);
+  const base = elementMap.size;
+  const summaries = await mapLimit(elements, options.concurrency ?? 8, async (element, index) => {
+    const uid = makeUid(element?.tagName ?? "element", base + index);
     elementMap.set(uid, element);
-    summaries.push(await summarizeElement(element, uid, options));
-  }
+    return summarizeElement(element, uid, options);
+  });
 
   return {
     selector,
@@ -112,18 +131,20 @@ export async function getPageSnapshot(page, elementMap, options = {}) {
     }
     throw new CliError("SNAPSHOT_ELEMENT_ENUMERATION_FAILED", "failed to enumerate page elements", {
       details: { selector, message: error instanceof Error ? error.message : String(error) },
+      suggestions: [
+        "Pass a concrete selector (e.g. `snapshot view` or `snapshot .item`); the universal '*' selector is not supported by every renderer.",
+      ],
     });
   }
 
   const limited = Array.isArray(elements) ? elements.slice(0, maxElements) : [];
   elementMap.clear();
 
-  const summaries = [];
-  for (const [index, element] of limited.entries()) {
+  const summaries = await mapLimit(limited, options.concurrency ?? 8, async (element, index) => {
     const uid = makeUid(element?.tagName ?? "element", index);
     elementMap.set(uid, element);
-    summaries.push(await summarizeElement(element, uid, options));
-  }
+    return summarizeElement(element, uid, options);
+  });
 
   return {
     path: page.path ?? null,
