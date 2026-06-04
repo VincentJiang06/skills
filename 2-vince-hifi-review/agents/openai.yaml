@@ -1,8 +1,0 @@
-interface:
-  display_name: "HiFi Review"
-  short_description: "Objective, source-traceable evaluation of headphones/IEMs & DAC/amp gear"
-  brand_color: "#1DB954"
-  default_prompt: "Use $2-vince-hifi-review to objectively evaluate this HiFi device from measurements + media reviews."
-
-policy:
-  allow_implicit_invocation: true
