@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.skill_design_record",
+  "skill_id": "skill.vince-mp-cli-sup",
+  "name_zh": "微信小程序本地 CLI 调试支持",
+  "name_en": "Vince Mini Program CLI Support",
+  "target_users": ["agent_developer", "human_reviewer"],
+  "problem_statement_zh": "让 agent 只通过本地 JSON CLI 稳定调试微信小程序运行时，避免混用其他自动化后端造成连接副作用。",
+  "problem_statement_en": "Enable agents to debug WeChat Mini Program runtimes only through the local JSON CLI, avoiding side effects from mixed automation backends.",
+  "trigger": {
+    "must_activate_on": ["WeChat DevTools runtime inspection", "Mini Program live smoke", "Skyline Canvas or Camera debugging"],
+    "must_not_activate_on": ["generic browser automation", "source-only Mini Program refactors"],
+    "adjacent_confusions": ["implicit launch recovery", "DevTools URL autoPort confusion"],
+    "manual_activation_phrases": ["$vince-mp-cli-sup", "use vince-mp-cli"]
+  },
+  "execution_protocol": {
+    "preflight": ["classify connection safety", "read cli-contract", "validate workspace-root"],
+    "steps": ["choose narrow CLI command", "send structured JSON", "read JSON result", "verify side effects"],
+    "verification": ["CLI ok field", "error code", "route/pageData/snapshot/media evidence"],
+    "reporting": ["summarize evidence", "state side effects", "include recovery command on failure"],
+    "failure_paths": ["PATH_OUTSIDE_WORKSPACE", "AUTOMATOR_CONNECT_FAILED", "SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT"]
+  },
+  "resources": {
+    "docs": ["references/cli-contract.md", "references/skyline-media.md", "references/evidence-and-failures.md"],
+    "templates": [],
+    "scripts": ["scripts/validate-skill.mjs", "scripts/live-smoke-existing.mjs"],
+    "fixtures": []
+  },
+  "control_boundaries": {
+    "allowed_tools": ["shell local CLI"],
+    "forbidden_tools": ["non-CLI automation backend for new workflows"],
+    "allowed_paths": ["cwd", "--workspace-root"],
+    "human_gate_conditions": ["launch/reLaunch", "camera takePhoto", "camera mock", "unsafe wx methods"],
+    "cost_budget": null,
+    "context_budget_tokens": 5000
+  },
+  "test_assets": {
+    "eval_case_ids": [
+      "eval.vince_mp_cli.doctor.happy",
+      "eval.vince_mp_cli.smoke_existing.non_invasive",
+      "eval.vince_mp_cli.skyline_snapshot_timeout",
+      "eval.vince_mp_cli.camera_mock_explicit"
+    ],
+    "fixture_paths": [],
+    "trajectory_assertions": ["CLI backend only", "attach never launches", "paths stay within workspace"]
+  },
+  "metric_plan_id": "metric_plan.vince-mp-cli-sup",
+  "reference_ids": ["doc.architecture.industrial_skill_design", "doc.testing.tdd_for_skill_development", "doc.metrics.quantitative_skill_metrics"]
+}

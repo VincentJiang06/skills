@@ -1,0 +1,48 @@
+PASS import_contract::detect_signals_is_imported_from_scripts
+PASS import_contract::sentence_cv_is_imported_from_scripts
+PASS import_contract::tokenize_is_imported_from_scripts
+PASS import_contract::split_sentences_is_imported_from_scripts
+PASS import_contract::harness_does_not_reimplement_cv
+FAIL cv::three_equal_sentences_is_zero :: got -1.0
+FAIL cv::lengths_2_and_18_is_0_8 :: got -1.0
+FAIL cv::single_sentence_is_zero :: got -1.0
+FAIL cv::bursty_gt_uniform :: bursty=-1.0 uniform=-1.0
+FAIL cv::uniform_is_zero :: got -1.0
+FAIL tok::mixed_cjk_latin_count :: got ['__stub__']
+FAIL tok::three_english_words :: got ['__stub__']
+FAIL tok::cjk_chars_split :: got ['__stub__']
+FAIL split::mixed_terminators :: got ['__stub__']
+FAIL split::cjw_terminators :: got ['__stub__']
+FAIL split::empties_dropped :: got ['__stub__']
+FAIL test_lexical::raised :: KeyError: 'lexical'
+FAIL test_structural::raised :: KeyError: 'structural'
+FAIL shape::has_lexical_layer :: missing lexical: ['__stub__']
+FAIL shape::has_structural_layer :: missing structural: ['__stub__']
+FAIL shape::has_statistical_layer :: missing statistical: ['__stub__']
+FAIL test_shape_and_idempotency::raised :: KeyError: 'statistical'
+PASS cli::exits_zero
+FAIL cli::prints_three_layer_json :: stdout head: '{"__stub__": true}\n'
+
+6/24 passed
+EXIT:1
+
+===================================================================
+LOOP 1 fix — independent battery (5 detector bugs), RED before fix
+captured: 2026-06-04T03:52:18Z  | command: python3 evals/run_detector_tests.py
+===================================================================
+FAIL lex::clean_academic_is_one_sentence :: got n_sentences=3 for the clean-academic fixture   [BUG 2 — depends on BUG 1 splitter fix]
+FAIL split::decimal_percent_one_sentence :: got n=2                                             [BUG 1]
+FAIL split::us_abbreviation_one_sentence :: got n=3                                             [BUG 1]
+FAIL split::zh_decimal_percent_one_sentence :: got n=2                                          [BUG 1]
+FAIL split::three_sentence_stat_paragraph_n :: got n=8                                          [BUG 1]
+FAIL split::three_sentence_stat_paragraph_cv :: got sentence_cv=0.5                             [BUG 1]
+FAIL struct::bold_label_colon_inside :: got 0                                                   [BUG 3]
+FAIL struct::bold_label_colon_inside_bulleted :: got 0                                          [BUG 3]
+FAIL struct::rule_of_three_en_triad :: got -1  (no rule_of_three family exists)                 [BUG 4]
+FAIL struct::rule_of_three_zh_triad :: got -1  (no rule_of_three family exists)                 [BUG 4]
+FAIL struct::rule_of_three_two_items_zero :: got -1  (no rule_of_three family exists)           [BUG 4]
+FAIL struct::report_shell_provides :: got 0                                                     [BUG 5]
+
+34/46 passed  EXIT:1   (12 new battery assertions RED; pre-existing 34 still green;
+  split::number_final_period_still_splits + struct::bold_label_colon_outside_still_one already
+  PASS -> the fixes are surgical, no regression of correct behavior)

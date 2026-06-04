@@ -1,0 +1,76 @@
+{
+  "skill": "vince-fact-check",
+  "note": "Deterministic answer-contract cases (D1-D15) live in run_all.mjs over fixtures/. The behavioral cases below (B1-B6) cover the protocol/routing checklist edges; they are graded by following SKILL.md and checking activation + trajectory + the output contract (run scripts/check_answer.mjs on any produced answer). The conductor's independent battery re-derives and attacks these.",
+  "behavioral_cases": [
+    {
+      "id": "B1_simple_stays_cheap",
+      "covers_edge": "Simple single-fact question → stay within 1 round / ≤1 fetch / parallel first round",
+      "prompt": "Quick: what does the HTTP status code 429 mean?",
+      "expected_activation": "must_activate",
+      "acceptance": "Tier: simple; one BLUF answer ('Too Many Requests' / rate limiting); Confidence High; ≥1 sourced citation; answer validates with check_answer.mjs.",
+      "trajectory_assertions": [
+        "triage chooses simple",
+        "first round issues 1-3 searches in a SINGLE message (parallel)",
+        "≤1 WebFetch; early-exits after corroboration; does not run a second round"
+      ]
+    },
+    {
+      "id": "B2_contested_looks_simple",
+      "covers_edge": "Ambiguous-scope question that LOOKS simple but is contested → classify COMPLEX, triangulate",
+      "prompt": "Is coffee bad for you?",
+      "expected_activation": "must_activate",
+      "acceptance": "Tier: complex (not simple); answer triangulates conflicting evidence, states the conflict and a calibrated (Medium/Low) confidence; ≥2 independent sources; not a one-source yes/no.",
+      "trajectory_assertions": [
+        "triage chooses complex because the claim is contested",
+        "≥2 independent sources gathered",
+        "conflict surfaced, not hidden"
+      ]
+    },
+    {
+      "id": "B3_conflict_present_both",
+      "covers_edge": "Conflicting sources (two reputable sources disagree) → present both with the more-reliable verdict",
+      "prompt": "Fact-check: is a hot dog a sandwich, per culinary authorities?",
+      "expected_activation": "must_activate",
+      "acceptance": "Answer presents BOTH positions with citations, weighs them by reliability, and gives a calibrated verdict; never silently picks one side.",
+      "trajectory_assertions": [
+        "both positions cited from independent sources",
+        "reliability weighing is explicit",
+        "Confidence reflects the unresolved disagreement"
+      ]
+    },
+    {
+      "id": "B4_deep_report_routes_away",
+      "covers_edge": "Deep-report request → route to deep-research, do NOT run the bounded flow",
+      "prompt": "Write me a comprehensive, exhaustive deep-research report on the full history and economics of the global semiconductor industry.",
+      "expected_activation": "must_not_activate",
+      "acceptance": "Defers to deep-research (a thorough multi-source report is out of scope); does NOT produce a bounded 2-5 min BLUF answer as if it were the report.",
+      "trajectory_assertions": [
+        "recognizes 'comprehensive / exhaustive report' as the deep-research trigger",
+        "hands off / recommends deep-research instead of fan-out-and-answer"
+      ]
+    },
+    {
+      "id": "B5_multipart_all_parts",
+      "covers_edge": "Multi-part compound question → decompose, parallel-search each part, answer ALL parts",
+      "prompt": "What is WebAssembly, and how does its performance compare to JavaScript?",
+      "expected_activation": "must_activate",
+      "acceptance": "Both parts answered — (a) what WASM is, (b) the performance comparison — each with citations; not just the first clause.",
+      "trajectory_assertions": [
+        "question decomposed into 2 angles",
+        "angles searched in parallel in one message",
+        "answer addresses both parts"
+      ]
+    },
+    {
+      "id": "B6_opinion_out_of_scope",
+      "covers_edge": "Subjective/opinion question → out of scope or reframed to the factual sub-claim; no fabricated 'fact'",
+      "prompt": "What's the best programming language for me to learn?",
+      "expected_activation": "must_not_activate",
+      "acceptance": "Treated as subjective: either declines as out of scope, or reframes to a factual sub-claim (e.g. 'most in-demand languages per <survey>') with sources; does NOT assert a fabricated 'best'.",
+      "trajectory_assertions": [
+        "recognizes the question as subjective/opinion",
+        "no fabricated factual claim presented as verified"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "gpt-zh",
+    "model_family": "GPT",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/outputs/codex-gpt-5.4-v4/gpt-zh.md"
+  },
+  {
+    "id": "gpt-en",
+    "model_family": "GPT",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/outputs/codex-gpt-5.4-v4/gpt-en.md"
+  },
+  {
+    "id": "grok-zh",
+    "model_family": "Grok",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/outputs/codex-gpt-5.4-v4/grok-zh.md"
+  },
+  {
+    "id": "grok-en",
+    "model_family": "Grok",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/outputs/codex-gpt-5.4-v4/grok-en.md"
+  },
+  {
+    "id": "kimi-zh",
+    "model_family": "Kimi",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/outputs/codex-gpt-5.4-v4/kimi-zh.md"
+  },
+  {
+    "id": "kimi-en",
+    "model_family": "Kimi",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/outputs/codex-gpt-5.4-v4/kimi-en.md"
+  },
+  {
+    "id": "mimo-zh",
+    "model_family": "Mimo",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/outputs/codex-gpt-5.4-v4/mimo-zh.md"
+  },
+  {
+    "id": "mimo-en",
+    "model_family": "Mimo",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/outputs/codex-gpt-5.4-v4/mimo-en.md"
+  },
+  {
+    "id": "minimax-zh",
+    "model_family": "Minimax",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/outputs/codex-gpt-5.4-v4/minimax-zh.md"
+  },
+  {
+    "id": "minimax-en",
+    "model_family": "Minimax",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/outputs/codex-gpt-5.4-v4/minimax-en.md"
+  }
+]

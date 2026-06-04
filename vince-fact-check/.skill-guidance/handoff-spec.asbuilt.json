@@ -1,0 +1,268 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-guidance",
+  "target": {
+    "path": "/Users/vince/playground/skill-developer/vince-fact-check",
+    "kind": "repo",
+    "name": "vince-fact-check",
+    "maturity": "stub"
+  },
+  "intent": {
+    "summary": "Speed-first fact-check / question-answering: triage a question (technology, term/noun, or open factual question) as simple vs complex, fan out PARALLEL web searches, early-exit as soon as the answer is corroborated, and return a citation-backed bottom-line answer within a hard wall-clock budget — simple <=2 min, complex <=5 min. Efficiency is the defining requirement.",
+    "in_scope": [
+      "Single-fact lookups: definitions, 'what is <tech/term>', current value/version/date/price, entity identification",
+      "Verifiable yes/no claims: 'is it true that Y'",
+      "Bounded factual comparisons and 'why/how' questions that can be answered from a few sources",
+      "Multi-part factual questions decomposed into parallel sub-searches",
+      "Non-English / CJK factual questions"
+    ],
+    "out_of_scope": [
+      "Deep, exhaustive, multi-source research REPORTS (route to deep-research)",
+      "Subjective / opinion / recommendation questions with no factual answer ('best laptop for me')",
+      "Domain deep-evaluations that have their own skill (vince-album-review, vince-hifi-review)",
+      "Questions answerable from the current repo/context with no web lookup needed",
+      "Creative writing, math, or coding tasks with no external fact to verify"
+    ],
+    "primary_user": "A human (or another agent) who wants a fast, sourced answer to a factual question — GPT-Pro-style research but speed-optimized.",
+    "triggers_observed": [
+      "fact-check this / verify this claim",
+      "quickly find out X / look this up fast",
+      "what is <technology/term>",
+      "is it true that Y",
+      "$vince-fact-check"
+    ]
+  },
+  "altitude": "full",
+  "altitude_rationale": "Network-using, reusable and ambitious (a GPT-Pro-style fact-check tool, not a one-off), with a deterministic answer-contract validator that warrants real TDD/testing, and efficiency metrics (time-to-answer, claim-traceability, confident-wrong rate) that are core to its value rather than ceremony. Runtime is kept deliberately lean (thin SKILL.md + progressive disclosure) so full build-rigor does not betray the speed requirement.",
+  "scorecard": [
+    {
+      "pillar": "design",
+      "status": "partial",
+      "score": 1,
+      "evidence": "Stub SKILL.md has a rich description with triggers and a 'Not for' clause, and a one-paragraph protocol sketch (triage -> parallel fan-out -> early-exit -> cited BLUF), but no execution runbook, no enumerated adjacent false-trigger cases, and controls (the time/effort budget) live only in prose.",
+      "gaps": [
+        "No step-by-step protocol runbook (preflight triage -> parallel search rounds -> early-exit -> synthesize -> verify)",
+        "Adjacent false-triggers (esp. vs deep-research, vs subjective/opinion) not enumerated as positive/negative cases",
+        "The per-tier time/effort budget is a prose aspiration, not an externalized control with concrete caps (rounds / parallel width / fetch cap / source bar)"
+      ]
+    },
+    {
+      "pillar": "research",
+      "status": "partial",
+      "score": 1,
+      "evidence": "Description states the sourcing/evidence intent ('source-backed', 'corroborated', 'citation-backed') but ships no methodology: no search fan-out / triangulation procedure, no source-reliability grading, no claim->evidence map.",
+      "gaps": [
+        "No documented search methodology (query decomposition, parallel multi-angle fan-out, bounded iterative deepening with saturation-based early-exit)",
+        "No conflict-triangulation rule for disagreeing sources",
+        "No source-reliability grading (Admiralty-lite) or freshness rule for volatile facts"
+      ]
+    },
+    {
+      "pillar": "testing",
+      "status": "absent",
+      "score": 0,
+      "evidence": "No evals/ directory and no eval cases exist.",
+      "gaps": [
+        "No behavioral eval cases for the triage tiers, parallel fan-out, early-exit, conflict, uncertain, and adjacent-false-trigger paths",
+        "No deterministic validator fixtures (good/malformed answer documents)",
+        "No regression coverage for the adversarial checklist"
+      ]
+    },
+    {
+      "pillar": "tdd",
+      "status": "absent",
+      "score": 0,
+      "evidence": "No scripts/, no evals/run_all harness, no .skill-engineer/red/red.log — nothing was written tests-first.",
+      "gaps": [
+        "No deterministic answer-contract validator (scripts/check_answer.mjs) to assert on",
+        "No re-runnable harness (evals/run_all.mjs) importing that validator",
+        "No captured failing red log proving cases were authored before implementation"
+      ]
+    },
+    {
+      "pillar": "metrics",
+      "status": "absent",
+      "score": 0,
+      "evidence": "No metric definitions exist.",
+      "gaps": [
+        "No time-to-answer / cost-per-success target per tier (the headline metric for a speed skill)",
+        "No claim-traceability rate or confident-wrong rate (the speed-safety guard)",
+        "No activation-precision / false-trigger target vs deep-research"
+      ]
+    },
+    {
+      "pillar": "low_context_kb",
+      "status": "partial",
+      "score": 1,
+      "evidence": "SKILL.md is short (26 lines) with a clean frontmatter entry point, but the thinness is because it is an empty stub, not because detail is factored into modules — there is no Modules table and no rules/ or references/ split yet.",
+      "gaps": [
+        "No progressive-disclosure module split (triage / search-protocol / output-contract rules; source-reliability / metrics references)",
+        "No Modules table pointing to on-demand resources",
+        "Must keep always-loaded tokens minimal so the skill stays fast to load (honors the speed intent)"
+      ]
+    },
+    {
+      "pillar": "lifecycle",
+      "status": "absent",
+      "score": 0,
+      "evidence": "No version, CHANGELOG, release gate, or rollback note.",
+      "gaps": [
+        "No SemVer / CHANGELOG.md",
+        "No release gate (validator harness green + behavioral evals pass)",
+        "No rollback / deprecation note"
+      ]
+    }
+  ],
+  "overall_readiness": {
+    "ratio": 0.21,
+    "points": "3/14",
+    "verdict": "draft",
+    "summary": "A well-scoped stub with a clear, ambitious intent (speed-bounded sourced fact-check) but no protocol, tests, validator, metrics, or lifecycle yet. Required-at-full pillars testing/tdd/metrics are absent, capping the verdict at draft. The recommended design below is an essentially from-scratch full-altitude plan; the engineer builds it to industrial."
+  },
+  "comparables": [
+    {
+      "repo_id": "local/deep-research",
+      "skill_path": "deep-research",
+      "what_to_borrow": "Borrow the fan-out -> fetch -> adversarially-verify -> cited-synthesis backbone and the claim-verification discipline. DIFFERENTIATE hard: vince-fact-check is time-boxed and bounded (triage-scaled parallel fan-out, early-exit on saturation, BLUF answer) where deep-research is exhaustive and report-shaped. The adjacent-false-trigger rule must route 'comprehensive / deep research report' requests TO deep-research, not into this skill."
+    },
+    {
+      "repo_id": "local/vince-album-review",
+      "skill_path": "vince-album-review",
+      "what_to_borrow": "Borrow the structure of a deterministic, re-runnable output validator (a scripts/ checker imported by an evals/ harness) used as the executable-acceptance gate, plus the every-claim-traces-to-a-source contract. Here the validator enforces the answer contract: BLUF present, confidence label, citations resolve, per-tier source bar met."
+    }
+  ],
+  "recommended_design": {
+    "trigger": "ACTIVATE on a request to find/verify a factual answer fast: 'fact-check this', 'quickly find out / look up X', 'what is <tech/term>', 'is it true that Y', '$vince-fact-check'. POSITIVE: 'what's the latest stable Node LTS version?', 'is it true that the Great Wall is visible from space?', 'fact-check: does X cause Y?'. NEGATIVE (do not fire): subjective/opinion ('which framework should I pick for my startup'), creative/math/coding with no external fact, questions answerable from the open repo/context. ADJACENT FALSE-TRIGGERS (the discriminations that matter): (1) vs deep-research — a request for a THOROUGH / COMPREHENSIVE / multi-source REPORT routes to deep-research, NOT here; this skill returns a bounded BLUF answer, not a report. (2) vs vince-album-review / vince-hifi-review — domain deep-evaluations go to their own skills. (3) vs answering from memory — if the model already knows the answer with high confidence AND it is not volatile, it may answer directly; fire this skill when verification/sourcing or current data is wanted.",
+    "protocol": "PREFLIGHT: (a) restate the question and extract the precise claim/entity to verify; (b) TRIAGE simple vs complex via rules/triage.md and pick that tier's budget (rounds / parallel width / fetch cap / source bar / time target). STEPS: (c) Round 1 — issue the tier's searches as PARALLEL tool calls in a SINGLE message (decomposed angles), never one-at-a-time; (d) read snippets first, corroborate; WebFetch a full page ONLY when a snippet is insufficient or a number/quote must be verified; (e) EARLY-EXIT check — if the bottom line is corroborated to the tier's source bar, stop searching and synthesize; if complex AND under-corroborated AND a round remains, run ONE more targeted round to fill the specific gap or resolve a conflict; if still short, declare uncertain; (f) synthesize the BLUF answer per rules/output-contract.md using assets/answer-template.md, citing every load-bearing claim. VERIFY: (g) self-check against the contract and optionally run scripts/check_answer.mjs on the drafted answer (confidence label set, every [n] resolves, per-tier source bar met, no uncited claim). REPORT: (h) emit the answer; stop — do not exceed the tier budget.",
+    "resources": [
+      "rules/triage.md — the simple/complex rubric (signals) + the per-tier budget table (rounds, parallel width, fetch cap, source bar, time target) and the uncertain path",
+      "rules/search-protocol.md — query decomposition, parallel multi-angle fan-out, snippet-first, bounded iterative deepening with saturation-based early-exit, conflict triangulation",
+      "rules/output-contract.md — the BLUF answer format, confidence labels, citation rules, the uncertain/'could not confirm' path",
+      "references/source-reliability.md — Admiralty-lite source grading + freshness/as-of-date rule for volatile facts",
+      "references/metrics.md — metric definitions and per-tier targets",
+      "assets/answer-template.md — the fill-in answer skeleton (Answer + Confidence + Tier / Key evidence / Sources / Caveats)"
+    ],
+    "evidence_base": "This IS a research skill; its evidence base is its methodology, grounded in develop-principle: procedure.search_fan_out (parallel multi-angle breadth), procedure.iterative_deepening adapted to a BOUNDED early-exit-on-saturation form (speed variant — stop at 'enough to answer confidently', not 'exhaustive'), procedure.source_reliability_grading (Admiralty-lite), and principle.claim_evidence_traceability (every output claim traces to a cited web source; observation separated from inference; uncorroborated claims labeled low-confidence, never fabricated). NOT N/A — sourcing is central.",
+    "controls": [
+      "Time/effort budget per tier (the core control, externalized in rules/triage.md): simple <=2 min / 1 round / parallel width 1-3 / <=1 fetch / source bar >=1; complex <=5 min / <=2 rounds / parallel width 3-5 / <=3 fetch / source bar >=2 independent. HARD caps — when hit, stop and report at current confidence; never exceed.",
+      "Citation control: every load-bearing factual claim cites a source; no uncited factual assertions; uncorroborated -> Low confidence / 'could not confirm', never fabricated (principle.claim_evidence_traceability).",
+      "Speed-safety / honesty control: speed must NOT produce confident-wrong answers; below the source bar -> explicit uncertainty, not a guessed High-confidence answer.",
+      "Scope control: exhaustive/report requests -> deep-research; subjective/opinion -> out of scope or reframed to the factual sub-claim.",
+      "Cost control: bounded parallel width (do not fire 20 searches); snippet-first to avoid expensive full-page fetches.",
+      "Freshness control: volatile facts (versions / prices / leadership / 'current') require a recent DATED source and an as-of date; a single stale source caps confidence at Medium."
+    ],
+    "tests": [
+      "Simple factual ('latest stable version of <X>' / 'what does <term> mean') -> BLUF answer, tier=simple, 1 round, >=1 source, High/Medium confidence, stays within simple budget",
+      "Complex synthesis ('why did X happen' / 'compare A vs B') -> BLUF + >=2 independent sources, triangulated, <=2 rounds",
+      "Conflicting sources -> answer triangulates, states the conflict and the more-reliable verdict, never silently picks one",
+      "Unanswerable / uncorroborated after budget -> tier=uncertain, Low confidence, explicit 'could not confirm', zero fabricated claims, within the <=5-min cap",
+      "Adjacent false-trigger: 'write a comprehensive deep-research report on X' -> routes to deep-research, does not run the bounded flow as the report",
+      "Parallelism trajectory: first round issues multiple searches in a SINGLE message (parallel), not sequentially",
+      "Snippet-first trajectory: does not WebFetch a full page when a snippet already answers the question",
+      "Validator fixtures: good-simple PASS; good-complex(>=2 sources) PASS; claims-but-zero-sources FAIL; dangling-citation FAIL; missing-confidence FAIL; declared-complex-but-1-source FAIL; uncertain-with-low-confidence-and-no-sources PASS; run-twice -> identical verdict"
+    ],
+    "metrics": [
+      "time-to-answer / cost-per-success (median wall-clock + tool-calls per answer) bucketed by tier — headline metric; target simple p50 <=2 min, complex p50 <=5 min (metric.cost_per_success)",
+      "claim-traceability rate: % of load-bearing claims with a resolving citation; target 100% (principle.claim_evidence_traceability)",
+      "confident-wrong rate: % of High-confidence answers that are wrong on a labeled set; target ~0 (the speed-safety guard)",
+      "search efficiency: avg parallel width, avg fetches, avg rounds per tier (lower within the bar = better)",
+      "activation precision / false-trigger rate vs deep-research and opinion questions (metric.activation_precision)"
+    ],
+    "lifecycle": "SemVer in a CHANGELOG.md (start 0.1.0); release gate = scripts/check_answer.mjs harness green AND behavioral evals pass; rollback = revert to the prior tagged version; deprecation/migration note if superseded. Light but present (full altitude).",
+    "adversarial_checklist": [
+      "Ambiguous-scope question that LOOKS simple but is genuinely contested (e.g. 'is coffee bad for you?') → classify COMPLEX, triangulate conflicting evidence, state the conflict + a calibrated confidence — not a false-simple single-source answer",
+      "Volatile/current-value question ('current CEO of <co>' / 'latest version of <X>') → require a recent DATED source and state the as-of date; a single stale source → Medium/Low confidence, never High",
+      "Unanswerable / no reliable source after the budget → tier=uncertain, Low confidence, explicit 'could not confirm', ZERO fabricated claims, within the <=5-min cap",
+      "Conflicting sources (two reputable sources disagree) → triangulate and present both with the more-reliable verdict → never silently pick one",
+      "Deep-report request ('comprehensive deep research report on X') → adjacent false-trigger → route to deep-research, do NOT run the bounded fact-check flow",
+      "Multi-part compound question ('what is X and how does it compare to Y') → decompose, parallel-search each part → answer ALL parts, not just the first clause",
+      "Subjective/opinion question ('best laptop for me') → out of scope or reframed to the factual sub-claim → no fabricated 'fact'",
+      "Simple single-fact question → stay within 1 round / <=1 fetch / parallel first round → do NOT over-search a 2-min question into a 5-min one",
+      "Answer document that makes a factual claim but lists ZERO sources → validator FAIL (unsourced claim, claim_evidence_traceability)",
+      "Answer with a dangling citation [n] that exceeds the source list → validator FAIL (citation does not resolve to a listed source)",
+      "Answer missing a Confidence label → validator FAIL (no confidence/uncertainty signal)",
+      "Answer declaring tier=complex but listing only 1 source → validator FAIL (per-tier source bar: complex requires >=2 independent sources)",
+      "Validator run twice on the same answer document → identical verdict (idempotency / determinism)",
+      "Non-English / CJK question ('X 是什么') → triage + search + answer correctly without choking on non-ASCII → citations still resolve"
+    ]
+  },
+  "prioritized_actions": [
+    {
+      "id": "A1",
+      "pillar": "design",
+      "action": "Write the execution runbook as progressive-disclosure modules: rules/triage.md (simple/complex rubric + per-tier budget table + uncertain path), rules/search-protocol.md (query decomposition, PARALLEL fan-out, snippet-first, saturation-based early-exit, conflict triangulation), rules/output-contract.md (BLUF format, confidence labels, citation rules). Keep SKILL.md a thin orchestrator that points to them.",
+      "priority": "P0",
+      "rationale": "The protocol IS the skill; without the triage+search+output runbook there is no functioning fact-check, and the per-tier budgets are how the speed requirement is operationalized."
+    },
+    {
+      "id": "A2",
+      "pillar": "design",
+      "action": "Enumerate trigger positive / negative / adjacent cases in the frontmatter description and a short trigger note — especially the deep-research discrimination (bounded BLUF answer vs exhaustive report) and the opinion/subjective exclusion.",
+      "priority": "P0",
+      "rationale": "Mis-triggering against deep-research or opinion questions defeats the skill; the discrimination must be explicit and testable."
+    },
+    {
+      "id": "A3",
+      "pillar": "tdd",
+      "action": "Author the deterministic answer-contract validator scripts/check_answer.mjs (parses a fact-check answer; checks BLUF present, tier in {simple,complex,uncertain}, confidence in {High,Medium,Low}, every [n] citation resolves, per-tier source bar met, >=1 cited claim unless uncertain) and the re-runnable harness evals/run_all.mjs that imports it. Write the failing cases FIRST and capture .skill-engineer/red/red.log with real FAIL lines against an importable-but-wrong stub.",
+      "priority": "P0",
+      "rationale": "Required-at-full pillar, absent. The validator is the executable-acceptance gate and the skill's only deterministic, re-runnable mechanism; it must be tested-first and live in scripts/ (not inside evals/)."
+    },
+    {
+      "id": "A4",
+      "pillar": "testing",
+      "action": "Write eval cases covering EVERY adversarial_checklist edge — behavioral cases (triage tiers, parallel-fan-out trajectory, early-exit/snippet-first, conflict, uncertain, deep-research false-trigger, multi-part, CJK) and deterministic validator fixtures (good-simple, good-complex, zero-sources, dangling-citation, missing-confidence, complex-with-1-source, uncertain-allowed, run-twice). No tautological grep-SKILL.md cases. Bind each checklist entry to a passing case and record it in build-report tests.checklist_coverage.",
+      "priority": "P0",
+      "rationale": "Required-at-full pillar, absent. Coverage of the adversarial checklist is the gate that catches the domain bugs (confident-wrong, unsourced, mis-triage) inside the loop."
+    },
+    {
+      "id": "A5",
+      "pillar": "metrics",
+      "action": "Define the metric set in references/metrics.md: time-to-answer / cost-per-success per tier (headline; simple p50 <=2 min, complex p50 <=5 min), claim-traceability rate (target 100%), confident-wrong rate (target ~0), search efficiency (avg width/fetches/rounds), and activation precision vs deep-research/opinion.",
+      "priority": "P0",
+      "rationale": "Required-at-full pillar, absent. For a skill whose whole point is efficiency, the speed and safety metrics are first-class, not ceremony."
+    },
+    {
+      "id": "A6",
+      "pillar": "research",
+      "action": "Add references/source-reliability.md (Admiralty-lite source grading + freshness/as-of-date rule for volatile facts) and make the claim->evidence + triangulation rules explicit in rules/search-protocol.md, grounded in the develop-principle KB procedures (search_fan_out, source_reliability_grading, claim_evidence_traceability).",
+      "priority": "P1",
+      "rationale": "Research is core to a fact-check skill; the source-grading + triangulation discipline is what keeps fast answers trustworthy."
+    },
+    {
+      "id": "A7",
+      "pillar": "low_context_kb",
+      "action": "Keep SKILL.md a thin orchestrator (<~120 lines) with a Modules table; push all detail into rules/ and references/ loaded on demand. Verify always-loaded token count stays minimal so the skill is fast to load (honors the speed intent).",
+      "priority": "P1",
+      "rationale": "Required-at-full pillar, currently partial (thin-because-empty). Progressive disclosure both satisfies the pillar and keeps the runtime lean."
+    },
+    {
+      "id": "A8",
+      "pillar": "lifecycle",
+      "action": "Add CHANGELOG.md (start 0.1.0), a release gate (validator harness green + behavioral evals pass), and a one-line rollback/deprecation note.",
+      "priority": "P1",
+      "rationale": "Expected at full altitude; cheap to add and makes the skill maintainable."
+    },
+    {
+      "id": "A9",
+      "pillar": "design",
+      "action": "Add an optional final self-check step in the protocol that runs scripts/check_answer.mjs on the produced answer before emitting it (fast; catches a missing citation or absent confidence label).",
+      "priority": "P2",
+      "rationale": "Cheap runtime guard that enforces the citation contract without meaningfully affecting the time budget."
+    },
+    {
+      "id": "A10",
+      "pillar": "research",
+      "action": "Add a short freshness/caching note for volatile facts (prefer dated sources, record as-of date) and a tip to prefer primary/official sources first to reach corroboration faster.",
+      "priority": "P2",
+      "rationale": "Polish that improves both trustworthiness and speed (primary sources corroborate in fewer rounds)."
+    }
+  ],
+  "handoff": {
+    "next_skill": "vince-skill-engineer",
+    "blocking_unknowns": [
+      "Assumed runtime search primitives are WebSearch + WebFetch (or equivalent parallel search/fetch tools). The protocol references them generically ('parallel search tool calls') and should degrade gracefully if only one search tool exists — confirm the available tool surface at build time.",
+      "Wall-clock budgets (<=2 / <=5 min) cannot be hard-enforced from inside generation (no mid-generation timer). They are operationalized as STRUCTURAL proxies — caps on rounds, parallel width, and fetches per tier — which the behavioral evals assert on. This proxy approach is the intended design, not a gap."
+    ]
+  }
+}

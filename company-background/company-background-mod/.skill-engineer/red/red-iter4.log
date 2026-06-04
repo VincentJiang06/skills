@@ -1,0 +1,48 @@
+# red-iter4.log — captured against the PRE-iter4 (buggy) linter: fixed-window founding regex (single-direction, arabic-only, requires 年 suffix), 8-char-window user-scale, citation patterns without 家. The new ITER4 MUST-RED cases stay PASS on the copy (mutation NOT caught) and the FALSE-POSITIVE green-guard wrongly FAILs. After the root-cause rewrite (clause-bounded + order-agnostic + Chinese-numeral normalizer + comma-tolerant) all go to the correct color → 43/43.
+
+PASS lint:founding_year_2011 — founding year asserted as 2011 (no founding-cue year != 2011)
+PASS lint:no_unsourced_43yi — no "43亿"/"43 亿" present
+PASS lint:legal_entity — legal entity 宁波邻家网络科技有限公司 present (exact)
+PASS lint:user_scale_1600w — user scale 1600万 present; no conflicting <N>万 in a 用户/规模 clause
+PASS lint:tech_staff_80pct — 80% 技术人员 present
+PASS lint:office_location — 甬水桥科创中心 present
+PASS lint:marketing_positioning_framing — "30分钟上线" framed as positioning
+PASS lint:no_frozen_time_figure — no frozen 运行N年 figure without as-of
+PASS lint:citation_coverage — all 5 quantified magnitude claim line(s) across scanned files carry an S-id
+PASS behav_scope_drift_generate — all acceptance predicates hold
+PASS behav_term_only_lookup — all acceptance predicates hold
+PASS behav_positive_company_intro — all acceptance predicates hold
+PASS mut_founding_year_2012 — mutation caught: lint check founding_year_2011 FAIL on copy — founding year stated as != 2011:
+PASS mut_founding_year_2013_stray2011 — mutation caught: lint check founding_year_2011 FAIL on copy — founding year stated as != 2011:
+PASS mut_unsourced_43yi — mutation caught: lint check no_unsourced_43yi FAIL on copy — forbidden "43亿" found:
+PASS mut_stripped_sid_company_facts — mutation caught: lint check citation_coverage FAIL on copy — uncited quantified claim line(s):
+PASS mut_uncited_500w_product_detail — mutation caught: lint check citation_coverage FAIL on copy — uncited quantified claim line(s):
+PASS mut_legal_entity_hangzhou — mutation caught: lint check legal_entity FAIL on copy — legal entity token(s) != exact "宁波邻家网络科技有限公司": 杭州邻家网络科技有限公司
+PASS mut_legal_entity_wrap_spoof — mutation caught: lint check legal_entity FAIL on copy — legal entity wrapped/spoofed: **北京假冒（宁波邻家网络科技有限公司）, 体|北京假冒（宁波邻家网络科技有限公司）
+PASS mut_user_scale_1500w_shape — mutation caught: lint check user_scale_1600w FAIL on copy — conflicting user-scale figure(s): 1500万 (near 用户/规模)
+PASS mut_user_scale_conflict_1500w — mutation caught: lint check user_scale_1600w FAIL on copy — conflicting user-scale figure(s): 1500万 (near 用户/规模)
+PASS mut_remove_tech_staff_80pct — mutation caught: lint check tech_staff_80pct FAIL on copy — 80% 技术人员 missing
+PASS mut_founding_year_2014 — mutation caught: lint check founding_year_2011 FAIL on copy — founding year stated as != 2011:
+FAIL mut_founding_year_before_cue_2013 — MUTATION NOT CAUGHT: lint check founding_year_2011 stayed PASS on mutated copy (expected FAIL)
+FAIL mut_founding_year_before_cue_chuangli — MUTATION NOT CAUGHT: lint check founding_year_2011 stayed PASS on mutated copy (expected FAIL)
+FAIL mut_founding_year_chinese_numeral — MUTATION NOT CAUGHT: lint check founding_year_2011 stayed PASS on mutated copy (expected FAIL)
+FAIL mut_founding_year_no_year_suffix — MUTATION NOT CAUGHT: lint check founding_year_2011 stayed PASS on mutated copy (expected FAIL)
+FAIL mut_founding_year_label_form — MUTATION NOT CAUGHT: lint check founding_year_2011 stayed PASS on mutated copy (expected FAIL)
+FAIL mut_founding_year_cue_after_year_product_detail — MUTATION NOT CAUGHT: lint check founding_year_2011 stayed PASS on mutated copy (expected FAIL)
+PASS mut_founding_claim_removed — mutation caught: lint check founding_year_2011 FAIL on copy — founding year never asserted (no 成立/创立 … 20XX, no '2011 年')
+FAIL mut_uncited_2000jia_product_detail — MUTATION NOT CAUGHT: lint check citation_coverage stayed PASS on mutated copy (expected FAIL)
+FAIL mut_user_scale_far_figure_same_sentence — MUTATION NOT CAUGHT: lint check user_scale_1600w stayed PASS on mutated copy (expected FAIL)
+FAIL mut_user_scale_chinese_numeral — MUTATION NOT CAUGHT: lint check user_scale_1600w stayed PASS on mutated copy (expected FAIL)
+PASS mut_user_scale_about_1500w_inline — mutation caught: lint check user_scale_1600w FAIL on copy — conflicting user-scale figure(s): 1500万 (near 用户/规模)
+PASS mut_unsourced_43yi_spaced — mutation caught: lint check no_unsourced_43yi FAIL on copy — forbidden "43亿" found:
+PASS mut_office_location_removed — mutation caught: lint check office_location FAIL on copy — 甬水桥科创中心 missing
+PASS mut_founding_year_2013_no_space — mutation caught: lint check founding_year_2011 FAIL on copy — founding year stated as != 2011:
+FAIL green_since_founding_idiom_2020 — FALSE POSITIVE: check(s) wrongly FAILED on valid content → founding_year_2011: founding year stated as != 2011:
+PASS green_asof_2025_2026 — no false positive: founding_year_2011, no_frozen_time_figure stayed PASS on valid content
+PASS green_timeline_bullets_no_cue — no false positive: founding_year_2011 stayed PASS on valid content
+PASS green_new_department_2018 — no false positive: founding_year_2011 stayed PASS on valid content
+PASS green_canonical_founding_2011 — no false positive: founding_year_2011 stayed PASS on valid content
+PASS green_positioning_30min_and_operated_by — no false positive: marketing_positioning_framing, legal_entity stayed PASS on valid content
+
+run_all: 33/43 cases passed
+EXIT: 1

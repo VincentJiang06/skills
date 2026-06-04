@@ -1,0 +1,367 @@
+{
+  "summary": {
+    "documents": 10,
+    "by_language": {
+      "zh": 5,
+      "en": 5
+    },
+    "by_model_family": {
+      "GPT": 2,
+      "Grok": 2,
+      "Kimi": 2,
+      "Mimo": 2,
+      "Minimax": 2
+    },
+    "top_categories": [
+      [
+        "scaffolding",
+        8
+      ],
+      [
+        "inflation",
+        6
+      ],
+      [
+        "superficial_analysis",
+        4
+      ],
+      [
+        "negative_parallelism",
+        3
+      ],
+      [
+        "sentence_shape",
+        3
+      ],
+      [
+        "officialese",
+        1
+      ],
+      [
+        "nominalization",
+        1
+      ],
+      [
+        "template_outlook",
+        1
+      ],
+      [
+        "filler_hedging",
+        1
+      ],
+      [
+        "dash_drama",
+        0
+      ]
+    ],
+    "highest_density_docs": [
+      {
+        "doc_id": "grok-en",
+        "hits_per_1k_tokens": 1.15,
+        "total_hits": 3
+      },
+      {
+        "doc_id": "kimi-en",
+        "hits_per_1k_tokens": 0.97,
+        "total_hits": 5
+      },
+      {
+        "doc_id": "mimo-en",
+        "hits_per_1k_tokens": 0.87,
+        "total_hits": 3
+      },
+      {
+        "doc_id": "minimax-en",
+        "hits_per_1k_tokens": 0.7,
+        "total_hits": 4
+      },
+      {
+        "doc_id": "minimax-zh",
+        "hits_per_1k_tokens": 0.62,
+        "total_hits": 5
+      }
+    ]
+  },
+  "documents": [
+    {
+      "doc_id": "gpt-zh",
+      "model_family": "GPT",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4-v4/gpt-zh.md",
+      "token_count": 3775,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 2,
+        "scaffolding": 0,
+        "officialese": 0,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 0,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 2,
+      "hits_per_1k_tokens": 0.53,
+      "top_examples": {
+        "negative_parallelism": [
+          "的增长格局，已难以简单重现。 对 2026—2030 年的判断，较为稳妥的基线不是高速扩张，而是在低至中速增长中推进高附加值转型。香港特区政府在 2026-27 财政预算案中预计，2026 年实质 GDP 增长 2.5% 至 3.5%，2027—2030",
+          "有所下降。旅游业完成的是数量上的恢复，消费质量的恢复尚未完成。未来更值得关注的，不是单纯的人次增长，而是会展、演唱会、体育赛事、文化活动与高增值消费之间能否形成更稳定的连接。 第三项变化涉及贸易与物流功能的重心转移。按海关统计，2025 年香港货物出口值增长 1"
+        ]
+      }
+    },
+    {
+      "doc_id": "gpt-en",
+      "model_family": "GPT",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4-v4/gpt-en.md",
+      "token_count": 2264,
+      "category_counts": {
+        "inflation": 0,
+        "promotional": 0,
+        "superficial_analysis": 0,
+        "vague_attribution": 0,
+        "template_outlook": 0,
+        "ai_vocab": 0,
+        "sentence_shape": 0,
+        "style_residue": 0,
+        "filler_hedging": 0
+      },
+      "total_hits": 0,
+      "hits_per_1k_tokens": 0.0,
+      "top_examples": {}
+    },
+    {
+      "doc_id": "grok-zh",
+      "model_family": "Grok",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4-v4/grok-zh.md",
+      "token_count": 4247,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 0,
+        "scaffolding": 2,
+        "officialese": 0,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 0,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 2,
+      "hits_per_1k_tokens": 0.47,
+      "top_examples": {
+        "scaffolding": [
+          "则可能降至2%左右。 ## 5. 风险、挑战与政策建议 未来五年的主要风险，首先来自外部环境。地缘政治冲突升级、美国政策变化、全球保护主义强化，都会影响香港的贸易、金融和技术合作。内地经济若低于年均4.5%的预期增速，也会削弱香港的外部需求",
+          "否维持其作为亚洲主要国际金融和创新枢纽的地位，取决于其是否能够在保持全球开放性的同时，更有效地嵌入国家发展格局，并以更有针对性的政策回应生产率、人才和产业升级问题。若相关改革能够稳定推进，香港仍有条件在下一阶段保持其在区域和全球经济中的核心地位"
+        ]
+      }
+    },
+    {
+      "doc_id": "grok-en",
+      "model_family": "Grok",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4-v4/grok-en.md",
+      "token_count": 2610,
+      "category_counts": {
+        "inflation": 1,
+        "promotional": 0,
+        "superficial_analysis": 2,
+        "vague_attribution": 0,
+        "template_outlook": 0,
+        "ai_vocab": 0,
+        "sentence_shape": 0,
+        "style_residue": 0,
+        "filler_hedging": 0
+      },
+      "total_hits": 3,
+      "hits_per_1k_tokens": 1.15,
+      "top_examples": {
+        "inflation": [
+          "stainability pressures also became more significant. More broadly, productivity growth lagged behind that of several regional peers"
+        ],
+        "superficial_analysis": [
+          "ildly, by roughly 0.2% to 0.7% in 2025, reflecting high interest rates and a property-market correction. Residential and commercia",
+          "better than domestically oriented ones, reflecting Hong Kong’s dependence on trade and services. Weakness in construction and part"
+        ]
+      }
+    },
+    {
+      "doc_id": "kimi-zh",
+      "model_family": "Kimi",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4-v4/kimi-zh.md",
+      "token_count": 7326,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 0,
+        "scaffolding": 2,
+        "officialese": 1,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 0,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 3,
+      "hits_per_1k_tokens": 0.41,
+      "top_examples": {
+        "scaffolding": [
+          "美国对华关税政策的不确定性仍是最直接的外部风险。若关税进一步升级，香港转口贸易会首先承压，市场多元化将变得更为迫切，东盟、中东和中亚等“全球南方”市场的重要性也会提高。 全球金融条件仍有较大不确定性。若美国因通胀反弹重新加息，香港利率环境将趋",
+          "并未根本缓解。 新来港人才与本地社会的融合也需要政策回应。如何在扩大人才输入的同时兼顾本地就业机会和社会认同，仍是治理中的难点。 **4.3.3 结构性风险** 若中美利差长期维持高位，联系汇率制度会承受更大压力。香港虽拥有4,000多亿"
+        ],
+        "officialese": [
+          "人口占比预计由2024年的约20%升至2029年的约25%。未来五年的人才策略将围绕几个方向展开：持续更新人才清单，重点引进创科、医疗、教育和金融专才；加强本地STEM教育，并与北部都会区企业合作培养应用型人才[](https://www.21jingji"
+        ]
+      }
+    },
+    {
+      "doc_id": "kimi-en",
+      "model_family": "Kimi",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4-v4/kimi-en.md",
+      "token_count": 5155,
+      "category_counts": {
+        "inflation": 2,
+        "promotional": 0,
+        "superficial_analysis": 0,
+        "vague_attribution": 0,
+        "template_outlook": 0,
+        "ai_vocab": 0,
+        "sentence_shape": 2,
+        "style_residue": 0,
+        "filler_hedging": 1
+      },
+      "total_hits": 5,
+      "hits_per_1k_tokens": 0.97,
+      "top_examples": {
+        "inflation": [
+          "remain the principal external risks. A significant increase in US tariffs on China would affect Hong Kong’s role as a trade interm",
+          "ustment costs are also likely to remain significant. Traditional retail and catering continue to face pressure from changing consum"
+        ],
+        "sentence_shape": [
+          "e and Outlook (2020-2029) ### Abstract This paper analyzes the economic trajectory of the Hong Kong Special Administrative Region over the",
+          "nded to support new sources of growth. This paper reviews Hong Kong’s economic development over the past five years through systematic an"
+        ],
+        "filler_hedging": [
+          "y cooperation should also be reinforced in order to reduce systemic risk. Livelihood policy remains relevant to long-term economic"
+        ]
+      }
+    },
+    {
+      "doc_id": "mimo-zh",
+      "model_family": "Mimo",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4-v4/mimo-zh.md",
+      "token_count": 5263,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 1,
+        "scaffolding": 0,
+        "officialese": 0,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 0,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 1,
+      "hits_per_1k_tokens": 0.19,
+      "top_examples": {
+        "negative_parallelism": [
+          "预期。 人才政策的重点不应停留在引进数量，更需要处理留才和用才问题。国际竞争力不仅来自薪酬，还取决于科研条件、制度便利、教育医疗配套和整体生活质量。若这些条件无法同步改善，单纯依赖输入式引才难以形成长期积累。 大湾区内部的协同应更多落在规则衔接和制度便"
+        ]
+      }
+    },
+    {
+      "doc_id": "mimo-en",
+      "model_family": "Mimo",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4-v4/mimo-en.md",
+      "token_count": 3437,
+      "category_counts": {
+        "inflation": 2,
+        "promotional": 0,
+        "superficial_analysis": 0,
+        "vague_attribution": 0,
+        "template_outlook": 0,
+        "ai_vocab": 0,
+        "sentence_shape": 1,
+        "style_residue": 0,
+        "filler_hedging": 0
+      },
+      "total_hits": 3,
+      "hits_per_1k_tokens": 0.87,
+      "top_examples": {
+        "inflation": [
+          "e potential to build an internationally significant cluster in biotechnology research and development, clinical trials, and advance",
+          "iod from 2026 to 2030 will also involve significant risks that could restrict growth. Global economic and geopolitical risks remai"
+        ],
+        "sentence_shape": [
+          "and Prospect (2021-2030) ## Abstract This paper reviews the economic development of the Hong Kong Special Administrative Region (HKSAR)"
+        ]
+      }
+    },
+    {
+      "doc_id": "minimax-zh",
+      "model_family": "Minimax",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4-v4/minimax-zh.md",
+      "token_count": 8075,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 0,
+        "scaffolding": 4,
+        "officialese": 0,
+        "nominalization": 1,
+        "uplift": 0,
+        "surface_analysis": 0,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 5,
+      "hits_per_1k_tokens": 0.62,
+      "top_examples": {
+        "scaffolding": [
+          "析 ## 摘要 2020至2024年，中国香港作为全球主要国际金融中心之一，同时承受新冠疫情扩散、社会政治环境变化与中美贸易摩擦升级等多重冲击，也在制度、区位和法治基础上维持了较强的调整能力与恢复能力。过去五年的经济轨迹显示，中国香港经济经",
+          "出。2024年10月，中国香港发布金融机构人工智能应用政策宣言，要求在推动创新的同时加强风险管理。调查显示，中国香港金融机构生成式人工智能使用率达到38%，高于全球平均水平，金融业数字化转型速度较快。 初创企业生态也在逐步成形。特区政府通过提",
+          "区域合作机遇 国际贸易环境复杂多变，中国香港需要调整外贸布局，在维持传统市场的同时扩大新兴市场份额。 粤港澳大湾区是中国香港最重要的贸易腹地。中国香港与深圳、广州等城市在产业链上联系紧密，这种联系为中国香港贸易发展提供了稳定的产业基础与市场"
+        ],
+        "nominalization": [
+          "。 ### 1.2 研究框架与方法 本报告结合历史分析、比较分析与趋势预测，对2020年至2024年的发展过程进行回顾，并对2025年至2029年的前景进行判断。分析范围覆盖宏观经济指标、重点产业部门、政策环境变化与外部条件演变等层面。方法上以数据分析为基础，并辅以理论解释，以求"
+        ]
+      }
+    },
+    {
+      "doc_id": "minimax-en",
+      "model_family": "Minimax",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4-v4/minimax-en.md",
+      "token_count": 5753,
+      "category_counts": {
+        "inflation": 1,
+        "promotional": 0,
+        "superficial_analysis": 2,
+        "vague_attribution": 0,
+        "template_outlook": 1,
+        "ai_vocab": 0,
+        "sentence_shape": 0,
+        "style_residue": 0,
+        "filler_hedging": 0
+      },
+      "total_hits": 4,
+      "hits_per_1k_tokens": 0.7,
+      "top_examples": {
+        "inflation": [
+          "ty. Geopolitical risk remains the most significant external constraint. U.S.-China tensions continue to affect the environment in"
+        ],
+        "superficial_analysis": [
+          "y than arrivals from Western economies, reflecting different patterns of pandemic recovery and travel behaviour. Tourism demand al",
+          "services, and international links while contributing to national strategic priorities. Support from the National 14th Five-Year Plan g"
+        ],
+        "template_outlook": [
+          "toral priorities of this period. ## 3. Future Outlook (2025-2029) ### 3.1 Macroeconomic Prospects and Growth Trajectory The outlook"
+        ]
+      }
+    }
+  ]
+}

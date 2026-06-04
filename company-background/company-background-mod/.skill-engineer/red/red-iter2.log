@@ -1,0 +1,38 @@
+PASS lint:founding_year_2011 — founding year 2011 present; no 2012年
+PASS lint:no_unsourced_43yi — no "43亿"/"43 亿" present
+PASS lint:legal_entity — legal entity 宁波邻家网络科技有限公司 present
+PASS lint:user_scale_1600w — user scale 1600万 present
+PASS lint:tech_staff_80pct — 80% 技术人员 present
+PASS lint:office_location — 甬水桥科创中心 present
+PASS lint:marketing_positioning_framing — "30分钟上线" framed as positioning
+PASS lint:no_frozen_time_figure — no frozen 运行N年 figure without as-of
+PASS lint:citation_coverage — all 6 quantified claim line(s) carry an S-id
+PASS behav_scope_drift_generate — all acceptance predicates hold
+PASS behav_term_only_lookup — all acceptance predicates hold
+PASS behav_positive_company_intro — all acceptance predicates hold
+PASS mut_founding_year_2012 — mutation caught: lint check founding_year_2011 FAIL on copy — forbidden 2012年 found:
+FAIL mut_founding_year_2013_stray2011 — MUTATION NOT CAUGHT: lint check founding_year_2011 stayed PASS on mutated copy (expected FAIL)
+PASS mut_unsourced_43yi — mutation caught: lint check no_unsourced_43yi FAIL on copy — forbidden "43亿" found:
+PASS mut_stripped_sid_company_facts — mutation caught: lint check citation_coverage FAIL on copy — uncited quantified claim line(s):
+FAIL mut_uncited_500w_product_detail — MUTATION NOT CAUGHT: lint check citation_coverage stayed PASS on mutated copy (expected FAIL)
+PASS mut_legal_entity_hangzhou — mutation caught: lint check legal_entity FAIL on copy — legal entity 宁波邻家网络科技有限公司 missing
+FAIL mut_legal_entity_wrap_spoof — MUTATION NOT CAUGHT: lint check legal_entity stayed PASS on mutated copy (expected FAIL)
+PASS mut_user_scale_1500w_shape — mutation caught: lint check user_scale_1600w FAIL on copy — conflicting user-scale figure(s): 1500万用户, 1500万用户, 1500万用户
+FAIL mut_user_scale_conflict_1500w — MUTATION NOT CAUGHT: lint check user_scale_1600w stayed PASS on mutated copy (expected FAIL)
+PASS mut_remove_tech_staff_80pct — mutation caught: lint check tech_staff_80pct FAIL on copy — 80% 技术人员 missing
+FAIL mut_founding_year_2014 — MUTATION NOT CAUGHT: lint check founding_year_2011 stayed PASS on mutated copy (expected FAIL)
+
+run_all: 18/23 cases passed
+EXIT: 1
+
+# === RED-FIRST (Stage 2 iter2) ===
+# Captured against the CURRENT BUGGY scripts/fact_lint.mjs, BEFORE the fix.
+# The 5 FAIL lines above are the genuine red signal: each is a mutation case whose
+# named lint check WRONGLY stayed PASS on the mutated temp copy (green-but-wrong):
+#   - mut_founding_year_2013_stray2011  (P0: wrong 成立 year masked by stray-correct 2011 timeline bullet)
+#   - mut_uncited_500w_product_detail   (P1: uncited "500万个场景" outside company-facts.md)
+#   - mut_legal_entity_wrap_spoof       (P3: wrapping spoof 北京假冒（…）passes includes())
+#   - mut_user_scale_conflict_1500w     (P2: contradictory "约 1500 万" different word order)
+#   - mut_founding_year_2014            (NEW-adjacent: proves positive assert generalizes past a 2012/2013 blacklist)
+# All mutation tests run on a `cp -r` TEMP COPY (evals/run_all.mjs gradeMutation); real content untouched.
+# After the linter fix these 5 flip to PASS (mutation caught) → full run 23/23, exit 0.

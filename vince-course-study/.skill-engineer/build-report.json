@@ -1,0 +1,411 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-engineer",
+  "target": {
+    "path": "/Users/vince/playground/skill-developer/vince-course-study",
+    "name": "course-study"
+  },
+  "source_spec": {
+    "path": "/Users/vince/playground/skill-developer/vince-course-study/.skill-guidance/handoff-spec.json"
+  },
+  "altitude": "lite",
+  "built": {
+    "design_units": [
+      {
+        "unit": "trigger",
+        "status": "implemented",
+        "files": [
+          "SKILL.md"
+        ],
+        "note": "Rewrote the description with positive triggers + explicit Do-NOT/adjacent negatives (album→vince-album-review, no tutoring, no solving graded homework/exam, no course with neither materials nor identifiable syllabus)."
+      },
+      {
+        "unit": "protocol",
+        "status": "implemented",
+        "files": [
+          "SKILL.md",
+          "rules/phase-intake.md",
+          "rules/phase-cover.md",
+          "rules/phase-distill.md",
+          "rules/phase-supplement.md"
+        ],
+        "note": "Lean 4-phase pipeline (Intake→Cover→Distill→Supplement) with the Feynman block order and one-line checkpoints; SKILL.md kept a thin orchestrator."
+      },
+      {
+        "unit": "resources",
+        "status": "implemented",
+        "files": [
+          "rules/templates.md",
+          "rules/subject-coverage.md",
+          "rules/pdf-export.md",
+          "rules/changelog.md"
+        ],
+        "note": "templates.md gained the Feynman concept-block + quick-reference cheat-sheet templates and dropped exam-QA appendix scaffolding; subject-coverage repointed to Path C + Phase-3 gap-check; pdf-export kept (refreshed filenames to revision-notes); changelog→v3.0."
+      },
+      {
+        "unit": "evidence_base",
+        "status": "implemented",
+        "files": [
+          "rules/phase-supplement.md",
+          "rules/phase-cover.md"
+        ],
+        "note": "Partial-external: notes restate course material (cited by page/section); external claims only in Phase-3 Supplement under dual web/no-web claim→evidence discipline; offline marks [Standard curriculum knowledge]; course-name path never fabricates slide content."
+      },
+      {
+        "unit": "controls",
+        "status": "implemented",
+        "files": [
+          "SKILL.md",
+          "rules/phase-cover.md",
+          "rules/phase-distill.md",
+          "rules/phase-supplement.md"
+        ],
+        "note": "11 global controls incl. /pdf-only (scanned too), completeness reconciliation invariant, worked-example invariant + pure-definition escape hatch, no-fabrication, source traceability, honor-the-source discrepancy-flag, scale guard, scope guard (no graded homework), output discipline."
+      },
+      {
+        "unit": "tests",
+        "status": "implemented",
+        "files": [
+          "evals/eval-cases.json",
+          "evals/written-acceptance.md",
+          "evals/grade.mjs"
+        ],
+        "note": "16 behavioral cases (11 adversarial verbatim-bound + happy-path + 4 capability). Red-first: 11 FAIL vs OLD in red.log; 16/16 PASS vs NEW. grade.mjs is an acceptance-checker, NOT the skill mechanism (skill is pure LLM-behavioral)."
+      },
+      {
+        "unit": "metrics",
+        "status": "na",
+        "files": [],
+        "note": "N/A at lite per spec: low-stakes pedagogy skill with no automatable quality oracle. Optional later: coverage-completeness rate."
+      },
+      {
+        "unit": "lifecycle",
+        "status": "implemented",
+        "files": [
+          "rules/changelog.md",
+          "SKILL.md",
+          "README.md"
+        ],
+        "note": "metadata.version→3.0.0; changelog v3.0 entry documents the redesign + dropped features; README updated to the new intent. Minimal ceremony per lite."
+      }
+    ],
+    "files_created": [
+      "evals/eval-cases.json",
+      "evals/written-acceptance.md",
+      "evals/grade.mjs",
+      ".skill-engineer/red/red.log",
+      ".skill-engineer/red/red-2.log",
+      ".skill-engineer/build-report.json",
+      "rules/phase-cover.md",
+      "rules/phase-distill.md",
+      "rules/phase-supplement.md"
+    ],
+    "files_modified": [
+      "SKILL.md",
+      "README.md",
+      "rules/phase-intake.md",
+      "rules/phase-cover.md",
+      "rules/phase-distill.md",
+      "rules/phase-supplement.md",
+      "rules/templates.md",
+      "rules/subject-coverage.md",
+      "rules/pdf-export.md",
+      "rules/changelog.md",
+      "evals/eval-cases.json",
+      "evals/grade.mjs",
+      "evals/written-acceptance.md"
+    ]
+  },
+  "tests": {
+    "eval_cases": [
+      {
+        "id": "happy_path_pdf_web",
+        "name": "happy path pdf web",
+        "passed": true,
+        "evidence": "4-phase run on a 3-PDF/~90p OS course: single Phase-0 intake; Phase-1 reads each PDF via /pdf and emits coverage-checklist.md; Phase-2 writes revision-notes.md with every concept in Feynman order (capsule first + worked example) and a Lecture X,p.Y source, then reconciles vs the checklist. Grader: distill_feynman_capsule_first, cover_emits_checklist, pdf_routing all green."
+      },
+      {
+        "id": "adv_course_name_only",
+        "name": "adv course name only",
+        "passed": true,
+        "evidence": "Course-name path (phase-cover Path C + subject-coverage) searches a standard syllabus, builds outline + coverage checklist, and control #4 forbids fabricating a specific lecture's slide content. Grader green."
+      },
+      {
+        "id": "adv_offline_no_fabrication",
+        "name": "adv offline no fabrication",
+        "passed": true,
+        "evidence": "phase-supplement Mode B marks every claim [Standard curriculum knowledge] and forbids invented URLs/papers/authors. Grader: offline_marker + no_invented_sources green."
+      },
+      {
+        "id": "adv_trivial_topic_minimal",
+        "name": "adv trivial topic minimal",
+        "passed": true,
+        "evidence": "phase-distill depth-calibration: trivial topics still present (completeness) at capsule + one-liner, NOT padded into the full block. Grader: trivial_minimal_not_padded + completeness_invariant green."
+      },
+      {
+        "id": "adv_oversized_split",
+        "name": "adv oversized split",
+        "passed": true,
+        "evidence": "phase-intake Split tier + SKILL control #7: >~400p recommends per-module splitting, batched, with the checklist spanning the whole course; nothing silently dropped. Grader: split_over_400 + no_silent_drop green."
+      },
+      {
+        "id": "adv_slide_contradicts_curriculum",
+        "name": "adv slide contradicts curriculum",
+        "passed": true,
+        "evidence": "phase-cover Step 4 + phase-distill discrepancy carry-forward + control #6: a contradicting slide is flagged [DISCREPANCY] (both views shown), never silently corrected. Grader: flag_discrepancy_not_correct green."
+      },
+      {
+        "id": "adv_scanned_pdf_routing",
+        "name": "adv scanned pdf routing",
+        "passed": true,
+        "evidence": "phase-cover file-reading rule explicitly routes scanned/image-only PDFs through /pdf (handles OCR); raw file I/O/Python forbidden. Grader: pdf_routing + pdf_routing_scanned green."
+      },
+      {
+        "id": "adv_cjk_pdf_export",
+        "name": "adv cjk pdf export",
+        "passed": true,
+        "evidence": "pdf-export.md specifies xelatex + CJKmainfont (Noto Serif CJK SC) so bilingual/CJK output renders without tofu; SKILL routes PDF export to load it. Grader: cjk_xelatex_config green."
+      },
+      {
+        "id": "adv_pure_definition_no_fake_example",
+        "name": "adv pure definition no fake example",
+        "passed": true,
+        "evidence": "phase-distill worked-example escape hatch + control #3: a pure-definition term gets capsule + 'Definitional — no worked example applies', never a fabricated example. Grader: no_fake_example_escape_hatch green."
+      },
+      {
+        "id": "adv_coverage_reconciliation",
+        "name": "adv coverage reconciliation",
+        "passed": true,
+        "evidence": "phase-distill Step 4 diffs notes vs the Phase-1 checklist and flags+fills any missing topic before finalizing (SKILL control #2); coverage is a checkable invariant. Grader: reconciliation_step + cover_emits_checklist green."
+      },
+      {
+        "id": "adv_adjacent_refuse",
+        "name": "adv adjacent refuse",
+        "passed": true,
+        "evidence": "SKILL description Do-NOT list (album→vince-album-review; not solving graded homework/exam) + scope-guard control #8: declines a submit-ready exam answer, offers a study-topic approach instead. Grader: scope_guard_homework + donot_negatives green."
+      },
+      {
+        "id": "adv_quick_reference_one_line",
+        "name": "adv quick reference one line",
+        "passed": true,
+        "evidence": "templates.md cheat-sheet template is one line per entry ordered by exam relevance; phase-distill states 'No standalone exam-Q&A bank'. Grader: quickref_one_line + no_exam_qa_bank green."
+      },
+      {
+        "id": "cap_feynman_order_mandatory",
+        "name": "cap feynman order mandatory",
+        "passed": true,
+        "evidence": "SKILL + phase-distill assert the Feynman order with the plain-language capsule FIRST as mandatory. Grader: distill_feynman_capsule_first green."
+      },
+      {
+        "id": "cap_worked_example_mandatory",
+        "name": "cap worked example mandatory",
+        "passed": true,
+        "evidence": "phase-distill worked-example invariant requires a concrete example for every non-trivial concept (Bayes block gets a numeric trace). Grader: worked_example_mandatory green."
+      },
+      {
+        "id": "cap_supplement_cap_10",
+        "name": "cap supplement cap 10",
+        "passed": true,
+        "evidence": "phase-supplement hard cap ≤~10 targets (down from OLD 15), framed as optional light enrichment. Grader: supplement_cap_10 green."
+      },
+      {
+        "id": "cap_pdf_only_input",
+        "name": "cap pdf only input",
+        "passed": true,
+        "evidence": "Global control #1 + phase-cover: .pptx is converted via /pdf, never read raw. Grader: pdf_routing green."
+      },
+      {
+        "id": "reg_pdf_output_pandoc",
+        "name": "reg pdf output pandoc",
+        "passed": true,
+        "evidence": "Bug 1 fix. INPUT (read course PDFs via /pdf) and OUTPUT (generate the notes PDF with pandoc/xelatex) are reconciled into one story: pdf-export.md L1-18 adds an INPUT-vs-OUTPUT note and names pandoc/xelatex as the output engine; phase-distill.md Step 5 and templates.md PDF-conversion note now say 'convert with pandoc/xelatex per pdf-export.md'; no file routes OUTPUT conversion via /pdf. phase-cover.md keeps /pdf as the INPUT reader. Red-first vs pre-fix + OLD in red-2.log. Grader: pdf_output_via_pandoc + pdf_export_input_output_note + pdf_input_still_via_pdf_skill + cjk_xelatex_config green."
+      },
+      {
+        "id": "reg_scale_topic_count",
+        "name": "reg scale topic count",
+        "passed": true,
+        "evidence": "Bug 2 fix. phase-intake.md Step 2 adds a topic/concept-count tier (≤~30 light / ~31–80 medium / ~81–150 heavy / >~150 split) parallel to the page tier; SKILL.md control #7 reworded to 'Size picks the tier — page count (PDF) or topic count (topic list / syllabus)'; phase-cover.md Path B/C apply the topic-count tier, batch large inputs, and keep the whole-course checklist. Red-first vs pre-fix + OLD. Grader: topic_count_tier + scale_guard_size_pages_or_topics + pathBC_apply_topic_tier + no_silent_drop green."
+      },
+      {
+        "id": "reg_web_detection",
+        "name": "reg web detection",
+        "passed": true,
+        "evidence": "Bug 3 fix. phase-intake.md Step 3 decides the web mode from whether WebSearch/WebFetch is actually available in the tools, defaults to no-web when it cannot tell, and notes the user may override; phase-supplement.md Step 0 agrees (mode determined at intake by tool availability; user can override) — the two files no longer disagree on who decides. Red-first vs pre-fix + OLD. Grader: web_detection_by_tool_availability + supplement_agrees_on_web_decider green."
+      },
+      {
+        "id": "reg_no_syllabus_refusal",
+        "name": "reg no syllabus refusal",
+        "passed": true,
+        "evidence": "Bug 4 fix. subject-coverage.md Mode B adds 'STOP if no materials AND no identifiable standard syllabus' — STOP and ask for materials/reference syllabus, do not generate an outline from thin air (matches the SKILL.md description Do-NOT); phase-cover.md Path C points to it and still generates when a standard syllabus is identifiable. Red-first vs pre-fix + OLD. Grader: no_syllabus_refusal + donot_negatives green."
+      },
+      {
+        "id": "reg_brevity_vs_completeness",
+        "name": "reg brevity vs completeness",
+        "passed": true,
+        "evidence": "Bug 5 fix. SKILL.md control #9 + a new Anti-Patterns row, and phase-distill.md depth-calibration, state completeness of coverage is non-negotiable — never drop a topic to be brief; brevity is satisfied via depth calibration (more topics at minimal capsule depth) and/or the quick-reference cheat sheet. Red-first vs pre-fix + OLD. Grader: brevity_never_drops_topic + completeness_invariant green."
+      }
+    ],
+    "totals": {
+      "passed": 21,
+      "failed": 0,
+      "total": 21
+    },
+    "regression_cases": [
+      "adv_adjacent_refuse",
+      "adv_offline_no_fabrication",
+      "adv_coverage_reconciliation",
+      "reg_pdf_output_pandoc",
+      "reg_scale_topic_count",
+      "reg_web_detection",
+      "reg_no_syllabus_refusal",
+      "reg_brevity_vs_completeness"
+    ],
+    "trajectory_checked": true,
+    "checklist_coverage": [
+      {
+        "edge": "course-name-only input (no PDFs) → search a standard syllabus, build the outline + coverage checklist; NEVER fabricate a specific lecture's slide content",
+        "case_id": "adv_course_name_only",
+        "passed": true
+      },
+      {
+        "edge": "offline / no web access in Phase 3 → every supplement marked [Standard curriculum knowledge]; ZERO invented URLs/papers/authors",
+        "case_id": "adv_offline_no_fabrication",
+        "passed": true
+      },
+      {
+        "edge": "trivial topic present in slides → still covered (completeness) at minimal depth (capsule + one-liner), NOT padded into a full block",
+        "case_id": "adv_trivial_topic_minimal",
+        "passed": true
+      },
+      {
+        "edge": ">400-page course → split-by-module recommended; nothing silently dropped across batches",
+        "case_id": "adv_oversized_split",
+        "passed": true
+      },
+      {
+        "edge": "a slide that contradicts standard curriculum → flagged as a discrepancy, NOT silently 'corrected' to the standard view",
+        "case_id": "adv_slide_contradicts_curriculum",
+        "passed": true
+      },
+      {
+        "edge": "scanned / image-only PDF → routed through the /pdf skill; NEVER read via raw file I/O or Python",
+        "case_id": "adv_scanned_pdf_routing",
+        "passed": true
+      },
+      {
+        "edge": "bilingual / CJK output + PDF requested → pdf-export applies CJK font config (xelatex + CJKmainfont); renders correctly without tofu",
+        "case_id": "adv_cjk_pdf_export",
+        "passed": true
+      },
+      {
+        "edge": "pure-definition concept with no feasible worked example → gets plain-language capsule + a note; NOT a forced fake example",
+        "case_id": "adv_pure_definition_no_fake_example",
+        "passed": true
+      },
+      {
+        "edge": "a Phase-1 extracted topic missing from the Phase-2 notes → completeness reconciliation flags it and fills it BEFORE finalizing (never silently dropped)",
+        "case_id": "adv_coverage_reconciliation",
+        "passed": true
+      },
+      {
+        "edge": "adjacent input ('review this album' / 'solve this exam question') → course-study does NOT activate / refuses to answer a graded assessment; produces revision material only",
+        "case_id": "adv_adjacent_refuse",
+        "passed": true
+      },
+      {
+        "edge": "quick-reference.md requested → emitted as one line per formula/definition/trap (ordered by exam relevance), NOT prose paragraphs",
+        "case_id": "adv_quick_reference_one_line",
+        "passed": true
+      }
+    ]
+  },
+  "actions_resolved": [
+    {
+      "id": "A1",
+      "status": "done",
+      "note": "SKILL.md fully rewritten to the lean 4-phase pipeline with Feynman block order (capsule first + mandatory worked example) and coverage checklist + reconciliation as first-class controls; description gained Do-NOT/adjacent negatives; old 4-phase+dual-appendix intent overwritten in place."
+    },
+    {
+      "id": "A2",
+      "status": "done",
+      "note": "Coverage checklist is a first-class emitted artifact in phase-cover.md (coverage-checklist.md) and Phase-2 has an explicit reconciliation step (phase-distill Step 4) that flags+fills any missing topic before finalizing; externalized as SKILL control #2."
+    },
+    {
+      "id": "A3",
+      "status": "done",
+      "note": "evals/ created with 16 behavioral cases + written-acceptance.md, one passing case bound verbatim to EACH of the 11 adversarial_checklist edges, plus happy-path + capability coverage. Asserts on behavior, not SKILL.md greps."
+    },
+    {
+      "id": "A4",
+      "status": "done",
+      "note": "Tests written red-first: grade.mjs run against the OLD design produced 11 real FAIL lines in .skill-engineer/red/red.log (incl. reconciliation + no-fabrication) before the rewrite; 8 of the 11 adversarial edges were genuinely red (3 were pre-existing carry-forward invariants, honestly shown PASS on OLD)."
+    },
+    {
+      "id": "A5",
+      "status": "done",
+      "note": "Modules adapted: phase-intake simplified (dropped Standard-vs-Exam-Ready); phase-extract→phase-cover (+coverage checklist); phase-synthesize folded into phase-distill as bridges; phase-study→phase-distill (Feynman order, dropped exam-QA machinery); phase-expand→phase-supplement (≤~10 cap). SKILL Reference Files table updated to match."
+    },
+    {
+      "id": "A6",
+      "status": "done",
+      "note": "templates.md gained the Feynman concept-block template and the quick-reference cheat-sheet template (one line per entry, exam-relevance order); standalone exam-Q&A appendix scaffolding removed; no optional self-check resurrected (kept simple per resolved blocking_unknown)."
+    },
+    {
+      "id": "A7",
+      "status": "done",
+      "note": "phase-supplement cap lowered 15→≤~10 and reframed as the optional light 'Option-2-lite' enrichment; dual web/no-web citation discipline and [Standard curriculum knowledge] marker preserved."
+    },
+    {
+      "id": "A8",
+      "status": "done",
+      "note": "metadata.version bumped to 3.0.0; rules/changelog.md v3.0 entry added; README.md rewritten to the new intent; banner.jpeg + LICENSE kept."
+    },
+    {
+      "id": "FIX-P0-1",
+      "status": "done",
+      "note": "Bug 1 (iteration 2) — resolved the PDF input-vs-output contradiction. /pdf = reading INPUT course PDFs; pandoc/xelatex (per pdf-export.md) = generating the OUTPUT notes PDF. pdf-export.md: deleted 'Do not use Python or pandoc directly — use /pdf' on L9, added an INPUT-vs-OUTPUT note at the top, and the section now names pandoc/xelatex as the output engine. phase-distill.md Step 5: 'convert via the /pdf skill — never raw pandoc/Python' → 'convert with pandoc/xelatex per pdf-export.md'. templates.md PDF-conversion note: 'Use the /pdf skill to execute the conversion — do not use Python or pandoc directly' → 'Convert with pandoc/xelatex per rules/pdf-export.md'. grep -nE 'via the /pdf skill|use /pdf|not.*pandoc|never raw pandoc' rules/*.md SKILL.md leaves only correct INPUT-reading mentions (phase-cover Read via /pdf) and neutral pandoc mentions. SKILL.md description untouched. Locked by reg_pdf_output_pandoc."
+    },
+    {
+      "id": "FIX-P0-2",
+      "status": "done",
+      "note": "Bug 2 (iteration 2) — scale guard now covers page-less inputs. phase-intake.md Step 2 keeps the PDF page tier (Path A) and ADDS a parallel topic/concept-count tier for Path B/C (≤~30 light / ~31–80 medium / ~81–150 heavy / >~150 split); states PDF sizes by pages, topic-list/course-name by topic count; Split batching (whole-course checklist) applies to both. SKILL.md control #7 reworded 'Page count picks the tier' → 'Size picks the tier — page count (PDF) or topic count (topic list / syllabus)'. phase-cover.md Path B and Path C apply the topic-count tier, batch large inputs, and keep the whole-course coverage checklist. Locked by reg_scale_topic_count."
+    },
+    {
+      "id": "FIX-web-detection",
+      "status": "done",
+      "note": "Minor (iteration 2) — phase-intake.md Step 3 operationalizes web mode from whether WebSearch/WebFetch is actually available in the tools; if it cannot tell, defaults to no-web and says so; the user may grant/deny. phase-supplement.md Step 0 made to agree (mode determined at intake by tool availability; user can override), removing the prior implication that the two files disagreed on who decides. Locked by reg_web_detection."
+    },
+    {
+      "id": "FIX-no-syllabus-refusal",
+      "status": "done",
+      "note": "Minor (iteration 2) — subject-coverage.md Mode B adds a floor: if NO materials AND no identifiable standard syllabus (niche/idiosyncratic, esp. offline), STOP and ask the user for materials or a reference syllabus — do not generate an outline from thin air; still generates when a standard syllabus IS identifiable. phase-cover.md Path C points to it. Matches the SKILL.md description's Do-NOT. Locked by reg_no_syllabus_refusal."
+    },
+    {
+      "id": "FIX-brevity-vs-completeness",
+      "status": "done",
+      "note": "Minor (iteration 2) — SKILL.md control #9 (+ a new Anti-Patterns row) and phase-distill.md depth-calibration state completeness of coverage is non-negotiable: never drop a topic to be brief; satisfy brevity via depth calibration (more topics at minimal capsule depth) and/or the quick-reference cheat sheet. Locked by reg_brevity_vs_completeness."
+    },
+    {
+      "id": "FIX-pathB-checklist-seam",
+      "status": "done",
+      "note": "Minor (iteration 2) — phase-cover.md Path B step list now explicitly emits coverage-checklist.md as its own step 4, rather than relying only on the later 'REQUIRED on every path' section."
+    }
+  ],
+  "verification": {
+    "ran": true,
+    "all_required_passed": true,
+    "harness_required": false,
+    "evidence": "Pure LLM-behavioral lite skill — NO executable harness, NO scripts/ dir (verified absent). Iteration 2: graded all 21 behavioral cases against written-acceptance.md by behavioral reasoning; the reusable acceptance-checker evals/grade.mjs (NOT the skill mechanism) pins each case's design invariants: `node evals/grade.mjs .` → 21/21 PASS, exit 0. The 5 new reg_* cases were red-first: graded against a faithful pre-fix snapshot and against /tmp/vince-course-study-OLD → real FAIL lines in .skill-engineer/red/red-2.log, then green after the fixes; all 16 prior cases (incl. the 11 adversarial checklist edges, verbatim) stay PASS. The pre-existing red artifact (.skill-engineer/red/red.log: OLD → 11 FAIL, exit 1) is retained. Each predicate is behavior-distinguishing (flips red if the protocol step it protects is deleted; e.g. pdf_output_via_pandoc is RED on the pre-fix 'convert via /pdf' wording and GREEN only once pandoc/xelatex is the named output engine and no file routes OUTPUT through /pdf)."
+  },
+  "handoff": {
+    "next_skill": "vince-skill-zipper",
+    "notes": [
+      "Iteration 2 landed 6 surgical fixes (2 P0 + 4 minor) for bugs found by an independent behavioral battery: PDF input/output contradiction reconciled (/pdf=input, pandoc/xelatex=output); scale guard extended to topic-count for page-less Path B/C; web detection operationalized by tool availability with offline default; no-materials-AND-no-syllabus refusal added; completeness-over-brevity rule added; Path B checklist-emission seam closed. No redesign — the skill stays behavioral-lite.",
+      "Tests are now 21/21 (was 16/16); 5 new reg_* regression cases lock each fix, red-first in .skill-engineer/red/red-2.log. All 11 adversarial checklist edges remain covered verbatim and PASS.",
+      "SKILL.md is a thin orchestrator (~160 lines) routing to 8 on-demand rules/ modules — already progressive-disclosure; the frontmatter description was left EXACTLY as-is (token-optimized; do not retouch) and is otherwise a candidate for the zipper's trigger-precision pass.",
+      "evals/grade.mjs is an acceptance-CHECKER over authored rules, not the skill's mechanism; do not treat it as a script-skill harness (harness_required=false). No scripts/ dir. Leave evals/ as-is.",
+      "Carry-forward invariants offline-marker, >400-split, and CJK-export were already satisfied by the prior design (PASS on OLD in red.log) — honest, not faked-red."
+    ],
+    "blocking": []
+  }
+}

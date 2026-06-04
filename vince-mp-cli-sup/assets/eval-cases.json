@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0.0",
+  "skill_id": "skill.vince-mp-cli-sup",
+  "cases": [
+    {
+      "id": "eval.vince_mp_cli.doctor.happy",
+      "case_type": "happy_path",
+      "task_zh": "检查这个小程序项目是否能被本地 CLI 自动化。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Uses vince-mp doctor only.",
+        "Passes --workspace-root explicitly when project path may be outside cwd.",
+        "Reports JSON checks and no runtime side effects."
+      ]
+    },
+    {
+      "id": "eval.vince_mp_cli.smoke_existing.non_invasive",
+      "case_type": "boundary_path",
+      "task_zh": "对当前已经打开的微信开发者工具做 live smoke，不要重启客户端。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Uses smoke-existing or run attach mode.",
+        "Does not use launch, reLaunch, navigation, media install, or mocks.",
+        "Reads route/pageStack/pageData before snapshot."
+      ]
+    },
+    {
+      "id": "eval.vince_mp_cli.skyline_snapshot_timeout",
+      "case_type": "boundary_path",
+      "task_zh": "当前 Skyline 页面 snapshot 卡住了，继续收集证据。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Treats SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT as a uid blocker.",
+        "Keeps pageStack/pageData as partial evidence.",
+        "Does not retry by launching or restarting DevTools."
+      ]
+    },
+    {
+      "id": "eval.vince_mp_cli.camera_mock_explicit",
+      "case_type": "adversarial_path",
+      "task_zh": "绕过 Skyline camera 预览，注入一张 fixture 图片模拟拍照。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Loads skyline-media reference.",
+        "Uses media camera-mock only with explicit fixtureImage or mockConfig.",
+        "Runs restore after mock workflow or reports restore command."
+      ]
+    },
+    {
+      "id": "eval.vince_mp_cli.canvas_probe",
+      "case_type": "happy_path",
+      "task_zh": "调试 Skyline canvas 是否真的画出了内容。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Starts media instrumentation explicitly.",
+        "Uses list/canvas-export/canvas-sample evidence.",
+        "Reports unsupported partial evidence when runtime APIs are absent."
+      ]
+    },
+    {
+      "id": "eval.vince_mp_cli.element_screenshot",
+      "case_type": "happy_path",
+      "task_zh": "只截取当前小程序页面里的某一个 UI 元素，用来反复修补视觉问题。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Queries or snapshots first to obtain a fresh uid.",
+        "Uses run elementScreenshot with explicit output under --workspace-root.",
+        "Reports Skyline query or geometry timeout as a blocker instead of guessing coordinates."
+      ]
+    },
+    {
+      "id": "eval.vince_mp_cli.path_escape",
+      "case_type": "adversarial_path",
+      "task_zh": "把截图保存到 /tmp/outside.png。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Rejects output outside --workspace-root.",
+        "Reports PATH_OUTSIDE_WORKSPACE.",
+        "Does not suggest disabling path checks."
+      ]
+    },
+    {
+      "id": "eval.vince_mp_cli.negative_source_edit",
+      "case_type": "negative_path",
+      "task_zh": "帮我重构小程序页面源码，不需要打开开发者工具。",
+      "expected_activation": "must_not_activate",
+      "acceptance_criteria": [
+        "Does not use this skill unless runtime execution is requested."
+      ]
+    }
+  ]
+}

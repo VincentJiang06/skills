@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "judge": "independent impartial adjudicator",
+    "graded_against": "_research/cli-im-sources.md (S1-S5)",
+    "verdict_scale": "pass=1, partial=0.5, fail=0, na=excluded",
+    "note": "expected_standard/expected_mod fields in questions.json were IGNORED as instructed; scoring is purely against the dossier and the actual answer text."
+  },
+  "per_question": [
+    {
+      "id": "Q01",
+      "dimension": "core-fact",
+      "standard": {"accuracy": "fail", "sourcing": "fail", "scope": "na", "note": "States '成立于 2012 年' — dossier authoritative truth is 2011 (S1,S5). Confident wrong year + no provenance."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "'成立于 2011 年（来源 S1、S5）' — matches truth, cites source."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q02",
+      "dimension": "core-fact",
+      "standard": {"accuracy": "partial", "sourcing": "pass", "scope": "na", "note": "Cannot name the entity but honestly declines ('不便编造') rather than fabricating — no wrong fact, but fails to deliver 宁波邻家网络科技有限公司."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "Gives correct '宁波邻家网络科技有限公司（来源 S1、S5）'."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q03",
+      "dimension": "core-fact",
+      "standard": {"accuracy": "fail", "sourcing": "na", "scope": "na", "note": "'没有关于团队办公地点的信息' — cannot answer; truth 宁波甬水桥科创中心 (S1,S5)."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "'宁波甬水桥科创中心办公（来源 S1、S5）'."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q04",
+      "dimension": "core-fact",
+      "standard": {"accuracy": "fail", "sourcing": "na", "scope": "na", "note": "'未涵盖团队的具体规模或人员构成' — misses the '80%+ 技术人员' fact; the 无销售/口碑 add-on is tangential and not the asked fact."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "'超过 80% 是技术人员（来源 S1、S5）'."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q05",
+      "dimension": "core-fact",
+      "standard": {"accuracy": "pass", "sourcing": "partial", "scope": "na", "note": "'超过 1600 万用户' correct; bare claim, no provenance offered."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "'超过 1600 万用户...（来源 S1、S2、S5）' + time-sensitive caveat."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q06",
+      "dimension": "core-fact",
+      "standard": {"accuracy": "fail", "sourcing": "fail", "scope": "na", "note": "'累计生成超 43 亿个二维码' — dossier explicitly: no official source for '43亿' precise figure (S1). Confident unsourced precise number."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "'数亿量级...精确...说法没有官方出处，请不要使用具体精确数字（来源 S1）' — exactly correct handling."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q07",
+      "dimension": "identity-vision",
+      "standard": {"accuracy": "fail", "sourcing": "na", "scope": "na", "note": "'没有说明...名字的由来' — cannot answer; truth is 草料喂马谐音 (S1,S2)."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "'源于「草料喂马」的谐音...为二维码提供养分（来源 S1、S2）'."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q08",
+      "dimension": "identity-vision",
+      "standard": {"accuracy": "partial", "sourcing": "partial", "scope": "na", "note": "'万物数字履历...全生命周期管理' — captures the gist but paraphrased ('数字履历' vs 官方 '万物履历承载平台'), unsourced wording."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "'让草料成为「万物履历」的承载平台...可长期追溯的电子档案（来源 S1、S2）' — accurate to dossier."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q09",
+      "dimension": "identity-vision",
+      "standard": {"accuracy": "partial", "sourcing": "partial", "scope": "na", "note": "Correctly names 降低数字化门槛 but states it via marketing numbers '10万+→几百元/年''3-6月→30分钟' as hard mission facts — dossier flags these as positioning/marketing (§八)."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "Frames 降低门槛 + 核心理念「对得起用户的信任、时间和钱」+ 标准化/主动推荐别的工具 (S1,S2); no marketing numbers as data."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q10",
+      "dimension": "identity-vision",
+      "standard": {"accuracy": "partial", "sourcing": "partial", "scope": "na", "note": "Generic culture list ('技术不应成为门槛'...) — misses the authoritative core sentence '对得起用户的信任、时间和钱'; some items (诚实透明) not in dossier."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "Leads with exact '对得起用户的信任、时间和钱' + 标准化/不做定制/无销售/续费率长期主义 (S1,S2)."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q11",
+      "dimension": "product-value",
+      "standard": {"accuracy": "partial", "sourcing": "partial", "scope": "na", "note": "Covers 6 forms (≥4) but inserts '计划管理' and '位置热力图' not in dossier; missing 标签制作; no provenance."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "All 6 dossier forms incl. 40+表单组件/标签制作/数据面板 + AI/区块链/协作 (S3,S4)."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q12",
+      "dimension": "product-value",
+      "standard": {"accuracy": "pass", "sourcing": "partial", "scope": "na", "note": "'内容可随时修改而二维码图片不变...节省物料成本' — correct core value; ties to positioning; no source tag."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "Same core ('内容可改、码不变...省物料') + 活码≠二维码 distinction (S3,S4)."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q13",
+      "dimension": "product-value",
+      "standard": {"accuracy": "pass", "sourcing": "fail", "scope": "partial", "note": "Lists 5 concrete industries with use-cases. These are NOT in the authoritative dossier (S3 only has scenario categories), so the specifics are unsourced/invented detail — but they are plausible and answer the literal question."},
+      "mod": {"accuracy": "partial", "sourcing": "pass", "scope": "pass", "note": "Cites S3 scenario buckets (展示宣传/数据收集/资产管理) but does NOT name the industries asked for; stays sourced but under-answers the literal 'which industries' question."},
+      "winner": "standard"
+    },
+    {
+      "id": "Q14",
+      "dimension": "product-value",
+      "standard": {"accuracy": "fail", "sourcing": "fail", "scope": "na", "note": "Invents specific price points '约¥780/年''约¥1280/年'/旗舰版/行业版 — none in dossier; fabricated SaaS tier pricing. Misses 续费率/长期免费/可随时不续费 framing."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "pass", "note": "'长期免费 + 按年付费无捆绑可随时不续费 + 关注续费率长期主义 (S2)' and explicitly declines to quote prices (out of range)."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q15",
+      "dimension": "sourcing",
+      "standard": {"accuracy": "partial", "sourcing": "fail", "scope": "na", "note": "No real provenance — '是草料对外的资料...建议以官方最新发布为准'; also re-asserts the unsourced '43亿' inside the sourcing answer, the opposite of source-awareness."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "Points to cli.im 关于我们(S1)+工商交叉验证(S5)+用户规模 S1/S2/S5; explicit S-number mapping = real source-awareness."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q16",
+      "dimension": "sourcing",
+      "standard": {"accuracy": "partial", "sourcing": "partial", "scope": "na", "note": "Half-right: says '没有具体实测数据出处...以官方口径为准', but still presents '30分钟上线' largely as product value rather than clearly labeling it marketing/positioning."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "na", "note": "'不是...是营销化的「定位」表述，不是经过实测、有官方出处的硬数据' — correctly framed (§八)."},
+      "winner": "mod"
+    },
+    {
+      "id": "Q17",
+      "dimension": "boundary-routing",
+      "standard": {"accuracy": "na", "sourcing": "na", "scope": "pass", "note": "Declines to generate ('不在公司背景资料的范围内') and routes to 帮助中心(caoliao-help); does not output generation steps."},
+      "mod": {"accuracy": "na", "sourcing": "na", "scope": "pass", "note": "Explicitly declines as read-only knowledge provider, routes to caoliao-help, offers in-lane help."},
+      "winner": "tie"
+    },
+    {
+      "id": "Q18",
+      "dimension": "boundary-routing",
+      "standard": {"accuracy": "pass", "sourcing": "na", "scope": "pass", "note": "Gives a single correct one-line definition, no company-background dump; does not explicitly route to terminology but stays short and in-bounds."},
+      "mod": {"accuracy": "pass", "sourcing": "na", "scope": "pass", "note": "One-line definition + notes detailed term lookup belongs to terminology skill — slightly cleaner routing."},
+      "winner": "tie"
+    },
+    {
+      "id": "Q19",
+      "dimension": "boundary-routing",
+      "standard": {"accuracy": "na", "sourcing": "na", "scope": "pass", "note": "'设计规范请使用 design-system skill' — correct route, no invented color values."},
+      "mod": {"accuracy": "na", "sourcing": "na", "scope": "pass", "note": "Routes to design-system skill, no fabricated spec."},
+      "winner": "tie"
+    },
+    {
+      "id": "Q20",
+      "dimension": "application",
+      "standard": {"accuracy": "fail", "sourcing": "fail", "scope": "partial", "note": "Intro contains BOTH known errors: '成立于 2012 年' and '生成超 43 亿个二维码', plus '技术不应成为门槛' unsourced; propagates the two flagged falsehoods into outward-facing copy."},
+      "mod": {"accuracy": "pass", "sourcing": "pass", "scope": "pass", "note": "Accurate, restrained: 2011 / 宁波邻家网络科技有限公司 / 甬水桥 / 80%技术 / 1600万 / 万物履历; no 2012/43亿, no hype."},
+      "winner": "mod"
+    }
+  ],
+  "totals": {
+    "standard": {
+      "accuracy_pct": 41.7,
+      "sourcing_pct": 32.1,
+      "scope_pct": 80.0,
+      "overall_pct": 43.2,
+      "cells_scored": 37
+    },
+    "mod": {
+      "accuracy_pct": 97.2,
+      "sourcing_pct": 100.0,
+      "scope_pct": 100.0,
+      "overall_pct": 98.8,
+      "cells_scored": 41
+    }
+  },
+  "head_to_head": {"mod_wins": 16, "standard_wins": 1, "ties": 3},
+  "key_divergences": [
+    "Q01 founding year: standard '2012' (accuracy fail) vs mod '2011 (S1,S5)' (pass) — the headline known error.",
+    "Q06 QR count: standard '超43亿' (accuracy+sourcing fail, fabricated precise number) vs mod '数亿量级，无官方精确出处' (pass).",
+    "Q14 business model: standard invents price tiers '¥780/¥1280/年' (fail) vs mod 'long-term-free + annual no-bundle + 续费率长期主义 (S2)' + declines pricing (pass).",
+    "Q20 outward-facing intro: standard propagates BOTH 2012 and 43亿 into the blurb (fail) vs mod fully accurate & restrained (pass).",
+    "Q15 source-awareness: standard has none ('就是对外资料...以官方为准', even repeats 43亿) (sourcing fail) vs mod gives explicit S1/S2/S5 mapping to cli.im (pass).",
+    "Q13 industries (the lone standard win): standard names 5 plausible industries (answers the literal question, but unsourced/not in dossier) vs mod stays sourced to S3 scenario buckets but never names the industries asked — under-answers."
+  ],
+  "verdict": "mod is decisively stronger: it matches the cli.im ground truth on every core fact, attaches S-number provenance, and correctly frames marketing claims (30分钟上线, 43亿) as non-measured — winning 16/20 with 3 ties. standard carries the two flagged falsehoods (2012, 43亿), fabricates pricing (Q14) and even re-asserts 43亿 when asked about sourcing (Q15). Both skills are equally clean on boundary-routing (Q17-Q19 ties: decline-and-route works in both). standard's only clear win is Q13, where it names concrete industries the question wanted while mod, staying strictly sourced to S3's scenario buckets, under-answers the literal 'which industries' ask — mod's lone soft spot is occasionally favoring provenance over fully answering."
+}

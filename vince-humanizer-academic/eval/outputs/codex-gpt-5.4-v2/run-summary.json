@@ -1,0 +1,62 @@
+[
+  {
+    "id": "gpt-zh",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/gpt-zh.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/gpt-zh.log"
+  },
+  {
+    "id": "gpt-en",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/gpt-en.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/gpt-en.log"
+  },
+  {
+    "id": "grok-zh",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/grok-zh.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/grok-zh.log"
+  },
+  {
+    "id": "grok-en",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/grok-en.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/grok-en.log"
+  },
+  {
+    "id": "kimi-zh",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/kimi-zh.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/kimi-zh.log"
+  },
+  {
+    "id": "kimi-en",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/kimi-en.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/kimi-en.log"
+  },
+  {
+    "id": "mimo-zh",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/mimo-zh.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/mimo-zh.log"
+  },
+  {
+    "id": "mimo-en",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/mimo-en.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/mimo-en.log"
+  },
+  {
+    "id": "minimax-zh",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/minimax-zh.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/minimax-zh.log"
+  },
+  {
+    "id": "minimax-en",
+    "status": "skipped",
+    "output_path": "eval/outputs/codex-gpt-5.4-v2/minimax-en.md",
+    "log_path": "eval/outputs/codex-gpt-5.4-v2/minimax-en.log"
+  }
+]

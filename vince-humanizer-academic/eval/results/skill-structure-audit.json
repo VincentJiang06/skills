@@ -1,0 +1,82 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "skill_md_exists",
+      "passed": true,
+      "detail": "SKILL.md present"
+    },
+    {
+      "name": "frontmatter_parse",
+      "passed": true,
+      "detail": "frontmatter parsed"
+    },
+    {
+      "name": "frontmatter_keys",
+      "passed": true,
+      "detail": "only allowed keys used"
+    },
+    {
+      "name": "name_present",
+      "passed": true,
+      "detail": "name='humanizer-academic'"
+    },
+    {
+      "name": "name_format",
+      "passed": true,
+      "detail": "hyphen-case valid"
+    },
+    {
+      "name": "name_length",
+      "passed": true,
+      "detail": "length=18"
+    },
+    {
+      "name": "description_present",
+      "passed": true,
+      "detail": "description present"
+    },
+    {
+      "name": "description_length",
+      "passed": true,
+      "detail": "length=352"
+    },
+    {
+      "name": "linked_references_exist",
+      "passed": true,
+      "detail": "all linked relative files exist"
+    },
+    {
+      "name": "agents_yaml_exists",
+      "passed": true,
+      "detail": "agents/openai.yaml present"
+    },
+    {
+      "name": "agents_yaml_display_name",
+      "passed": true,
+      "detail": "display_name present"
+    },
+    {
+      "name": "agents_yaml_short_description",
+      "passed": true,
+      "detail": "short_description present"
+    },
+    {
+      "name": "agents_yaml_default_prompt",
+      "passed": true,
+      "detail": "default_prompt present"
+    },
+    {
+      "name": "agents_yaml_default_prompt_mentions_skill",
+      "passed": true,
+      "detail": "default prompt mentions skill"
+    },
+    {
+      "name": "no_auxiliary_docs_inside_skill",
+      "passed": true,
+      "detail": "no extra docs inside skill folder"
+    }
+  ],
+  "problems": [],
+  "warnings": []
+}

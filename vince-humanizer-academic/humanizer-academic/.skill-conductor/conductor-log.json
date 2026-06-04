@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-conductor",
+  "target": "/Users/vince/playground/skill-developer/vince-humanizer-academic/humanizer-academic",
+  "goal": "Rebuild humanizer-academic into an industrial bilingual (EN/ZH/mixed) skill that strips AI-writing signals from academic prose — including the structural/statistical signals a lexical denylist misses (uniform burstiness, mechanical paragraph rhythm, signposting overload, balanced parallelism, stance-lessness) — and adds DEFINED academic human texture (authorial stance, concrete specificity, syntactic variance) WITHOUT collapsing scholarly register or inventing facts; verified by an INDEPENDENT blind AI-detection battery, not by the same pattern list it removes.",
+  "stages": [
+    {
+      "stage": "guidance",
+      "iteration": 1,
+      "artifact_path": ".skill-guidance/handoff-spec.json",
+      "gate_passed": true,
+      "gate_evidence": "schema-valid; carries recommended_design/prioritized_actions/altitude/scorecard/handoff; altitude=full; verdict=draft (allowed at G gate); 15 adversarial edges; P0=A1..A6; 5 blocking_unknowns (all resolved by conductor before E).",
+      "action": "proceed"
+    },
+    {
+      "stage": "engineer",
+      "iteration": 1,
+      "artifact_path": ".skill-engineer/build-report.json",
+      "gate_passed": true,
+      "gate_evidence": "E gate ok (authoritative node check): verification.ran=true, all_required_passed=true, tests 18/18 passed, P0 6/6 done (A1-A6; A7-A9 also done). Harness re-run independently by conductor (python3 evals/run_detector_tests.py) = 32/32 PASS exit 0; non-tautological (import-contract: detector core imported from scripts/, not reimplemented). Real red log = 18 assertion-level FAIL lines vs wrong stub (e.g. 'FAIL cv::three_equal_sentences_is_zero :: got -1.0'). checklist_coverage 15/15 verbatim edges -> passing cases.",
+      "action": "proceed"
+    },
+    {
+      "stage": "zipper",
+      "iteration": 1,
+      "artifact_path": "(in place)",
+      "gate_passed": true,
+      "gate_evidence": "Stage Z pipeline mode: clean documented SKIP after honest 5-operation analysis (SKILL.md already tight 18.7% always-loaded share, fully encapsulated, references token-neutral on-demand, EN+ZH example pairs protected). diff_lossless 0 LOST / 0 REWRITTEN. Conductor independently confirmed: diff -r vs pre-Z snapshot empty (byte-identical), both harnesses still exit 0.",
+      "action": "proceed"
+    },
+    {
+      "stage": "final_audit",
+      "iteration": 1,
+      "artifact_path": ".skill-guidance/handoff-spec.json (re-audit) + fresh-subagent battery",
+      "gate_passed": false,
+      "gate_evidence": "re_audit (guidance on built skill) = industrial 14/14, all 7 pillars present. INDEPENDENT fresh-subagent battery = candidate: behavioral spot-check PASSED (its own rewrite: lexical 4->0, sentence_cv 0.295->0.556, paragraph_cv 0.068->0.207, zero net-new facts, register preserved); detector CV math/mixed-language/determinism/CLI/detect-only/import-contract all verified clean. BUT found 5 detector bugs incl. green-but-wrong: (1 P1) splitter shatters decimals/abbrev (3.5%, U.S.) -> wrong n_sentences + inflated sentence_cv on the academic-prose domain; (2 P1) tests blind to it; (3 P1) bold-label regex misses dominant **Label:** colon-inside; (4) docstring/KB claim a 'triads' family the code lacks; (5 P2) report_shell verb recall. effective_verdict=min(industrial,candidate)=candidate.",
+      "action": "loopback"
+    },
+    {
+      "stage": "engineer",
+      "iteration": 2,
+      "artifact_path": ".skill-engineer/build-report.json",
+      "gate_passed": true,
+      "gate_evidence": "LOOP-1 fix iteration. E gate re-checked vs original 15-edge build-spec: ok | ran true | pass 22/22 | P0 6/6 done | checklist_coverage 15/15 | harness ok. Conductor independently re-ran detector 46/46 + behavioral 22/22 (both exit 0) AND directly probed all 5 fixes via core import: BUG1 decimals/abbrev no longer shatter (3.5%/U.S./ZH -> n=1; number-final period still splits -> n=2); BUG3 **Label:** colon-inside -> 1 (no double-count); BUG4 rule_of_three implemented (EN+ZH triad>=1, two-item=0, doc synced); BUG5 report_shell catches 'provides'. Red log appended with LOOP-1 RED lines.",
+      "action": "proceed"
+    },
+    {
+      "stage": "final_audit",
+      "iteration": 2,
+      "artifact_path": ".skill-guidance/handoff-spec.json (re-audit of shipped v2.0.1) + fresh-subagent battery #2",
+      "gate_passed": true,
+      "gate_evidence": "Post-fix Final Acceptance on shipped v2.0.1. re_audit (guidance on built skill) = industrial 14/14, all 7 pillars present, intent.summary matches goal; deterministic score_skill.mjs on shipped artifact = maturity 'mature', all 7 pillar_hints present, both harnesses exit 0. INDEPENDENT fresh battery #2 (never saw build/fix) = industrial: all 5 LOOP-1 bugs verified fixed, ZERO new regressions (new splitter masking merges nothing; pre-existing Fig./example.com over-splits provably unchanged by the diff), doc/code family agreement perfect, core undisturbed (CV/determinism/CLI/detect-only/import-contract), behavioral spot-check on a fresh fixture clean (lexical 3->0, structural 7->4, sentence_cv 0.282->0.613, zero net-new facts, register held). effective_verdict=min(industrial,industrial)=industrial.",
+      "action": "done"
+    }
+  ],
+  "loops_taken": 1,
+  "final_verdict": "done",
+  "quality": {
+    "re_audit_verdict": "industrial",
+    "battery_verdict": "industrial",
+    "effective_verdict": "industrial",
+    "battery_bugs": []
+  },
+  "blocking_gaps": []
+}

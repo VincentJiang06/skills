@@ -1,0 +1,419 @@
+{
+  "summary": {
+    "documents": 10,
+    "by_language": {
+      "zh": 5,
+      "en": 5
+    },
+    "by_model_family": {
+      "GPT": 2,
+      "Grok": 2,
+      "Kimi": 2,
+      "Mimo": 2,
+      "Minimax": 2
+    },
+    "top_categories": [
+      [
+        "scaffolding",
+        32
+      ],
+      [
+        "sentence_shape",
+        32
+      ],
+      [
+        "style_residue",
+        12
+      ],
+      [
+        "superficial_analysis",
+        8
+      ],
+      [
+        "surface_analysis",
+        5
+      ],
+      [
+        "inflation",
+        5
+      ],
+      [
+        "dash_drama",
+        3
+      ],
+      [
+        "negative_parallelism",
+        1
+      ],
+      [
+        "officialese",
+        1
+      ],
+      [
+        "template_outlook",
+        1
+      ]
+    ],
+    "highest_density_docs": [
+      {
+        "doc_id": "grok-en",
+        "hits_per_1k_tokens": 5.46,
+        "total_hits": 13
+      },
+      {
+        "doc_id": "gpt-zh",
+        "hits_per_1k_tokens": 3.97,
+        "total_hits": 15
+      },
+      {
+        "doc_id": "kimi-en",
+        "hits_per_1k_tokens": 3.05,
+        "total_hits": 17
+      },
+      {
+        "doc_id": "minimax-en",
+        "hits_per_1k_tokens": 2.4,
+        "total_hits": 15
+      },
+      {
+        "doc_id": "mimo-en",
+        "hits_per_1k_tokens": 1.81,
+        "total_hits": 6
+      }
+    ]
+  },
+  "documents": [
+    {
+      "doc_id": "gpt-zh",
+      "model_family": "GPT",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4/gpt-zh.md",
+      "token_count": 3775,
+      "category_counts": {
+        "dash_drama": 3,
+        "negative_parallelism": 1,
+        "scaffolding": 8,
+        "officialese": 0,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 3,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 15,
+      "hits_per_1k_tokens": 3.97,
+      "top_examples": {
+        "dash_drama": [
+          "预算仅为 175 亿港元，低于原来估算。由此可见，香港财政与增长模式正在从“地价—物业—交易税—财富效应”的旧循环中脱离。 这种变化并不等于香港失去财政稳定性，但财政运作方式确实需要调整。2024-25 年度综合赤字预计为 872 亿港元，",
+          "为 175 亿港元，低于原来估算。由此可见，香港财政与增长模式正在从“地价—物业—交易税—财富效应”的旧循环中脱离。 这种变化并不等于香港失去财政稳定性，但财政运作方式确实需要调整。2024-25 年度综合赤字预计为 872 亿港元，财政储",
+          "5 亿港元，低于原来估算。由此可见，香港财政与增长模式正在从“地价—物业—交易税—财富效应”的旧循环中脱离。 这种变化并不等于香港失去财政稳定性，但财政运作方式确实需要调整。2024-25 年度综合赤字预计为 872 亿港元，财政储备到 2"
+        ],
+        "negative_parallelism": [
+          "也可能更接近 IMF 所说的 2.5% 中枢。综合而言，香港未来五年的合理判断既不是重回高速繁荣，也不是长期停滞，而是在高不确定性之下维持有韧性的中速增长。 ### 结论 2021—2025 年的香港经济表面上是一段由疫情走向复常的复苏过程，实质上是一段增长逻辑重写的过程。"
+        ],
+        "scaffolding": [
+          "融市场、科技相关服务、访港旅游和货物出口同步改善，经济增速回升至 3.5%。与此同时，商业地产持续疲弱、人口老龄化、劳动力供给趋紧、传统物流竞争受压，以及财政对土地与资产市场收入的依赖下降，都表明香港已难以回到 2010 年代中前期由地产、零售",
+          "恢复增长，服务输出继续上升，整体投资进一步增加，但私人消费开支转为轻微下跌。与此同时，住宅物业价格在 2024 年全年下跌 7.1%，高利率环境、居民北上消费和消费模式变化继续压制本地需求。旅游方面，2024 年全年访港旅客接近 4,500 万",
+          "资讯科技服务业务收入全年更大增 85.5%，旅游、会展及展览服务也继续上升。与此同时，全年访港旅客达到 4,990 万人，全年零售销售总额升 1.0%，但按销量计算仅与 2024 年大致相若，这表明消费市场已回暖，但仍未进入高强度繁荣阶段。"
+        ],
+        "surface_analysis": [
+          "国际机场在 2024 年仍处理 490 万公吨货物，覆盖香港外贸总值约 45%。这说明，香港作为贸易中心，越来越少依赖单纯的港口箱量，越来越多依赖高货值航空货运、再出口体系、金融结算、供应链管理和跨境专业服务。这一变化包含升级因素，也反映了传统港",
+          "年初的 7.2% 明显回落；访港旅客全年仅约 9.1 万人，旅游业几近停摆。由此可见，2021 年的反弹主要来自货物贸易、外需和政策支撑，本地服务业和跨境人流尚未全面恢复。 2022 年是这一轮恢复过程中受挫最明显的一年。第五波疫情、本地防疫",
+          "弱，2025-26 年度地价收入修订预算仅为 175 亿港元，低于原来估算。由此可见，香港财政与增长模式正在从“地价—物业—交易税—财富效应”的旧循环中脱离。 这种变化并不等于香港失去财政稳定性，但财政运作方式确实需要调整。2024-25 年"
+        ]
+      }
+    },
+    {
+      "doc_id": "gpt-en",
+      "model_family": "GPT",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4/gpt-en.md",
+      "token_count": 2356,
+      "category_counts": {
+        "inflation": 0,
+        "promotional": 0,
+        "superficial_analysis": 0,
+        "vague_attribution": 0,
+        "template_outlook": 0,
+        "ai_vocab": 0,
+        "sentence_shape": 4,
+        "style_residue": 0,
+        "filler_hedging": 0
+      },
+      "total_hits": 4,
+      "hits_per_1k_tokens": 1.7,
+      "top_examples": {
+        "sentence_shape": [
+          "ion. The third was the reopening period from 2023 to 2025, when tourism, cross-border mobility, external trade, and capital-market sentiment",
+          "spending quality. Visitor arrivals rose from about 91,000 in 2021 to 600,000 in 2022, 34 million in 2023, nearly 45 million in 2024, and 49.",
+          "y population aged 65 and over will rise from 1.45 million in 2021 to 2.74 million in 2046, while the labour-force participation rate excludi"
+        ]
+      }
+    },
+    {
+      "doc_id": "grok-zh",
+      "model_family": "Grok",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4/grok-zh.md",
+      "token_count": 3630,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 0,
+        "scaffolding": 3,
+        "officialese": 0,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 0,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 3,
+      "hits_per_1k_tokens": 0.83,
+      "top_examples": {
+        "scaffolding": [
+          "并在安全框架下改善跨境数据流动安排。 2. 将教育和研发投入提高至GDP的3%，同时扩充北部都会区的创新科技生态。 3. 推动经济多元化，发展创意产业、银发经济，并通过再工业化培育高端制造。 4. 完善ESG披露制度，扩大绿色债券市场对可持续资",
+          "体宜居条件。 6. 推进数字基础设施建设，包括数据中心、Web3和AI相关布局，同时纳入国家安全要求；用好2026—27年度预算中8,430亿港元开支，其中经常性开支的60%投向医疗、教育和福利。 2026年政府预计录得221亿港元财政盈余，",
+          "大湾区协同和大型基建重塑增长结构的重要阶段。能否实现预期目标，取决于香港是否能够同时维持对外开放、深化与国家规划的衔接、缓解既有结构性短板，并落实2026—27年度预算及“十五五”规划中的相关改革。若上述条件得到较好处理，香港仍可保持其在亚洲国"
+        ]
+      }
+    },
+    {
+      "doc_id": "grok-en",
+      "model_family": "Grok",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4/grok-en.md",
+      "token_count": 2383,
+      "category_counts": {
+        "inflation": 1,
+        "promotional": 0,
+        "superficial_analysis": 4,
+        "vague_attribution": 0,
+        "template_outlook": 0,
+        "ai_vocab": 0,
+        "sentence_shape": 8,
+        "style_residue": 0,
+        "filler_hedging": 0
+      },
+      "total_hits": 13,
+      "hits_per_1k_tokens": 5.46,
+      "top_examples": {
+        "inflation": [
+          ". The period from 2026 to 2030 offers a significant opportunity to shift toward higher-quality growth through I&T, GBA integration,"
+        ],
+        "superficial_analysis": [
+          "fset by the strength of services, again highlighting Hong Kong’s dependence on trade and external flows. ### 2.3 Key Events, Policy",
+          "emained low. Inflation stayed moderate, reflecting limited external price pressure and only gradual recovery in domestic demand.",
+          "ly, by about 7.8% to 10.4% in mid-2025, reflecting project delays. At the same time, preparatory work for the Northern Metropolis"
+        ],
+        "sentence_shape": [
+          "es the territory’s economic performance from 2021 to 2025, a period shaped by post-COVID-19 recovery, geopolitical tensions, and faster inte",
+          "ounting external pressures. The period from 2021 to 2025 followed the disruptions of the 2019 social unrest and the 2020 COVID-19 pandemic, ",
+          "demand recovered. Nominal GDP increased from about US$369 billion in 2021 to US$427 billion in 2025. Unemployment fell from pandemic-era hig"
+        ]
+      }
+    },
+    {
+      "doc_id": "kimi-zh",
+      "model_family": "Kimi",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4/kimi-zh.md",
+      "token_count": 7719,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 0,
+        "scaffolding": 5,
+        "officialese": 0,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 1,
+        "vague_attribution": 0,
+        "style_residue": 4
+      },
+      "total_hits": 10,
+      "hits_per_1k_tokens": 1.3,
+      "top_examples": {
+        "scaffolding": [
+          "苏阶段。外部环境仍有较大不确定性，地缘政治紧张和贸易保护主义的影响持续存在；与此同时，香港仍保有“一国两制”下的制度安排、连接中国内地与全球市场的“超级联系人”功能，以及北部都会区建设、创科产业扩张等内部支撑。预计2025-2029年香港实质经",
+          "2025年香港劳动力市场维持紧绌，失业率稳定在约3%的低位，已接近充分就业。与此同时，创科、医疗、航空和建筑等行业的结构性短缺更为明显。 特区政府继续调整人才政策： - 2025年3月，人才清单更新至60项专业（[来源](https://w",
+          "力**：楼价已有调整，但香港仍属全球居住成本最高的城市之一。如何在维持市场稳定的同时提升青年和外来人才的居住可负担性，仍是长期难题。 - **社会融合**：大量新来港人才与本地社会的磨合需要制度和时间支持，引进人才与保障本地就业之间的平衡也更难"
+        ],
+        "surface_analysis": [
+          "202603/25/P2026032500260.htm)）。 这些政策已产生可见效果。特区政府统计显示，2022年底至2025年底，各项人才计划合计吸引超过23万名人才来港（[来源](https://www.twobirds.com/en/"
+        ],
+        "style_residue": [
+          "e4f2e094ac75465a44)）。全年经济增长预测维持在2%-3%。 **增长动力分析：** - **外部需求**：全球对AI相关电子产品的需求仍强，加之贸易活动前置，2025年第一季度货物出口实质增长8.4%（[来源](https://www.ne",
+          "总面积约三分之一。未来五年，它很可能成为香港新增投资和产业布局最集中的区域。 **关键里程碑：** - 2026年：洪水桥产业园投入运作；屯马线洪水桥站工程展开（[来源](https://www.dotdotnews.com/a/202505/28/AP6",
+          "/28/AP6836d0eee4b0a242bf029362.html)）。 **经济贡献预测：** 新田科技城全面运作后，预计每年可带来至少2,500亿港元GDP增量（[来源](http://www.locpg.gov.cn/20260107/2686e45"
+        ]
+      }
+    },
+    {
+      "doc_id": "kimi-en",
+      "model_family": "Kimi",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4/kimi-en.md",
+      "token_count": 5565,
+      "category_counts": {
+        "inflation": 1,
+        "promotional": 0,
+        "superficial_analysis": 0,
+        "vague_attribution": 0,
+        "template_outlook": 0,
+        "ai_vocab": 0,
+        "sentence_shape": 8,
+        "style_residue": 8,
+        "filler_hedging": 0
+      },
+      "total_hits": 17,
+      "hits_per_1k_tokens": 3.05,
+      "top_examples": {
+        "inflation": [
+          "eriod from 2020 to 2029 is historically significant for Hong Kong because it covers both a difficult opening to the decade and an i"
+        ],
+        "sentence_shape": [
+          "ons on economic development. The period from 2020 to 2029 is historically significant for Hong Kong because it covers both a difficult openi",
+          "'s 14th Five-Year Plan. The five years from 2020 to 2024 exposed Hong Kong's economy to several major shocks: the after-effects of the 2019 ",
+          "al unrest, the global COVID-19 pandemic from 2020 to 2022, and the resulting supply-chain disruption and cross-border travel restrictions. W"
+        ],
+        "style_residue": [
+          "segments recorded notable expansion: - **Offshore RMB business:** Hong Kong retained its position as the world's largest offshore RMB busine",
+          "ent system exceeded RMB 1.8 trillion. - **Asset and wealth management:** According to Securities and Futures Commission data, Hong Kong's as",
+          "2023, about 42% higher than in 2019. - **IPO market changes:** In 2024, the Hong Kong Stock Exchange revised the Chapter 18C listing regime "
+        ]
+      }
+    },
+    {
+      "doc_id": "mimo-zh",
+      "model_family": "Mimo",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4/mimo-zh.md",
+      "token_count": 5343,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 0,
+        "scaffolding": 8,
+        "officialese": 0,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 0,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 8,
+      "hits_per_1k_tokens": 1.5,
+      "top_examples": {
+        "scaffolding": [
+          "力下增速回落。** 2022年初，第五波疫情严重干扰本地消费和日常经济活动。与此同时，全球主要央行为抑制通胀而快速加息，外部需求走弱，金融市场波动上升。地缘政治紧张，尤其是中美关系中的不确定因素，也增加了香港国际商业枢纽功能面临的压力。全年经济",
+          "求波动。这一阶段的经济增速预计在2.5%-3.5%之间，经济结构在巩固传统优势的同时，也更清楚地显现出向创新科技和绿色金融转移的趋势。 ### 1.2 关键驱动因素与支柱产业演变 过去五年，香港经济的主要驱动力发生了调整。传统支柱行业仍占主",
+          "- **资产管理与财富管理**：香港继续承接内地财富增长外溢带来的配置需求，同时受益于全球资产多元配置趋势。家族办公室和跨境理财通成为重点发展领域。尽管面对新加坡等市场的竞争，香港在市场规模、法律体系和内地联通方面仍保有明显优势。"
+        ]
+      }
+    },
+    {
+      "doc_id": "mimo-en",
+      "model_family": "Mimo",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4/mimo-en.md",
+      "token_count": 3322,
+      "category_counts": {
+        "inflation": 0,
+        "promotional": 0,
+        "superficial_analysis": 1,
+        "vague_attribution": 0,
+        "template_outlook": 0,
+        "ai_vocab": 0,
+        "sentence_shape": 4,
+        "style_residue": 0,
+        "filler_hedging": 1
+      },
+      "total_hits": 6,
+      "hits_per_1k_tokens": 1.81,
+      "top_examples": {
+        "superficial_analysis": [
+          "Greater Bay Area and beyond, while also ensuring data security and compliance with national regulation. ### 2.3 Suggested"
+        ],
+        "sentence_shape": [
+          "g Special Administrative Region (HKSAR) from 2021 to 2025 and examines its main growth drivers, structural constraints, and policy responses",
+          "Performance and Cyclical Fluctuations From 2021 to 2025, Hong Kong's economy followed a V-shaped path marked by deep recession, uneven recov",
+          "d Tourism**. Tourism is likely to shift from a focus on visitor volume to a focus on quality and total consumption contribution. Cultural, s"
+        ],
+        "filler_hedging": [
+          ", business, and society should continue in order to improve overall efficiency and competitiveness. --- ## Conclusion From 2021"
+        ]
+      }
+    },
+    {
+      "doc_id": "minimax-zh",
+      "model_family": "Minimax",
+      "language": "zh",
+      "path": "eval/outputs/codex-gpt-5.4/minimax-zh.md",
+      "token_count": 8200,
+      "category_counts": {
+        "dash_drama": 0,
+        "negative_parallelism": 0,
+        "scaffolding": 8,
+        "officialese": 1,
+        "nominalization": 0,
+        "uplift": 0,
+        "surface_analysis": 1,
+        "vague_attribution": 0,
+        "style_residue": 0
+      },
+      "total_hits": 10,
+      "hits_per_1k_tokens": 1.22,
+      "top_examples": {
+        "scaffolding": [
+          "视文化体验和深度游。旅游业经营者因此需要重新设计产品和服务，以对应新的需求结构。同时，香港生活成本较高、服务质量差异较大等问题，也在一定程度上限制了旅游竞争力的恢复。 ### 2.3 政治环境变化与国家安全法实施 2020年6月30日，《中",
+          "联储加息周期抬高了香港市场利率，购房者的按揭成本随之增加，购房需求受到压制。与此同时，部分专业人才离开香港，人口结构短期变化削弱了住房需求。市场对前景的不确定判断，也延后了部分家庭和投资者的入市决定。 为稳定市场，香港特区政府在2024年推出",
+          "取消额外印花税、买家印花税和新住宅印花税三项需求管理措施，购房门槛显著下降。政府同时放宽住宅贷款限制，并允许投资移民购入住宅物业。这些措施短期内提高了交易活跃度。 2024年的住宅市场表现出“量增价稳”的特征。根据中原地产数据，全年一手和二手"
+        ],
+        "officialese": [
+          "优势，同时拓展东盟和中东等新市场，以降低对单一市场的依赖。 金融市场政策应继续围绕联通、创新和制度优化展开。与内地市场的互联互通可以继续扩容，增加可交易品种和投资者覆盖范围。绿色金融和可持续投资应加快发展，以承接全球ESG资金流向。金融科技创新需要稳定的监管框架，虚"
+        ],
+        "surface_analysis": [
+          "交量约为50661套，同比增长25.5%。成交量显著回升，但房价仍承受下行压力。这说明市场正处于量价重新平衡阶段：交易增加主要受到政策刺激和利率预期改善带动，而房价是否真正企稳仍需进一步观察。 市场分化也较为明显。市区优质地段的住宅项目因稀缺性"
+        ]
+      }
+    },
+    {
+      "doc_id": "minimax-en",
+      "model_family": "Minimax",
+      "language": "en",
+      "path": "eval/outputs/codex-gpt-5.4/minimax-en.md",
+      "token_count": 6257,
+      "category_counts": {
+        "inflation": 3,
+        "promotional": 0,
+        "superficial_analysis": 3,
+        "vague_attribution": 0,
+        "template_outlook": 1,
+        "ai_vocab": 0,
+        "sentence_shape": 8,
+        "style_residue": 0,
+        "filler_hedging": 0
+      },
+      "total_hits": 15,
+      "hits_per_1k_tokens": 2.4,
+      "top_examples": {
+        "inflation": [
+          "d global markets, the implications were significant. Firms reassessed supply chains and sought to reduce exposure to geopolitical r",
+          "h International, and NetEase completing significant offerings in Hong Kong. Changes in Mainland China's regulatory environment and",
+          "g Kong enters the 2025-2029 period with significant assets: established financial infrastructure, close ties with Mainland China, a"
+        ],
+        "superficial_analysis": [
+          "ion remained low throughout the period, reflecting weak demand during the pandemic and the structure of the local economy. In 202",
+          "segments did not move in the same way, reflecting different demand drivers and different exposure to pandemic restrictions. The",
+          "sitors from Western markets was slower, reflecting different travel patterns and a more gradual resumption of long-haul travel. To"
+        ],
+        "template_outlook": [
+          "as with future growth potential. ## 3. Future Outlook (2025-2029) ### 3.1 Macroeconomic Prospects and Growth Trajectory For 2025-20"
+        ],
+        "sentence_shape": [
+          "ans, and that shift became an important feature of economic policy in the years that followed. ### 2.6 Trade Relationships and",
+          "serves the institutional and commercial features that distinguish it internationally. Investment in innovation and technology sh",
+          "Executive Summary Hong Kong's economy from 2020 to 2024 was shaped by two major shocks: the COVID-19 pandemic and political restructuring fo"
+        ]
+      }
+    }
+  ]
+}

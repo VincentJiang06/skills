@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-guidance",
+  "target": {
+    "path": "/Users/vince/playground/skill-developer/vince-fact-check",
+    "kind": "repo",
+    "name": "vince-fact-check",
+    "maturity": "mature"
+  },
+  "intent": {
+    "summary": "Speed-first fact-check / question-answering: triage a question (technology, term/noun, or open factual question) as simple vs complex, fan out PARALLEL web searches, early-exit on corroboration, and return a citation-backed bottom-line answer within a hard wall-clock budget — simple <=2 min, complex <=5 min. Efficiency is the defining requirement.",
+    "in_scope": [
+      "Single-fact lookups (definitions, current value/version/date, entity ID)",
+      "Verifiable yes/no claims",
+      "Bounded factual comparisons / why-how questions",
+      "Multi-part factual questions; non-English / CJK questions"
+    ],
+    "out_of_scope": [
+      "Exhaustive multi-source research REPORTS (deep-research)",
+      "Subjective / opinion questions",
+      "Domain deep-evaluations (vince-album-review, vince-hifi-review)",
+      "Repo/context-answerable questions; creative/math/coding with no external fact"
+    ],
+    "primary_user": "A human or agent wanting a fast, sourced answer to a factual question (GPT-Pro-style, speed-optimized).",
+    "triggers_observed": [
+      "fact-check this / verify this claim",
+      "quickly find out X / look this up fast",
+      "what is <technology/term>",
+      "is it true that Y",
+      "$vince-fact-check"
+    ]
+  },
+  "altitude": "full",
+  "altitude_rationale": "Post-build audit of a network-using, reusable skill with a deterministic answer-contract validator and efficiency metrics. Built to full rigor; runtime kept lean (95-line SKILL.md, 22.9% always-loaded) to honor the speed intent.",
+  "scorecard": [
+    {
+      "pillar": "design",
+      "status": "present",
+      "score": 2,
+      "evidence": "SKILL.md is a runbook (preflight->triage->parallel fan-out->early-exit->synthesize->self-check->emit); description carries positive + negative + adjacent false-triggers (deep-research, vince-album-review, vince-hifi-review, opinion, repo-answerable). Per-tier budget caps are externalized in rules/triage.md and the output contract is externalized in scripts/check_answer.mjs. (score_skill heuristic says 'partial' only because steps use bold '0-' markers not '1.' and the body avoids the literal word 'trigger'.)",
+      "gaps": []
+    },
+    {
+      "pillar": "research",
+      "status": "present",
+      "score": 2,
+      "evidence": "rules/search-protocol.md documents query decomposition, parallel fan-out, snippet-first, bounded iterative deepening (saturation early-exit), conflict triangulation, and claim->evidence; references/source-reliability.md gives Admiralty-lite grading + freshness. Grounded in develop-principle procedures.",
+      "gaps": []
+    },
+    {
+      "pillar": "testing",
+      "status": "present",
+      "score": 2,
+      "evidence": "26 eval cases: 20 deterministic (evals/run_all.mjs over fixtures/, re-runnable) + 6 behavioral (evals/evals.json). Boundary/adversarial coverage; every adversarial_checklist edge bound (14/14); regression set seeded incl. battery-driven D16-D20.",
+      "gaps": []
+    },
+    {
+      "pillar": "tdd",
+      "status": "present",
+      "score": 2,
+      "evidence": "Real red log (.skill-engineer/red/red.log, 15 FAIL lines incl. idempotency + CLI against a wrong-sentinel stub); green 20/20; two mutation spot-checks recorded (source-bar, body-only traceability). Mechanism in scripts/ imported by the harness (not tautological).",
+      "gaps": []
+    },
+    {
+      "pillar": "metrics",
+      "status": "present",
+      "score": 2,
+      "evidence": "references/metrics.md defines time-to-answer/cost-per-success per tier (simple p50<=2min, complex p50<=5min), claim-traceability rate (100%, enforced by the validator), confident-wrong rate (~0), search efficiency, and activation precision, with a paired-eval measurement method.",
+      "gaps": []
+    },
+    {
+      "pillar": "low_context_kb",
+      "status": "present",
+      "score": 2,
+      "evidence": "SKILL.md 95 lines / ~1.3k tokens; 22.9% always-loaded share; progressive disclosure into rules/ (triage, search-protocol, output-contract), references/ (source-reliability, metrics), assets/ (answer-template), with Modules/Scripts/Assets tables.",
+      "gaps": []
+    },
+    {
+      "pillar": "lifecycle",
+      "status": "present",
+      "score": 2,
+      "evidence": "CHANGELOG.md (SemVer 0.1.0) with a release gate (validator harness green + behavioral evals pass) and a rollback note; metrics.md doubles as observability guidance.",
+      "gaps": ["Observability is doc-level only (no runtime hooks) — acceptable for a self-contained behavioral skill."]
+    }
+  ],
+  "overall_readiness": {
+    "ratio": 1.0,
+    "points": "14/14",
+    "verdict": "industrial",
+    "summary": "Post-build pillar-presence audit: all 7 pillars present. A lean, well-tested, source-traceable speed-first fact-check skill. Pillar-presence caps at candidate by policy until the independent behavioral battery passes clean — see the conductor's effective_verdict = min(re_audit, battery)."
+  },
+  "comparables": [
+    {
+      "repo_id": "local/deep-research",
+      "what_to_borrow": "Differentiation confirmed: bounded/time-boxed BLUF answer vs deep-research's exhaustive report; the description routes report requests away."
+    }
+  ],
+  "recommended_design": {
+    "trigger": "Built: positive (fast factual lookups/verification), negative (subjective/opinion, repo-answerable, creative/math/coding), adjacent (deep-research report, vince-album-review, vince-hifi-review).",
+    "protocol": "Built: preflight -> triage (simple/complex) -> parallel search fan-out -> snippet-first corroborate -> early-exit on saturation -> one targeted round (complex) -> synthesize BLUF -> self-check -> emit, under per-tier hard caps.",
+    "resources": ["rules/triage.md", "rules/search-protocol.md", "rules/output-contract.md", "references/source-reliability.md", "references/metrics.md", "assets/answer-template.md"],
+    "evidence_base": "Built: search_fan_out + bounded iterative_deepening + source_reliability_grading + claim_evidence_traceability, grounded in develop-principle.",
+    "controls": ["Per-tier hard budget caps (rounds/width/fetch/source bar) in rules/triage.md", "Citation + honesty controls enforced by scripts/check_answer.mjs", "Scope control routing reports to deep-research"],
+    "tests": ["20 deterministic harness cases + 6 behavioral cases; 14/14 adversarial-checklist coverage; regression set incl. battery-driven cases"],
+    "metrics": ["time-to-answer/cost-per-success per tier", "claim-traceability rate", "confident-wrong rate", "search efficiency", "activation precision"],
+    "lifecycle": "Built: CHANGELOG 0.1.0 + release gate + rollback.",
+    "adversarial_checklist": [
+      "Contested-looks-simple → COMPLEX + triangulate",
+      "Volatile value → dated source / as-of date",
+      "Unanswerable → uncertain + Low + disclaimer",
+      "Answer uncited but stray [n] in Sources/Caveats → E_UNSOURCED_CLAIM (loop-1 fix)",
+      "CRLF line endings → still parsed correctly (loop-1 fix)"
+    ]
+  },
+  "prioritized_actions": [
+    {
+      "id": "P1",
+      "pillar": "lifecycle",
+      "action": "Optional: add a lightweight runtime observability note (e.g. log tier + tool-call count per answer) if the skill is deployed at scale.",
+      "priority": "P2",
+      "rationale": "Polish; current metrics doc + validator self-check suffice for a self-contained skill."
+    }
+  ],
+  "handoff": {
+    "next_skill": "vince-skill-engineer",
+    "blocking_unknowns": []
+  }
+}

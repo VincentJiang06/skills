@@ -1,0 +1,181 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-guidance",
+  "target": {
+    "path": "/Users/vince/playground/skill-developer/vince-humanizer-academic/humanizer-academic",
+    "kind": "repo",
+    "name": "humanizer-academic",
+    "maturity": "mature"
+  },
+  "intent": {
+    "summary": "Rewrite academic/scholarly prose (EN, ZH, or mixed EN-in-ZH) to strip AI-writing signals across three layers (lexical, structural, statistical) while PRESERVING scholarly register and ADDING defined human texture (stance, source-grounded specificity, burstiness, controlled asymmetry), inventing zero facts; a bundled script DETECTS signals only.",
+    "in_scope": [
+      "Academic/scholarly/professional prose: thesis chapters, abstracts, literature reviews, research/policy reports, working papers, scholarly essays",
+      "English, Chinese, and mixed EN-in-ZH text that reads templated, over-smoothed, promotional, structurally mechanical, or visibly chatbot-written",
+      "Three-layer SUBTRACT (lexical denylist density, structural scaffolding, statistical uniformity) + ADD academic human texture without inventing facts",
+      "Detect-only mode: returning the deterministic three-layer signal map for a 'just score / don't rewrite' request"
+    ],
+    "out_of_scope": [
+      "Casual/general humanizing (tweet, chatty blurb) — no academic register to preserve; route away",
+      "Poetry, fiction dialogue, speeches, satire, or any genre that legitimately uses parallelism/repetition/heightened rhetoric (down-weight structural rules, do not flatten)",
+      "Inventing evidence, citations, quotations, datasets, numbers, or facts (hard fail)",
+      "Treating the detector's counts as the success oracle (closed-loop trap); the detector never humanizes"
+    ],
+    "primary_user": "An agent (or human via Claude Code) editing academic drafts; invoked on academic-rewrite requests or '$humanizer-academic'. Detect-only sub-mode serves a scoring-only request.",
+    "triggers_observed": [
+      "Positive: 'this thesis chapter / abstract / lit review / policy report reads AI-generated, make it human but still academic'",
+      "Explicit: '$humanizer-academic'",
+      "Adjacent-negative #1 (casual): 'humanize my tweet so it sounds less robotic' -> route away, no academic register",
+      "Adjacent-negative #2 (poetry/speech/fiction): heightened rhetoric is legitimate -> down-weight structural rules, do not flatten",
+      "Adjacent-negative #3 (detect-only): 'just score this, don't rewrite' -> return the detector signal map, perform no rewrite"
+    ]
+  },
+  "altitude": "full",
+  "altitude_rationale": "Full: the skill runs code (Bash invokes the local detector), writes/edits files, spans a bilingual surface with three adjacent false-triggers, and gates an adversarial control (fact-invention = hard fail, register floor). The dangerous-capability + wide-surface rows of the altitude table force full regardless of maturity.",
+  "scorecard": [
+    {
+      "pillar": "design",
+      "status": "present",
+      "score": 2,
+      "evidence": "Frontmatter description encodes Use-when + Do-NOT and all three adjacent false-trigger discriminations (academic-vs-casual, thesis-vs-poetry, detect-vs-rewrite). Protocol is a real runbook: Preflight (lang/section/genre-whitelist + lock constraints) -> SUBTRACT lexical -> SUBTRACT structural -> FLATTEN statistical -> ADD texture -> re-check register -> Verify -> detect-only mode. Five hard constraints stated. Controls externalized: detector is detect-only, oracle is the independent blind judge, not detector counts (anti_pattern.prompted_architecture avoided).",
+      "gaps": []
+    },
+    {
+      "pillar": "research",
+      "status": "present",
+      "score": 2,
+      "evidence": "Inverse claim_evidence_traceability, the correct shape for a transform that makes NO external claims: the evidence base is the SOURCE TEXT and the rule is 'every number/citation/quotation/named-entity/date in the output must trace to the input; zero net-new facts'. Mechanically enforced by run_behavioral_checks.py (fact_invention_zero_new[en|zh]) against the worked rewrites; the harness even refused to require an absent term ('IMF' for a fixture that uses AMRO) so as not to reward invention. Pattern catalogues are explicitly marked authored heuristics, not fabricated citations.",
+      "gaps": []
+    },
+    {
+      "pillar": "testing",
+      "status": "present",
+      "score": 2,
+      "evidence": "Layered suite, all green: run_detector_tests.py 46/46 (import-contract that the harness imports the detector core and does not reimplement CV; pinned CV/tokenizer/splitter math; pinned structural/lexical counts; shape + idempotency) and run_behavioral_checks.py 22/22 (fact-invention, mixed-language, register-floor, hedging, idempotency, genre-whitelist, clean-prose-no-op, detect-only). eval-cases.json enumerates 18 cases (4 deterministic + 14 behavioral) including adversarial/adjacent ones: B0 casual negative-trigger, B1 poetry whitelist, B9 clean-prose near-no-op, B13 closed-loop trap — all asserting on behavior, not SKILL.md string-greps. Regression fixtures: 10 LLM papers + clean_academic + negative_poem.",
+      "gaps": []
+    },
+    {
+      "pillar": "tdd",
+      "status": "present",
+      "score": 2,
+      "evidence": ".skill-engineer/red/red.log carries 30 assertion-level FAIL lines across two red phases: (1) initial 6/24 against an importable wrong stub (got '__stub__' / -1.0 / KeyError on lexical|structural|statistical — proves the contract failed before behavior existed), and (2) a Loop-1 independent battery that captured 5 real detector bugs red-first (decimal/abbreviation over-splitting on '3.5%', 'U.S.', ZH '3.5%。'; bold-label colon-inside) with assertion-level failures BEFORE the fix. eval-cases.json marks the deterministic harness as the re-runnable primary path. Genuine red-green-refactor, not tests-after.",
+      "gaps": []
+    },
+    {
+      "pillar": "metrics",
+      "status": "present",
+      "score": 2,
+      "evidence": "SKILL.md Metrics + blind-judge-rubric.md define a measurable, closed-loop-resistant success model: primary oracle = independent_blind_judge_score (a fresh judge scored on source+rewrite+5 dimensions ONLY, never shown denylists / detector / SKILL.md); register_preservation_score (must not drop while AI-ness drops); fact_invention_rate (MUST be 0, hard fail); marginal_lift (with-skill minus without-skill, same source). Detector three-layer deltas explicitly demoted to a diagnostic dashboard, never pass/fail. Pass thresholds (dim1>=4, dim4>=3, dim2>=source) are written in the rubric.",
+      "gaps": []
+    },
+    {
+      "pillar": "low_context_kb",
+      "status": "present",
+      "score": 2,
+      "evidence": "SKILL.md is 195 lines (<500) and acts as a short entry point with a combined Modules/Scripts/Tests table that points to five on-demand references (english-patterns, chinese-patterns, structural-statistical-signals, human-texture, academic-register — 98-196 lines each, loaded per protocol step) plus the blind-judge rubric. Progressive disclosure is real: each Step names exactly which reference to load. No always-loaded bloat; the detector code and fixtures live outside the prompt path.",
+      "gaps": []
+    },
+    {
+      "pillar": "lifecycle",
+      "status": "present",
+      "score": 2,
+      "evidence": "CHANGELOG.md defines the public contract (rewrite behavior + register floor), a breaking-change rule (a shift in default aggressiveness or the register floor bumps major), an explicit Release gate that blocks on any of {register_preservation drop, fact_invention_rate>0, idempotency regression, either harness exits non-zero}, and a Rollback path (revert to prior tag + restore legacy/openai.yaml as the Codex entry point). Deprecation done: the old Codex packaging is retired into legacy/. _meta.json pins version 2.0.1 + source repo. Versioned 1.3.0 -> 2.0.0 (rebuild) -> 2.0.1 (detector patch).",
+      "gaps": []
+    }
+  ],
+  "overall_readiness": {
+    "ratio": 1.0,
+    "points": "14/14",
+    "verdict": "industrial",
+    "summary": "Re-audit of the BUILT v2.0.1 artifact: all 7 pillars present (14/14). The rebuild delivered exactly what the pre-build draft (6/14) lacked — the structural+statistical signal layers, a defined ADD-human-texture step, a detect-only deterministic detector wired as a single source of truth, and an independent blind judge that replaces the closed-loop density metric. TDD is evidenced by a real red log (30 assertion-level FAILs across two phases, including 5 detector bugs caught red-first), both harnesses are green (46/46 + 22/22), and lifecycle has a working release gate + rollback. No P0/P1 gaps; only P2 polish remains."
+  },
+  "comparables": [
+    {
+      "repo_id": "develop-principle (local KB)",
+      "skill_path": "docs/testing/tdd_for_skill_development.md + docs/metrics/quantitative_skill_metrics.md",
+      "what_to_borrow": "Already absorbed: red-first capture against an importable stub before behavior, and a fuzzy-oracle metric (LLM-as-judge) held independent of the skill's own internal counts to defeat the closed-loop trap. Confirmed mirrored in red.log and blind-judge-rubric.md."
+    },
+    {
+      "repo_id": "vince-hifi-review / vince-album-review (sibling industrial skills)",
+      "what_to_borrow": "Same evidence-traceability discipline (every claim traces to a source) — here applied inversely as a no-net-new-facts invariant, and the same diagnostic-vs-oracle separation (a measurement instrument that is not the pass/fail gate)."
+    }
+  ],
+  "recommended_design": {
+    "trigger": "AS BUILT (no change needed). Activate on academic/scholarly/professional rewrite requests in EN/ZH/mixed, or '$humanizer-academic'. Three adjacent false-triggers are discriminated in the description and re-enforced in Preflight: (1) casual general-humanizer -> route away (no register to preserve); (2) poetry/speech/fiction-dialogue -> down-weight structural rules, do not flatten legitimate rhetoric; (3) detect-only -> return the signal map, no rewrite. Each is bound to a behavioral eval case (B0/B1/B12).",
+    "protocol": "AS BUILT. Preflight (detect language; detect section type; genre-whitelist check; lock citations/quotes/dates/numbers/terms/section-logic/claim-strengths; optional baseline detector run) -> Step 1 SUBTRACT lexical (density + co-occurrence over single keywords) -> Step 2 SUBTRACT structural (rule-of-three, signpost overload, mechanical paragraph shape, bold-label lists, report-shell, mechanical negative parallelism; respect whitelist) -> Step 3 FLATTEN statistical uniformity (raise sentence/paragraph CV, de-cluster hedging) -> Step 4 ADD human texture (stance, source-grounded specificity, burstiness, controlled asymmetry) -> Step 5 re-check register -> Step 6 Verify (detector before/after delta as diagnostic; no-new-facts; register-collapse; idempotency) -> Step 7 detect-only mode.",
+    "resources": [
+      "references/english-patterns.md — Step 1 EN lexical denylist families (authored heuristic)",
+      "references/chinese-patterns.md — Step 1 ZH lexical/officialese families (authored heuristic)",
+      "references/structural-statistical-signals.md — Steps 2-3 structural (§A) + statistical/rhythmic (§B) layers, incl. the rule_of_three over-match caveat",
+      "references/human-texture.md — Step 4 ADD target: stance / source-grounded specificity / burstiness / controlled asymmetry (EN+ZH)",
+      "references/academic-register.md — Preflight + Step 5 register-preservation guard, section-specific expectations, 'what not to add'",
+      "evals/blind-judge-rubric.md — the independent success oracle and the rewrite self-check",
+      "evals/worked/{gpt-en,kimi-zh}.{rewrite,notes}.md — two worked rewrites with full protocol traces + blind-judge self-scores"
+    ],
+    "evidence_base": "N/A as outward claims: this is a transform that must invent NOTHING. The 'evidence base' is the input itself — every number/citation/quotation/named-entity/date in the output must trace to the source (zero net-new facts; hard fail if >0). Enforced mechanically (run_behavioral_checks.py fact_invention_zero_new[en|zh]) and by the blind judge's invented-facts hard-fail. Internal pattern catalogues are labelled authored heuristics, not external citations.",
+    "controls": [
+      "allowed-tools = Read/Write/Edit/Grep/Glob/Bash/AskUserQuestion; Bash is used ONLY for the local detector (no network)",
+      "Detector is DETECT-ONLY: an externalized measurement instrument, never described as a humanizer, never the pass/fail oracle (closed-loop trap defused)",
+      "Success oracle = independent blind judge, blind to denylists/detector/SKILL.md",
+      "Register floor: never drop formality below the source's academic register; no slang/banter/jokes/fake-typos/emoji/rhetorical-question flavor",
+      "Zero net-new facts (hard fail); meaningful epistemic hedging preserved (collapse only stacked/empty hedging); genuine section logic/transitions preserved"
+    ],
+    "tests": [
+      "Deterministic: run_detector_tests.py 46/46 — import-contract (harness imports detector core, does not reimplement CV), pinned CV math (3 equal sentences -> 0.0; lengths [2,18] -> 0.8; <2 sentences -> 0.0; bursty>uniform), pinned tokenizer/splitter, pinned structural/lexical counts, shape + idempotency",
+      "Behavioral mechanizable: run_behavioral_checks.py 22/22 — fact-invention zero-new, mixed-language term/punctuation, register-no-casual/no-emoji, hedging preserved, detector idempotent, poem triad preserved, clean-prose low-lexical/low-structural/already-bursty, detect-only returns map + help says detect-not-humanize",
+      "Behavioral oracle: blind-judge-rubric.md applied to evals/worked/ (EN+ZH) — 5 dimensions, pass thresholds dim1>=4 & dim4>=3 & dim2>=source",
+      "Adjacent/adversarial cases enumerated in eval-cases.json: B0 casual negative-trigger, B1 poetry whitelist, B13 closed-loop trap, B5 templated-draft 3-family reduction + stance added",
+      "Regression fixtures: 10 LLM-generated papers (GPT/Grok/Kimi/Mimo/Minimax x EN+ZH) + clean_academic + negative_poem"
+    ],
+    "metrics": [
+      "independent_blind_judge_score (PRIMARY oracle; blind to removal rules — kills the closed-loop trap)",
+      "register_preservation_score (must NOT drop while AI-ness drops)",
+      "fact_invention_rate (MUST be 0; hard fail if >0)",
+      "marginal_lift = blind-judge(with-skill) - blind-judge(without-skill), same source",
+      "detector burstiness_delta / structural_signal_delta / lexical_total — DIAGNOSTIC dashboard only, never pass/fail"
+    ],
+    "lifecycle": "AS BUILT. Public contract = rewrite behavior + register floor; breaking change = a shift in default aggressiveness or the register floor (major bump). Release gate blocks on {register_preservation drop, fact_invention_rate>0, idempotency regression, either harness exits non-zero}. Rollback = revert to prior tag + restore legacy/openai.yaml as Codex entry point. Deprecation done (Codex packaging retired to legacy/). _meta.json pins version+source. History 1.3.0 -> 2.0.0 -> 2.0.1.",
+    "adversarial_checklist": [
+      "Statistics-heavy academic sentence with decimals/percentages ('GDP grew 3.5% in 2021.', ZH '2021年GDP增长3.5%。') → counts as ONE sentence (splitter must not shatter on the interior dot); the exact domain this skill targets. VERIFIED FIXED in 2.0.1.",
+      "Letter-dot abbreviation chains ('The U.S. economy…', 'e.g.', 'i.e.') → ONE sentence, no over-split; a sentence-final dot after a number still splits. VERIFIED FIXED in 2.0.1.",
+      "Bold-label LLM list in both colon positions ('**Label:**' colon-inside AND '**Label**:' colon-outside, with/without leading bullet, EN+ZH) → bold_label_list fires once per label, no double-count. VERIFIED FIXED in 2.0.1.",
+      "Casual non-academic input ('humanize my tweet: our app is live') → skill does NOT activate / routes away (no academic register precondition); deleting the casual guard would make it over-trigger. Bound to B0.",
+      "Poetry / speech / fiction-dialogue with legitimate triad + balanced parallelism → structural signals are PRESERVED, not flattened (genre whitelist down-weights structural rules); detector must still see the structure to preserve. Bound to B1.",
+      "Detect-only request ('just score, don't rewrite') → returns the three-layer signal map and performs NO rewrite; CLI --help states it DETECTS and never humanizes. Bound to B12.",
+      "Mixed EN-in-ZH technical terms (GDP, IPO, AMRO inside ZH sentences) → EN tokens kept verbatim, no CJK punctuation splitting an EN word, CJK sentences end with full-width terminators not bare ASCII '.'. Bound to B6.",
+      "Stacked/empty hedging ('could potentially possibly', '可能也许大概') vs a single calibrated hedge → stacked collapses to one, MEANINGFUL hedge is preserved (never converted to false certainty). Bound to B3/B4.",
+      "Already-clean academic prose → near no-op: ~0 lexical, <=1 structural, sentence_cv>0.2; the skill must NOT over-edit or inject artificial imperfections. Bound to B9.",
+      "Idempotency / round-trip: a second rewrite pass over the skill's own output → near no-op (no oscillation); detector itself is deterministic (identical input -> identical map). Bound to B10 + shape::detector_is_idempotent_deterministic.",
+      "Closed-loop metric bait: a deletion-only rewrite that strips denylist words but stays robotic/uniform → still flagged AI-ish by the INDEPENDENT blind judge (which never sees denylists/detector); success must be independent of the skill's own counts. Bound to B13.",
+      "CV math boundaries: 3 equal-length sentences → sentence_cv = 0.0 exactly; lengths [2,18] → 0.8 exactly; a single sentence (<2) → 0.0 (no divide-by-zero); bursty input → strictly greater CV than uniform. Bound to D3.",
+      "rule_of_three over-match edge: a 4+ item list (EN 'A, B, C, and D'; ZH 甲、乙、丙、丁) → MAY fire on the trailing three items; this is a documented caveat (read density, not a single hit), and it must NOT fire on a two-item list. Bound to the §A1 caveat + D2."
+    ]
+  },
+  "prioritized_actions": [
+    {
+      "id": "A1",
+      "pillar": "metrics",
+      "action": "Optional: capture one concrete numeric marginal_lift datapoint (blind-judge with-skill vs without-skill on the same fixture) and record it in the worked notes, so the metric has a logged value rather than only a defined procedure.",
+      "priority": "P2",
+      "rationale": "The metric is defined and the rubric is independent; an actual logged number would make marginal_lift demonstrable, not just specified. Not blocking — the oracle and thresholds already exist."
+    },
+    {
+      "id": "A2",
+      "pillar": "tdd",
+      "action": "Optional: add a CV/structural mutation case for a 4+ item rule_of_three list asserting the documented 'trailing three' behavior, so the known over-match caveat is pinned by a test rather than only documented in code + §A1.",
+      "priority": "P2",
+      "rationale": "The caveat is documented in scripts/detect_ai_signals.py and structural-statistical-signals.md §A1 and the adversarial checklist names it, but no assertion currently pins the exact 4-item behavior. Polish, not a gap that affects the verdict."
+    },
+    {
+      "id": "A3",
+      "pillar": "lifecycle",
+      "action": "Optional: add a lightweight observability note to CHANGELOG/README on how the release-gate metrics are re-measured per release (which fixtures, which harness commands), so a future maintainer reruns the gate identically.",
+      "priority": "P2",
+      "rationale": "The release gate conditions and rollback are defined; an explicit 're-measure recipe' would tighten observability. Minor — the harness commands are already the de facto recipe."
+    }
+  ],
+  "handoff": {
+    "next_skill": "vince-skill-engineer",
+    "blocking_unknowns": []
+  }
+}

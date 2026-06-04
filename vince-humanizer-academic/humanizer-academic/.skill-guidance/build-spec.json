@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-guidance",
+  "target": {
+    "path": "/Users/vince/playground/skill-developer/vince-humanizer-academic/humanizer-academic",
+    "kind": "repo",
+    "name": "humanizer-academic",
+    "maturity": "draft"
+  },
+  "intent": {
+    "summary": "Rewrite English / Chinese / mixed-language ACADEMIC prose to remove AI-writing signals across three layers (lexical, structural, statistical) while PRESERVING scholarly register and ADDING defined academic human texture (stance, source-grounded specificity, syntactic variance) — never inventing facts.",
+    "in_scope": [
+      "academic / scholarly / professional prose: essays, thesis chapters, abstracts, literature reviews, research reports, policy papers, working papers",
+      "English-only, Chinese-only, and mixed EN-in-ZH text in one workflow",
+      "SUBTRACT layer: remove lexical AI vocab, structural scaffolding (rule-of-three, signpost overload, bold-label lists, report-shell meta-sentences, balanced negative parallelism), and flatten statistical uniformity (low burstiness, uniform paragraph/clause length)",
+      "ADD layer: restore academic human texture — committed claims with calibrated confidence, concrete mechanism/case/number ALREADY in the source, deliberate sentence/paragraph length variance, controlled list/shape asymmetry",
+      "ship a deterministic detector (scripts/) that returns a three-layer signal map (lexical hits + structural-pattern hits + a burstiness/variance statistic) as a MEASUREMENT instrument only"
+    ],
+    "out_of_scope": [
+      "inventing evidence, citations, quotations, datasets, numbers, or facts to manufacture specificity (hard fail)",
+      "poetry, fiction dialogue, speeches, satire, or any genre that legitimately relies on parallelism/repetition/heightened rhetoric (genre whitelist — down-weight rules, do not flatten)",
+      "turning academic prose casual/chatty, adding slang, banter, jokes, fake typos, or artificial imperfections (register collapse — headline failure mode)",
+      "claiming the detector script 'humanizes' — the script only detects; rewriting is LLM-behavioral"
+    ],
+    "primary_user": "an agent (Claude Code) invoked on a draft of academic text the user wants de-AI-ified while staying scholarly; also runs as Stage-2 build target of the vince-skill pipeline",
+    "triggers_observed": [
+      "this thesis chapter / abstract / literature review reads templated / AI-generated — make it human but keep it academic",
+      "remove the AI flavor from this 论文 / 研究报告 but keep the 学术 register",
+      "humanize this bilingual academic draft (EN+ZH)",
+      "$humanizer-academic"
+    ]
+  },
+  "altitude": "full",
+  "altitude_rationale": "Wide surface (3 languages x 3 signal layers x SUBTRACT+ADD), ships a code-running deterministic detector, carries an explicit 'rebuild to industrial' mandate, and gates a real safety edge (fact-invention = hard fail) — the altitude table's dangerous-capability + 'make this industrial' rows both force full.",
+  "scorecard": [
+    {
+      "pillar": "design",
+      "status": "partial",
+      "score": 1,
+      "evidence": "SKILL.md (119 lines) has a clear Use-when / Do-NOT block, a numbered Default workflow, and Academic guardrails; but it is a CODEX skill (agents/openai.yaml, default_prompt with $humanizer-academic) not yet a Claude Code skill, control flow (when to run scan_patterns / polish_english) lives in prose, and the description has zero adjacent false-trigger cases (e.g. general-humanizer vs academic, poetry vs thesis).",
+      "gaps": [
+        "Codex packaging (agents/openai.yaml, openai-style default_prompt) must be ported to a Claude Code SKILL.md with allowed-tools and Claude-native trigger phrasing",
+        "no adjacent false-trigger discrimination in the description (academic-vs-casual-humanizer, thesis-vs-poetry, detect-vs-rewrite)",
+        "the three-layer mechanism (lexical/structural/statistical) and the SUBTRACT+ADD coupling are not yet the spine of the protocol — current body is mostly a lexical denylist runbook",
+        "detector invocation and its detect-only boundary are not encoded as an externalized control"
+      ]
+    },
+    {
+      "pillar": "research",
+      "status": "partial",
+      "score": 1,
+      "evidence": "references/{english-patterns,chinese-patterns,academic-register}.md are a substantial, well-organized authored pattern catalogue (inflation, promotional, vague attribution, scaffolding, officialese, nominalization, whitelist). But the catalogue is unsourced heuristics, and — the core gap — it only encodes what to SUBTRACT; there is no positive, defined target for academic 人情味 (human texture) to ADD.",
+      "gaps": [
+        "no positive 'academic human texture' definition: must specify stance (committed claim + calibrated confidence), source-grounded specificity, syntactic/paragraph burstiness, and controlled asymmetry as ADD targets",
+        "the structural layer (rule-of-three, signpost overload, mechanical paragraph shape, bold-label lists, report-shell meta-sentences, balanced negative parallelism) is only thinly covered vs the lexical layer",
+        "the statistical/rhythmic layer (burstiness, uniform paragraph/clause length, evenly-distributed hedging) is entirely missing from the KB — these are the 'obvious AI features current humanizers still miss'",
+        "pattern catalogues carry no provenance (mark as authored heuristics or cite)"
+      ]
+    },
+    {
+      "pillar": "testing",
+      "status": "partial",
+      "score": 1,
+      "evidence": "Real test data exists but lives in the SIBLING ../eval (10 AI papers, 5 model families x EN/ZH, rubric.md, Codex run scripts) — it is NOT skill-owned (no evals/ inside humanizer-academic). The only automated check (run_baseline_eval.py compare) is happy-path and CLOSED-LOOP: it counts the very regex families the skill removes.",
+      "gaps": [
+        "migrate the 10 papers + rubric.md into the skill's own evals/ (fixtures), discard the Codex scripts (run_codex_rewrites.py, polish_english.py, density metric)",
+        "no negative / adjacent-false-trigger cases (poetry, already-clean academic prose, detect-vs-rewrite confusion)",
+        "no idempotency / no-oscillation regression (run rewrite twice)",
+        "no trajectory or contract check that the detector is imported (not reimplemented) and is used as detect-only",
+        "the success oracle must be an INDEPENDENT blind judge, not the skill's own removal-pattern count"
+      ]
+    },
+    {
+      "pillar": "tdd",
+      "status": "absent",
+      "score": 0,
+      "evidence": "No .skill-engineer/red/ red log, no failing-case-first workflow. The detector core that should be unit-tested red-first on pinned crafted-input values does not exist yet; the sibling eval scripts were written after the fact and prove nothing about red-first.",
+      "gaps": [
+        "write failing tests FIRST: (a) detector unit tests with pinned expected signal-map values on crafted inputs (lexical count, structural-pattern count, burstiness statistic), (b) rewrite eval cases with acceptance criteria, before any implementation",
+        "produce a real .skill-engineer/red/red.log with >=1 assertion-level FAIL against an importable detector stub",
+        "add metamorphic relations (synonym-task -> same activation; irrelevant added context -> key conclusions unchanged; rewrite-twice -> no degradation) and at least one mutation check"
+      ]
+    },
+    {
+      "pillar": "metrics",
+      "status": "absent",
+      "score": 0,
+      "evidence": "The ONLY metric is run-summary 'average_rewritten_density' (3.77 -> 0.59) — a closed loop: 'density' = hits/1k-tokens of the exact ZH_RULES/EN_RULES the skill deletes, so driving it toward 0 proves only deletion, not human-ness. No success rate, activation precision, cost, or pass^k.",
+      "gaps": [
+        "define an INDEPENDENT blind-judge success metric: a fresh evaluator scores residual AI-ness AND register-preservation WITHOUT seeing the removal rules (operationalize rubric.md's 5 dims + hard-fail conditions)",
+        "define register-preservation as a first-class metric (must NOT drop while AI-ness drops) to catch the register-collapse failure",
+        "define paired/marginal-lift (with-skill vs without-skill, same source) and pass^k for stochastic stability",
+        "keep the detector's three-layer signal map ONLY as a diagnostic dashboard, explicitly NOT the pass/fail oracle"
+      ]
+    },
+    {
+      "pillar": "low_context_kb",
+      "status": "present",
+      "score": 2,
+      "evidence": "SKILL.md is a 119-line orchestrator with progressive disclosure into references/ (english-patterns, chinese-patterns, academic-register) loaded on demand via explicit pointers; no encyclopedic bloat in the entry file.",
+      "gaps": [
+        "when the ADD-layer texture KB and the structural/statistical KB are added, keep them as separate on-demand reference modules (don't inflate SKILL.md)"
+      ]
+    },
+    {
+      "pillar": "lifecycle",
+      "status": "partial",
+      "score": 1,
+      "evidence": "_meta.json pins version 1.3.0 and a source repo, so versioning exists; but there is no changelog, no release gate, no rollback path, and no rule for what counts as a breaking change to the rewrite behavior.",
+      "gaps": [
+        "add a changelog and a release gate tied to the independent-judge metric (block release if register-preservation drops or fact-invention appears)",
+        "define a rollback path and what a breaking change to rewrite behavior is",
+        "reset/realign the version for the Claude Code rebuild"
+      ]
+    }
+  ],
+  "overall_readiness": {
+    "ratio": 0.43,
+    "points": "6/14",
+    "verdict": "draft",
+    "summary": "Strong low-context structure and a substantial authored pattern KB, but the mechanism is still a lexical denylist with a closed-loop eval; verdict capped at draft by two full-altitude-required pillars at 0 (tdd, metrics). The rebuild must add the structural+statistical signal layers, define+add academic human texture, ship a detect-only deterministic detector, and replace the closed loop with an independent blind judge."
+  },
+  "comparables": [
+    {
+      "repo_id": "repo.anthropics_skills",
+      "skill_path": "skills/skill-creator/SKILL.md",
+      "what_to_borrow": "Canonical Claude Code SKILL.md frontmatter (name + Use-when/Do-NOT description + allowed-tools) and progressive disclosure into references/ — the porting target shape to replace the Codex agents/openai.yaml packaging; borrow structure only."
+    },
+    {
+      "repo_id": "repo.addyosmani_agent-skills",
+      "skill_path": "skills/test-driven-development/SKILL.md",
+      "what_to_borrow": "How a skill encodes a red-first verification gate and an explicit acceptance step — transfer the pattern of failing-test-before-behavior and a per-step verify block so the detector unit tests and rewrite eval cases are written before implementation."
+    }
+  ],
+  "recommended_design": {
+    "trigger": "Activate on requests to de-AI-ify ACADEMIC / scholarly / professional prose (EN, ZH, or mixed) while keeping scholarly register — thesis chapters, abstracts, lit reviews, research/policy reports, working papers — and on $humanizer-academic. POSITIVE: 'this 论文/abstract reads AI-generated, make it human but keep it academic'; 'humanize this bilingual academic draft'. NEGATIVE / DO-NOT: general casual 'humanize my tweet' (no academic register to preserve), poetry/fiction-dialogue/speech (genre whitelist), and pure detection requests with no rewrite. ADJACENT false-triggers to discriminate explicitly: (a) generic-humanizer vs academic-humanizer (this one preserves register), (b) thesis-prose vs poetry/rhetoric (down-weight parallelism rules in the latter), (c) detect-only vs rewrite (the script detects, the agent rewrites).",
+    "protocol": "Preflight: detect language (EN/ZH/mixed) and section type (abstract/intro/lit-review/analysis/discussion/conclusion/policy); detect genre-whitelist (poetry/speech/fiction-dialogue) and DOWN-WEIGHT structural rules if matched; LOCK hard constraints (citations, quotations, dates, numbers, technical terms, section logic, claim strength). Optionally run scripts/detect_ai_signals on the draft to get a three-layer signal map for diagnosis (NOT a pass/fail gate). Steps: (1) SUBTRACT lexical (inflated vocab, promotional adjectives, AI-vocab clusters, vague attribution, stacked/empty hedging) per references/english-patterns + chinese-patterns; (2) SUBTRACT structural (rule-of-three scaffolding, signpost overload, mechanical topic->3-supports->summary paragraphs, bold-label lists, report-shell meta-sentences, balanced negative parallelism); (3) FLATTEN statistical uniformity (raise burstiness: vary sentence + paragraph length; break monotone clause structure; de-cluster evenly distributed hedging); (4) ADD academic human texture WITHOUT inventing: surface a committed claim with calibrated confidence (authorial stance), name the mechanism/case/number ALREADY in the source (concrete specificity), introduce deliberate length variance and controlled asymmetry (not every list = 3, not every paragraph the same shape); (5) re-check register against references/academic-register (must stay formal, not casual; preserve epistemic hedging). Verify: re-run detector for a before/after diagnostic delta across all three layers AND confirm register did not collapse; confirm zero new facts/citations/numbers. Report: rewritten text only by default; optional 3-6 point change note on request.",
+    "resources": [
+      "references/english-patterns.md (refine; keep the lexical denylist, add the structural+statistical EN layer)",
+      "references/chinese-patterns.md (refine; keep; add structural+statistical ZH layer and strengthen density/co-occurrence guidance)",
+      "references/academic-register.md (refine; this is the register-preservation guard)",
+      "references/human-texture.md (NEW: the positive ADD target — stance / source-grounded specificity / burstiness / controlled asymmetry, with EN+ZH examples)",
+      "references/structural-statistical-signals.md (NEW: the missing structural + statistical/rhythmic layer — rule-of-three, signpost overload, paragraph-shape, balanced parallelism, low burstiness, uniform paragraph length, evenly-distributed hedging)",
+      "evals/ (NEW: migrate the 10 ../eval papers + rubric.md as fixtures; this becomes skill-owned test data)"
+    ],
+    "evidence_base": "N/A for external facts: this skill makes NO external factual claims and must NEVER add any — the hardest guardrail is that all specificity must already exist in the user's source. The relevant principle is claim_evidence_traceability applied INVERSELY: every number/citation/quotation in the output must trace to the input (zero net-new facts). The pattern catalogues are authored heuristics (mark as such); the only 'evidence base' is the user's own source text.",
+    "controls": [
+      "allowed-tools: Read, Write, Edit, Grep, Glob (and AskUserQuestion only to disambiguate genre/intent) — no network, no code execution beyond the local detector",
+      "the detector is a MEASUREMENT instrument only: SKILL.md must NOT claim it 'humanizes'; it returns a signal map, it never rewrites",
+      "detector pass/fail must NOT be the success oracle — the independent blind judge is (prevents the closed-loop trap)",
+      "hard stop: never write a fact/citation/number/quotation not present in the source",
+      "register floor: never lower formality below the source's academic register"
+    ],
+    "tests": [
+      "detector unit tests with PINNED expected values on crafted inputs: a string with exactly N rule-of-three triads -> structural_count == N; alternating long/short sentences vs uniform sentences -> burstiness statistic ordered correctly; a clean academic sentence -> ~zero lexical hits (math is deterministic, no LLM)",
+      "import-contract test: the harness imports detect_ai_signals from scripts/ (assert it is NOT reimplemented inside evals/)",
+      "EN rewrite case on an ../eval English paper -> independent blind judge: AI-ness down AND academic register preserved (>= source register)",
+      "ZH rewrite case on an ../eval Chinese paper -> blind judge: structural+statistical signals down, no register collapse, no invented facts",
+      "mixed EN-in-ZH case -> EN technical terms kept intact, ZH punctuation inside ZH sentences, EN punctuation inside EN sentences",
+      "genre-whitelist negative case: a poem/speech -> parallelism/repetition NOT flattened (assert on behavior, not a SKILL.md grep)",
+      "already-clean academic prose -> near no-op, register intact (no over-editing)",
+      "idempotency: run the rewrite twice -> second pass does not degrade or thrash (no oscillation)",
+      "fact-invention adversarial: source with a deliberately vague claim -> rewrite must NOT manufacture a number/citation to add 'specificity'",
+      "hedging-preservation case: source with calibrated 'may/appears/likely' or '可能/或许' -> hedging that carries epistemic meaning is preserved (not converted to false certainty)",
+      "closed-loop trap guard: a rewrite that merely deletes denylist words but stays robotic/uniform -> blind judge still scores it AI-ish (proves the metric is independent of the removal rules)"
+    ],
+    "metrics": [
+      "independent_blind_judge_score: a fresh evaluator (not shown the removal rules) scores residual AI-ness on the rubric.md scale; primary success oracle",
+      "register_preservation_score: rubric 'academic register' dimension — must NOT drop while AI-ness drops (guards the register-collapse failure)",
+      "fact_invention_rate: count of net-new facts/citations/numbers vs source = MUST be 0 (hard fail if > 0)",
+      "marginal_lift: blind-judge(with-skill) - blind-judge(without-skill) on the same source (paired eval)",
+      "burstiness_delta / structural_signal_delta: diagnostic-only deltas from the detector across the three layers (dashboard, NOT pass/fail)",
+      "pass^k_all over k stochastic rewrites of a fixed source for stability",
+      "loaded_context_tokens / cost_per_success for the on-demand KB"
+    ],
+    "lifecycle": "Reset the version for the Claude Code rebuild; add a CHANGELOG and a release gate that BLOCKS release if register_preservation drops, fact_invention_rate > 0, or idempotency regresses. Define a breaking change as any shift in default rewrite aggressiveness or register floor. Provide a rollback path to the prior version. Retire the Codex agents/openai.yaml + the closed-loop density metric as part of the cutover.",
+    "adversarial_checklist": [
+      "general-humanizer request (casual tweet, no academic register) → skill DOES NOT activate or routes away (academic-only scope); negative trigger",
+      "poetry / speech / fiction-dialogue input → parallelism, repetition, and rhetorical triads are PRESERVED (genre whitelist down-weights structural rules), asserted on output behavior not on a SKILL.md string",
+      "source with a vague/unsupported claim → rewrite restores specificity ONLY from material already in the source; net-new facts/citations/numbers == 0 (fact-invention hard fail)",
+      "calibrated hedging present ('may/appears/likely', '可能/或许/倾向于') → epistemic hedging PRESERVED; NOT converted to false certainty",
+      "stacked/empty hedging ('could potentially possibly') → collapsed to a single calibrated hedge (distinguish from the meaningful-hedging case above)",
+      "highly templated academic draft (rule-of-three + signpost overload + bold-label lists + report-shell) → all three structural families reduced AND a committed authorial stance added, register still academic",
+      "mixed EN-in-ZH sentence with standard technical terms (e.g. 'GDP', 'IPO', 'fintech') → EN technical terms kept verbatim inside the ZH sentence; ZH full-width punctuation in ZH sentences, ASCII punctuation in EN sentences",
+      "uniform-rhythm text (every sentence ~same length, every paragraph ~same length) → burstiness raised (deliberate length variance) WITHOUT register collapse",
+      "thesis chapter with necessary section/argument structure → required section logic and transitions that carry real logical work are PRESERVED (don't flatten genuine structure)",
+      "already-clean / human academic prose → near no-op; the skill does NOT over-edit or inject artificial 'imperfections'",
+      "run the rewrite twice (idempotency) → second pass produces a stable result; no degradation, no oscillation/thrash",
+      "register-collapse bait (source begs to be made 'lively') → output stays formal academic; no slang, banter, jokes, fake typos, or rhetorical-question flavor",
+      "detect-only request ('just score this, don't rewrite') → the detector signal map is returned and NO rewrite is performed; the script is never described as a humanizer",
+      "closed-loop metric trap: a candidate rewrite that deletes denylist words but stays robotic/uniform → the INDEPENDENT blind judge still flags it AI-ish (success is judged independently of the skill's own removal-pattern count)",
+      "detector core integrity → evals import detect_ai_signals from scripts/ and do NOT reimplement the signal math (single source of truth)"
+    ]
+  },
+  "prioritized_actions": [
+    {
+      "id": "A1",
+      "pillar": "metrics",
+      "action": "Build an INDEPENDENT blind-judge success metric (fresh evaluator scoring residual AI-ness + register-preservation on rubric.md WITHOUT seeing the removal rules), and demote the detector's three-layer signal map to a diagnostic-only dashboard. Add fact_invention_rate (must be 0) and register_preservation (must not drop).",
+      "priority": "P0",
+      "rationale": "metrics absent + the only existing metric is the closed loop the rebuild exists to kill; required at full altitude — caps verdict at draft until fixed."
+    },
+    {
+      "id": "A2",
+      "pillar": "tdd",
+      "action": "Write failing tests FIRST and capture .skill-engineer/red/red.log with >=1 assertion-level FAIL: (a) detector unit tests with pinned signal-map values on crafted inputs, (b) rewrite eval cases with acceptance criteria, before implementing the detector or refining the rewrite protocol.",
+      "priority": "P0",
+      "rationale": "tdd absent; required at full altitude — caps verdict at draft. Red-first is the only way the detector's math and the rewrite acceptance are honestly constrained."
+    },
+    {
+      "id": "A3",
+      "pillar": "design",
+      "action": "Port the Codex skill to a Claude Code SKILL.md (allowed-tools + Claude-native triggers, retire agents/openai.yaml) and make the three-layer SUBTRACT + ADD-texture flow the spine of the protocol; add the 3 adjacent false-trigger discriminations (academic-vs-casual, thesis-vs-poetry, detect-vs-rewrite).",
+      "priority": "P0",
+      "rationale": "It must become a Claude Code skill, and the current protocol is a lexical denylist that does not encode the structural/statistical layers or the ADD coupling the rebuild requires."
+    },
+    {
+      "id": "A4",
+      "pillar": "research",
+      "action": "Author references/human-texture.md (positive ADD definition: stance / source-grounded specificity / burstiness / controlled asymmetry, EN+ZH) and references/structural-statistical-signals.md (the missing structural + statistical/rhythmic layer); mark all pattern catalogues as authored heuristics.",
+      "priority": "P0",
+      "rationale": "The owner's actual ask — define and ADD academic human texture, and catch structural/statistical AI features — is entirely missing today; without it the rebuild is just another denylist."
+    },
+    {
+      "id": "A5",
+      "pillar": "design",
+      "action": "Implement scripts/detect_ai_signals (python3, matching the workspace) with an importable core that returns a three-layer signal map (lexical hits, structural-pattern hits, burstiness/variance statistic); SKILL.md must state it DETECTS only and never humanizes.",
+      "priority": "P0",
+      "rationale": "Gives the skill a real, honest harness (unit-tested math) while keeping the rewrite judged by the independent battery; the detect-only boundary prevents over-claiming."
+    },
+    {
+      "id": "A6",
+      "pillar": "testing",
+      "action": "Migrate the 10 ../eval papers + rubric.md into the skill's own evals/ as fixtures; discard the Codex scripts (run_codex_rewrites.py, polish_english.py) and the closed-loop density metric; add negative (poetry), idempotency, mixed-language, hedging-preservation, and detect-only cases; assert the harness IMPORTS the detector core.",
+      "priority": "P0",
+      "rationale": "testing is partial and not skill-owned; the closed-loop happy-path suite hides the exact bugs (register collapse, fact invention, oscillation) the guardrails target."
+    },
+    {
+      "id": "A7",
+      "pillar": "tdd",
+      "action": "Add metamorphic + mutation coverage: MR (synonym-task -> same activation; irrelevant added context -> key conclusions unchanged; rewrite-twice -> no degradation) and >=1 mutation (e.g. drop the genre-whitelist or the fact-invention guard and confirm a test fails).",
+      "priority": "P1",
+      "rationale": "The rewrite oracle is fuzzy; metamorphic relations and mutation are how a fuzzy-oracle skill proves its tests actually constrain behavior."
+    },
+    {
+      "id": "A8",
+      "pillar": "lifecycle",
+      "action": "Add a CHANGELOG and a release gate that blocks release on register_preservation drop, fact_invention_rate > 0, or idempotency regression; define a breaking change (shift in default aggressiveness or register floor) and a rollback path; reset the version for the rebuild.",
+      "priority": "P1",
+      "rationale": "Versioning exists but there is no gate/rollback; the gate must be tied to the new independent metric so a register-collapsing release cannot ship."
+    },
+    {
+      "id": "A9",
+      "pillar": "low_context_kb",
+      "action": "Keep the new human-texture and structural-statistical KBs as separate on-demand reference modules; do not inflate SKILL.md beyond its orchestrator role (<500 lines, pointers only).",
+      "priority": "P2",
+      "rationale": "Preserve the one currently-strong pillar as content grows."
+    }
+  ],
+  "handoff": {
+    "next_skill": "vince-skill-engineer",
+    "blocking_unknowns": [
+      "Independent blind judge implementation: is the evaluator an LLM-as-judge call (which model / prompt) run at eval time, or a separately-authored deterministic-ish scorer? The engineer must pick one and ensure it is genuinely blind to the removal rules.",
+      "Detector language: confirm python3 (matches existing scripts and ../eval tooling) vs node — assumed python3 here; the harness import-contract depends on this.",
+      "Burstiness statistic definition: exact metric (e.g. stdev of sentence-length / coefficient of variation, per-language tokenization for ZH vs EN) must be pinned so detector unit tests have stable expected values.",
+      "../eval migration policy: copy the 10 papers + rubric.md INTO evals/ (skill self-contained) vs reference them in place — recommended copy; confirm before deleting the sibling Codex scripts.",
+      "Whether a non-LLM automatic acceptance signal (beyond the blind judge) is required by the pipeline's release gate, given testing-completion asks for >=1 signal that is not subjective LLM scoring."
+    ]
+  }
+}

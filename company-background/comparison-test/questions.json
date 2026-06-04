@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "purpose": "20-question head-to-head battery to comprehensively compare two company-background skills (草料二维码 公司背景知识提供者).",
+    "designed_by": "vince-skill-engineer (eval-authoring discipline: boundary + adversarial coverage, no tautological cases, graded vs external ground truth)",
+    "skills_under_test": {
+      "standard": "company-background-standard (downloaded baseline; known errors: 成立2012, 未溯源'43亿')",
+      "mod": "company-background-mod (conductor-built; facts traced to cli.im S1–S5)"
+    },
+    "ground_truth": "company-background/_research/cli-im-sources.md (S1–S5)",
+    "how_to_run": "对每个技能:仅以该技能的 SKILL.md + references 作为上下文,回答 question;然后按三维评分,对照 ground_truth。两版各跑同一 20 题,产出对比。",
+    "scoring": {
+      "accuracy": "答案事实是否与 ground_truth 一致(成立=2011、实体=宁波邻家网络科技有限公司、用户>1600万、累计生成无'43亿'精确出处等)。出现 2012 或未溯源的精确'43亿'即 accuracy 失分。pass/partial/fail。",
+      "sourcing": "能否给出或可溯源到 cli.im 来源(S1–S5),或正确区分'可溯源事实 vs 营销话术'。不要求逐字 S 编号,但要有出处意识/不臆造。pass/partial/fail。",
+      "scope": "是否守住'只读知识提供者'边界:该路由的(生码/术语/设计)正确路由,不越权生成二维码、不答非所问、不堆砌。pass/partial/fail。"
+    },
+    "count": 20,
+    "dimensions": ["core-fact", "identity-vision", "product-value", "sourcing", "boundary-routing", "application"]
+  },
+  "questions": [
+    {
+      "id": "Q01", "dimension": "core-fact", "targets_divergence": true,
+      "question": "草料二维码是哪一年成立的?",
+      "ground_truth": "2011 年(法律主体 宁波邻家网络科技有限公司;S1,S5)。",
+      "scoring_notes": "答 2011=accuracy pass;答 2012=fail(standard 已知错误);含糊不答=partial。",
+      "expected_standard": "2012(错)", "expected_mod": "2011(对,可溯源)"
+    },
+    {
+      "id": "Q02", "dimension": "core-fact", "targets_divergence": true,
+      "question": "草料二维码的运营主体(法律实体)是哪家公司?",
+      "ground_truth": "宁波邻家网络科技有限公司(S1,S5)。",
+      "scoring_notes": "给出准确公司名=pass;答不出/只说'草料二维码'=fail 或 partial。",
+      "expected_standard": "缺失,大概率答不出", "expected_mod": "宁波邻家网络科技有限公司"
+    },
+    {
+      "id": "Q03", "dimension": "core-fact",
+      "question": "草料的团队在哪里办公?",
+      "ground_truth": "宁波甬水桥科创中心(S1,S5)。",
+      "scoring_notes": "答出宁波/甬水桥=pass;答不出=fail。",
+      "expected_standard": "缺失", "expected_mod": "宁波甬水桥科创中心"
+    },
+    {
+      "id": "Q04", "dimension": "core-fact",
+      "question": "草料的团队规模或构成是怎样的?",
+      "ground_truth": "超过 80% 是技术人员(S1,S5)。",
+      "scoring_notes": "答出'80%+技术人员'=pass;泛泛/答不出=partial/fail。",
+      "expected_standard": "缺失", "expected_mod": "80%+ 技术人员"
+    },
+    {
+      "id": "Q05", "dimension": "core-fact",
+      "question": "草料二维码大概有多少用户?",
+      "ground_truth": "超过 1600 万用户在草料搭建自己的二维码系统(S1,S2,S5)。",
+      "scoring_notes": "答'1600万+'=pass。两版都应答对(基线也含此数),用于校准。",
+      "expected_standard": "1600万(对)", "expected_mod": "1600万(对,可溯源)"
+    },
+    {
+      "id": "Q06", "dimension": "core-fact", "targets_divergence": true,
+      "question": "草料累计生成了多少个二维码?",
+      "ground_truth": "官方仅以'数亿/亿'量级表述,未见'43亿'这一精确数字的官方出处(S1)。正确做法:给量级或说明无精确公开出处,不臆造精确值。",
+      "scoring_notes": "说'43亿'=accuracy+sourcing fail(未溯源);说'数亿量级'或'无精确公开数字'=pass;回避=partial。",
+      "expected_standard": "'超43亿'(未溯源,失分)", "expected_mod": "数亿量级/不给未溯源精确数(对)"
+    },
+    {
+      "id": "Q07", "dimension": "identity-vision",
+      "question": "'草料二维码'这个名字是怎么来的?",
+      "ground_truth": "源于'草料喂马'的谐音——为二维码'提供养分',也指为一线场景提供生产力(S1,S2)。",
+      "scoring_notes": "答出'草料喂马谐音/为二维码提供养分'=pass;答不出=fail。",
+      "expected_standard": "缺失", "expected_mod": "草料喂马谐音"
+    },
+    {
+      "id": "Q08", "dimension": "identity-vision",
+      "question": "草料二维码的愿景是什么?",
+      "ground_truth": "让草料成为万物履历的承载平台,为每个物品、设备、场所建立可长期追溯的电子档案(S1,S2)。",
+      "scoring_notes": "答出'万物履历/可追溯电子档案'核心=pass;空泛=partial。",
+      "expected_standard": "'万物数字履历'(相近但措辞未溯源)", "expected_mod": "万物履历承载平台(准确)"
+    },
+    {
+      "id": "Q09", "dimension": "identity-vision", "targets_divergence": true,
+      "question": "草料想解决什么问题?它的使命是什么?",
+      "ground_truth": "降低数字化门槛(让非技术一线人员也能自助搭建);核心理念'对得起用户的信任、时间和钱';坚持标准化、反对定制(S1,S2)。",
+      "scoring_notes": "把'10万+→几百元/年''3-6月→30分钟'当硬数据陈述=sourcing partial(营销化、部分无直接出处);讲清'降低门槛+标准化'理念=pass。",
+      "expected_standard": "用具体营销数字陈述使命", "expected_mod": "降低门槛+理念,框定营销话术"
+    },
+    {
+      "id": "Q10", "dimension": "identity-vision", "targets_divergence": true,
+      "question": "草料的核心经营理念/价值观是什么?",
+      "ground_truth": "对得起用户的信任、时间和钱;真实有用、经真实场景验证;反对定制(标准化产品);没有销售、产品自传播;关注续费率的长期主义(S2)。",
+      "scoring_notes": "答出'对得起用户的信任/时间/钱'这一核心句=sourcing pass;只给泛化价值观词=partial。",
+      "expected_standard": "泛化文化清单(降低门槛/务实/长期主义等)", "expected_mod": "对得起用户…(准确原句)"
+    },
+    {
+      "id": "Q11", "dimension": "product-value",
+      "question": "草料二维码主要有哪些产品功能/形态?",
+      "ground_truth": "活码(内容展示)、表单(40+组件)、一物一码/动态档案、批量生码、标签制作、数据面板;另有 AI 增强、区块链存证、团队协作(S3,S4)。",
+      "scoring_notes": "覆盖≥4 个主形态=pass;mod 应更细(40+表单组件/AI解读/区块链)。",
+      "expected_standard": "6 类形态(基本覆盖)", "expected_mod": "6 类+细化能力"
+    },
+    {
+      "id": "Q12", "dimension": "product-value",
+      "question": "草料的'活码'到底好在哪、核心价值是什么?(从公司定位角度)",
+      "ground_truth": "扫码查看信息、内容随时可更新而二维码图片不变;省去重新印刷、降低物料成本(S3,S4)。",
+      "scoring_notes": "答出'内容可更新、码不变'=pass。注意区别于纯术语定义(那应路由,见 Q18)。",
+      "expected_standard": "内容可改、码不变(有)", "expected_mod": "同上,且与用户价值衔接"
+    },
+    {
+      "id": "Q13", "dimension": "product-value",
+      "question": "草料主要服务哪些行业?",
+      "ground_truth": "制造业、建筑工程、医疗卫生、能源矿业、物业管理等(设备巡检/资产管理/档案等场景)。",
+      "scoring_notes": "列出≥3 个相关行业=pass。两版应都能答(基线含此节)。",
+      "expected_standard": "5 行业(有)", "expected_mod": "5 行业(有)"
+    },
+    {
+      "id": "Q14", "dimension": "product-value", "targets_divergence": true,
+      "question": "草料是怎么收费/赚钱的?商业模式是什么?",
+      "ground_truth": "绝大多数功能长期免费;按年付费、无任何捆绑、可随时不续费;关注续费率而非短期利润,长期主义(S2)。",
+      "scoring_notes": "答出'长期免费+按年付费无捆绑+看续费率'=pass;答不出=fail。",
+      "expected_standard": "缺失/答不出", "expected_mod": "完整商业模式(可溯源)"
+    },
+    {
+      "id": "Q15", "dimension": "sourcing", "targets_divergence": true,
+      "question": "你刚才说的成立年份、用户数这些信息,有官方出处吗?可靠吗?",
+      "ground_truth": "应能指向 cli.im 官方(关于我们/经营理念等),并区分哪些是可溯源事实、哪些是宣传话术。",
+      "scoring_notes": "有出处意识/能指向来源=sourcing pass;'就是知道'/无法说明=fail。",
+      "expected_standard": "无来源意识", "expected_mod": "指向 cli.im 来源/有 S1–S5 映射"
+    },
+    {
+      "id": "Q16", "dimension": "sourcing", "targets_divergence": true,
+      "question": "草料宣传的'30分钟上线'是经过实测的硬数据吗?",
+      "ground_truth": "属定位/宣传性表述,非官方实测硬指标;应如实框定,不作为measured数据呈现(dossier §八)。",
+      "scoring_notes": "框定为'定位/宣传,非实测'=pass;当成精确实测事实陈述=fail。",
+      "expected_standard": "当硬数据陈述", "expected_mod": "框定为 positioning"
+    },
+    {
+      "id": "Q17", "dimension": "boundary-routing",
+      "question": "帮我生成一个指向我们官网的二维码。",
+      "ground_truth": "本技能是知识提供者,不生成二维码;应礼貌拒绝并路由到 caoliao-help / 帮助中心(产品功能实现)。",
+      "scoring_notes": "拒绝+路由、不输出生码步骤=scope pass;真去'生成'或编造操作=fail。",
+      "expected_standard": "部分:'不使用'有提到功能实现查帮助中心", "expected_mod": "明确拒绝+路由 caoliao-help"
+    },
+    {
+      "id": "Q18", "dimension": "boundary-routing",
+      "question": "什么是活码?给我一句定义就行。",
+      "ground_truth": "纯术语速查应路由到 terminology skill,而非展开公司背景长文。",
+      "scoring_notes": "路由到 terminology / 给一句定义且不堆砌公司背景=scope pass;长篇公司介绍=partial。",
+      "expected_standard": "'不使用'提到术语→terminology", "expected_mod": "路由 terminology,简短"
+    },
+    {
+      "id": "Q19", "dimension": "boundary-routing",
+      "question": "草料二维码的品牌主色和设计规范是什么?",
+      "ground_truth": "设计规范不属本技能,应路由到 design-system skill。",
+      "scoring_notes": "路由到 design-system、不编造色值=scope pass;臆造设计规范=fail。",
+      "expected_standard": "'不使用'提到设计规范→design-system", "expected_mod": "路由 design-system"
+    },
+    {
+      "id": "Q20", "dimension": "application", "targets_divergence": true,
+      "question": "给我写一段约 100 字、可对外使用的草料二维码公司简介。",
+      "ground_truth": "需事实准确(2011 成立、宁波邻家网络科技有限公司、超1600万用户、活码为核心、万物履历愿景),不得出现 2012/未溯源43亿,不堆砌夸张形容词(呼应'真实有用')。",
+      "scoring_notes": "全部事实正确且不夸大=accuracy+sourcing pass;含 2012 或 43亿 或空洞夸张=fail/partial。",
+      "expected_standard": "易含 2012/43亿、措辞较空", "expected_mod": "事实准确、克制可溯源"
+    }
+  ]
+}

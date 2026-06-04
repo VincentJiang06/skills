@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-guidance",
+  "target": {
+    "path": "/Users/vince/playground/skill-developer/company-background/company-background-mod",
+    "kind": "repo",
+    "name": "company-background-mod",
+    "maturity": "mature"
+  },
+  "intent": {
+    "summary": "A read-only knowledge / context-provider skill that supplies authoritative 草料二维码 (cli.im) company background — legal entity, founding year, market positioning, culture, vision/mission, product forms, and user value — from a source-traceable fact table (S1–S5), so an agent writes accurate, consistent copy and external comms; it never generates QR codes and never emits product how-to steps.",
+    "in_scope": [
+      "写公司简介 / 产品文案 / 合作方案",
+      "向客户或合作方介绍草料二维码",
+      "理解某产品决策背后的业务逻辑 / 经营理念",
+      "新人了解业务全貌",
+      "提供可溯源的量化/承重事实（成立年、法律主体、用户规模、技术团队占比、愿景使命）"
+    ],
+    "out_of_scope": [
+      "生成二维码 / 活码（功能产出）→ 婉拒",
+      "功能操作 / how-to（如『活码内容怎么改』）→ caoliao-help（帮助中心）",
+      "设计规范 → design-system",
+      "单个术语释义（如『什么是活码』）→ terminology",
+      "报价 / 在哪买 / 价格建议"
+    ],
+    "primary_user": "Another agent (downstream copy/comms generator) — invoked as a read-only context provider, not a human-facing conversation.",
+    "triggers_observed": [
+      "正例：『写一段草料的公司介绍』",
+      "正例：『草料的愿景 / 经营理念是什么』",
+      "正例：『给合作方做一页草料背景』",
+      "反例：『帮我生成一个二维码』（→ 拒绝/路由 caoliao-help）",
+      "反例：『活码内容怎么改』（how-to → caoliao-help）",
+      "邻接反例：『什么是活码』（单术语 → terminology）"
+    ]
+  },
+  "altitude": "lite",
+  "altitude_rationale": "Low stakes (read-only knowledge provider; emits no QR codes, no code, no destructive ops), narrow surface (single intent: company background facts), and mature (SKILL.md + references + lint script + 23-case eval suite). Lite audit of a mature, already-green skill — evaluate gaps and polish, not a rebuild.",
+  "scorecard": [
+    {
+      "pillar": "design",
+      "status": "present",
+      "score": 2,
+      "evidence": "Description carries testable positive (『写一段草料的公司介绍』), negative (『帮我生成一个二维码』), and adjacent false-trigger (『什么是活码』→terminology) cases plus explicit 'Do NOT use for' routing. Protocol is a 6-step runbook (open fact table → take only needed facts → state per culture voice → time-sensitive figures → positioning≠hard-data → fact_lint before delivery). Control flow externalized to scripts/fact_lint.mjs, not narrated in prose.",
+      "gaps": []
+    },
+    {
+      "pillar": "research",
+      "status": "present",
+      "score": 2,
+      "evidence": "references/company-facts.md is a claim→source table keyed S1–S5 (cli.im aboutus / 经营理念 / features / qr-intro + web cross-check), with 47 S-id references across the file and an upstream dossier pointer (_research/cli-im-sources.md). Every quantified/load-bearing fact carries a source id; citation_coverage lint enforces it.",
+      "gaps": []
+    },
+    {
+      "pillar": "testing",
+      "status": "present",
+      "score": 2,
+      "evidence": "evals/run_all.mjs runs 23/23 green: 9 lint checks (founding-year, legal-entity-exact, user-scale-conflict, citation-coverage, marketing-framing, no-frozen-time-figure…), 3 behavioral cases asserting on response fixtures (scope-drift-generate routes away, term-only routes to terminology, positive intro), and 11 mutation regression cases that each prove a lint check FAILs on a deliberately corrupted copy (wrong year, unsourced 43亿, entity spoof/wrap, 1500万 conflict, stripped S-id). Layered + regression, not happy-path-only.",
+      "gaps": []
+    },
+    {
+      "pillar": "tdd",
+      "status": "present",
+      "score": 2,
+      "evidence": ".skill-engineer/red/red.log shows 11 assertion-level 'FAIL ' lines against a pre-build target (founding_year, legal_entity, tech_staff, office_location, marketing_framing, citation_coverage missing file, and 3 missing behavioral fixtures) with 'run_all: 1/12 cases passed, EXIT:1' — genuine red-before-green, not a module-not-found/bare-exit stub. red-iter2.log records a second red wave (12 FAIL) before the green-but-wrong linter fixes landed.",
+      "gaps": []
+    },
+    {
+      "pillar": "metrics",
+      "status": "partial",
+      "score": 1,
+      "evidence": "Success is operationally defined as a binary gate (run_all 23/23 + fact_lint clean) and adversarial robustness is quantified via the 11-case mutation kill-rate (11/11 caught). But .skill-engineer/build-report.json has no metrics block, and there is no defined activation precision (trigger vs adjacent caoliao-help/terminology confusion) or cost-per-success figure tracked over runs.",
+      "gaps": [
+        "No activation-precision metric for the trigger boundary vs sibling skills (caoliao-help / terminology / design-system).",
+        "No cost-per-success or output-quality metric beyond the pass/fail lint gate; build-report omits a metrics object."
+      ]
+    },
+    {
+      "pillar": "low_context_kb",
+      "status": "present",
+      "score": 2,
+      "evidence": "SKILL.md is 60 lines (well under the 500-line bar) with progressive disclosure: a Resources table loads company-facts.md / product-detail.md / upstream sources / fact_lint on demand. Heavy fact mass lives in references/, the linter in scripts/. Thinness is architectural, not empty.",
+      "gaps": []
+    },
+    {
+      "pillar": "lifecycle",
+      "status": "present",
+      "score": 2,
+      "evidence": "Frontmatter pins version 0.1.0 and owner (Dongjianye). Release gate is concrete and re-runnable (node scripts/fact_lint.mjs + node evals/run_all.mjs). Time-sensitive figures (运营时长/用户规模) are deliberately deferred to source-table as-of phrasing rather than hardcoded, which is the migration/staleness guard for a facts skill.",
+      "gaps": [
+        "No explicit CHANGELOG or rollback note; staleness path relies on the as-of convention rather than a documented fact-review cadence."
+      ]
+    }
+  ],
+  "overall_readiness": {
+    "ratio": 0.929,
+    "points": "13/14",
+    "verdict": "industrial",
+    "summary": "Mature, source-traceable knowledge-provider skill that re-audits green: design / research / testing / tdd / low_context_kb / lifecycle all present (2), only metrics partial (1). 23/23 eval cases pass including 11 mutation-regression kills, and the red log proves genuine red-before-green. No required-pillar 0, no blocking unknowns — ships industrial at 13/14."
+  },
+  "comparables": [
+    {
+      "repo_id": "repo.addyosmani_agent-skills",
+      "skill_path": "skills/test-driven-development/SKILL.md",
+      "what_to_borrow": "Structural confirmation of the red-first discipline already applied here (failing checks committed before behavior); nothing missing to borrow — the target already pins a real red.log."
+    },
+    {
+      "repo_id": "repo.anthropics_skills",
+      "skill_path": "skills/skill-creator/SKILL.md",
+      "what_to_borrow": "Progressive-disclosure layout (short SKILL.md entry + on-demand references/scripts via a resource table) — the target mirrors this; no restructuring needed."
+    }
+  ],
+  "recommended_design": {
+    "trigger": "Activate when an agent needs authoritative 草料二维码 company background for copy/comms/onboarding/business-logic. Positive: 『写一段草料的公司介绍』, 『草料的愿景/经营理念』, 『给合作方做一页背景』. Negative: 『帮我生成一个二维码』, 『活码内容怎么改』 (how-to → caoliao-help). Adjacent false-trigger: 『什么是活码』 (single-term lookup → terminology), design-spec asks (→ design-system), 报价/在哪买. Trigger surface is already testable and bound by behavioral cases — keep it.",
+    "protocol": "Preflight: open references/company-facts.md (never assert company facts from memory). Steps: (1) take only the needed facts, keeping each quantified/load-bearing claim's S-id (S1–S5); (2) state per culture voice (真实有用, no hype, no adjective-stacking, frontline-user view, honest on feature limits); (3) carry time-sensitive figures (运营时长/用户规模) with source as-of phrasing, never hardcoded; (4) label positioning lines (『30分钟上线』, 定制10万+→几百元/年) as positioning, not measured data. Verify: run node scripts/fact_lint.mjs; for regression run node evals/run_all.mjs. Report: source-traceable copy with S-ids preserved.",
+    "resources": [
+      "references/company-facts.md — claim→source (S1–S5) fact-of-record table; the factual foundation.",
+      "references/product-detail.md — product forms / scenarios / user-value detail.",
+      "_research/cli-im-sources.md (upstream) — original S1–S5 dossier for cross-checking.",
+      "scripts/fact_lint.mjs — pre-delivery fact/source linter (release gate)."
+    ],
+    "evidence_base": "Source roster S1–S5 (cli.im aboutus / 经营理念 / features / qr-code-intro + web cross-check for 工商信息 & 小程序排名). Claim→evidence map lives in references/company-facts.md; citation_coverage lint enforces every quantified magnitude line carries an S-id. Load-bearing pins: legal entity 宁波邻家网络科技有限公司 (S1,S5); founding 2011 (S1); 80%+ technical staff & 1600万+ users (S1,S2,S5); cumulative QR codes are '数亿' magnitude only — no unsourced precise '43亿'-style figure.",
+    "controls": [
+      "Read-only: never generates QR codes / 活码 and never emits product how-to steps (route to caoliao-help).",
+      "No unsourced precise QR-generation count (forbid '43亿' / precise 'N亿'); cumulative count stays '数亿' magnitude.",
+      "Legal entity must appear exactly 宁波邻家网络科技有限公司 (no city-swap/wrap/spoof) — lint-enforced.",
+      "Time-sensitive figures carry as-of phrasing, never hardcoded; positioning lines labelled as positioning, not measured data.",
+      "Single canonical user-scale figure (1600万); conflicting <N>万 near 用户/规模 rejected by lint."
+    ],
+    "tests": [
+      "lint: founding_year == 2011 (no founding-cue year != 2011)",
+      "lint: legal_entity exact 宁波邻家网络科技有限公司; reject city-swap (杭州…) and wrap/spoof (北京假冒（…）)",
+      "lint: user_scale single 1600万; reject conflicting 1500万 near 用户/规模",
+      "lint: citation_coverage — every quantified magnitude line carries an S-id",
+      "lint: no unsourced 43亿; marketing 『30分钟上线』 framed as positioning; no frozen 运行N年 without as-of",
+      "behavioral: 『帮我生成一个二维码』 → refuse + route caoliao-help (no QR/how-to emitted)",
+      "behavioral: 『什么是活码』 → route terminology, do not expand a full term definition",
+      "behavioral: positive company-intro → source-traceable copy with S-ids, culture voice",
+      "mutation (regression): 11 corrupted-copy cases (wrong year 2012/2013-stray2011/2014, unsourced 43亿, stripped S-id in two files, entity hangzhou-swap & wrap-spoof, user-scale 1500万 shape & conflict, removed 80% staff) — each must make its lint check FAIL"
+    ],
+    "metrics": [
+      "minimal: binary release gate — run_all 23/23 pass + fact_lint clean.",
+      "minimal: mutation kill-rate 11/11 (adversarial robustness of the fact linter).",
+      "P1 (not yet present): activation precision on trigger vs adjacent caoliao-help/terminology, and a cost/quality-per-success signal in build-report."
+    ],
+    "lifecycle": "version 0.1.0, owner Dongjianye. Release gate = fact_lint.mjs + evals/run_all.mjs (re-runnable). Staleness guard = source as-of phrasing for time-sensitive figures. Recommended add (P2): a fact-review cadence note + CHANGELOG so source refreshes are tracked.",
+    "adversarial_checklist": [
+      "founding year stated as 2012 → lint founding_year_2011 must FAIL",
+      "founding year 2013 with a stray correct '2011' elsewhere → lint must still FAIL (cue-anchored, not bare substring)",
+      "founding year 2014 → lint founding_year_2011 must FAIL",
+      "unsourced precise '43亿' QR-count inserted → lint no_unsourced_43yi must FAIL; correct magnitude '数亿' → PASS",
+      "legal entity city-swapped to 杭州邻家网络科技有限公司 → lint legal_entity must FAIL on non-exact token",
+      "legal entity wrapped/spoofed 北京假冒（宁波邻家网络科技有限公司） → lint legal_entity must FAIL (wrap/spoof guard)",
+      "user scale rewritten to 1500万 in body shape → lint user_scale_1600w must FAIL on conflicting figure near 用户/规模",
+      "user scale 1500万 in a fact-table conflict row → lint user_scale_1600w must FAIL",
+      "80% 技术人员 line removed → lint tech_staff_80pct must FAIL (presence guard)",
+      "S-id stripped from a quantified line in company-facts.md → lint citation_coverage must FAIL (uncited claim)",
+      "uncited 500万-style quantified line added to product-detail.md → lint citation_coverage must FAIL across scanned files",
+      "scope-drift input『帮我生成一个二维码』→ behavior must refuse + route caoliao-help, emit no QR/how-to (not a SKILL.md grep)",
+      "single-term input『什么是活码』→ behavior must route terminology, not expand a definition",
+      "clean canonical copy (negative control) → all 9 lint checks PASS, run_all 23/23 green"
+    ]
+  },
+  "prioritized_actions": [
+    {
+      "id": "A1",
+      "pillar": "metrics",
+      "action": "Add an activation-precision check: a small labelled set mixing positive intros with adjacent caoliao-help (how-to) / terminology (single-term) / design-system / 报价 prompts, and record trigger-vs-route precision in build-report.json.",
+      "priority": "P1",
+      "rationale": "Metrics is the only sub-2 pillar; trigger boundary against three sibling skills is the realistic misfire risk for a knowledge provider and is currently asserted only by 3 behavioral cases, not measured."
+    },
+    {
+      "id": "A2",
+      "pillar": "metrics",
+      "action": "Emit a metrics object in .skill-engineer/build-report.json (eval pass count, mutation kill-rate, activation precision) so success is a tracked figure, not just a green log.",
+      "priority": "P1",
+      "rationale": "Build-report currently has no metrics block; recording the already-computed pass/kill figures lifts metrics from partial toward present at near-zero cost."
+    },
+    {
+      "id": "A3",
+      "pillar": "lifecycle",
+      "action": "Add a CHANGELOG and a short fact-review cadence note (when to re-verify S1–S5 against cli.im) to the repo.",
+      "priority": "P2",
+      "rationale": "Lifecycle is present via versioning + gate + as-of convention; a review cadence + changelog closes the only remaining staleness gap for a time-sensitive facts skill."
+    }
+  ],
+  "handoff": {
+    "next_skill": "vince-skill-engineer",
+    "blocking_unknowns": []
+  }
+}

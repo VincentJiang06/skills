@@ -1,0 +1,33 @@
+{
+  "name": "vince-mp-cli",
+  "version": "0.1.0",
+  "description": "Local JSON CLI for WeChat Mini Program automation through miniprogram-automator",
+  "type": "module",
+  "author": "Vince",
+  "license": "MIT",
+  "bin": {
+    "vince-mp": "bin/vince-mp.js"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "lint": "node --check bin/vince-mp.js && node --check src/*.js && node --check test/*.test.js",
+    "test": "node --test test/*.test.js",
+    "validate": "npm run lint && npm test"
+  },
+  "dependencies": {
+    "miniprogram-automator": "^0.12.1",
+    "pngjs": "^7.0.0"
+  },
+  "overrides": {
+    "jpeg-js": "0.4.4",
+    "mkdirp": "0.5.6",
+    "minimist": "1.2.8",
+    "phin": "3.7.1"
+  }
+}

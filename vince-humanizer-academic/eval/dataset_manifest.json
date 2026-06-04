@@ -1,0 +1,72 @@
+[
+  {
+    "id": "gpt-zh",
+    "model_family": "GPT",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/AIgenPapers/GPT Chi.md"
+  },
+  {
+    "id": "gpt-en",
+    "model_family": "GPT",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/AIgenPapers/GPT Eng.md"
+  },
+  {
+    "id": "grok-zh",
+    "model_family": "Grok",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/AIgenPapers/Grok Chi.md"
+  },
+  {
+    "id": "grok-en",
+    "model_family": "Grok",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/AIgenPapers/Grok Eng.md"
+  },
+  {
+    "id": "kimi-zh",
+    "model_family": "Kimi",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/AIgenPapers/Kimi Chi.md"
+  },
+  {
+    "id": "kimi-en",
+    "model_family": "Kimi",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/AIgenPapers/Kimi Eng.md"
+  },
+  {
+    "id": "mimo-zh",
+    "model_family": "Mimo",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/AIgenPapers/Mimo Chi.md"
+  },
+  {
+    "id": "mimo-en",
+    "model_family": "Mimo",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/AIgenPapers/Mimo Eng.md"
+  },
+  {
+    "id": "minimax-zh",
+    "model_family": "Minimax",
+    "language": "zh",
+    "topic": "香港的过去五年经济发展和未来五年经济发展",
+    "path": "eval/AIgenPapers/Minimax Chi.md"
+  },
+  {
+    "id": "minimax-en",
+    "model_family": "Minimax",
+    "language": "en",
+    "topic": "Hong Kong's economic development in the past five years and the next five years",
+    "path": "eval/AIgenPapers/Minimax Eng.md"
+  }
+]
