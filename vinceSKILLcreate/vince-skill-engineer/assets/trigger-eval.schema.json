@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "trigger-eval report",
+  "description": "Output of scripts/trigger_eval.mjs: empirical trigger precision/recall for a skill against labeled prompts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["skill", "judge", "threshold", "total", "confusion", "metrics", "cases", "passed"],
+  "properties": {
+    "skill": { "type": "string", "minLength": 1 },
+    "judge": { "type": "string", "enum": ["mock", "cli", "custom"] },
+    "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+    "total": { "type": "integer", "minimum": 1 },
+    "confusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tp", "fp", "fn", "tn"],
+      "properties": {
+        "tp": { "type": "integer", "minimum": 0 },
+        "fp": { "type": "integer", "minimum": 0 },
+        "fn": { "type": "integer", "minimum": 0 },
+        "tn": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["precision", "recall", "accuracy"],
+      "properties": {
+        "precision": { "type": "number", "minimum": 0, "maximum": 1 },
+        "recall": { "type": "number", "minimum": 0, "maximum": 1 },
+        "accuracy": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "should_trigger", "triggered", "outcome"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "should_trigger": { "type": "boolean" },
+          "triggered": { "type": "boolean" },
+          "outcome": { "type": "string", "enum": ["TP", "FP", "FN", "TN"] }
+        }
+      }
+    },
+    "passed": { "type": "boolean" }
+  }
+}
