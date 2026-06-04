@@ -1,0 +1,19 @@
+{
+  "album": "Beethoven: Symphony No. 9 (Example Cycle)",
+  "primary_credit": "Example Conductor / Example Orchestra",
+  "idiom": "classical",
+  "release_form": "lp",
+  "language": "bi",
+  "evidence": [
+    {"source_id": "label", "type": "label", "orientation": "first-party release info", "reliability": 1, "freshness": "2024-11", "snippet": "Live recording, Großer Saal, March 2024"},
+    {"source_id": "gramophone", "type": "critic_press", "orientation": "classical specialist", "reliability": 1, "freshness": "2025-02"},
+    {"source_id": "musicology", "type": "musicology", "orientation": "academic score study", "reliability": 1, "freshness": "2019"}
+  ],
+  "claims": [
+    {"text": "本版为 2024 年 3 月音乐厅现场录音。", "kind": "fact", "fact_class": "recording_date", "source_ids": ["label"], "confidence": 0.9},
+    {"text": "第四乐章引入人声合唱，编制与总谱一致。", "kind": "fact", "fact_class": "credit", "source_ids": ["musicology", "label"], "confidence": 0.85},
+    {"text": "相较富特文格勒 1951 拜罗伊特版，本演绎在终乐章的速度更趋克制。", "kind": "interpretation", "source_ids": [], "confidence": 0.6}
+  ],
+  "gaps": ["独唱阵容的录音前排练细节缺乏公开资料。"],
+  "trace": {"skill_version": "0.1.0", "loaded_source_ids": ["label", "gramophone", "musicology"], "research_mode": "online"}
+}

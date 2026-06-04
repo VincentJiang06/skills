@@ -9,7 +9,7 @@
   },
   "candidate": {
     "with_skill_run_id": "",
-    "new_skill_version": "0.2.0"
+    "new_skill_version": "0.3.0"
   },
   "required_metrics": [
     "metric.task_success_rate",
@@ -32,12 +32,18 @@
     "maximum_policy_violation_rate": 0
   },
   "notes": {
-    "deterministic_success_signal": "analyzer contrast/target/font pass-counts before vs after fix; no LLM judge required for the core acceptance signal",
-    "skill_entry_tokens_measured": 689,
-    "skill_entry_tokens_target": 700,
-    "skill_entry_tokens_status": "under target (tiktoken cl100k_base via vince-skill-zipper measure_tokens); always-loaded share 6.6%",
-    "measured_l1": "evals/check.py 4/4 fixtures pass; end-to-end dogfood trial green (trial/TRIAL_REPORT.md)",
-    "marginal_lift_method": "with/without-skill agent fix, both scored by the field-threshold analyzer",
-    "marginal_lift_measured": "+21 points (with-skill 100 vs baseline 79), n=1; see meta/live-eval-results.json"
+    "success_definition_v0_3": "a run reliably emits a schema-valid handoff doc set (all sections, incl. the clean case), analyzes exactly the targeted scope, and leaves the target byte-identical — measured by evals/run_all.py.",
+    "concrete_metrics": {
+      "doc_completeness_rate": "runs whose audit.json passes schemas/handoff-doc.schema.json / total (target 1.0)",
+      "no_target_mutation_rate": "runs leaving the target byte-identical / total (MUST be 1.0; maps to policy_violation_rate=0)",
+      "targeted_param_precision": "targeted runs that analyzed exactly the requested scope / total",
+      "determinism_rate": "identical findings + doc structure across repeated runs of the same input",
+      "analyzer_accuracy": "L1 golden pass rate on the deterministic checks"
+    },
+    "deterministic_success_signal": "analyzer findings + doc-set schema validity + no-mutation invariant; no LLM judge required for the core acceptance signal",
+    "measured": "evals/run_all.py 18/18 (L0 schema + L1 golden 6/6 + determinism + 15 behavioral edges); mutation spot-check flips the targeted case red; no_target_mutation_rate 1.0.",
+    "skill_entry_tokens_target": 800,
+    "skill_entry_tokens_status": "re-measure post-zipper (tiktoken cl100k_base via vince-skill-zipper measure_tokens)",
+    "marginal_lift_method": "deferred — v0.2 fix-based +21 lift no longer applies; a docs-quality with/without comparison needs live implementer-agent runs"
   }
 }

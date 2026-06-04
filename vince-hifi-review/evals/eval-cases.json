@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "cases": [
+    {"id": "happy.transducer.warm_iem", "type": "happy", "device_class": "transducer", "must_activate": true, "note": "raw FR -> warm 量感 vector"},
+    {"id": "happy.transducer.compare", "type": "happy", "device_class": "transducer", "must_activate": true, "note": "two devices -> aligned delta table"},
+    {"id": "happy.source.transparent_dac", "type": "happy", "device_class": "source", "must_activate": true, "note": "high SINAD -> transparent"},
+    {"id": "happy.source.drive_match", "type": "happy", "device_class": "source", "must_activate": true, "note": "amp + 300ohm -> drive verdict"},
+    {"id": "boundary.screenshot_only_fr", "type": "boundary", "device_class": "transducer", "must_activate": true, "note": "graph image -> qualitative precision"},
+    {"id": "boundary.no_measurement", "type": "boundary", "device_class": "transducer", "must_activate": true, "note": "reviews only -> consensus profile + downgrade banner"},
+    {"id": "boundary.conflicting_sources", "type": "boundary", "device_class": "transducer", "must_activate": true, "note": "Tier-1 vs dissent -> flag"},
+    {"id": "cleaning.syndicated_dupes", "type": "cleaning", "device_class": "transducer", "must_activate": true, "note": "dedup to one, keep 3 source ids"},
+    {"id": "cleaning.marketing_copy", "type": "cleaning", "device_class": "transducer", "must_activate": true, "note": "strip hype"},
+    {"id": "cleaning.style_weighting", "type": "cleaning", "device_class": "transducer", "must_activate": true, "note": "pure-impression review vs measurement-backed source -> style-weight + record dissent"},
+    {"id": "negative.buying_rec", "type": "negative", "must_activate": false, "note": "推荐 ¥1000 耳机"},
+    {"id": "negative.eq_request", "type": "negative", "must_activate": false, "note": "EQ tuning"},
+    {"id": "negative.speaker", "type": "negative", "must_activate": false, "note": "speakers out of scope"},
+    {"id": "adversarial.fictional_model", "type": "adversarial", "must_activate": true, "note": "no evidence -> refuse to invent"},
+    {"id": "adversarial.snake_oil_source", "type": "adversarial", "device_class": "source", "must_activate": true, "note": "warmer DAC claim -> measurements say transparent, hold line"},
+    {"id": "longform.transducer_4000zi", "type": "happy", "device_class": "transducer", "must_activate": true, "note": "render evidence set as ~4000字 评测长文; passes check_longform (字+sections) AND backing evaluation.json passes the gate"}
+  ]
+}

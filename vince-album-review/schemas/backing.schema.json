@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "vince-album-review backing JSON",
+  "description": "Structured backing emitted alongside the prose 乐评. Every fact-class claim (track list / personnel / recording date/venue / label / release form) must carry a source_id present in evidence[]. Interpretation claims are tagged separately and do not require a source.",
+  "type": "object",
+  "required": ["album", "primary_credit", "idiom", "release_form", "evidence", "claims", "gaps", "trace"],
+  "additionalProperties": false,
+  "properties": {
+    "album": {"type": "string"},
+    "primary_credit": {"type": "string"},
+    "idiom": {"type": "string"},
+    "release_form": {"enum": ["single", "ep", "lp", "box", "live", "compilation", "soundtrack"]},
+    "language": {"enum": ["zh", "en", "bi"]},
+    "evidence": {"type": "array", "items": {
+      "type": "object", "required": ["source_id", "type", "reliability", "freshness"],
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {"type": "string"},
+        "type": {"enum": ["liner_notes", "label", "metadata_db", "critic_press", "interview", "musicology", "encyclopedia", "caller_supplied"]},
+        "orientation": {"type": "string"},
+        "reliability": {"type": "integer", "minimum": 1, "maximum": 4},
+        "freshness": {"type": "string"},
+        "url": {"type": "string"},
+        "snippet": {"type": "string"}
+      }}},
+    "claims": {"type": "array", "items": {
+      "type": "object", "required": ["text", "kind", "source_ids", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {"type": "string"},
+        "kind": {"enum": ["fact", "interpretation"]},
+        "fact_class": {"enum": ["track_list", "personnel", "recording_date", "recording_venue", "label", "release_form", "release_date", "credit", "other"]},
+        "source_ids": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "dissent": {"type": "string"}
+      }}},
+    "gaps": {"type": "array", "items": {"type": "string"}},
+    "trace": {"type": "object", "required": ["skill_version", "loaded_source_ids", "research_mode"],
+      "additionalProperties": false,
+      "properties": {
+        "skill_version": {"type": "string"},
+        "loaded_source_ids": {"type": "array", "items": {"type": "string"}},
+        "research_mode": {"enum": ["online", "offline_caller_supplied"]}
+      }}
+  }
+}

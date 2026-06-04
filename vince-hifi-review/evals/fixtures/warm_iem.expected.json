@@ -1,0 +1,115 @@
+{
+  "device": "fixture:warm_iem",
+  "category": "iem",
+  "target": "harman_ie_2019",
+  "rig": "iec711",
+  "alignment": {
+    "method": "anchor_center_mids",
+    "offset_db": -64.3
+  },
+  "bands": [
+    {
+      "id": "sub_bass",
+      "hz": [
+        20,
+        60
+      ],
+      "dev_db": 2.1,
+      "quanta": 1,
+      "label_zh": "略多",
+      "label_en": "slightly elevated"
+    },
+    {
+      "id": "mid_bass",
+      "hz": [
+        60,
+        200
+      ],
+      "dev_db": 2.4,
+      "quanta": 1,
+      "label_zh": "略多",
+      "label_en": "slightly elevated"
+    },
+    {
+      "id": "lower_mids",
+      "hz": [
+        200,
+        500
+      ],
+      "dev_db": 0.5,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "center_mids",
+      "hz": [
+        500,
+        1000
+      ],
+      "dev_db": 0.0,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "upper_mids",
+      "hz": [
+        1000,
+        3000
+      ],
+      "dev_db": -0.8,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "lower_treble",
+      "hz": [
+        3000,
+        6000
+      ],
+      "dev_db": -3.3,
+      "quanta": -1,
+      "label_zh": "略少",
+      "label_en": "slightly lacking"
+    },
+    {
+      "id": "mid_treble",
+      "hz": [
+        6000,
+        10000
+      ],
+      "dev_db": -3.8,
+      "quanta": -1,
+      "label_zh": "略少",
+      "label_en": "slightly lacking"
+    },
+    {
+      "id": "air",
+      "hz": [
+        10000,
+        20000
+      ],
+      "dev_db": -1.7,
+      "quanta": -1,
+      "label_zh": "略少",
+      "label_en": "slightly lacking"
+    }
+  ],
+  "signature": {
+    "label_zh": "暖声",
+    "label_en": "warm",
+    "rule_fired": "bass>=1 & treble<=-0.5"
+  },
+  "tilt": {
+    "tilt_db": -5.2,
+    "label_zh": "暖向",
+    "label_en": "warm-tilted",
+    "low_extension_db": 2.1,
+    "high_extension_db": -1.7
+  },
+  "features": [],
+  "precision": "quantitative",
+  "warnings": []
+}

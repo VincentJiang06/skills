@@ -56,7 +56,8 @@
           "reason": {
             "type": "string",
             "enum": ["css_var_unresolved", "bg_image", "js_state", "image_only",
-                     "external_stylesheet", "target_size_unresolved"]
+                     "external_stylesheet", "target_size_unresolved",
+                     "unresolved_color", "selector_no_match", "analyzer_error"]
           },
           "location": { "type": "string" }
         }

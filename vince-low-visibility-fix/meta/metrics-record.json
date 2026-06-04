@@ -3,24 +3,13 @@
   "skill_id": "skill.vince-low-visibility-fix",
   "generated_by": "evals/run_all.py --write-metrics",
   "measured": {
-    "l1_pass_rate": 1.0,
-    "l1_fixtures": 6,
-    "analyzer_determinism": 1.0,
-    "schema_valid": true,
-    "fix_resolution_rate": 1.0,
-    "before_after_score": [
-      0,
-      100
-    ],
-    "skill_entry_tokens_estimate": 580,
-    "policy_violation_rate": 0
+    "harness_pass_rate": 1.0,
+    "cases_total": 28,
+    "no_target_mutation_rate": 1.0,
+    "doc_completeness_rate": 1.0,
+    "determinism_rate": 1.0,
+    "policy_violation_rate": 0,
+    "skill_entry_tokens_estimate": 1001
   },
-  "agent_level": {
-    "activation_precision": "MEASURED via subagent routing — see meta/live-eval-results.json (recall 1.0, precision 1.0)",
-    "behavioral_compliance": "MEASURED — happy-path gate + adversarial hold both PASS (meta/live-eval-results.json)",
-    "pass_k_all_agent": "analyzer pass^k = 1.0 (deterministic); agent-level pass^k at scale still future",
-    "cost_per_success": "needs more live agent runs at scale",
-    "marginal_lift_vs_no_skill": "needs a with/without-skill agent comparison (L5)"
-  },
-  "notes": "policy_violation_rate=0 reflects the trial: edits stayed within the target and passed the gate. Token count is a heuristic estimate (no tiktoken)."
+  "notes": "Behavioral harness: every adversarial-checklist edge bound to a case."
 }

@@ -1,0 +1,49 @@
+{
+  "album": "Cupid Deluxe",
+  "primary_credit": "Blood Orange (Devonté Hynes)",
+  "idiom": "alt-R&B / sophisti-pop / quiet-storm-revival / new wave-funk",
+  "release_form": "lp",
+  "language": "zh",
+  "evidence": [
+    {"source_id": "wiki_album", "type": "encyclopedia", "orientation": "community-curated encyclopedia", "reliability": 2, "freshness": "2026-06", "url": "https://en.wikipedia.org/wiki/Cupid_Deluxe", "snippet": "Second Blood Orange LP; recorded 2011–2013 NYC; produced by Hynes; mixed by Jimmy Douglass; engineer Mikaelin 'Blue' Bluespruce; 11 tracks 51:10; released 18 Nov 2013 (iTunes 12 Nov) on Domino; guests Polachek/Urbani/Longstreth/Despot/Skepta/Kindness/Tawiah; 'Always Let U Down' covers Mansun; Metacritic 75; Pitchfork 8.5 + 35th of 200 Best Albums of the 2010s."},
+    {"source_id": "domino", "type": "label", "orientation": "first-party label", "reliability": 1, "freshness": "2026-06", "url": "https://www.dominomusic.com/releases/blood-orange/cupid-deluxe/double-lp", "snippet": "Official Domino release page; produced in NYC, mixed by Jimmy Douglass; guest list incl. Longstreth, Polachek, Urbani, Clams Casino, Despot, Kindness, Skepta."},
+    {"source_id": "stereogum", "type": "critic_press", "orientation": "indie/alt critic (Tom Breihan, Album of the Week)", "reliability": 2, "freshness": "2013-11", "url": "https://stereogum.com/1572461/album-of-the-week-blood-orange-cupid-deluxe/reviews/album-of-the-week", "snippet": "Compares to Dr. Dre's The Chronic; influences Prince/Janet/Terence Trent D'Arby/Richard Marx; Urbani as his 'Snoop'; Skepta on childhood poverty; Longstreth 'white-soul clinic'; 'Uncle ACE' references homeless LGBTQ+ youth; NYC 'of this exact moment'."},
+    {"source_id": "pitchfork", "type": "critic_press", "orientation": "influential indie critic (Ryan Dombal, 8.5)", "reliability": 2, "freshness": "2013-11", "url": "https://pitchfork.com/reviews/albums/", "snippet": "8.5; 'channels those vagabond emotions into something universal and inviting—an album that tenderly details various heartaches through the language of longing'; early-'90s soul-funk fusion, groove over melody."},
+    {"source_id": "wiki_hynes", "type": "encyclopedia", "orientation": "community-curated encyclopedia", "reliability": 2, "freshness": "2026-06", "url": "https://en.wikipedia.org/wiki/Dev_Hynes", "snippet": "Born David Joseph Michael Hynes 23 Dec 1985, Ilford, East London; piano at 7 then cello/drums/bass; Test Icicles 2004–06; Lightspeed Champion; Blood Orange; wrote/produced for Solange ('Losing You'), Sky Ferreira ('Everything Is Embarrassing'), FKA twigs, Carly Rae Jepsen, Haim, Caroline Polachek."},
+    {"source_id": "chamakay_video", "type": "critic_press", "orientation": "music press (SPIN/Fact/FADER) on the single's video", "reliability": 2, "freshness": "2013-09", "url": "https://www.spin.com/2013/09/blood-orange-chamakay-video/", "snippet": "Chamakay video shot in Guyana, his mother's home country; Hynes meets his 92-year-old grandfather for the first time; directed by Kindness (Adam Bainbridge)."},
+    {"source_id": "hynes_quote", "type": "interview", "orientation": "artist statement (via label/press)", "reliability": 2, "freshness": "2013", "url": "https://en.wikipedia.org/wiki/Cupid_Deluxe", "snippet": "Hynes: inspired by 'New York City, the Big Apple… a lot of the record is about that, transitions, life transitions. Moving from a stable position to an unstable position.'"},
+    {"source_id": "reception_agg", "type": "metadata_db", "orientation": "review aggregators / multiple outlets", "reliability": 3, "freshness": "2013-11", "url": "http://www.anydecentmusic.com/review/5999/Blood-Orange-Cupid-Deluxe.aspx", "snippet": "Broad acclaim: DIY 10/10, The Guardian 4/5, Rolling Stone 3.5/5, Spin 8/10; Metacritic 75."}
+  ],
+  "claims": [
+    {"text": "《Cupid Deluxe》是 Dev Hynes 以 Blood Orange 名义发行的第二张录音室专辑。", "kind": "fact", "fact_class": "other", "source_ids": ["wiki_album", "wiki_hynes"], "confidence": 0.98},
+    {"text": "专辑于 2013 年 11 月 18 日由 Domino 厂牌发行，iTunes 早一周（11 月 12 日）上线。", "kind": "fact", "fact_class": "release_date", "source_ids": ["wiki_album", "domino"], "confidence": 0.95},
+    {"text": "专辑于 2011–2013 年间在纽约录制，由 Hynes 本人制作，Jimmy Douglass 混音，Mikaelin 'Blue' Bluespruce 担任录音工程。", "kind": "fact", "fact_class": "recording_date", "source_ids": ["wiki_album", "domino"], "confidence": 0.9},
+    {"text": "全碟共 11 首曲目，总时长约 51 分 10 秒。", "kind": "fact", "fact_class": "track_list", "source_ids": ["wiki_album"], "confidence": 0.95},
+    {"text": "曲目顺序为 Chamakay、You're Not Good Enough、Uncle ACE、No Right Thing、It Is What It Is、Chosen、Clipped On、Always Let U Down、On the Line、High Street、Time Will Tell。", "kind": "fact", "fact_class": "track_list", "source_ids": ["wiki_album"], "confidence": 0.95},
+    {"text": "Caroline Polachek（Chairlift）在 Chamakay 献唱，并在 Chosen 担任和声与开头口白。", "kind": "fact", "fact_class": "personnel", "source_ids": ["wiki_album"], "confidence": 0.92},
+    {"text": "Samantha Urbani（Friends）在 You're Not Good Enough、No Right Thing、It Is What It Is、Chosen、Always Let U Down、On the Line、Time Will Tell 等多首中献唱。", "kind": "fact", "fact_class": "personnel", "source_ids": ["wiki_album"], "confidence": 0.9},
+    {"text": "Dave Longstreth（Dirty Projectors）在 No Right Thing 献唱；该曲另由 Clams Casino 参与制作。", "kind": "fact", "fact_class": "personnel", "source_ids": ["wiki_album"], "confidence": 0.9},
+    {"text": "说唱歌手 Despot 出现在 Clipped On；grime MC Skepta 出现在 High Street。", "kind": "fact", "fact_class": "personnel", "source_ids": ["wiki_album", "stereogum"], "confidence": 0.9},
+    {"text": "Adam Bainbridge（Kindness）在 On the Line 与 Time Will Tell 负责萨克斯编排、人声与鼓；Tawiah 在 Time Will Tell 献唱，Sam Beste 弹钢琴，Blue May 弹吉他。", "kind": "fact", "fact_class": "personnel", "source_ids": ["wiki_album"], "confidence": 0.85},
+    {"text": "Always Let U Down 是对 Mansun 乐队 2000 年作品《I Can Only Disappoint U》的翻唱，原作由 Paul Draper 与 Dominic Chad 创作，是全碟唯一非 Hynes 创作的曲目。", "kind": "fact", "fact_class": "credit", "source_ids": ["wiki_album"], "confidence": 0.9},
+    {"text": "Chamakay 的 MV 在 Hynes 母亲的故乡圭亚那拍摄，记录了他与素未谋面的 92 岁外祖父首次相见，由 Kindness 执导。", "kind": "fact", "fact_class": "other", "source_ids": ["chamakay_video"], "confidence": 0.88},
+    {"text": "Hynes 本名 David Joseph Michael Hynes，1985 年 12 月 23 日生于东伦敦 Ilford；曾是噪音/舞蹈朋克乐队 Test Icicles 成员（2004–2006），后以 Lightspeed Champion 之名发行民谣作品，再转向 Blood Orange。", "kind": "fact", "fact_class": "other", "source_ids": ["wiki_hynes"], "confidence": 0.95},
+    {"text": "Hynes 同时是高产的幕后创作者，为 Solange（Losing You）、Sky Ferreira（Everything Is Embarrassing）等人写歌制作。", "kind": "fact", "fact_class": "credit", "source_ids": ["wiki_hynes"], "confidence": 0.92},
+    {"text": "Hynes 自述专辑灵感源于纽约，主题关于‘过渡、人生的转变，从稳定走向不稳定’。", "kind": "fact", "fact_class": "other", "source_ids": ["hynes_quote"], "confidence": 0.85},
+    {"text": "专辑获广泛好评：Pitchfork 评 8.5 分（Ryan Dombal），Metacritic 75，Stereogum 选为本周专辑（Tom Breihan），并被 Pitchfork 列入‘2010 年代 200 张最佳专辑’第 35 位。", "kind": "fact", "fact_class": "other", "source_ids": ["pitchfork", "wiki_album", "stereogum", "reception_agg"], "confidence": 0.9},
+    {"text": "Stereogum 将其类比为 Dr. Dre 的《The Chronic》——一张以众多客串人声烘托作者单一视野的‘协作型作者专辑’。", "kind": "interpretation", "source_ids": ["stereogum"], "confidence": 0.7},
+    {"text": "Uncle ACE 常被解读为关于夜里乘坐 A/C/E 地铁线、无处可归的酷儿青年。", "kind": "interpretation", "source_ids": ["stereogum"], "confidence": 0.65},
+    {"text": "专辑的核心张力在于：它听上去像一场温暖热闹的派对，内里却是城市中最孤独之人的独白。", "kind": "interpretation", "source_ids": [], "confidence": 0.6},
+    {"text": "‘协作即主题’——Hynes 借他人的嗓音去寻求自己难以独自完成的连接。", "kind": "interpretation", "source_ids": [], "confidence": 0.6}
+  ],
+  "gaps": [
+    "未能在公开资料中锁定具体录音棚名称与逐曲录音日期（仅知 2011–2013 年于纽约）。",
+    "Uncle ACE 的‘A/C/E 地铁线 / 无家可归酷儿青年’读解属批评界普遍诠释（Stereogum 等），Hynes 本人未逐字确认，故标记为 interpretation。",
+    "部分客串者的逐曲分工以百科与厂牌页为准，少数细节（如个别和声）可能不完整。"
+  ],
+  "trace": {
+    "skill_version": "0.1.0",
+    "loaded_source_ids": ["wiki_album", "domino", "stereogum", "pitchfork", "wiki_hynes", "chamakay_video", "hynes_quote", "reception_agg"],
+    "research_mode": "online"
+  }
+}

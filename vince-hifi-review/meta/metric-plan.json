@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "skill_id": "skill.vince-hifi-review",
+  "required_metrics": [
+    "tonal_band_accuracy", "signature_label_accuracy",
+    "source_competence_tier_accuracy", "system_match_correctness",
+    "claim_traceability_rate", "unsupported_claim_rate", "measured_vs_consensus_mistag_rate",
+    "cleaning_dedup_recall", "marketing_strip_precision",
+    "activation_precision", "false_positive_rate", "false_negative_rate",
+    "pass_k_all", "variance", "cost_per_success", "loaded_context_tokens_p50",
+    "longform_length_ok", "longform_structure_ok", "longform_traceability",
+    "feature_detection_recall", "tilt_correctness", "compare_correctness",
+    "target_inference_correctness"
+  ],
+  "gates": {
+    "tonal_band_accuracy_min": 0.85,
+    "signature_label_accuracy_min": 0.85,
+    "source_competence_tier_accuracy_min": 0.85,
+    "claim_traceability_rate_eq": 1.0,
+    "unsupported_claim_rate_eq": 0.0,
+    "measured_vs_consensus_mistag_rate_eq": 0.0,
+    "activation_precision_min": 0.9,
+    "longform_traceability_eq": 1.0
+  },
+  "non_gating_recorded": ["cost_per_success", "loaded_context_tokens_p50"],
+  "notes": "Accuracy >> speed: cost/latency recorded, not gating. Engine-derived metrics (tonal_band_accuracy, signature_label_accuracy, competence_tier, system_match) are deterministic vs goldens — no LLM judge needed for the core acceptance signal."
+}

@@ -2,16 +2,16 @@
   "schema_version": "1.0.0",
   "template_id": "template.skill_design_record",
   "skill_id": "skill.vince-low-visibility-fix",
-  "name_zh": "现场低能见度 UI 审计与修复",
-  "name_en": "Low-Visibility UI Fix",
-  "target_users": ["agent_developer", "frontend_engineer", "field_app_maintainer"],
-  "problem_statement_zh": "让 agent 审计并在确认后修复现有移动端 HTML/CSS，使其在现场低能见度条件（暗光/眩光 + 手套/湿手/震动）下可读可操作，关键判定由确定性脚本而非纯模型推理给出。",
-  "problem_statement_en": "Enable agents to audit and, after confirmation, fix existing mobile HTML/CSS for field low-visibility conditions (low-light/glare + gloves/wet/vibration), with core checks made by a deterministic script rather than model-only judgment.",
+  "name_zh": "现场低能见度 UI 审计 + 交接文档",
+  "name_en": "Low-Visibility UI Audit -> Handoff Docs",
+  "target_users": ["implementer_agent", "agent_developer", "frontend_engineer", "field_app_maintainer"],
+  "problem_statement_zh": "让 agent 审计现有移动端 UI（微信小程序 / H5 / app）在现场低能见度条件（暗光/眩光 + 手套/湿手/震动）下的可读可点性，借助确定性脚本 + 有界视觉/浏览器 pass，稳定产出一份结构化交接文档（按严重度的 findings + 修改建议），交给其他 agent 实现；本技能从不直接改目标文件，并支持只检查指定页面/组件以便多轮低成本复跑。",
+  "problem_statement_en": "Enable agents to audit existing mobile UI (WeChat mini-program / H5 / app) for field low-visibility usability (low-light/glare + gloves/wet/vibration) using a deterministic script plus a bounded visual/browser pass, and reliably emit a structured handoff document set (findings by severity + fix recommendations) for OTHER agents to implement. The skill NEVER edits the target and supports targeted page/component scoping for cheap multi-round re-runs.",
   "trigger": {
     "must_activate_on": [
-      "audit existing mobile UI for field low-visibility usability",
-      "fix contrast / touch-target / color-only / icon-only issues in HTML/CSS",
-      "make an existing UI usable outdoors / in low light / with gloves"
+      "audit an existing mobile UI for field low-visibility usability and get a fix-plan document",
+      "check specific page(s)/component(s) for contrast / target-size / color-only / icon-only issues",
+      "produce a low-visibility handoff doc set for an implementer agent"
     ],
     "must_not_activate_on": [
       "designing a new UI from scratch",
@@ -19,84 +19,90 @@
       "generic CSS review with no low-visibility angle"
     ],
     "adjacent_confusions": [
-      "design a new field worker UI (design, not fix)",
+      "'just edit/fix my files directly' -> the skill emits docs, an implementer applies them (it never edits the target)",
       "make it accessible for blind users (a11y populations, out of scope)",
-      "prettify CSS with no field angle"
+      "design a new field worker UI (design, not audit)"
     ],
-    "manual_activation_phrases": ["$vince-low-visibility-fix", "audit this for field/low-light"]
+    "manual_activation_phrases": ["$vince-low-visibility-fix", "audit this for field/low-light and give me a fix plan"]
   },
   "execution_protocol": {
     "preflight": [
-      "confirm field low-visibility audit/fix scope",
-      "locate HTML/CSS or detect screenshot-only",
-      "load design-tokens.json",
-      "determine rollback capability (git or .lv-backup)"
+      "confirm field low-visibility audit scope of an EXISTING mobile UI",
+      "parse the targeted page/component parameter (--pages/--selector); default = bounded scan",
+      "locate in-scope HTML/CSS or WXML/WXSS; pick the visual-pass render method (degrade if none)",
+      "load design-tokens.json"
     ],
     "steps": [
-      "run analyze.py",
-      "complete needs_judgment items by reasoning",
-      "present prioritized plan and wait for approval",
-      "snapshot then apply gated fixes",
-      "re-run analyzer with --compare",
-      "report before/after"
+      "run scripts/audit.py (scope -> analyze)",
+      "complete needs_judgment items via the bounded visual/browser pass (label estimates)",
+      "synthesize the structured handoff doc set (audit.json + report.md) to the out dir",
+      "report findings by severity + doc paths + residual needs_judgment + next-round scope"
     ],
     "verification": [
-      "analyzer score and findings",
-      "comparison.fixed covers approved findings",
-      "comparison.introduced empty",
-      "evals/check.py golden suite passes"
+      "evals/run_all.py behavioral harness is all-green",
+      "audit.json validates against schemas/handoff-doc.schema.json (all sections, incl. clean)",
+      "target source files are byte-identical after the run (no mutation)",
+      "targeted-param run analyzes exactly the requested scope"
     ],
     "reporting": [
-      "summarize findings by severity",
-      "state edits and rollback command",
-      "list residual needs_judgment"
+      "summarize findings by severity and worst_score",
+      "point at the emitted doc paths and residual needs_judgment",
+      "suggest the next-round targeted scope"
     ],
     "failure_paths": [
-      "PATH_OUTSIDE_TARGET",
-      "NO_ROLLBACK_AVAILABLE",
-      "ANALYZER_INPUT_NOT_HTML",
-      "SCREENSHOT_ONLY_DEGRADED"
+      "EMPTY_SCOPE (requested pages not found; exit 3, no full-scan fallback)",
+      "OUTPUT_ONLY_REFUSAL (write requested outside the out dir, or any target-source edit)",
+      "NO_RENDERER_DEGRADED (visual pass unavailable -> static + needs_judgment, doc still emitted)",
+      "ANALYZER_INPUT_UNSUPPORTED (not an .html/.wxml file)"
     ]
   },
   "resources": {
-    "docs": ["rules/audit-protocol.md", "rules/fix-patterns.md", "references/field-conditions.md", "references/research-bibliography.md"],
-    "templates": [],
-    "scripts": ["scripts/analyze.py", "evals/run_all.py", "evals/check.py", "evals/schema_check.py"],
+    "docs": ["rules/audit-protocol.md", "rules/handoff-docs.md", "rules/visual-pass.md", "references/field-conditions.md", "references/research-bibliography.md"],
+    "templates": ["assets/handoff-doc.template.md", "assets/fix-snippets.html"],
+    "scripts": ["scripts/audit.py", "scripts/analyze.py", "scripts/scope.py", "scripts/emit_docs.py", "scripts/policy.py", "evals/run_all.py"],
     "fixtures": [
       "evals/fixtures/bad_field_ui.html",
+      "evals/fixtures/clean_field_ui.html",
       "evals/fixtures/needs_judgment.html",
-      "evals/fixtures/clean_field_ui.html"
+      "evals/fixtures/project/",
+      "evals/fixtures/two_components.html",
+      "evals/fixtures/mp_page.wxml"
     ]
   },
   "control_boundaries": {
-    "allowed_tools": ["Read", "Edit", "Write (target UI files only)", "Bash (run analyzer)"],
-    "forbidden_tools": ["network access"],
-    "allowed_paths": ["the user-provided target path and its directory"],
-    "human_gate_conditions": ["any file edit"],
+    "allowed_tools": ["Read", "Bash (run audit.py / analyze.py / run_all.py)", "Write (out dir only, via audit.py)"],
+    "forbidden_tools": ["editing or writing the target source tree", "network access beyond rendering the target"],
+    "allowed_paths": ["the target path (read-only)", "the out dir (default <target>/.lv-audit, write-only)"],
+    "human_gate_conditions": ["none — the skill never edits the target, so no edit gate is required"],
     "cost_budget": null,
     "context_budget_tokens": 6000
   },
   "test_assets": {
     "eval_case_ids": [
       "eval.lvuifix.audit_happy_bad_field_ui",
-      "eval.lvuifix.fix_and_verify",
+      "eval.lvuifix.doc_set_emitted",
+      "eval.lvuifix.targeted_page_scope",
+      "eval.lvuifix.miniprogram_wxml",
       "eval.lvuifix.partial_css_vars",
       "eval.lvuifix.screenshot_only",
       "eval.lvuifix.negative_new_design",
       "eval.lvuifix.negative_screenreader_a11y",
+      "eval.lvuifix.adjacent_direct_edit",
       "eval.lvuifix.adversarial_lower_contrast",
-      "eval.lvuifix.adversarial_path_escape"
+      "eval.lvuifix.adversarial_output_boundary"
     ],
     "fixture_paths": [
       "evals/fixtures/bad_field_ui.html",
-      "evals/fixtures/needs_judgment.html",
-      "evals/fixtures/clean_field_ui.html"
+      "evals/fixtures/clean_field_ui.html",
+      "evals/fixtures/project/pageA.html",
+      "evals/fixtures/two_components.html",
+      "evals/fixtures/mp_page.wxml"
     ],
     "trajectory_assertions": [
-      "analyzer runs before any edit",
-      "no file edit before the plan gate",
-      "writes stay within the target directory",
-      "analyzer re-runs after fix"
+      "analyzer runs before any report",
+      "the target source files are never modified",
+      "a targeted-param run analyzes exactly the requested scope",
+      "the doc set is emitted with all required sections every run"
     ]
   },
   "metric_plan_id": "metric_plan.vince-low-visibility-fix",

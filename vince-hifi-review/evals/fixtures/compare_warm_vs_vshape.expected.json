@@ -1,0 +1,118 @@
+{
+  "device_a": "WarmIEM",
+  "device_b": "VShapeTWS",
+  "target": "harman_ie_2019",
+  "comparable": true,
+  "comparability_notes": [],
+  "signature_a": "warm",
+  "signature_b": "V-shape",
+  "tilt_a_db": -5.2,
+  "tilt_b_db": -0.9,
+  "tilt_delta_db": -4.3,
+  "band_deltas": [
+    {
+      "id": "sub_bass",
+      "hz": [
+        20,
+        60
+      ],
+      "a_quanta": 1,
+      "b_quanta": 2,
+      "quanta_delta": -1,
+      "dev_db_delta": -1.9
+    },
+    {
+      "id": "mid_bass",
+      "hz": [
+        60,
+        200
+      ],
+      "a_quanta": 1,
+      "b_quanta": 1,
+      "quanta_delta": 0,
+      "dev_db_delta": -0.4
+    },
+    {
+      "id": "lower_mids",
+      "hz": [
+        200,
+        500
+      ],
+      "a_quanta": 0,
+      "b_quanta": 0,
+      "quanta_delta": 0,
+      "dev_db_delta": 0.6
+    },
+    {
+      "id": "center_mids",
+      "hz": [
+        500,
+        1000
+      ],
+      "a_quanta": 0,
+      "b_quanta": 0,
+      "quanta_delta": 0,
+      "dev_db_delta": 0.0
+    },
+    {
+      "id": "upper_mids",
+      "hz": [
+        1000,
+        3000
+      ],
+      "a_quanta": 0,
+      "b_quanta": 0,
+      "quanta_delta": 0,
+      "dev_db_delta": -0.1
+    },
+    {
+      "id": "lower_treble",
+      "hz": [
+        3000,
+        6000
+      ],
+      "a_quanta": -1,
+      "b_quanta": 0,
+      "quanta_delta": -1,
+      "dev_db_delta": -4.0
+    },
+    {
+      "id": "mid_treble",
+      "hz": [
+        6000,
+        10000
+      ],
+      "a_quanta": -1,
+      "b_quanta": 1,
+      "quanta_delta": -2,
+      "dev_db_delta": -6.0
+    },
+    {
+      "id": "air",
+      "hz": [
+        10000,
+        20000
+      ],
+      "a_quanta": -1,
+      "b_quanta": 2,
+      "quanta_delta": -3,
+      "dev_db_delta": -6.2
+    }
+  ],
+  "summary": {
+    "a_more_in": [],
+    "b_more_in": [
+      "sub_bass",
+      "lower_treble",
+      "mid_treble",
+      "air"
+    ],
+    "similar_in": [
+      "mid_bass",
+      "lower_mids",
+      "center_mids",
+      "upper_mids"
+    ]
+  },
+  "warnings": []
+}

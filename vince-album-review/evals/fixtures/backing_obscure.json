@@ -1,0 +1,16 @@
+{
+  "album": "Obscure Tape Release",
+  "primary_credit": "Unknown Collective",
+  "idiom": "experimental",
+  "release_form": "ep",
+  "language": "zh",
+  "evidence": [
+    {"source_id": "caller", "type": "caller_supplied", "orientation": "user-provided sleeve photo", "reliability": 3, "freshness": "2026-06"}
+  ],
+  "claims": [
+    {"text": "封套标注为 4 曲 EP。", "kind": "fact", "fact_class": "track_list", "source_ids": ["caller"], "confidence": 0.6},
+    {"text": "受限于公开资料，演职人员与录音地点资料不足，本文不作臆测。", "kind": "interpretation", "source_ids": [], "confidence": 0.9}
+  ],
+  "gaps": ["公开资料有限：无厂牌、录音日期、演职人员的可靠来源。"],
+  "trace": {"skill_version": "0.1.0", "loaded_source_ids": ["caller"], "research_mode": "offline_caller_supplied"}
+}

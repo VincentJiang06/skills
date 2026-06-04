@@ -1,0 +1,19 @@
+FAIL good_pop_12k
+FAIL under_floor_9999
+FAIL over_ceiling_15001
+FAIL cjk_padding_fails_floor
+FAIL missing_section
+FAIL classical_workperf
+FAIL genre_mismatch_pop_under_classical
+FAIL release_form_box
+FAIL obscure_degraded
+FAIL backing_good_passes
+FAIL untraced_fact
+FAIL fabricated_evidence_ref
+FAIL classical_backing_passes
+FAIL obscure_backing_passes
+FAIL review_with_backing_good
+FAIL review_with_untraced_backing_fails
+FAIL routing_adjacent  (ImportError: cannot import name 'classify_route' from 'check_review' (/Users/vince/playground/skill-developer/vince-album-review/scripts/check_review.py))
+
+RESULT: RED  (0/17 passed)

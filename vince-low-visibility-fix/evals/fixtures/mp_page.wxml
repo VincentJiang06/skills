@@ -1,0 +1,5 @@
+<view class="card">
+  <text class="lbl">设备状态</text>
+  <button class="act">确认</button>
+  <view class="tapper" bindtap="onTap">详情</view>
+</view>

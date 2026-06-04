@@ -11,8 +11,8 @@ stylesheets, computed/themed colors, background images, and JS-driven state
 are reported under `needs_judgment` for the model to complete.
 
 Usage:
-    python3 analyze.py <file.html> [--tokens design-tokens.json]
-                       [--compare before.json] [--json]
+    python3 analyze.py <file.html|.wxml> [--tokens design-tokens.json]
+                       [--css sheet.wxss] [--selector .sel] [--viewport-px N] [--json]
 """
 import argparse
 import json
@@ -33,30 +33,72 @@ NAMED_COLORS = {
 }
 
 
+def _hsl_to_rgb(h, s, l):
+    """h in degrees, s/l in [0,1] -> (r,g,b) 0-255."""
+    h = (h % 360) / 360.0
+    s = max(0.0, min(1.0, s))
+    l = max(0.0, min(1.0, l))
+    if s == 0:
+        v = round(l * 255)
+        return (v, v, v)
+
+    def hue(p, q, t):
+        t = t % 1.0
+        if t < 1 / 6:
+            return p + (q - p) * 6 * t
+        if t < 1 / 2:
+            return q
+        if t < 2 / 3:
+            return p + (q - p) * (2 / 3 - t) * 6
+        return p
+
+    q = l * (1 + s) if l < 0.5 else l + s - l * s
+    p = 2 * l - q
+    return tuple(round(hue(p, q, h + d) * 255) for d in (1 / 3, 0, -1 / 3))
+
+
 def parse_color(value):
-    """Return (r, g, b, a) with a in [0,1], or None if unparseable/transparent."""
+    """Return (r, g, b, a) with a in [0,1], or None if unparseable/transparent.
+
+    Handles named colors, #rgb / #rgba / #rrggbb / #rrggbbaa, rgb()/rgba() with
+    comma OR space OR slash separators and % channels, and hsl()/hsla()."""
     if value is None:
         return None
     v = value.strip().lower()
     if v in NAMED_COLORS:
         rgb = NAMED_COLORS[v]
         return None if rgb is None else (rgb[0], rgb[1], rgb[2], 1.0)
-    m = re.fullmatch(r"#([0-9a-f]{3})", v)
+    m = re.fullmatch(r"#([0-9a-f]{3,8})", v)
     if m:
         h = m.group(1)
-        return (int(h[0] * 2, 16), int(h[1] * 2, 16), int(h[2] * 2, 16), 1.0)
-    m = re.fullmatch(r"#([0-9a-f]{6})", v)
-    if m:
-        h = m.group(1)
-        return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), 1.0)
-    m = re.fullmatch(r"rgba?\(([^)]+)\)", v)
-    if m:
-        parts = [p.strip() for p in m.group(1).replace("/", ",").split(",") if p.strip()]
-        try:
-            r, g, b = (int(round(float(p.rstrip("%")))) for p in parts[:3])
-            a = float(parts[3]) if len(parts) > 3 else 1.0
+        if len(h) in (3, 4):
+            r, g, b = (int(h[i] * 2, 16) for i in range(3))
+            a = int(h[3] * 2, 16) / 255 if len(h) == 4 else 1.0
             return (r, g, b, a)
-        except ValueError:
+        if len(h) in (6, 8):
+            r, g, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
+            a = int(h[6:8], 16) / 255 if len(h) == 8 else 1.0
+            return (r, g, b, a)
+        return None
+    m = re.fullmatch(r"(rgba?|hsla?)\(([^)]+)\)", v)
+    if m:
+        kind, body = m.group(1), m.group(2).strip()
+        parts = [p for p in re.split(r"[,\s/]+", body) if p]
+        try:
+            if kind.startswith("rgb"):
+                def chan(p):
+                    return int(round(float(p[:-1]) * 2.55)) if p.endswith("%") else int(round(float(p)))
+                r, g, b = (chan(p) for p in parts[:3])
+            else:
+                hnum = float(re.sub(r"deg$", "", parts[0]))
+                s = float(parts[1].rstrip("%")) / 100.0
+                ll = float(parts[2].rstrip("%")) / 100.0
+                r, g, b = _hsl_to_rgb(hnum, s, ll)
+            a = parts[3] if len(parts) > 3 else "1"
+            a = float(a[:-1]) / 100.0 if a.endswith("%") else float(a)
+            return (max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)),
+                    max(0.0, min(1.0, a)))
+        except (ValueError, IndexError):
             return None
     return None
 
@@ -85,18 +127,25 @@ def contrast_ratio(rgb1, rgb2):
 
 # --- length handling ---------------------------------------------------------
 
+# Viewport width (px) used to resolve WeChat mini-program rpx units (750rpx ==
+# viewport width). Set per run by analyze_html; default is a 375px logical phone.
+_VIEWPORT_PX = 375
+
+
 def parse_length_px(value):
     """Parse a CSS length to px. Returns float or None if not resolvable."""
     if value is None:
         return None
     v = value.strip().lower()
-    m = re.fullmatch(r"(-?\d*\.?\d+)(px|pt|rem|em)?", v)
+    m = re.fullmatch(r"(-?\d*\.?\d+)(px|pt|rem|em|rpx)?", v)
     if not m:
         return None
     num = float(m.group(1))
     unit = m.group(2) or "px"
     if unit == "px":
         return num
+    if unit == "rpx":            # WeChat: 750rpx == viewport width
+        return num * (_VIEWPORT_PX / 750.0)
     if unit == "pt":
         return num * 96.0 / 72.0
     if unit in ("rem", "em"):  # assume 16px root; em approximated as rem in v0.1
@@ -292,9 +341,12 @@ class TreeBuilder(HTMLParser):
 
 
 def walk(node):
-    yield node
-    for c in node.children:
-        yield from walk(c)
+    """Iterative pre-order DFS — recursion-safe for deeply nested DOM."""
+    stack = [node]
+    while stack:
+        n = stack.pop()
+        yield n
+        stack.extend(reversed(n.children))
 
 
 # --- style resolution --------------------------------------------------------
@@ -318,13 +370,17 @@ def declared(node, rules):
     return out
 
 
-def resolved(node, rules, prop, inherit=False, default=None, _cache=None):
-    """Resolve a property value, optionally inheriting from ancestors."""
-    own = declared(node, rules)
-    if prop in own:
-        return own[prop]
-    if inherit and node.parent is not None and node.parent.tag != "#root":
-        return resolved(node.parent, rules, prop, inherit, default)
+def resolved(node, rules, prop, inherit=False, default=None):
+    """Resolve a property value, optionally inheriting from ancestors.
+    Iterative walk up the ancestor chain — recursion-safe for deep DOM."""
+    n = node
+    while n is not None and n.tag != "#root":
+        own = declared(n, rules)
+        if prop in own:
+            return own[prop]
+        if not inherit:
+            break
+        n = n.parent
     return default
 
 
@@ -336,19 +392,22 @@ def resolved_bg(node, rules):
     n = node
     while n is not None and n.tag != "#root":
         own = declared(n, rules)
-        c = parse_color(own.get("background-color"))
+        bgc = own.get("background-color")
+        c = parse_color(bgc)
         if c is not None:
             return (c[0], c[1], c[2])
         bg_shorthand = own.get("background-image", "") + " " + own.get("background", "")
         if "url(" in bg_shorthand or "gradient(" in bg_shorthand:
             return "image"
+        if bgc is not None:  # a colour IS declared but unparseable -> don't assume white
+            return "unknown"
         n = n.parent
     return (255, 255, 255)
 
 
 # --- semantic helpers --------------------------------------------------------
 
-INTERACTIVE_TAGS = {"a", "button", "select", "textarea"}
+INTERACTIVE_TAGS = {"a", "button", "select", "textarea", "navigator"}
 INTERACTIVE_INPUT = {"button", "submit", "reset", "checkbox", "radio", "image"}
 
 
@@ -360,7 +419,11 @@ def is_interactive(node):
     role = node.attrs.get("role", "").lower()
     if role in {"button", "link", "checkbox", "switch", "tab", "menuitem"}:
         return True
-    return "onclick" in node.attrs
+    if "onclick" in node.attrs:
+        return True
+    # WeChat mini-program tap bindings: bindtap, catchtap, bind:tap, catch:tap
+    return any((k.startswith("bind") or k.startswith("catch")) and "tap" in k
+               for k in node.attrs)
 
 
 def text_content(node):
@@ -428,9 +491,13 @@ def analyze(root, rules, tokens):
                 needs.append({"reason": "css_var_unresolved", "location": node.descr()})
             else:
                 bg = resolved_bg(node, rules)
-                # text over an image/gradient: contrast is unknowable statically
+                # contrast unknowable statically: an image/gradient bg, or a
+                # declared-but-unparseable colour -> needs_judgment, never guess white
                 if bg == "image":
                     needs.append({"reason": "bg_image", "location": node.descr()})
+                    bg = None
+                elif bg == "unknown":
+                    needs.append({"reason": "unresolved_color", "location": node.descr()})
                     bg = None
             if fg is not None and bg is not None:
                 fg_rgb = _composite(fg, (bg[0], bg[1], bg[2], 1.0)) if fg[3] < 1 else fg[:3]
@@ -462,6 +529,7 @@ def analyze(root, rules, tokens):
                 if fsize is not None and (pt is not None or pb is not None):
                     h = fsize + (pt or 0) + (pb or 0)
             dims = [d for d in (w, h) if d is not None]
+            both_known = w is not None and h is not None
             if not dims:
                 needs.append({"reason": "target_size_unresolved", "location": node.descr()})
             else:
@@ -475,6 +543,9 @@ def analyze(root, rules, tokens):
                         threshold=tg["field_px"], axis="gloves",
                         fix_hint=f"enlarge target to >= {tg['field_px']}px (gloves; "
                         f"{tg['recommended_px']}px ideal)")
+                elif not both_known:
+                    # passes on the one known axis, but the other is unknown
+                    needs.append({"reason": "target_size_unresolved", "location": node.descr()})
 
             # icon_only: field needs a VISIBLE text label; an aria-label alone is
             # a weak fallback under glare, so it downgrades rather than clears.
@@ -525,6 +596,101 @@ def analyze(root, rules, tokens):
     }
 
 
+# --- orchestration (importable) ----------------------------------------------
+
+def analyze_html(html, tokens, *, css_extra=None, selector=None,
+                 viewport_px=375, target_name=None):
+    """Analyze an HTML/WXML string; return the findings result dict.
+
+    css_extra   external stylesheet body to merge (a linked .css or a .wxss).
+    selector    restrict analysis to nodes matching this simple selector.
+    viewport_px viewport width used to resolve rpx units (750rpx == viewport).
+    """
+    global _VIEWPORT_PX
+    _VIEWPORT_PX = viewport_px
+    builder = TreeBuilder()
+    builder.feed(html)
+    css_blocks = list(builder.style_css)
+    if css_extra:
+        css_blocks.append(css_extra)
+    rules, varmap = parse_stylesheet("\n".join(css_blocks))
+    for _spec, _simple, decls in rules:
+        for k in list(decls):
+            decls[k] = resolve_value(decls[k], varmap)
+    for node in walk(builder.root):
+        for k in list(node.inline):
+            node.inline[k] = resolve_value(node.inline[k], varmap)
+    roots = _selector_roots(builder.root, selector) if selector else [builder.root]
+    result = _analyze_roots(roots, rules, tokens)
+    if selector and not roots:
+        result["needs_judgment"].append({"reason": "selector_no_match", "location": selector})
+    if target_name is not None:
+        result["target"] = target_name
+    if not selector:
+        for href in builder.external_links:
+            result["needs_judgment"].append(
+                {"reason": "external_stylesheet", "location": f"<link href={href!r}>"})
+    result["summary"]["needs_judgment_count"] = len(result["needs_judgment"])
+    return result
+
+
+def _selector_roots(root, selector):
+    """Return the subtree roots matching a simple selector (component scope)."""
+    want = parse_simple_selector(selector)
+    if want is None:
+        return [root]
+    tag, classes, sid = want
+    out = []
+    for node in walk(root):
+        if node.tag in ("#root", "style", "script", "head"):
+            continue
+        if tag and tag != node.tag:
+            continue
+        if classes and not classes.issubset(set(node.classes)):
+            continue
+        if sid and sid != node.id:
+            continue
+        out.append(node)
+    return out
+
+
+def _analyze_roots(roots, rules, tokens):
+    """Run analyze() over one or more subtree roots and merge findings."""
+    if len(roots) == 1 and roots[0].tag == "#root":
+        return analyze(roots[0], rules, tokens)
+    merged = {"summary": {"score": 100,
+                          "by_severity": {"critical": 0, "major": 0, "minor": 0},
+                          "resolved_count": 0, "needs_judgment_count": 0},
+              "findings": [], "needs_judgment": []}
+    for r in roots:
+        wrapper = Node("#root", {}, 0)
+        wrapper.children = [r]
+        part = analyze(wrapper, rules, tokens)
+        merged["findings"].extend(part["findings"])
+        merged["needs_judgment"].extend(part["needs_judgment"])
+    for i, f in enumerate(merged["findings"], 1):
+        f["id"] = f"f{i}"
+    weight = {"critical": 15, "major": 7, "minor": 3}
+    merged["summary"]["score"] = max(0, 100 - sum(
+        weight[f["severity"]] for f in merged["findings"]))
+    for s in ("critical", "major", "minor"):
+        merged["summary"]["by_severity"][s] = sum(
+            1 for f in merged["findings"] if f["severity"] == s)
+    merged["summary"]["resolved_count"] = len(merged["findings"])
+    merged["summary"]["needs_judgment_count"] = len(merged["needs_judgment"])
+    return merged
+
+
+def analyze_path(path, tokens=None, **kwargs):
+    """Read a file and analyze it; tokens default to the bundled design-tokens."""
+    if tokens is None:
+        tokens = load_tokens(None)
+    with open(path, encoding="utf-8") as fh:
+        html = fh.read()
+    kwargs.setdefault("target_name", os.path.basename(path))
+    return analyze_html(html, tokens, **kwargs)
+
+
 # --- cli ---------------------------------------------------------------------
 
 def load_tokens(path):
@@ -535,27 +701,14 @@ def load_tokens(path):
         return json.load(fh)
 
 
-def compare(before_path, current):
-    with open(before_path, encoding="utf-8") as fh:
-        before = json.load(fh)
-    before_keys = {(f["rule"], f["location"]) for f in before.get("findings", [])}
-    current_keys = {(f["rule"], f["location"]) for f in current["findings"]}
-    resolved_fixed = sorted(f"{r} @ {l}" for (r, l) in before_keys - current_keys)
-    introduced = sorted(f"{r} @ {l}" for (r, l) in current_keys - before_keys)
-    return {
-        "before_score": before.get("summary", {}).get("score"),
-        "after_score": current["summary"]["score"],
-        "fixed": resolved_fixed,
-        "introduced": introduced,
-        "remaining": len(current_keys & before_keys),
-    }
-
-
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Low-visibility UI analyzer (v0.1)")
-    ap.add_argument("target", help="path to an .html file")
+    ap = argparse.ArgumentParser(description="Low-visibility UI analyzer")
+    ap.add_argument("target", help="path to an .html / .wxml file")
     ap.add_argument("--tokens", help="path to design-tokens.json")
-    ap.add_argument("--compare", help="path to a prior findings JSON to diff against")
+    ap.add_argument("--css", help="external stylesheet (.css/.wxss) to merge for an exact audit")
+    ap.add_argument("--selector", help="restrict analysis to nodes matching this simple selector")
+    ap.add_argument("--viewport-px", type=int, default=375,
+                    help="viewport width for rpx resolution (default 375; 750rpx == viewport)")
     ap.add_argument("--json", action="store_true",
                     help="print compact JSON (default is pretty)")
     args = ap.parse_args(argv)
@@ -563,28 +716,13 @@ def main(argv=None):
     if not os.path.isfile(args.target):
         print(f"error: not a file: {args.target}", file=sys.stderr)
         return 2
-    with open(args.target, encoding="utf-8") as fh:
-        html = fh.read()
-
+    css_extra = None
+    if args.css:
+        with open(args.css, encoding="utf-8") as fh:
+            css_extra = fh.read()
     tokens = load_tokens(args.tokens)
-    builder = TreeBuilder()
-    builder.feed(html)
-    rules, varmap = parse_stylesheet("\n".join(builder.style_css))
-    for _spec, _simple, decls in rules:
-        for k in list(decls):
-            decls[k] = resolve_value(decls[k], varmap)
-    for node in walk(builder.root):
-        for k in list(node.inline):
-            node.inline[k] = resolve_value(node.inline[k], varmap)
-    result = analyze(builder.root, rules, tokens)
-    result["target"] = os.path.basename(args.target)
-    for href in builder.external_links:
-        result["needs_judgment"].append(
-            {"reason": "external_stylesheet", "location": f"<link href={href!r}>"})
-    result["summary"]["needs_judgment_count"] = len(result["needs_judgment"])
-    if args.compare:
-        result["comparison"] = compare(args.compare, result)
-
+    result = analyze_path(args.target, tokens, css_extra=css_extra,
+                          selector=args.selector, viewport_px=args.viewport_px)
     indent = None if args.json else 2
     print(json.dumps(result, ensure_ascii=False, indent=indent))
     # exit code: 0 clean, 1 findings present (useful for CI / verify step)

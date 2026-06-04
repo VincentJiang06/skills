@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-conductor",
+  "target": "/Users/vince/playground/skill-developer/vince-low-visibility-fix",
+  "goal": "Re-scope vince-low-visibility-fix from audit+auto-fix to a visual/browser-driven low-visibility audit that reliably emits structured handoff documents for other implementer agents — supporting targeted/partial-page parameters, lean and re-entrant for multi-round use — and that does NOT edit target files directly.",
+  "stages": [
+    {
+      "stage": "guidance",
+      "iteration": 1,
+      "artifact_path": ".skill-guidance/handoff-spec.json",
+      "gate_passed": true,
+      "gate_evidence": "G gate ok: altitude=full, verdict=candidate (10/14); 7 scorecard entries; recommended_design 8 units; 17 adversarial-checklist edges (each input→expected); P0=A1,A2,A3,A4,A10,A6; 3 blocking_unknowns (render tool per target type, WXML/WXSS analyzer coverage, output-dir+targeted-param wire) each carrying a recommended default; every partial gap (design/testing/tdd/metrics) mapped to an action.",
+      "action": "proceed"
+    },
+    {
+      "stage": "engineer",
+      "iteration": 1,
+      "artifact_path": ".skill-engineer/build-report.json",
+      "gate_passed": true,
+      "gate_evidence": "E gate ok: ran=true, 19/19 pass, P0 6/6 done (A1,A2,A3,A4,A10,A6), checklist 17/17 edges bound to passing cases, harness=evals/run_all.py re-ran clean (exit 0). Real red.log with 10 assertion-level FAIL lines vs importable stubs; mutation spot-check flips OUTPUT_ONLY and rpx cases red.",
+      "action": "proceed"
+    },
+    {
+      "stage": "zipper",
+      "iteration": 1,
+      "artifact_path": "(in place)",
+      "gate_passed": true,
+      "gate_evidence": "Z skipped restructuring per the rubric: all-healthy smoke test (SKILL.md 70 lines / 1,184 tokens / 6.7% always-loaded share / single mode); no clean Encapsulate gate. Description ~6/7. diff_lossless = 0 LOST / 0 REWRITTEN (exit 0, no changes); harness still green.",
+      "action": "proceed"
+    },
+    {
+      "stage": "final_audit",
+      "iteration": 1,
+      "artifact_path": "(independent battery, fresh subagent)",
+      "gate_passed": false,
+      "gate_evidence": "Independent battery = candidate. Found a P0 green-but-wrong: unparseable background-color (rgb(0 0 0), hsl(), #rrggbbaa) silently scored against white -> fabricated 1.0 contrast on clean UI AND false-negative on real dark-on-dark; plus P1s (--out into source overwrites files vs the OUTPUT_ONLY claim; duplicate --pages doubled findings; no-match selector reported clean) and P2s (--css missing traceback; one-axis target; ambiguous page name; stale --compare docstring).",
+      "action": "loopback"
+    },
+    {
+      "stage": "engineer",
+      "iteration": 2,
+      "artifact_path": ".skill-engineer/build-report.json",
+      "gate_passed": true,
+      "gate_evidence": "Fixed all 10 battery findings, each locked by a red-first R_ regression: parse_color now handles space/slash rgb(), hsl(), 8/4-digit hex; resolved_bg routes a declared-but-unparseable colour to needs_judgment (unresolved_color) instead of white; OUTPUT_ONLY refuses writing onto sources; scope dedups + handles ambiguous names; selector-no-match signalled; --css missing -> clean exit 2; one-axis interactive -> needs_judgment. Harness 27/27; mutation spot-checks confirm the new tests are real.",
+      "action": "proceed"
+    },
+    {
+      "stage": "final_audit",
+      "iteration": 2,
+      "artifact_path": "(independent battery, fresh subagent)",
+      "gate_passed": false,
+      "gate_evidence": "Re-run battery confirmed all 10 fixes hold (core engine 'airtight', 6 contrast ratios hand-verified) but found one new P1: a ~1000-level nested DOM threw RecursionError (recursive walk()/resolved()) and emitted NO doc set, violating the must-always-emit contract.",
+      "action": "loopback"
+    },
+    {
+      "stage": "engineer",
+      "iteration": 3,
+      "artifact_path": ".skill-engineer/build-report.json",
+      "gate_passed": true,
+      "gate_evidence": "Made walk() and resolved() iterative (recursion-safe; verified identical pre-order traversal so L1 goldens 6/6 did not drift) and added a per-file analyzer guard (analyzer_error) so a parseable file always yields a doc; refined OUTPUT_ONLY to refuse only writes that sit on top of the analyzed sources. Harness 28/28; deep DOM (5000/8000 levels) emits a doc set.",
+      "action": "proceed"
+    },
+    {
+      "stage": "final_audit",
+      "iteration": 3,
+      "artifact_path": "(independent battery, fresh subagent)",
+      "gate_passed": true,
+      "gate_evidence": "re_audit=industrial (all 7 pillars present on the built skill, 14/14). Independent fresh-subagent battery = industrial, ZERO bugs: 7 contrast ratios hand-verified, traversal/inheritance rewrite confirmed correct (order/inheritance/override/nearest-bg; 5000 & 8000-level deep DOM emit docs), no-mutation SHA-verified through every output attack, scope/schema/robustness/analyzer_error all hold, harness 28/28. effective_verdict = min(industrial, industrial) = industrial; intent matches the Step-1 goal.",
+      "action": "done"
+    }
+  ],
+  "loops_taken": 2,
+  "final_verdict": "done",
+  "quality": {
+    "re_audit_verdict": "industrial",
+    "battery_verdict": "industrial",
+    "effective_verdict": "industrial",
+    "battery_bugs": []
+  },
+  "blocking_gaps": []
+}

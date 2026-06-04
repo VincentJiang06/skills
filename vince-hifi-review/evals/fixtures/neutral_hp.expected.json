@@ -1,0 +1,115 @@
+{
+  "device": "fixture:neutral_hp",
+  "category": "headphone",
+  "target": "harman_oe_2018",
+  "rig": "gras_43ag",
+  "alignment": {
+    "method": "anchor_center_mids",
+    "offset_db": -64.2
+  },
+  "bands": [
+    {
+      "id": "sub_bass",
+      "hz": [
+        20,
+        60
+      ],
+      "dev_db": -0.6,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "mid_bass",
+      "hz": [
+        60,
+        200
+      ],
+      "dev_db": -0.1,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "lower_mids",
+      "hz": [
+        200,
+        500
+      ],
+      "dev_db": 0.1,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "center_mids",
+      "hz": [
+        500,
+        1000
+      ],
+      "dev_db": 0.0,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "upper_mids",
+      "hz": [
+        1000,
+        3000
+      ],
+      "dev_db": -0.4,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "lower_treble",
+      "hz": [
+        3000,
+        6000
+      ],
+      "dev_db": -1.3,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "mid_treble",
+      "hz": [
+        6000,
+        10000
+      ],
+      "dev_db": -0.7,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    },
+    {
+      "id": "air",
+      "hz": [
+        10000,
+        20000
+      ],
+      "dev_db": 1.2,
+      "quanta": 0,
+      "label_zh": "中性",
+      "label_en": "neutral"
+    }
+  ],
+  "signature": {
+    "label_zh": "均衡",
+    "label_en": "neutral",
+    "rule_fired": "all sections within +/-1"
+  },
+  "tilt": {
+    "tilt_db": 0.1,
+    "label_zh": "中性倾斜",
+    "label_en": "even",
+    "low_extension_db": -0.6,
+    "high_extension_db": 1.2
+  },
+  "features": [],
+  "precision": "quantitative",
+  "warnings": []
+}

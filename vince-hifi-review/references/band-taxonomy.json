@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "bands": [
+    {"id": "sub_bass",     "hz": [20, 60],      "zh": "极低频", "en": "sub-bass",     "perception_zh": "下潜/震撼",   "perception_en": "rumble/slam"},
+    {"id": "mid_bass",     "hz": [60, 200],     "zh": "中低频", "en": "mid-bass",     "perception_zh": "力度/温暖",   "perception_en": "punch/warmth"},
+    {"id": "lower_mids",   "hz": [200, 500],    "zh": "下中频", "en": "lower-mids",   "perception_zh": "厚度/浑浊",   "perception_en": "body/mud"},
+    {"id": "center_mids",  "hz": [500, 1000],   "zh": "中频",   "en": "center-mids",  "perception_zh": "人声主体",   "perception_en": "vocal body"},
+    {"id": "upper_mids",   "hz": [1000, 3000],  "zh": "上中频", "en": "upper-mids",   "perception_zh": "人声前倾/喊", "perception_en": "presence/shout"},
+    {"id": "lower_treble", "hz": [3000, 6000],  "zh": "低高频", "en": "lower-treble", "perception_zh": "清晰/齿音",   "perception_en": "clarity/sibilance"},
+    {"id": "mid_treble",   "hz": [6000, 10000], "zh": "中高频", "en": "mid-treble",   "perception_zh": "细节/刺耳",   "perception_en": "detail/harshness"},
+    {"id": "air",          "hz": [10000, 20000],"zh": "极高频", "en": "air",          "perception_zh": "空气感/亮泽", "perception_en": "air/sparkle"}
+  ],
+  "quanta_scale": [
+    {"q": -3, "zh": "大幅不足", "en": "severely lacking"},
+    {"q": -2, "zh": "偏少",     "en": "reduced"},
+    {"q": -1, "zh": "略少",     "en": "slightly lacking"},
+    {"q":  0, "zh": "中性",     "en": "neutral"},
+    {"q":  1, "zh": "略多",     "en": "slightly elevated"},
+    {"q":  2, "zh": "偏多",     "en": "elevated"},
+    {"q":  3, "zh": "过量",     "en": "excessive"}
+  ]
+}

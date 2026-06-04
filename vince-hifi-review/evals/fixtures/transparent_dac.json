@@ -1,0 +1,1 @@
+{"device": "fixture:transparent_dac", "class": "dac", "sinad": 118, "thdn": 0.00016, "snr": 122, "zout": 0.4, "power": "32:500,300:120", "target_z": 32, "target_sens": 104}

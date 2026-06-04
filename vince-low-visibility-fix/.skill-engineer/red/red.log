@@ -1,0 +1,20 @@
+FAIL  L0_schema: handoff-doc: $: missing required 'schema_version'; handoff-doc: $: missing required 'generated_by'; handoff-doc: $: missing required 'target'; handoff-doc: $: missing required 'scope'; handoff-doc: $: missing required 'summary'; handoff-doc: $: missing required 'findings'; handoff-doc: $: missing required 'recommendations'; handoff-doc: $: missing required 'needs_judgment'; handoff-doc: $: missing required 'next_round_scope'
+PASS  L1_golden
+PASS  determinism
+FAIL  C_scope_missing: {'__stub__': True, 'files': [], 'requested': [], 'missing': [], 'bounded': False, 'selector': None, 'status': 'stub'}
+FAIL  C_scope_default: {'__stub__': True, 'files': [], 'requested': [], 'missing': [], 'bounded': False, 'selector': None, 'status': 'stub'}
+PASS  C_scope_selector
+FAIL  C_scope_multi: []
+FAIL  C_no_mutation: 
+FAIL  C_zero_findings_doc: 
+PASS  C_contrast_boundary
+PASS  C_target_boundary
+PASS  C_icon_tiers
+PASS  C_color_only
+PASS  C_needs_judgment
+FAIL  C_output_boundary: 
+FAIL  C_refuse_contrast: {'__stub__': True, 'verdict': 'allow', 'min_allowed': None, 'reason': 'stub'}
+FAIL  C_degraded_doc: ['stub: not implemented']
+FAIL  C_wxml_rpx: rpx button not measured: []
+
+RESULT: RED  (8/18)

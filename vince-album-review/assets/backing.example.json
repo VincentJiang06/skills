@@ -1,0 +1,20 @@
+{
+  "album": "Example LP",
+  "primary_credit": "Example Artist",
+  "idiom": "indie rock",
+  "release_form": "lp",
+  "language": "bi",
+  "evidence": [
+    {"source_id": "liner", "type": "liner_notes", "orientation": "first-party credits", "reliability": 1, "freshness": "2025-09", "snippet": "Recorded at Studio X, June 2025"},
+    {"source_id": "mb", "type": "metadata_db", "orientation": "community-curated metadata", "reliability": 2, "freshness": "2026-01", "snippet": "12-track LP, label Indie Records"},
+    {"source_id": "pitchfork", "type": "critic_press", "orientation": "indie-leaning critic", "reliability": 2, "freshness": "2025-10"}
+  ],
+  "claims": [
+    {"text": "专辑共 12 首曲目。", "kind": "fact", "fact_class": "track_list", "source_ids": ["mb"], "confidence": 0.95},
+    {"text": "录音于 2025 年 6 月在 Studio X 完成。", "kind": "fact", "fact_class": "recording_date", "source_ids": ["liner"], "confidence": 0.9},
+    {"text": "厂牌为 Indie Records。", "kind": "fact", "fact_class": "label", "source_ids": ["mb", "liner"], "confidence": 0.9},
+    {"text": "整体编曲克制，留白处理是全碟最动人的笔触。", "kind": "interpretation", "source_ids": [], "confidence": 0.6}
+  ],
+  "gaps": ["未能找到母带工程师署名。"],
+  "trace": {"skill_version": "0.1.0", "loaded_source_ids": ["liner", "mb", "pitchfork"], "research_mode": "online"}
+}

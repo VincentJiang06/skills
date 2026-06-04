@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["version", "competence_tiers_by_sinad_db", "output_impedance_rule", "drive_target_spl_db"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string"},
+    "competence_tiers_by_sinad_db": {"type": "array", "items": {
+      "type": "object", "required": ["tier", "min_sinad"], "additionalProperties": false,
+      "properties": {"tier": {"type": "string"}, "min_sinad": {"type": "number"}}}},
+    "audible_transparency_note": {"type": "string"},
+    "output_impedance_rule": {"type": "object"},
+    "drive_target_spl_db": {"type": "number"},
+    "hiss_risk_rule": {"type": "object"}
+  }
+}

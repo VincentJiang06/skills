@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0.0",
+  "generated_by": "vince-skill-guidance",
+  "target": {
+    "path": "/Users/vince/playground/skill-developer/vince-album-review",
+    "kind": "repo",
+    "name": "vince-album-review",
+    "maturity": "mature"
+  },
+  "intent": {
+    "summary": "From a primary music credit (歌手/作曲家/指挥家/乐队/演奏家) + an album name, the BUILT skill runs a 7-step protocol — preflight+route → classify (rich runtime descriptors: idiom/era/role-of-credit/work-vs-performance/release-form) → deep breadth-then-depth research with a profiled source roster → multi-pass reasoning → write ONE long-form Chinese 乐评 of 10,000–15,000 中文字符 (CJK 汉字 only) on the genre-adapted skeleton → verify with a deterministic gate → report with an 证据附录. Every fact-class claim is mapped to a source_id in an emitted backing JSON; a validator (scripts/check_review.py + validate_backing.py) blocks ship on length, section-coverage, or untraced/fabricated-fact violations; obscure albums degrade honestly (资料不足) rather than fabricate. This matches the original goal: a deeply-researched, strongly-reasoned,极高质量, all-dimensions long-form 乐评 in the 10,000–15,000 中文字符 window.",
+    "in_scope": [
+      "Reviewing exactly one music album across any idiom — classical (WORK vs PERFORMANCE split + composer + conductor/orchestra/soloist + performance practice + 参考录音/版本比较), jazz, pop/rock, electronic, hip-hop, folk, soundtrack/score, world",
+      "Genre-adaptive critical lens chosen by runtime judgment from rich per-album descriptors (rules/genre-lenses.md), not a fixed bucket enum",
+      "Deep research/资料搜集: source roster (references/source-roster.md) + breadth fan-out across 6 angles then depth-deepen + clean/grade/triangulate + claim→evidence map (rules/research-protocol.md)",
+      "Honest degradation for obscure/thin-info albums with explicit 资料不足/公开资料有限 and a gaps[] entry, never invented specifics",
+      "Adapting the unit of analysis (逐曲/逐乐章/逐碟) when the release form is a single / EP / box / live rather than a standard LP"
+    ],
+    "out_of_scope": [
+      "Buying / price / where-to-stream recommendations (classify_route → out-of-scope)",
+      "Audio-gear evaluation — routed to vince-hifi-review (classify_route → vince-hifi-review)",
+      "Pure lyric translation with no critical content (classify_route → out-of-scope)",
+      "Short summaries or capsule reviews (the floor is 10,000 中文字符, mechanically enforced)",
+      "Non-music subjects"
+    ],
+    "primary_user": "agent invoked by a human who supplies a primary credit + album name and wants a single comprehensive 乐评; speed is explicitly not a concern, quality and honesty are the only bars",
+    "triggers_observed": [
+      "给 <艺术家/作曲家/指挥家> 的专辑 <名称> 写一篇深度乐评",
+      "全面评测这张专辑",
+      "comprehensive album review of <album> by <artist>",
+      "$vince-album-review"
+    ]
+  },
+  "altitude": "full",
+  "altitude_rationale": "High stakes (fabricated discographic facts are the primary harm), mature maturity, and a wide surface (multi-genre research + genre-adaptive long-form writing + deterministic length/section/traceability validation) all call for full rigor. This is the final post-build audit; the build met that bar.",
+  "scorecard": [
+    {"pillar": "design", "status": "present", "score": 2, "evidence": "Frontmatter has explicit Use-when + Do-NOT trigger lines with positive (pop/classical/jazz/soundtrack), negative (gear→vince-hifi-review), and adjacent (lyric translation, buying advice) cases (score_skill: description_has_use_when=true, description_has_donot=true, mentions_triggers=true). SKILL.md is a runbook: a 7-step protocol (preflight+route→classify→research→reason→write→verify→report) with a Modules table, and the route classifier is externalized in scripts/check_review.py:classify_route — not prose-only control flow.", "gaps": []},
+    {"pillar": "research", "status": "present", "score": 2, "evidence": "rules/research-protocol.md defines a source roster, a breadth fan-out across 6 angles then iterative depth-deepening, clean/grade(1–4)/triangulate, and a claim→evidence map; references/source-roster.md profiles concrete music source classes by type/orientation/reliability with offline degradation. Traceability is machine-enforced: scripts/validate_backing.py requires every fact-class claim's source_id to exist in evidence[] (independently probed: backing_untraced FAILs 'no source_id', backing_fabricated FAILs 'not in evidence', backing_good PASSes).", "gaps": []},
+    {"pillar": "testing", "status": "present", "score": 2, "evidence": "evals/run_all.py imports the mechanism from scripts/ (no reimplementation) and runs 17 fixture cases covering all 10 adversarial edges — length floor/ceiling/CJK-padding, section linter, classical WORK-vs-PERFORMANCE, genre mismatch, box release form, obscure degradation, backing traceability (untraced/fabricated), review+backing wiring, and behavioral adjacent routing. Re-run live: 17/17 GREEN. Routing is a behavioral assertion over routing_cases.json, not a SKILL.md string-grep.", "gaps": []},
+    {"pillar": "tdd", "status": "present", "score": 2, "evidence": ".skill-engineer/red/red.log contains 17 assertion-level FAIL lines captured before the behavior existed — including a genuine 'ImportError: cannot import name classify_route' on the routing case, proving the function was absent at red time (red-first, not a prose/EXIT:1 log). The backing JSON has a schema contract (schemas/backing.schema.json) and the validator exit semantics are pinned per-case in .skill-engineer/build-report.json.", "gaps": []},
+    {"pillar": "metrics", "status": "present", "score": 2, "evidence": "rules/metric-plan.md defines length-window conformance rate (target ≥0.9), ungrounded-claim rate (target 0), section-coverage pass rate, and activation precision vs adjacent skills — the first three read straight off validator exit semantics (mechanically observable per run), activation precision sampled from evals/fixtures/routing_cases.json. SKILL.md Metrics section points to it (score_skill: mentions_metrics=true).", "gaps": []},
+    {"pillar": "low_context_kb", "status": "present", "score": 2, "evidence": "SKILL.md is a 114-line thin orchestrator with a Modules + Scripts + Assets table (score_skill: body_has_modules_table=true). Substantial content is progressively disclosed into rules/ (research-protocol, genre-lenses, output-template, metric-plan), references/ (source-roster), assets/ (review-template, backing.example), schemas/, scripts/, evals/ — loaded on demand with clear pointers. The thinness is architectural, not vacuous.", "gaps": []},
+    {"pillar": "lifecycle", "status": "present", "score": 2, "evidence": "version 0.1.0 in frontmatter + CHANGELOG.md (Keep-a-Changelog/semver). SKILL.md Lifecycle section states a release gate (ship only when python3 evals/run_all.py is GREEN), an evidence-gated update rule (roster/template changes require re-running fixtures), and a rollback path (revert to prior SKILL.md + scripts/).", "gaps": []}
+  ],
+  "overall_readiness": {
+    "ratio": 1.0,
+    "points": "14/14",
+    "verdict": "industrial",
+    "summary": "Post-build final audit: all 7 pillars present (14/14, ratio 1.0; verdict 'industrial' consistent with ratio >= 0.85 and no required pillar scoring 0). The built skill faithfully realizes the original goal — a deeply-researched, strongly-reasoned, all-dimensions long-form 乐评 in a 10,000–15,000 中文字符 window — and hardens it with three mechanical guarantees that were independently re-verified this pass: (1) CJK-汉字-only length counting so padding cannot game the floor (5000 Latin chars = 0 字); (2) a claim→evidence traceability gate that FAILs both untraced and fabricated-source facts; (3) a behavioral routing guard separating album-review from vince-hifi-review and out-of-scope. TDD red-first is genuine (17 assertion-level FAILs incl. a real ImportError), and the eval battery is 17/17 GREEN on a live re-run. No drift from intent; no remaining gaps. Ready to ship."
+  },
+  "comparables": [
+    {"repo_id": "local.vince-hifi-review", "skill_path": "2-vince-hifi-review/SKILL.md", "what_to_borrow": "The proven industrial shape for a source-traceable long-form evaluation skill — thin SKILL orchestrator + rules/ modules + scripts/ validators + evals/ fixtures with run_all + schema_check; a strict claim→evidence traceability gate; and a deterministic long-form QA script counting CJK 字 against a [min,max] window plus a required-section linter. The built album-review skill adopted this whole structure (validated present in this audit), adapting the content from audio to music criticism."},
+    {"repo_id": "repo.anthropics_skills", "skill_path": "skills/skill-creator/SKILL.md", "what_to_borrow": "Canonical SKILL.md frontmatter and Use-when / Do-NOT trigger phrasing for clean self-selection — now realized in the built skill's description (Use-when + Do-NOT lines with positive/negative/adjacent cases)."}
+  ],
+  "recommended_design": {
+    "trigger": "BUILT AS DESIGNED. Frontmatter states Use-when (a primary music credit + album name supplied; user wants a deep/comprehensive 乐评) and Do-NOT (gear evaluation → vince-hifi-review; buying/price; bare lyric translation; non-music). Positive cases (pop LP, classical work-vs-performance, jazz, soundtrack), a negative case (gear → vince-hifi-review), and adjacent false-trigger cases (lyric translation, buying advice) are all present and behaviorally enforced by scripts/check_review.py:classify_route over evals/fixtures/routing_cases.json.",
+    "protocol": "BUILT AS DESIGNED. 7-step runbook in SKILL.md: (1) preflight + route (reject gear/lyric/buy before producing a review); (2) classify with rich runtime descriptors (idiom/era/role-of-credit/work-vs-performance/release-form) and set the unit of analysis; (3) research — source roster, breadth fan-out across [artist/genesis, recording/production, the music itself, reception/criticism, comparisons, cultural-historical] then depth-deepen, clean/grade/triangulate, map every discographic fact to a source_id, honest-degrade thin albums; (4) multi-pass reasoning, tag fact vs interpretation; (5) write the genre-adapted 10,000–15,000 中文字符 skeleton (classical separates WORK from PERFORMANCE + carries 参考录音/版本比较) and emit the backing JSON; (6) verify with the validator (never ship a FAIL); (7) report the 乐评 + 证据附录.",
+    "resources": [
+      "rules/research-protocol.md — source roster classes, breadth/depth fan-out, reliability grading, triangulation, honest-degradation [PRESENT]",
+      "rules/genre-lenses.md — rich per-idiom descriptors chosen by runtime judgment, not a fixed bucket [PRESENT]",
+      "rules/output-template.md — required long-form section skeleton with genre-adaptive substitutions [PRESENT]",
+      "rules/metric-plan.md — metric definitions + targets [PRESENT]",
+      "references/source-roster.md — concrete music source classes with type/orientation/reliability [PRESENT]",
+      "assets/review-template.md — fillable 长文骨架 [PRESENT]",
+      "assets/backing.example.json — a conforming backing JSON to copy from [PRESENT]",
+      "schemas/backing.schema.json — JSON contract for claims[] + evidence[] [PRESENT]"
+    ],
+    "evidence_base": "REQUIRED AND BUILT. A music-domain source roster (liner notes/label, metadata DBs, EN+中文 critic press, interviews, musicology, encyclopedia, caller-supplied) profiled by type/orientation/reliability lives in references/source-roster.md. Every fact-class claim (track_list/personnel/recording_date/recording_venue/label/release_form/release_date/credit) must carry a source_id present in evidence[]; interpretation is tagged separately; thin albums degrade honestly via gaps[] + explicit 资料不足. Enforced by scripts/validate_backing.py (independently re-verified this pass).",
+    "controls": [
+      "Length window 10,000–15,000 中文字符 (CJK-汉字 only) enforced by scripts/check_review.py — ship blocked on FAIL [PRESENT, re-verified: under_floor exit=1]",
+      "No-fabrication gate: every fact-class claim's source_id must exist in evidence[]; untraced and fabricated facts FAIL [PRESENT, re-verified]",
+      "Read-only research; no purchase/price/transaction advice in output [PRESENT — out-of-scope routing]",
+      "Genre-mismatch guard: lens chosen by runtime judgment, classical class requires WORK-vs-PERFORMANCE + 参考录音 so a pop body cannot satisfy it [PRESENT]",
+      "Honest-degradation control: obscure albums emit explicit 资料不足/公开资料有限, zero invented specifics [PRESENT]"
+    ],
+    "tests": [
+      "BUILT: 17 eval cases in evals/run_all.py, 17/17 GREEN on live re-run.",
+      "length window: good_pop_12k PASS; under_floor_9999 FAIL on under-floor; over_ceiling_15001 FAIL on over-ceiling; cjk_padding_fails_floor (500 真·汉字 under Latin padding) FAIL floor",
+      "section linter: missing_section FAIL; classical_workperf PASS under --class classical; genre_mismatch_pop FAIL under classical AND PASS under standard",
+      "release form: release_form_box PASS (box-set unit of analysis)",
+      "obscure: obscure_degraded PASS and contains 资料不足/公开资料有限",
+      "backing traceability: backing_good PASS; untraced_fact FAIL ('no source_id'); fabricated_evidence_ref FAIL ('not in evidence'); classical + obscure backings PASS",
+      "wired: review_with_backing_good PASS; review_with_untraced_backing_fails FAIL via --backing gate",
+      "behavioral routing: routing_adjacent — 耳机/DAC→vince-hifi-review, lyric/buy→out-of-scope, album prompts→album-review (asserts on behavior, not a string-grep)"
+    ],
+    "metrics": [
+      "BUILT in rules/metric-plan.md: length-window conformance rate (≥0.9); ungrounded-claim rate (0); section-coverage pass rate (high); activation precision vs adjacent skills (high, sampled from routing_cases.json). First three read off validator exit semantics."
+    ],
+    "lifecycle": "BUILT: version 0.1.0 + CHANGELOG.md; release gate = evals/run_all.py GREEN (length + section + traceability + routing); evidence-gated update rule (roster/template changes re-run fixtures); rollback = revert to prior SKILL.md + scripts/.",
+    "adversarial_checklist": [
+      "review body at 9,999 中文字符 (one under floor) → validator FAILs on under-length (exit 1), not a rounding pass [BOUND: under_floor_9999, PASS]",
+      "review body at 15,001 中文字符 (one over ceiling) → validator FAILs on over-length; a 12,000-字 in-window review PASSes [BOUND: over_ceiling_15001 + good_pop_12k, PASS]",
+      "track list / personnel / recording date asserted with no backing source_id → flagged ungrounded and FAILs the traceability gate, never silently emitted as fact [BOUND: untraced_fact, PASS — re-probed: 'no source_id (untraceable)']",
+      "fabricated discographic fact (source_id absent from evidence[]) in backing → validator FAILs (green-but-wrong caught) [BOUND: fabricated_evidence_ref, PASS — re-probed: 'ghost_source not in evidence']",
+      "classical album: composer (WORK) vs conductor/orchestra/soloist (PERFORMANCE) → review separates WORK from PERFORMANCE and includes a 参考录音/版本比较 section, same rigor as pop [BOUND: classical_workperf, PASS]",
+      "obscure album with thin info → review degrades honestly with explicit 资料不足/公开资料有限 and contains NO invented track/personnel/date specifics [BOUND: obscure_degraded, PASS]",
+      "genre mismatch: a pop body graded under the classical lens → FAILs (classical template not satisfied by a pop body); the same body PASSes under standard → lens is not forced [BOUND: genre_mismatch_pop_under_classical, PASS]",
+      "non-standard release form: a box set rather than a standard LP → unit of analysis adapts (per-disc) and length/coverage targets still apply, no crash [BOUND: release_form_box, PASS]",
+      "CJK length-counting hazard: a review padded with Latin/digits/punctuation but few 汉字 → CJK-only counting ([一-鿿]) so padding cannot fake the floor (re-probed: 5000 Latin chars = 0 字) [BOUND: cjk_padding_fails_floor, PASS]",
+      "adjacent-skill input: 客观评价这条耳机 / 这个DAC推得动吗 → routes to vince-hifi-review (NO 乐评 produced); translate lyrics / recommend albums to buy → out-of-scope [BOUND: routing_adjacent, PASS — re-probed: all four route correctly]"
+    ]
+  },
+  "prioritized_actions": [
+    {"id": "A1", "pillar": "lifecycle", "action": "No required action to reach industrial — all 7 pillars present and the eval battery is GREEN. Optional v0.2 polish: bump version on the next roster/template change and append a CHANGELOG entry per the evidence-gated update rule.", "priority": "P2", "rationale": "Housekeeping only; the release gate and rollback note already exist. Nothing blocks ship."},
+    {"id": "A2", "pillar": "research", "action": "Optional hardening: when web/search tools are available at runtime, spot-check that the live fan-out actually populates evidence[] with real source_ids (the offline fixtures exercise the gate mechanism, not a live network fetch). Consider a periodic live smoke on a known album to catch roster drift.", "priority": "P2", "rationale": "The traceability mechanism is fully tested on fixtures; live-network behavior is environment-dependent and inherently un-fixturable. A periodic smoke is good ops hygiene, not a build gap."}
+  ],
+  "handoff": {
+    "next_skill": "vince-skill-engineer",
+    "blocking_unknowns": []
+  }
+}

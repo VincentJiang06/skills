@@ -1,5 +1,39 @@
 # Changelog — vince-low-visibility-fix
 
+## 0.3.0 — 2026-06-04
+
+**Re-scope: audit + handoff docs (no longer auto-fixes).** The skill now AUDITS
+and emits a structured handoff DOCUMENT SET for an implementer agent — it never
+edits the target. Driven by: it must judge wildly varied UIs, so it cannot edit
+reliably, but it can produce a regular structured doc set every run.
+
+- **BREAKING / removed**: the auto-fix path — Step-5 file edits,
+  `rules/fix-patterns.md` auto-apply, `analyze.py --compare`, and the `trial/`
+  paired fix demo. Corrected snippets are now RECOMMENDATIONS inside the doc set,
+  never applied. Writing to the target is gone; an `OUTPUT_ONLY` control confines
+  all writes to the out dir.
+- **new — doc set**: `scripts/audit.py` (scope → analyze → emit) writes
+  `audit.json` + `report.md`, validated against `schemas/handoff-doc.schema.json`,
+  emitted every run incl. the zero-findings "clean" case. Adds
+  `scripts/emit_docs.py`, `rules/handoff-docs.md`, `assets/handoff-doc.template.md`.
+- **new — targeted scope**: `scripts/scope.py` + `--pages` / `--selector` scope a
+  run to specific page(s)/component(s); a non-existent page → clear empty-scope
+  error (no full-scan fallback); omitted → a bounded default. Built for cheap
+  multi-round runs.
+- **new — visual/browser pass**: `rules/visual-pass.md` — H5 via headless/preview,
+  WeChat mini-program via DevTools (sibling vince-mp-cli-sup); degrades
+  non-fatally to static + needs_judgment / `--input-mode visual_estimate`.
+- **new — mini-program**: `analyze.py` resolves `rpx` (750rpx == viewport;
+  `--viewport-px`), merges an external `--css`/`.wxss`, and treats
+  `<button>`/`<navigator>`/`bindtap` as interactive.
+- **new — contrast safety policy**: `scripts/policy.py` — refuse to recommend
+  contrast below the field threshold for a field-critical control.
+- **tests**: `evals/run_all.py` rebuilt as a behavioral harness — every one of the
+  17 adversarial-checklist edges bound to a case (18 cases incl. L0/L1/
+  determinism); retired the fix/compare cases. Mutation spot-check passes.
+- **metrics**: re-pointed to doc_completeness_rate, no_target_mutation_rate
+  (100%), targeted_param_precision, determinism_rate.
+
 ## 0.2.0 — 2026-06-01
 
 "Complete + optimized" pass.
