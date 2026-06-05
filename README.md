@@ -54,8 +54,32 @@ Models fabricate to fill gaps. Here, source-traceability is **machine-checked** 
 (资料不足) instead of inventing, and the build **never fakes a pass** — it stops at an honest "candidate"
 rather than claiming "industrial."
 
-> And the repo ships the **pipeline that builds the skills** (guidance → engineer → zipper → conductor, on the
-> `develop-principle` KB). Self-building, self-validating.
+## Built by a pipeline, not by hand
+
+Most skill collections are hand-written. **Every skill here is produced by a four-stage pipeline — and the
+repo ships that pipeline too.** This is the part I'm proudest of.
+
+```text
+idea / existing skill
+ └─▶ ① guidance   audit · scope · score 7 readiness pillars   → schema-validated handoff spec
+     └─▶ ② engineer   build test-first (red → green → refactor) · prove triggering via `claude -p`   → build report
+         └─▶ ③ zipper   compress with lossless-diff + token-delta proof · won't touch an already-clean skill
+             └─▶ ④ conductor   wraps ①–③: loop, re-audit the result, send the weakest stage back around
+```
+
+Each arrow is a **machine-readable contract** — one stage's typed artifact is the next stage's input. That
+buys four things a hand-written `SKILL.md` can't:
+
+- **Proof at every stage** — deterministic evals, lossless-diff + token-delta, and a `trigger_eval` that
+  *runs* the skill against a baseline, not "looks good to me."
+- **No self-graded inflation** — the conductor accepts on `min(re-audit, independent-battery)`, loops back to
+  the gap-owning stage, and **stops honestly** (`stopped_unmet`) when it can't clear the bar instead of faking a pass.
+- **Ahead of the field** — benchmarked against 8 of the top public skill repos, it leads on machine-readable
+  contracts + deterministic proof; nothing else there emits a program-consumable handoff spec.
+- **Self-building, self-validating** — that same pipeline built every skill in this repo, on top of a
+  self-checked KB, [`develop-principle/`](develop-principle/).
+
+Run the whole loop with **[vince-skill-conductor](skills/vince-skill-conductor/)**, or drive any stage yourself.
 
 ## Reference
 
