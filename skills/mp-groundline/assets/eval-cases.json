@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.1.0",
+  "skill_id": "skill.mp-groundline",
+  "note": "Trigger eval: 4 positives (must_activate) + 4 adjacent negatives (must_not_activate), for trigger_eval.mjs --judge cli. The DETERMINISTIC behavior (scanner/generator) is covered by evals/run_all.mjs (18 cases), not here.",
+  "cases": [
+    {
+      "id": "eval.groundline.migrate_consistent_zh",
+      "case_type": "happy_path",
+      "task_zh": "把这个小程序从 skyline 迁移到 webview，页面保持一致，别大改。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Runs the deterministic scan (scripts/scan.mjs) to inventory renderer_config + findings before editing.",
+        "Generates MIGRATION-MAP.md before any edit (doc-before-edit gate).",
+        "Keeps Skyline-era workarounds (does not modernize), flips renderer mechanically, surfaces any rewrite items."
+      ]
+    },
+    {
+      "id": "eval.groundline.migrate_offskyline_en",
+      "case_type": "happy_path",
+      "task_zh": "migrate this mini program off Skyline to WebView",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Resolves miniprogramRoot from project.config.json and confirms renderer == skyline.",
+        "Scan → MIGRATION-MAP → mechanical flip → verify → minimal fixes runbook.",
+        "Reports the scan summary (mechanical/keep/verify/rewrite) and the MIGRATION-MAP path."
+      ]
+    },
+    {
+      "id": "eval.groundline.generate_map_doc",
+      "case_type": "boundary_path",
+      "task_zh": "生成一份 skyline→webview 的迁移对照 doc 给后面调试的 agent 看。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Produces MIGRATION-MAP.md: config diff + general Skyline↔WebView mapping table + one row per finding (file:line + action + debug note).",
+        "Does not require editing the program to produce the doc (the doc is the deliverable here)."
+      ]
+    },
+    {
+      "id": "eval.groundline.manual_phrase",
+      "case_type": "happy_path",
+      "task_zh": "$vince-mp-groundline 帮我把这个项目落到 webview",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Activates on the manual phrase.",
+        "Follows the scan-first, doc-before-edit, minimal-diff protocol."
+      ]
+    },
+    {
+      "id": "eval.groundline.neg_live_debug",
+      "case_type": "negative_path",
+      "task_zh": "连上这个小程序读一下 pageData，点个按钮看看运行时状态。",
+      "expected_activation": "must_not_activate",
+      "acceptance_criteria": [
+        "This is LIVE RUNTIME DEBUGGING → route to vince-mp-cli-sup, not a migration.",
+        "mp-groundline does not activate (no renderer change requested)."
+      ]
+    },
+    {
+      "id": "eval.groundline.neg_develop_skyline",
+      "case_type": "negative_path",
+      "task_zh": "帮我用 worklet 写一个拖拽回弹动画，给 Skyline 页面加个自定义路由。",
+      "expected_activation": "must_not_activate",
+      "acceptance_criteria": [
+        "This is DEVELOPING Skyline features → route to the skyline-* skills (skyline-worklet / skyline-route).",
+        "mp-groundline does not activate (direction is ONTO Skyline, not off it)."
+      ]
+    },
+    {
+      "id": "eval.groundline.neg_reverse_migration",
+      "case_type": "adversarial_path",
+      "task_zh": "把这个 webview 小程序迁到 skyline 渲染。",
+      "expected_activation": "must_not_activate",
+      "acceptance_criteria": [
+        "Reverse direction (WebView → Skyline) is OUT of scope.",
+        "mp-groundline does not activate; if anything, route to skyline-overview/skyline-config."
+      ]
+    },
+    {
+      "id": "eval.groundline.neg_perf_only",
+      "case_type": "adversarial_path",
+      "task_zh": "小程序有点卡，帮我优化一下性能，不用换渲染器。",
+      "expected_activation": "must_not_activate",
+      "acceptance_criteria": [
+        "Perf-only optimization with NO renderer change is OUT of scope.",
+        "mp-groundline does not activate."
+      ]
+    }
+  ]
+}

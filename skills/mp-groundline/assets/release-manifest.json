@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.skill_release_manifest",
+  "skill": {
+    "id": "skill.mp-groundline",
+    "name": "mp-groundline",
+    "version": "0.1.0",
+    "owner": "Vince",
+    "source_uri": "skills/mp-groundline",
+    "artifact_uri": "skills/mp-groundline",
+    "checksum": "",
+    "compatibility": ["Claude Code skill folder", "Codex skill folder", "system vince-mp CLI (for the verify step only)"]
+  },
+  "change": {
+    "change_type": "minor",
+    "summary_zh": "首个可用版本：确定性 Skyline→WebView 迁移扫描器 + MIGRATION-MAP 生成器 + 证据绑定的对照 KB + 触发评测。",
+    "summary_en": "First working version: deterministic Skyline→WebView migration scanner + MIGRATION-MAP generator + an evidence-bound mapping KB + trigger evals.",
+    "breaking_change": false,
+    "public_behavior_contract_changed": false,
+    "changelog_path": ""
+  },
+  "release_gate": {
+    "checklist_id": "checklist.skill_release_gate",
+    "passed": true,
+    "gate_conditions": [
+      "validate-skill green (scripts/validate-skill.mjs)",
+      "deterministic eval harness green (node evals/run_all.mjs → exit 0, 18/18)",
+      "generator golden-snapshot green (in the harness)",
+      "16/16 adversarial_checklist edges mapped to a passing case",
+      "trigger_eval green over assets/eval-cases.json",
+      "a clean read-only smoke on a real Skyline program"
+    ],
+    "failed_check_ids": [],
+    "waived_check_ids": [],
+    "evidence_paths": [
+      "evals/run_all.mjs",
+      ".skill-engineer/red/red.log",
+      ".skill-engineer/build-report.json",
+      "scripts/validate-skill.mjs"
+    ]
+  },
+  "tests": {
+    "eval_suite_id": "evals/run_all.mjs",
+    "trigger_suite_id": "assets/eval-cases.json",
+    "task_success_rate": null,
+    "activation_precision": null,
+    "policy_violation_rate": 0
+  },
+  "rollback": {
+    "known_good_version": "v0-stub",
+    "rollback_trigger": ["scanner contract regression", "false rewrite on a clean program", "missed rewrite (silent drop)"],
+    "rollback_steps_path": "rules/minimal-fix-protocol.md",
+    "migration_target_rollback": "the SKILL's own migration edits a git working tree: revert = git checkout app.json + touched page json"
+  },
+  "deprecation": {
+    "deprecated": false,
+    "deprecated_at": null,
+    "sunset_at": null,
+    "replacement_id": null,
+    "note": "If WeChat removes the Skyline renderer or vince-mp's CLI contract changes, re-version references/skyline-to-webview.md against the on-disk skyline-* skills and update rules/verify-with-vince-mp.md."
+  }
+}

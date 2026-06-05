@@ -1,0 +1,6 @@
+{
+  "pages": ["pages/home/index"],
+  "renderer": "skyline",
+  "componentFramework": "glass-easel",
+  // trailing comma + comment makes this invalid JSON,
+}

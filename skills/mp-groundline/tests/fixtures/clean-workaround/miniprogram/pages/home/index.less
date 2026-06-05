@@ -1,0 +1,18 @@
+// Skyline-era workarounds — all still render under WebView, so KEEP.
+.card {
+  // box-shadow used as a 1px border (Skyline border-style workaround)
+  box-shadow: 0 0 0 1px #e5e5e5;
+  backdrop-filter: blur(8px);
+}
+.title {
+  // word-break instead of overflow-wrap (Skyline did not support overflow-wrap:anywhere)
+  word-break: break-all;
+}
+.grid {
+  // flex + explicit width instead of display:grid (grid-view workaround)
+  display: flex;
+  flex-wrap: wrap;
+}
+.cell {
+  width: 33.33%;
+}

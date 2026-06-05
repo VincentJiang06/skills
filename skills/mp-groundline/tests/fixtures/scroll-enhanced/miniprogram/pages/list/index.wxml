@@ -1,0 +1,5 @@
+<!-- scroll-view that ALREADY has enhanced — keep, and the generator must NOT
+     emit a redundant "add enhanced" suggestion. -->
+<scroll-view type="custom" enhanced scroll-y class="feed">
+  <view wx:for="{{rows}}" wx:key="id">{{item}}</view>
+</scroll-view>

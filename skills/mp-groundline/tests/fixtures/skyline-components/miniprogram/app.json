@@ -1,0 +1,6 @@
+{
+  "pages": ["pages/list/index"],
+  "window": { "navigationStyle": "custom" },
+  "renderer": "skyline",
+  "componentFramework": "glass-easel"
+}

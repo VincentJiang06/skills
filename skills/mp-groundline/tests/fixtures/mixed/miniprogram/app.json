@@ -1,0 +1,7 @@
+{
+  "pages": ["pages/feed/index"],
+  "window": { "navigationStyle": "custom" },
+  "renderer": "skyline",
+  "componentFramework": "glass-easel",
+  "rendererOptions": { "skyline": { "defaultDisplayBlock": true } }
+}

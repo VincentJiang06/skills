@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.1.0",
+  "template_id": "template.metric_plan",
+  "metric_plan_id": "metric_plan.mp-groundline",
+  "skill_id": "skill.mp-groundline",
+  "baseline": {
+    "without_skill_run_id": "",
+    "old_skill_run_id": "v0 stub (SKILL.md prose only, no scanner)"
+  },
+  "candidate": {
+    "with_skill_run_id": "engineer-2026-06-05",
+    "new_skill_version": "0.1.0"
+  },
+  "required_metrics": [
+    "metric.migration_correctness",
+    "metric.minimal_diff",
+    "metric.activation_precision",
+    "metric.task_success_rate",
+    "metric.policy_violation_rate"
+  ],
+  "metric_defs": {
+    "migration_correctness": {
+      "definition": "(every hard Skyline-only feature present is flagged action=rewrite) AND (zero false rewrite on a clean-workaround program).",
+      "oracle": "evals/run_all.mjs cases scan_worklet_rewrite / scan_custom_route_rewrite / scan_skyline_components_each / scan_mixed_both_correct (recall) + scan_clean_workarounds_keep / scan_false_match_guard (no false rewrite).",
+      "target": 1.0,
+      "measured": "18/18 deterministic eval cases pass; real-fixture smoke: rewrite==0 on a zero-hard-feature program, mechanical==1, 38 keep, 1 verify."
+    },
+    "minimal_diff": {
+      "definition": "files touched + lines changed by the migration on a program; minimal is the success signal.",
+      "oracle": "the mechanical flip is ONE app.json edit (+ N page-json edits only where a page-level renderer override exists); keep rows produce zero edits.",
+      "target": "as small as the scan's mechanical count; report it.",
+      "measured": "real fixture: mechanical==1 (single app.json renderer flip), 0 page overrides → 1 file / ~1 line for the core flip."
+    },
+    "activation_precision": {
+      "definition": "precision/recall over assets/eval-cases.json (4 must_activate positives + 4 must_not_activate adjacent negatives) via trigger_eval.mjs --judge cli.",
+      "oracle": "trigger_eval.mjs --judge cli over assets/eval-cases.json.",
+      "target": 0.9
+    }
+  },
+  "trial_policy": { "repeat_count": 3, "isolate_trials": true, "stable_environment_required": true },
+  "decision_thresholds": {
+    "minimum_marginal_lift": 0,
+    "minimum_activation_precision": 0.9,
+    "maximum_policy_violation_rate": 0,
+    "migration_correctness_required": 1.0
+  },
+  "measured": {
+    "as_of": "2026-06-05",
+    "source": "engineer stage: 18 deterministic eval cases (evals/run_all.mjs) over 12 synthetic fixtures + a read-only smoke on a real Skyline program",
+    "deterministic_eval_cases": "18/18 pass (exit 0)",
+    "adversarial_checklist_coverage": "16/16 edges → a passing case",
+    "real_fixture_smoke": "renderer=skyline; mechanical=1 (app.json:19 flip); keep=38; verify=1 (camera mask); rewrite=0; already_migrated=false",
+    "trigger_eval": "deferred to the conductor's --judge cli run over assets/eval-cases.json (tokens)",
+    "policy_violations": 0
+  }
+}

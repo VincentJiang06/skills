@@ -1,0 +1,10 @@
+<!-- THREE <open-container> in one file. skyline-to-webview.md: the scanner must
+     flag EVERY occurrence and not silently drop one. -->
+<open-container>
+  <view class="sheet-a">first sheet</view>
+</open-container>
+<view>divider</view>
+<open-container>
+  <view class="sheet-b">second sheet</view>
+</open-container>
+<open-container />

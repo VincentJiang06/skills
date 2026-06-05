@@ -1,0 +1,26 @@
+<!-- Six real Skyline-only element tags + one gesture-handler.
+     Each real opening tag → one rewrite finding. -->
+<scroll-view type="list">
+  <list-view>
+    <sticky-header>
+      <view>head</view>
+    </sticky-header>
+    <sticky-section>
+      <grid-view>
+        <view wx:for="{{items}}" wx:key="id">{{item}}</view>
+      </grid-view>
+    </sticky-section>
+  </list-view>
+</scroll-view>
+<draggable-sheet>
+  <snapshot id="cap">
+    <view>capture me</view>
+  </snapshot>
+</draggable-sheet>
+<span>
+  <text>inline</text>
+  <image src="/a.png" />
+</span>
+<pan-gesture-handler bind:pan="onPan">
+  <view class="drag">drag</view>
+</pan-gesture-handler>

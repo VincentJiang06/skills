@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.1.0",
+  "template_id": "template.skill_design_record",
+  "skill_id": "skill.mp-groundline",
+  "name_zh": "微信小程序 Skyline→WebView 落地迁移",
+  "name_en": "WeChat Mini Program Skyline→WebView groundline migration",
+  "target_users": ["agent_developer", "human_reviewer"],
+  "problem_statement_zh": "把一个跑在 Skyline 渲染引擎上的微信小程序落到 WebView 渲染，同时保持前端页面视觉/行为一致（最小改动，而非重写）：机械翻转 app.json 的 renderer，保留所有仍能在 WebView 渲染的 Skyline 期 workaround，检测并标记没有 WebView 对应物的硬 Skyline 特性为 rewrite，逐页用系统 vince-mp 校验并只修真实差异，并产出一份给下游 agent 看的 MIGRATION-MAP 对照调试文档。确定性 Node 扫描器是可测试的核心，文档生成器是最终交付物。",
+  "problem_statement_en": "Ground a WeChat Mini Program off the Skyline renderer onto WebView while keeping pages visually/behaviorally consistent (minimal diff, not a rewrite): mechanically flip app.json renderer, KEEP the Skyline-era workarounds that still render under WebView, DETECT+FLAG hard Skyline-only features as rewrite, verify each page with the system vince-mp CLI and fix only real deltas, and emit an agent-facing MIGRATION-MAP debug doc. A deterministic Node scanner is the testable core; the doc generator is the headline deliverable.",
+  "trigger": {
+    "must_activate_on": ["migrate/ground a mini program OFF Skyline ONTO WebView keeping pages consistent", "generate a Skyline→WebView migration/correspondence doc"],
+    "must_not_activate_on": ["live runtime debugging (→ vince-mp-cli-sup)", "developing Skyline components/worklet/custom-route (→ skyline-* skills)", "WebView→Skyline reverse migration", "perf-only optimization with no renderer change"],
+    "adjacent_confusions": ["a runtime screenshot/tap that mentions Skyline but is debugging → vince-mp-cli-sup", "a 'which Skyline component' question → skyline-components"],
+    "manual_activation_phrases": ["$vince-mp-groundline", "把小程序从 skyline 迁移到 webview 保持页面一致", "migrate this mini program off Skyline to WebView"]
+  },
+  "execution_protocol": {
+    "preflight": ["resolve miniprogramRoot from project.config.json", "locate app.json + confirm renderer==skyline (if webview → already-migrated, STOP)", "confirm a clean git working tree (flip is revertible)"],
+    "steps": ["scan (scripts/scan.mjs) → renderer_config + findings[] + summary", "emit MIGRATION-MAP.md (scripts/gen_migration_map.mjs) BEFORE any edit", "mechanical flip app.json (+ page overrides)", "verify per page with vince-mp before/after", "fix only confirmed deltas, smallest first, re-verify each", "finalize MIGRATION-MAP + report diff size"],
+    "verification": ["deterministic eval harness (evals/run_all.mjs) green", "validate-skill green", "trigger_eval green", "live before/after consistency on the migrated program"],
+    "reporting": ["scan summary (mechanical/keep/verify/rewrite)", "MIGRATION-MAP path", "diff size (files/lines)", "manual-review (rewrite) items"],
+    "failure_paths": ["malformed/missing app.json → structured blocker", "rewrite items present → manual-review gate", "vince-mp snapshot timeout → blocker not silent skip"]
+  },
+  "resources": {
+    "docs": ["rules/scan-protocol.md", "rules/verify-with-vince-mp.md", "rules/minimal-fix-protocol.md", "references/skyline-to-webview.md", "references/scanner-contract.md", "references/example-migration-map.md"],
+    "templates": [],
+    "scripts": ["scripts/scan.mjs", "scripts/gen_migration_map.mjs", "scripts/validate-skill.mjs"],
+    "fixtures": ["tests/fixtures/ (12 synthetic mini-programs)"]
+  },
+  "control_boundaries": {
+    "allowed_tools": ["node (scanner/generator)", "system vince-mp CLI (verify only)"],
+    "forbidden_tools": ["rebuilding vince-mp", "editing the program before MIGRATION-MAP is written"],
+    "allowed_paths": ["the target program's git working tree", "the skill's own workspace"],
+    "human_gate_conditions": ["any rewrite (Skyline-only feature)", "modernizing/reverting a workaround", "already-webview program (STOP)"],
+    "cost_budget": null,
+    "context_budget_tokens": 4000
+  },
+  "test_assets": {
+    "eval_harness": "evals/run_all.mjs",
+    "deterministic_case_count": 18,
+    "trigger_eval_case_ids": [
+      "eval.groundline.migrate_consistent_zh",
+      "eval.groundline.migrate_offskyline_en",
+      "eval.groundline.generate_map_doc",
+      "eval.groundline.manual_phrase",
+      "eval.groundline.neg_live_debug",
+      "eval.groundline.neg_develop_skyline",
+      "eval.groundline.neg_reverse_migration",
+      "eval.groundline.neg_perf_only"
+    ],
+    "fixture_paths": ["tests/fixtures/clean-workaround", "tests/fixtures/worklet", "tests/fixtures/custom-route", "tests/fixtures/skyline-components", "tests/fixtures/false-match", "tests/fixtures/already-webview", "tests/fixtures/non-default-root", "tests/fixtures/page-override", "tests/fixtures/malformed", "tests/fixtures/missing-appjson", "tests/fixtures/mixed", "tests/fixtures/scroll-enhanced"],
+    "trajectory_assertions": ["scan before edit", "MIGRATION-MAP before edit (doc-before-edit gate)", "every hard feature → rewrite (never dropped)", "workarounds → keep (never modernized)", "already-webview → STOP"]
+  },
+  "metric_plan_id": "metric_plan.mp-groundline",
+  "reference_ids": ["doc.architecture.industrial_skill_design", "doc.testing.tdd_for_skill_development", "doc.metrics.quantitative_skill_metrics"]
+}

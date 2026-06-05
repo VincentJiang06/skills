@@ -1,0 +1,4 @@
+<!-- already migrated; still carries kept workarounds as inventory -->
+<view class="card">
+  <scroll-view type="list"><view>row</view></scroll-view>
+</view>

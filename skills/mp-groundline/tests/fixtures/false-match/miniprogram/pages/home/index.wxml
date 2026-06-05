@@ -1,0 +1,12 @@
+<!-- The literal text span/list-view/grid-view appears ONLY as substrings:
+     class names, attribute values, and prose. NONE is a real Skyline element.
+     The scanner must produce ZERO skyline_component findings here. -->
+<view class="span-2 grid-row list-view-wrap">
+  <view data-role="grid-view" aria-label="list-view layout">
+    <text>spanning multiple columns; list-view-like; grid-view-style</text>
+  </view>
+  <!-- comment mentioning <span> and <grid-view> and <list-view> should not match -->
+  <view class="snapshot-thumb draggable-sheet-handle">
+    <text>sticky-header look, not a real sticky-section</text>
+  </view>
+</view>
