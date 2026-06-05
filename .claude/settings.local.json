@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(git -C /Users/vincent/playground/skill-developer status)"
-    ]
-  }
-}

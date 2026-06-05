@@ -1,6 +1,24 @@
+# OS / editor cruft
 .DS_Store
 __pycache__/
 *.pyc
+
+# Machine-local Claude Code config (never publish)
+.claude/settings.local.json
+
+# vince-skill pipeline build provenance (not part of the shipped skill)
+.skill-conductor/
+.skill-guidance/
+.skill-engineer/
+.tdd-red/
+
+# Generated sample outputs and run logs
+output/
+*.log
+
+# Node deps (tools/vince-mp-cli)
+node_modules/
+
+# Reference library (cloned for study only) and local mini-program test fixture
 learning_from_the_best/
-# Local WeChat Mini Program test fixture used to live-debug vince-mp (not skill content)
 miniprogram_test/
