@@ -13,16 +13,16 @@
 ## 快速开始
 
 ```bash
-cp -R skills/fact-check ~/.claude/skills/    # 单个 skill（全部则用 skills/*）
+npx skills add VincentJiang06/skills        # 选择要安装的 skill
 ```
+
+直接从本仓库拉取（基于 [skills.sh](https://github.com/vercel-labs/skills)），自动发现所有 skill 并装入 `.claude/skills/` 或 `.agents/skills/`。手动方式：`cp -R skills/<name> ~/.claude/skills/`（项目内则拷到 `<你的仓库>/.claude/skills/`）。
 
 之后直接用自然语言提问，Claude Code 会按描述自动触发；也可用 `/<skill-name>` 显式调用：
 
 ```
 > 查一下：埃菲尔铁塔夏天会变高吗？               # → fact-check
 ```
-
-项目内使用？改为拷到 `<你的仓库>/.claude/skills/`。
 
 ## 凭什么不一样
 

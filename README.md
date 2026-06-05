@@ -13,16 +13,16 @@ sharply-scoped, bilingual (EN / 中文; several Chinese-first). Adapt them, make
 ## Quickstart
 
 ```bash
-cp -R skills/fact-check ~/.claude/skills/    # one skill (or skills/* for all)
+npx skills add VincentJiang06/skills        # pick which skills to install
 ```
+
+Pulls straight from this repo (via [skills.sh](https://github.com/vercel-labs/skills)), auto-discovers every skill, and installs into `.claude/skills/` or `.agents/skills/`. Manual alternative: `cp -R skills/<name> ~/.claude/skills/` (or `<your-repo>/.claude/skills/` for project scope).
 
 Then just ask — Claude Code auto-triggers from your request — or call `/<skill-name>` explicitly:
 
 ```
 > is it true that the Eiffel Tower gets taller in summer?     # → fact-check
 ```
-
-Project-scoped? Copy into `<your-repo>/.claude/skills/` instead.
 
 ## Why these are different
 
