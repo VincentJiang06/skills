@@ -11,13 +11,13 @@ sharply-scoped, bilingual (EN / 中文; several Chinese-first). Adapt them, make
 ## Quickstart
 
 ```bash
-cp -R skills/vince-fact-check ~/.claude/skills/    # one skill (or skills/* for all)
+cp -R skills/fact-check ~/.claude/skills/    # one skill (or skills/* for all)
 ```
 
 Then just ask — Claude Code auto-triggers from your request — or call `/<skill-name>` explicitly:
 
 ```
-> is it true that the Eiffel Tower gets taller in summer?     # → vince-fact-check
+> is it true that the Eiffel Tower gets taller in summer?     # → fact-check
 ```
 
 Project-scoped? Copy into `<your-repo>/.claude/skills/` instead.
@@ -41,7 +41,7 @@ further: success is scored by a blind judge, never by "count the patterns I dele
 ### 3. Accuracy over speed
 Crude buckets and fixed enums mislabel every edge case — *"分三派还不如不分."* Skills classify from **rich
 per-item descriptors + judgment at runtime**, not a hard taxonomy. The single deliberate exception is
-`vince-fact-check` (speed-first by design) — and even it is never confident-and-wrong.
+`fact-check` (speed-first by design) — and even it is never confident-and-wrong.
 
 ### 4. Sharp scope, no creep
 "More features = better" is a trap; extra machinery is friction, not value. Each skill does **one job well**.
@@ -79,7 +79,7 @@ buys four things a hand-written `SKILL.md` can't:
 - **Self-building, self-validating** — that same pipeline built every skill in this repo, on top of a
   self-checked KB, [`develop-principle/`](develop-principle/).
 
-Run the whole loop with **[vince-skill-conductor](skills/vince-skill-conductor/)**, or drive any stage yourself.
+Run the whole loop with **[skill-conductor](skills/skill-conductor/)**, or drive any stage yourself.
 
 ## Reference
 
@@ -87,22 +87,22 @@ Each skill: **what it does** + **why it's good**.
 
 ### Product skills
 
-- **[vince-album-review](skills/vince-album-review/)** — One 10,000–15,000-字 Chinese 乐评 from a primary credit + album name, across every musical dimension. *Edge:* deterministic 字-count + genre-adaptive validator; every fact traced to a source; classical separates work from performance with reference-recording comparison; obscure albums degrade honestly, never fabricated.
-- **[vince-hifi-review](skills/vince-hifi-review/)** — Objective HiFi gear evaluation in two tracks: transducers (量感 + 风格 from FR-vs-target) and source gear (measured competence + system matching). *Edge:* rig-aware FR analysis (711 ≠ 5128) with a peak/dip pass; a "consensus ≠ measurement" no-inflation gate; a media roster judged dynamically, not bucketed.
+- **[album-review](skills/album-review/)** — One 10,000–15,000-字 Chinese 乐评 from a primary credit + album name, across every musical dimension. *Edge:* deterministic 字-count + genre-adaptive validator; every fact traced to a source; classical separates work from performance with reference-recording comparison; obscure albums degrade honestly, never fabricated.
+- **[hifi-review](skills/hifi-review/)** — Objective HiFi gear evaluation in two tracks: transducers (量感 + 风格 from FR-vs-target) and source gear (measured competence + system matching). *Edge:* rig-aware FR analysis (711 ≠ 5128) with a peak/dip pass; a "consensus ≠ measurement" no-inflation gate; a media roster judged dynamically, not bucketed.
 - **[course-study](skills/course-study/)** — Course materials (slides, a topic list, or a course name) → complete-coverage, Feynman-explained, exam-ready notes. *Edge:* completeness is enforced (coverage checklist → reconciliation); every concept gets a Feynman block (capsule → intuition → formal → worked example → misconception); deliberately lean.
-- **[vince-fact-check](skills/vince-fact-check/)** — A fast, citation-backed answer to a factual question: triage → parallel search → early-exit → BLUF within ≤2 min (simple) / ≤5 min (complex). *Edge:* the one speed-first skill, but a "speed-safety" rule forbids guessed high-confidence answers; deterministic answer-contract validator.
+- **[fact-check](skills/fact-check/)** — A fast, citation-backed answer to a factual question: triage → parallel search → early-exit → BLUF within ≤2 min (simple) / ≤5 min (complex). *Edge:* the one speed-first skill, but a "speed-safety" rule forbids guessed high-confidence answers; deterministic answer-contract validator.
 - **[humanizer-academic](skills/humanizer-academic/)** — Rewrites academic prose (EN / ZH / mixed) to strip AI-writing signals while keeping scholarly register. *Edge:* removes signal on three layers (lexical + structural + statistical burstiness), not a word denylist; adds defined texture (stance, specificity, variance — never casual, never invented); detect-only instrument + independent blind judge.
-- **[vince-low-visibility-fix](skills/vince-low-visibility-fix/)** — Audits field mobile UI (low light, glare, gloves) and hands back an implementer-ready fix-plan doc set; never edits the target. *Edge:* deterministic analyzer + bounded visual pass; scopeable to a single page for cheap re-runs; clean audit-vs-apply separation.
-- **[vince-mp-cli-sup](skills/vince-mp-cli-sup/)** — Debugs a *live* WeChat Mini Program through the `vince-mp` CLI. *Edge:* one persistent session → instant reused-connection commands with stable element uids; camera-less scan; a real `doctor` (tsc + .js freshness); client↔backend error correlation by requestId.
+- **[low-visibility-fix](skills/low-visibility-fix/)** — Audits field mobile UI (low light, glare, gloves) and hands back an implementer-ready fix-plan doc set; never edits the target. *Edge:* deterministic analyzer + bounded visual pass; scopeable to a single page for cheap re-runs; clean audit-vs-apply separation.
+- **[mp-cli-sup](skills/mp-cli-sup/)** — Debugs a *live* WeChat Mini Program through the `vince-mp` CLI. *Edge:* one persistent session → instant reused-connection commands with stable element uids; camera-less scan; a real `doctor` (tsc + .js freshness); client↔backend error correlation by requestId.
 
 ### The skill-building pipeline
 
 Skills that build skills — run the conductor for the whole loop, or any stage alone.
 
-- **[vince-skill-conductor](skills/vince-skill-conductor/)** — Drives guidance → engineer → zipper end to end with quality-gate loops. *Edge:* anti-inflation final acceptance (`min(re-audit, battery)`); loops back to the gap-owning stage; never fakes a pass.
-- **[vince-skill-guidance](skills/vince-skill-guidance/)** — Audits a skill/repo (scores, scopes, finds gaps) and emits a schema-validated handoff spec. *Edge:* a 7-pillar readiness scorecard grounded in the `develop-principle` KB; a machine-consumable contract.
-- **[vince-skill-engineer](skills/vince-skill-engineer/)** — Builds and tests a skill from that spec, red-green-refactor. *Edge:* deterministic-script eval + mutation spot-checks + a `trigger_eval` that runs the skill via `claude -p` to measure real trigger-rate.
-- **[vince-skill-zipper](skills/vince-skill-zipper/)** — Restructures an existing skill for token efficiency, reliability, and trigger accuracy. *Edge:* lossless-diff + token-delta proof; a "describe WHEN, not the workflow" rubric; refuses to churn an already-clean skill.
+- **[skill-conductor](skills/skill-conductor/)** — Drives guidance → engineer → zipper end to end with quality-gate loops. *Edge:* anti-inflation final acceptance (`min(re-audit, battery)`); loops back to the gap-owning stage; never fakes a pass.
+- **[skill-guidance](skills/skill-guidance/)** — Audits a skill/repo (scores, scopes, finds gaps) and emits a schema-validated handoff spec. *Edge:* a 7-pillar readiness scorecard grounded in the `develop-principle` KB; a machine-consumable contract.
+- **[skill-engineer](skills/skill-engineer/)** — Builds and tests a skill from that spec, red-green-refactor. *Edge:* deterministic-script eval + mutation spot-checks + a `trigger_eval` that runs the skill via `claude -p` to measure real trigger-rate.
+- **[skill-zipper](skills/skill-zipper/)** — Restructures an existing skill for token efficiency, reliability, and trigger accuracy. *Edge:* lossless-diff + token-delta proof; a "describe WHEN, not the workflow" rubric; refuses to churn an already-clean skill.
 
 Methodology substrate: **[`develop-principle/`](develop-principle/)** — an agent-first KB for building industrial skills.
 
@@ -111,7 +111,7 @@ Methodology substrate: **[`develop-principle/`](develop-principle/)** — an age
 ```
 skills/             # install-ready skills (one folder each, with its own README)
 develop-principle/  # agent-first KB powering the pipeline
-tools/vince-mp-cli/ # Node CLI that vince-mp-cli-sup drives
+tools/vince-mp-cli/ # Node CLI that mp-cli-sup drives
 experiments/        # research / A-B material, not install-ready
 docs/               # internal design notes & skill analysis
 ```

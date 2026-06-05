@@ -6,7 +6,7 @@ __pycache__/
 # Machine-local Claude Code config (never publish)
 .claude/settings.local.json
 
-# vince-skill pipeline build provenance (not part of the shipped skill)
+# skill pipeline build provenance (not part of the shipped skill)
 .skill-conductor/
 .skill-guidance/
 .skill-engineer/

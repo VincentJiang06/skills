@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "skill_id": "skill.hifi-review",
+  "date": "2026-06-02",
+  "activation": {
+    "method": "subagent router judged 15 realistic user messages against the SKILL.md description",
+    "cases": 15,
+    "correct": 15,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 0.0,
+    "notes": "10 in-scope (IEM/HP/TWS eval, DAC素质/drivability, screenshot, no-measurement, conflict, dedup, marketing, style-split) -> activate; buying-rec/EQ/speaker -> reject; fictional model + snake-oil DAC -> activate (handled at runtime)."
+  },
+  "behavioral": {
+    "method": "subagent executed synthesis+self-verify on two prepared cases; outputs independently re-validated with scripts/validate_output.py",
+    "happy_transducer": {
+      "gate": "PASS (exit 0)",
+      "checks": ["量感 claims tagged measured", "technicalities (soundstage/imaging) tagged consensus not measured", "soundstage dissent recorded", "bilingual literary does not exceed facts", "gaps listed (no THD)"]
+    },
+    "snake_oil_source": {
+      "gate": "PASS (exit 0)",
+      "held_line": true,
+      "checks": ["transparent competence stated as measured", "'warmer/analog' review logged as unsupported subjective (confidence 0.1) with dissent note", "no asserted audible difference", "measurements stated as transparent"]
+    }
+  },
+  "longform_v0_2": {
+    "method": "subagent acted as the skill and generated a ~4000字 长文 from a rich V-shape TWS evidence set; independently re-checked with check_longform.py --backing and audited by an adversarial over-claim judge",
+    "generation": {
+      "length_zi": 4487, "in_band_3500_4500": true, "all_8_sections": true,
+      "backing_gate": "PASS (check_longform exit 0; backing evaluation.json passes validate_output)"
+    },
+    "over_claim_judge": {
+      "verdict": "issues_found (1 subtle)",
+      "finding": "prose twice described consensus-only soundstage/resolution as 测量背书/measurement-backed (provenance inflation)",
+      "held_well": ["stripped tier-4 marketing hype", "preserved the treble-splashiness conflict as flagged dissent", "withheld drivability/CSD/codec claims as gaps", "no technicality tagged measured"],
+      "action": "hardened rules/technicalities-from-reviews.md + rules/longform-review.md with a 'no provenance inflation' guardrail; canonical fixture verified clean"
+    }
+  },
+  "depth_v0_3": {
+    "method": "fed a band-neutral peaky_iem analysis (signature 均衡, tilt even) that hides an 8127Hz +4.9dB sibilance feature to a subagent writing the 风格/三频 section",
+    "result": "the subagent surfaced the 8kHz 齿音 peak as the headline character and explicitly noted that stopping at '中性顺滑' would miss the device's real character — confirms the peak/dip + tilt depth reaches the written result, not just the engine JSON",
+    "engine_upgrades": "fr_analyze features[] (peak/dip + perceptual hint) + continuous tilt; compare.py deterministic deltas; targets.json validated vs authoritative raw curves (treble bands corrected ~+7dB)"
+  },
+  "rig_target_v0_4": {
+    "method": "fed a 5128-measured IEM (infer_target -> JM-1) plus its per-band deltas vs vince_iem_ref to a subagent writing the 目标定位/个人参考对比 section",
+    "result": "subagent correctly (1) stated 5128 measurement + JM-1 neutral-DF tuning intent (no bass shelf), (2) read the device as bass-light (~5-7dB less sub/mid-bass) and slightly brighter (+2dB treble) vs Vince's personal reference, (3) framed as taste-fit not absolute good/bad, and (4) never mixed in a 711 target — rig discipline held",
+    "engine_upgrades": "rig-tagged targets (711/GRAS/5128) incl. JM-1, 5128 DF/FF, OE2013, vince_iem_ref; infer_target.py ranks same-rig targets by RMS fit"
+  },
+  "deterministic_regression": "evals/run_all.py GREEN (L0 schema + L1 golden incl. peaky + determinism + output gate + long-form + compare + target inference + token budget)",
+  "limitations": "JM-1 / 5128-FF exact band dB are reconstructed (med/low conf); vince_iem_ref bass-shelf shape pending Vince's confirmation; agent-level pass@k / cost / paired lift remain future work."
+}

@@ -1,0 +1,43 @@
+# skill-zipper — benchmark analysis
+
+*Subject:* `vinceSKILLcreate/skill-zipper/` (Stage Z of the skill pipeline). Paths below are relative to `/Users/vince/playground/skill-developer/`. Benchmarked only against class-(A) heavyweight/industrial skills.
+
+## 1. What it does
+
+skill-zipper takes an **existing** heavyweight skill and restructures it for token efficiency, reliability, progressive disclosure, and trigger accuracy — *losslessly*. It diagnoses across five operations (Compress / Encapsulate / Enrich / Harden / Retrigger), proposes a plan, waits for "go," writes new-files-first, then proves the result with two bundled scripts: `scripts/diff_lossless.py` (every original line survives verbatim or is a classified rewrite) and `scripts/measure_tokens.py` (always-loaded vs on-demand token split via tiktoken). It is the only stage whose deliverable is an *objectively verifiable refactor*, not new prose.
+
+## 2. Industrial-grade features (cited)
+
+- **Lossless diff as a hard contract.** `scripts/diff_lossless.py:65-125` flattens every `.md/.py/.json/...` file into a normalized line multiset, diffs before↔after, and classifies each disappeared line as KEPT / REWRITTEN (SequenceMatcher ≥ threshold) / LOST. Exit 1 on any LOST/REWRITTEN forces classification (`:209`). `evals/run_all.mjs` actually exercises all three verdicts and is **GREEN**.
+- **Real token accounting.** `scripts/measure_tokens.py:83-95` classifies each file by load discipline (always / on-demand / untracked) and reports the always-loaded share; `--diff` (`:168-205`) prints a before/after delta table. Run on the zipper *itself*: SKILL.md = 1,278 always-loaded tokens, **6.6% always-loaded share** — i.e. the skill passes its own `diagnosis-rubric.md:11-16` health bar.
+- **A real progressive-disclosure model.** `rules/progressive-disclosure-model.md:8-67` defines the two layers, the per-directory role table (`rules`/`references`/`assets`/`scripts`), the cost formula `total = SKILL.md + Σ(on-demand actually Read)`, and the special case that an executed script costs *zero* tokens (`:44-48`).
+- **Description-quality rubric.** `rules/description-quality.md:24-71` gives a 4-part anatomy, a 7-item ✓/✗ scorecard with a 0-3/4-5/6-7 action ladder, a 60-150-token target, and an anti-pattern table.
+- **Pattern libraries with explicit gates.** `rules/encapsulation-patterns.md` codifies the three encapsulation requirements (discriminator / disjoint scope / ≥100 tokens, `:8-25`), patterns P1-P5, and anti-patterns A1-A4 (fuzzy/micro/leaky/phantom gates). `rules/hardening-patterns.md` enumerates H1-H10 vague→precise rewrite shapes.
+- **Operational safety + evals.** `rules/write-procedure.md:20-42` mandates snapshot → new-files → SKILL.md-last so an interrupted run never breaks the skill, and the `cp -RL` symlink trap (`:76-84`) is genuinely subtle. `evals/evals.json` has 6 tagged cases asserting `must_load_files`, `must_run_scripts`, pattern-ID usage, and the wait-for-go gate.
+
+## 3. Best-in-class external counterparts
+
+- **Official guidance** (`anthropics-skills/skills/skill-creator/SKILL.md:86-109`): three loading levels (metadata ~100 words / SKILL.md body <500 lines / unlimited bundled resources, "scripts can execute without loading"), "keep SKILL.md under 500 lines; add a layer of hierarchy" past that, ToC for reference files >300 lines, and domain-organized `references/`. The `spec/` and `template/` files are stubs (`spec/agent-skills-spec.md` is a 2-line URL pointer; `template/SKILL.md` is 4 lines), so skill-creator is the de-facto canonical doc.
+- **Heavyweight physical splits.** `mcp-builder/SKILL.md` is 236 lines and pushes ~2,537 lines into `reference/{node,python}_mcp_server.md` + `evaluation.md`, loaded by explicit "[⚡ TypeScript Guide]" pointers (`:58-66`). `web-artifacts-builder/SKILL.md` is 73 lines and offloads everything to `scripts/{init,bundle}-artifact.sh`. `frontend-design` is a deliberately flat 42-line single file. These bake token discipline in **at authoring time**.
+- **superpowers `writing-skills/SKILL.md:213-266`** ("Token Efficiency (Critical)"): hard word budgets (<150 getting-started / <200 frequently-loaded / <500 other), move flag docs to `--help`, cross-reference instead of repeat, compress examples, and verify with `wc -w`. Plus the load-bearing CSO rule (`:150-172`): the description must say *when* to use, **never** summarize the workflow, or Claude follows the summary and skips the body.
+- **skill-creator `scripts/improve_description.py`** is the closest counterpart to Retrigger: an eval-driven loop that feeds failed/false triggers to `claude -p`, enforces the 1024-char hard limit with a re-shorten safety net (`:163-183`). **trailofbits/skill-improver** runs a categorized (critical/major/minor) fix-review loop but with **no token tooling**.
+
+## 4. Head-to-head
+
+**Stronger.** The lossless-diff-plus-token-proof pair is a genuine, verified differentiator. A corpus-wide grep for `lossless`, `tiktoken`, and `count_tokens` across all eight reference repos returns **zero** comparable tooling — the only "lossless" hit is claude-api's stream-reconnect, and superpowers' `analyze-token-usage.py` measures *runtime session* spend, not skill-file load budget. Everyone else asserts token discipline ("keep it under 500 lines," "aim for <200 words"); only the zipper *measures the before/after delta and machine-checks that nothing was dropped*. The H1-H10 / P1-P5 / A1-A4 catalogs are also more explicit than any external rewrite guidance, and the snapshot→new-files→SKILL.md-last write order with the `cp -RL` trap is more operationally careful than skill-improver's edit-in-place loop.
+
+**On par.** The progressive-disclosure two-layer model matches skill-creator's three-level framing and superpowers' load-discipline rules. The description rubric is on par with — arguably sharper than — superpowers CSO and skill-creator's "pushy description" advice, since it ships a numeric scorecard.
+
+**Weaker.** Three gaps. (1) **Post-hoc vs authoring-time.** The best heavyweight skills (mcp-builder, web-artifacts-builder) never need a zipper pass because they were *authored* lean; the zipper is a remediation tool, and a fresh skill from the pipeline's own engineer stage should ideally arrive already-zipped. (2) **No trigger eval loop.** Retrigger *scores* a description statically; skill-creator's `improve_description.py` and skill-improver actually *run* the skill against trigger/no-trigger cases and iterate on measured pass rates. The zipper has no behavioral trigger measurement. (3) **The CSO conflict is unflagged.** superpowers' single most load-bearing finding — descriptions must NOT summarize workflow — is *absent* from `rules/description-quality.md`; the zipper's own description ("Restructure an existing Claude Code skill for token efficiency, reliability, and trigger accuracy. Use when…") in fact leads with a what-it-does clause superpowers would reject.
+
+## 5. Gaps & recommendations
+
+1. **Adopt the no-workflow-summary rule.** Add it to `rules/description-quality.md` as an 8th scorecard item with the two-stage-review failure story from `writing-skills/SKILL.md:150-158`. Re-score the zipper's own description.
+2. **Close the Retrigger loop.** Wrap (or vendor) skill-creator's `improve_description.py` pattern so Retrigger can *measure* trigger accuracy across trial prompts, not just score text. Today Retrigger is the one operation with no objective proof — ironic for a skill built on objective proofs.
+3. **Swap the tokenizer proxy.** `measure_tokens.py:18-24` admits cl100k_base is a ±5% proxy; the docstring's promised `--tokenizer` flag for `messages.count_tokens()` is "not yet implemented." Implement it for billing-grade numbers.
+4. **Add a depth guard.** Both trailofbits and skill-creator warn against reference *chains* (SKILL.md → file1 → file2). The zipper's model never forbids a rules file from pointing at another; add an A5 "chained gate" anti-pattern and a `diff_lossless`-adjacent check that flags rules→rules links.
+5. **Emit an authoring-time skeleton hook.** Since `assets/skill-md-skeleton.md` already encodes the budget, expose it to the engineer stage so skills arrive pre-zipped and the zipper becomes audit-only.
+
+## 6. Verdict
+
+This compression/restructure stage is **industrial-grade and, on its core mechanic, ahead of best-in-class**: nobody else in the reference corpus pairs a deterministic lossless diff with real token-delta measurement, and that combination is exactly what makes "compress a heavyweight skill" safe to mass-produce. Its one soft spot is Retrigger, which still reasons about descriptions rather than measuring them — the gap to close to match skill-creator's eval-driven triggering.

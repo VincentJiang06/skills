@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "low-visibility-fix/handoff-doc",
+  "title": "Low-visibility handoff document set (machine sidecar audit.json)",
+  "description": "The stable, schema-validated deliverable. Every audit run emits this with ALL sections present — including the zero-findings 'clean' case. An implementer agent reads it (and the rendered report.md) to apply fixes; this skill never edits the target itself.",
+  "type": "object",
+  "required": ["schema_version", "generated_by", "target", "scope", "summary",
+               "findings", "recommendations", "needs_judgment", "next_round_scope"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "generated_by": { "type": "string" },
+    "target": { "type": "string" },
+    "scope": {
+      "type": "object",
+      "required": ["requested", "analyzed_files", "missing", "bounded", "selector", "input_mode"],
+      "properties": {
+        "requested": { "type": "array", "items": { "type": "string" } },
+        "analyzed_files": { "type": "array", "items": { "type": "string" } },
+        "missing": { "type": "array", "items": { "type": "string" } },
+        "bounded": { "type": "boolean" },
+        "selector": { "type": ["string", "null"] },
+        "input_mode": { "type": "string", "enum": ["static", "visual_estimate"] }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["status", "total_findings", "by_severity", "needs_judgment_count", "worst_score"],
+      "properties": {
+        "status": { "type": "string", "enum": ["issues_found", "clean"] },
+        "total_findings": { "type": "integer", "minimum": 0 },
+        "by_severity": {
+          "type": "object",
+          "required": ["critical", "major", "minor"],
+          "properties": {
+            "critical": { "type": "integer", "minimum": 0 },
+            "major": { "type": "integer", "minimum": 0 },
+            "minor": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "needs_judgment_count": { "type": "integer", "minimum": 0 },
+        "worst_score": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "file", "rule", "severity", "location"],
+        "properties": {
+          "id": { "type": "string" },
+          "file": { "type": "string" },
+          "rule": { "type": "string", "enum": ["contrast", "target_size", "color_only", "icon_only", "spacing", "font_size"] },
+          "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
+          "location": { "type": "string" },
+          "measured": { "type": "number" },
+          "threshold": { "type": "number" },
+          "axis": { "type": "string" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding_id", "rule", "recommendation"],
+        "properties": {
+          "finding_id": { "type": "string" },
+          "rule": { "type": "string" },
+          "recommendation": { "type": "string" },
+          "snippet_ref": { "type": "string" }
+        }
+      }
+    },
+    "needs_judgment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "reason", "location", "guidance"],
+        "properties": {
+          "file": { "type": "string" },
+          "reason": { "type": "string" },
+          "location": { "type": "string" },
+          "guidance": { "type": "string" }
+        }
+      }
+    },
+    "next_round_scope": { "type": "string" }
+  }
+}

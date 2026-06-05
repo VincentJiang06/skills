@@ -1,8 +1,0 @@
-{
-  "skill_name": "vince-skill-guidance",
-  "evals": [
-    {"id": 1, "name": "mature-skill-fulldir", "prompt": "Evaluate the skill at skills/vince-low-visibility-fix and emit the handoff spec.", "target": "skills/vince-low-visibility-fix", "expect": "mature; verdict candidate/industrial; full altitude; 7 pillars scored; concrete gaps; actions present"},
-    {"id": 2, "name": "stub-blank-idea", "prompt": "Evaluate the skill at /tmp/sg-eval/targets/stub-translator and emit the handoff spec.", "target": "/tmp/sg-eval/targets/stub-translator", "expect": "maturity stub; most pillars absent; verdict draft; recommended_design is essentially a from-scratch plan; sensible altitude"},
-    {"id": 3, "name": "mature-other-domain", "prompt": "Evaluate the skill at skills/vince-mp-cli-sup and emit the handoff spec.", "target": "skills/vince-mp-cli-sup", "expect": "handles a real mp-automation skill; intent detected correctly; specific gaps; valid spec"}
-  ]
-}

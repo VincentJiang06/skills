@@ -1,7 +1,7 @@
 {
   "meta": {
     "purpose": "20-question head-to-head battery to comprehensively compare two company-background skills (草料二维码 公司背景知识提供者).",
-    "designed_by": "vince-skill-engineer (eval-authoring discipline: boundary + adversarial coverage, no tautological cases, graded vs external ground truth)",
+    "designed_by": "skill-engineer (eval-authoring discipline: boundary + adversarial coverage, no tautological cases, graded vs external ground truth)",
     "skills_under_test": {
       "standard": "company-background-standard (downloaded baseline; known errors: 成立2012, 未溯源'43亿')",
       "mod": "company-background-mod (conductor-built; facts traced to cli.im S1–S5)"

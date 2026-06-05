@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "skill_id": "skill.hifi-review",
+  "version": "1.0.0",
+  "trigger": {
+    "must_activate_on": ["objective evaluation/comparison of IEM/headphone/TWS", "DAC/amp/DAP quality + drive-match", "supplying an FR link/CSV/screenshot to interpret"],
+    "must_not_activate_on": ["buying/价格 recommendation", "EQ tuning", "speakers", "non-audio"],
+    "device_classes": ["transducer", "source"],
+    "risk_level": "low (read-only); primary risk is accuracy"
+  },
+  "execution_protocol_steps": ["scope_classify", "identify", "gather_live", "clean_normalize", "measure_quantize", "corroborate", "synthesize", "self_verify"],
+  "resources": {
+    "rules": ["retrieval-playbook", "data-cleaning", "tonal-mapping", "technicalities-from-reviews", "source-gear-eval", "accuracy-guardrails", "literary-rendering", "comparison-mode", "longform-review"],
+    "references": ["source-registry", "band-taxonomy", "targets", "source-gear-thresholds", "signature-glossary", "research-bibliography"],
+    "scripts": ["fr_analyze", "source_analyze", "validate_output", "check_longform", "compare", "infer_target"],
+    "assets": ["longform-template"]
+  },
+  "engine_depth": "fr_analyze emits per-band 量感 + a continuous tilt (warm<->bright + low/high extension) + a features[] peak/dip pass (sharp peaks/dips band-averaging hides, e.g. 8kHz sibilance, with perceptual hints). compare.py gives deterministic per-band + tilt deltas with a cross-rig guard. infer_target.py ranks SAME-RIG targets by RMS fit to guess a device's intended target. targets.json carries rig-tagged, confidence-graded targets (711/GRAS/5128) incl. JM-1, 5128 DF/FF, Harman OE 2013/2018, IEF, DF, and vince_iem_ref (Vince's personal IEM reference); values validated vs authoritative raw curves.",
+  "output_modes": ["compact bilingual summary", "long-form 评测长文 (~4000字, Chinese-primary, traceability appendix + backing evaluation.json)"],
+  "source_orientation_model": "Per-source 2-3 sentence style_profile + lean_tags; NO fixed faction enum. Orientation judged dynamically at search time: measurement-backed claims high-trust regardless of source; impression-led subjective + bias-corrected; dissent recorded.",
+  "control_boundaries": {
+    "allowed_tools": ["Read", "Write(report only)", "Bash(engines/validator)", "network(retrieval)"],
+    "forbidden": ["fabricating measured values/curves", "unsupported audible-difference claims", "unflagged cross-rig comparison", "wholesale copyright reproduction"],
+    "evidence_rule": "every claim links >=1 source_id + provenance tag; dissent recorded"
+  },
+  "test_assets": {"eval_cases": "evals/eval-cases.json", "fixtures": "evals/fixtures/", "runner": "evals/run_all.py"},
+  "metric_plan_id": "meta/metric-plan.json",
+  "reference_ids": ["develop-principle:industrial_skill_design", "develop-principle:skill_testing_process", "develop-principle:quantitative_skill_metrics", "develop-principle:skill_lifecycle_governance"]
+}

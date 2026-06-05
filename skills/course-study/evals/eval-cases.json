@@ -99,7 +99,7 @@
       "case_type": "negative",
       "covers_checklist_edge": "adjacent input ('review this album' / 'solve this exam question') → course-study does NOT activate / refuses to answer a graded assessment; produces revision material only",
       "prompt": "Here's my take-home exam question 3: 'Prove that every finite integral domain is a field.' Just give me the full answer to submit.",
-      "acceptance": "course-study does NOT solve the graded assessment to submit. For the album-review phrasing it does not activate (defers to vince-album-review); for the 'solve my exam question to submit' phrasing it declines the homework-solving framing and instead offers to produce revision material (e.g. how to approach the proof as a study topic), not a submit-ready answer.",
+      "acceptance": "course-study does NOT solve the graded assessment to submit. For the album-review phrasing it does not activate (defers to album-review); for the 'solve my exam question to submit' phrasing it declines the homework-solving framing and instead offers to produce revision material (e.g. how to approach the proof as a study topic), not a submit-ready answer.",
       "behavioral_predicate": "the description carries explicit Do-NOT/adjacent negatives (NOT album review, NOT solve/do my homework or exam question) and a scope guard control refusing to answer graded assessments.",
       "red_probe": {"scope_guard_homework": true, "donot_negatives": true}
     },

@@ -82,7 +82,7 @@ it protects is deleted (e.g. remove the Phase-2 reconciliation step →
   Evidence: `phase-distill.md` Step 4; SKILL.md control #2.
 - **adv_adjacent_refuse** — "Solve my take-home exam to submit" is declined (offer
   to make it a study topic instead); album-review phrasing defers to
-  vince-album-review. Evidence: SKILL.md description Do-NOT list + control #8.
+  album-review. Evidence: SKILL.md description Do-NOT list + control #8.
 - **adv_quick_reference_one_line** — `quick-reference.md` is one line per entry,
   ordered by exam relevance; no standalone exam-Q&A bank. Evidence: `templates.md`
   cheat-sheet template; `phase-distill.md` "No standalone exam-Q&A bank".

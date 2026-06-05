@@ -1,0 +1,122 @@
+{
+  "skill_name": "skill-zipper",
+  "evals": [
+    {
+      "id": 1,
+      "tag": "compress-plus-encapsulate",
+      "prompt": "我有一个 SKILL.md 文件，内容很长，已经快 400 行了。帮我看看哪些部分可以拆到 rules/ 目录下。技能路径是 ~/.claude/skills/skill-track",
+      "expected_output": "Walks through all 5 operations (Compress / Encapsulate / Enrich / Harden / Retrigger) using the diagnosis rubric and pattern libraries. For Encapsulate candidates, names a specific pattern (P1-P5) from rules/encapsulation-patterns.md. Outputs the plan in the exact format from rules/plan-template.md and waits for explicit 'go'.",
+      "assertions": {
+        "must_load_files": [
+          "rules/progressive-disclosure-model.md",
+          "rules/diagnosis-rubric.md",
+          "rules/operation-analysis.md",
+          "rules/encapsulation-patterns.md",
+          "rules/plan-template.md"
+        ],
+        "must_run_scripts": ["scripts/measure_tokens.py"],
+        "must_mention_operations": ["Compress", "Encapsulate", "Enrich", "Harden", "Retrigger"],
+        "must_use_pattern_ids_from": ["P1", "P2", "P3", "P4", "P5"],
+        "must_present_plan_before_writing": true,
+        "must_wait_for_go_signal": true
+      },
+      "files": []
+    },
+    {
+      "id": 2,
+      "tag": "harden",
+      "prompt": "这是我的 skill，里面有些规则写得很模糊，比如「handle errors appropriately」，帮我把它们改得更精确。路径：~/.claude/skills/skill-track",
+      "expected_output": "Finds every vague instruction. For each, quotes the original verbatim, classifies the pattern using H1-H10 from rules/hardening-patterns.md, names the ambiguity, and proposes a precise rewrite that preserves the original intent. Confirms before writing.",
+      "assertions": {
+        "must_load_files": [
+          "rules/hardening-patterns.md",
+          "rules/operation-analysis.md",
+          "rules/plan-template.md"
+        ],
+        "must_use_pattern_ids_from": ["H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9", "H10"],
+        "must_quote_original_verbatim": true,
+        "must_present_plan_before_writing": true,
+        "must_wait_for_go_signal": true
+      },
+      "files": []
+    },
+    {
+      "id": 3,
+      "tag": "greenfield-structure",
+      "prompt": "帮我把这个 skill 的 rules 结构设计一下。它目前只有一个 SKILL.md，没有任何 rules 文件，但 SKILL.md 已经很复杂了。路径：~/.claude/skills/course-study",
+      "expected_output": "Reads the SKILL.md, runs measure_tokens to baseline. Identifies modes / phases / pattern-matched encapsulation candidates. Proposes a rules/ structure with explicit load conditions. Each proposed rules file maps to a pattern (P1-P5) or to a Compress justification. Names directories explicitly: rules vs references vs assets vs scripts per their semantics.",
+      "assertions": {
+        "must_load_files": [
+          "rules/progressive-disclosure-model.md",
+          "rules/diagnosis-rubric.md",
+          "rules/operation-analysis.md",
+          "rules/encapsulation-patterns.md",
+          "rules/plan-template.md"
+        ],
+        "must_run_scripts": ["scripts/measure_tokens.py"],
+        "must_distinguish_directories": ["rules/", "references/", "assets/", "scripts/"],
+        "must_present_plan_before_writing": true,
+        "must_wait_for_go_signal": true
+      },
+      "files": []
+    },
+    {
+      "id": 4,
+      "tag": "retrigger",
+      "prompt": "我的 skill 明明应该在用户说『生成 commit message』的时候触发，但 Claude 经常不调用它。帮我看看怎么回事。skill 在 ~/.claude/skills/commit",
+      "expected_output": "Loads description-quality.md and scores the current frontmatter description against the 8-item rubric. If score is 0-4, proposes a rewrite from scratch; if 5-6, targeted fixes per missing item; if 7-8, marks Retrigger as no-action and looks for other reasons. Proposed new description follows the template (verb-first, 3+ trigger phrases, anti-triggers, 60-150 token target), and must not summarize the skill's workflow.",
+      "assertions": {
+        "must_load_files": [
+          "rules/description-quality.md",
+          "rules/operation-analysis.md"
+        ],
+        "must_score_description": true,
+        "must_quote_original_description": true,
+        "must_propose_verb_first_rewrite": true,
+        "must_include_trigger_phrases_count": ">=3",
+        "must_include_anti_triggers": true
+      },
+      "files": []
+    },
+    {
+      "id": 5,
+      "tag": "dry-run",
+      "prompt": "先别动我的源文件 — 把方案预览给我看，确认 OK 再真改。skill 在 ~/.claude/skills/triage",
+      "expected_output": "Presents the plan, then on 'go' enters dry-run mode per rules/write-procedure.md: copies skill to <skill_dir>_preview/, applies all changes there, runs diff_lossless.py and measure_tokens.py --diff against the original, prints the verification output, and asks whether to apply for real.",
+      "assertions": {
+        "must_load_files": [
+          "rules/write-procedure.md",
+          "rules/plan-template.md",
+          "rules/verification-checklist.md"
+        ],
+        "must_run_scripts": [
+          "scripts/measure_tokens.py",
+          "scripts/diff_lossless.py"
+        ],
+        "must_create_preview_directory": true,
+        "must_not_modify_original_before_apply": true,
+        "must_ask_explicit_apply_confirmation": true
+      },
+      "files": []
+    },
+    {
+      "id": 6,
+      "tag": "verification",
+      "prompt": "我刚跑完一次拆分，确认一下没漏内容、token 也确实降了。before 快照在 /tmp/skill-before，当前 skill 在 ~/.claude/skills/triage",
+      "expected_output": "Loads verification-checklist.md. Runs diff_lossless.py and measure_tokens.py --diff. For any LOST lines, classifies each into one of: accepted Harden rewrite / accepted Enrich extraction / accepted Retrigger rewrite / true loss. Refuses to mark the restructure 'done' if any true loss is unresolved. Prints the done summary in the format from verification-checklist.md.",
+      "assertions": {
+        "must_load_files": [
+          "rules/verification-checklist.md"
+        ],
+        "must_run_scripts": [
+          "scripts/diff_lossless.py",
+          "scripts/measure_tokens.py"
+        ],
+        "must_classify_each_lost_line": true,
+        "must_refuse_done_on_unresolved_loss": true,
+        "must_print_done_summary_format": true
+      },
+      "files": []
+    }
+  ]
+}

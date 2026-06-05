@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.1.0",
+  "template_id": "template.metric_plan",
+  "metric_plan_id": "metric_plan.mp-cli-sup",
+  "skill_id": "skill.mp-cli-sup",
+  "baseline": {
+    "without_skill_run_id": "",
+    "old_skill_run_id": "vince-mp-cli@0.1.0 (one-shot, per-call reconnect, no session)"
+  },
+  "candidate": {
+    "with_skill_run_id": "conductor-2026-06-05",
+    "new_skill_version": "0.2.0"
+  },
+  "required_metrics": [
+    "metric.task_success_rate",
+    "metric.marginal_lift",
+    "metric.activation_precision",
+    "metric.pass_k",
+    "metric.cost_per_success",
+    "metric.loaded_context_tokens",
+    "metric.policy_violation_rate"
+  ],
+  "trial_policy": {
+    "repeat_count": 3,
+    "isolate_trials": true,
+    "stable_environment_required": true
+  },
+  "decision_thresholds": {
+    "minimum_marginal_lift": 0,
+    "maximum_cost_delta": null,
+    "minimum_activation_precision": 0.9,
+    "maximum_policy_violation_rate": 0
+  },
+  "measured": {
+    "as_of": "2026-06-05",
+    "source": "conductor run on a live WeChat DevTools session + 52 node:test cases + 3 independent fresh-subagent batteries",
+    "cli_unit_tests": "52/52 pass",
+    "eval_cases": "13 (happy/boundary/negative/adversarial)",
+    "loaded_context_tokens_estimate": "~94 lines always-loaded (SKILL.md); 5 docs load-on-demand",
+    "warm_command_latency_ms": "~100 end-to-end (node startup + warm-daemon roundtrip); daemon step 3-72ms vs. a full reconnect per call before",
+    "one_command_connect": "verified live — resolve miniprogramRoot + ensure automation port + attach",
+    "connection_reuse": "verified — 20 concurrent requests over one connection in 49ms",
+    "uid_stability_across_calls": "verified — query then tap in separate CLI invocations",
+    "auto_reconnect_recovery": "verified — transport-error reconnect+retry and explicit `session reconnect`",
+    "console_accuracy": "verified — one console.log shows as one entry after coalescing (was 5-8x)",
+    "independent_battery_verdict": "industrial (zero bugs on the final certification pass)",
+    "policy_violations": 0
+  }
+}

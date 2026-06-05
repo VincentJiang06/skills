@@ -1,8 +1,0 @@
-interface:
-  display_name: "Vince MP CLI Support"
-  short_description: "Drive Mini Program CLI debugging"
-  brand_color: "#07C160"
-  default_prompt: "Use $vince-mp-cli-sup to inspect my WeChat Mini Program runtime with the local JSON CLI."
-
-policy:
-  allow_implicit_invocation: true

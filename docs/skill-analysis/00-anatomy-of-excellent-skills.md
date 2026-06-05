@@ -1,6 +1,6 @@
 # Anatomy of an Excellent Industrial Skill
 
-Grounded in the corpus at `learning_from_the_best/` (read 2026-06-04). All paths relative to `/Users/vince/playground/skill-developer/`. The lens: which excellent public skills are reproducible by a deterministic production pipeline (class A — the vince-skill benchmark) versus which are excellent because of irreproducible taste (class B — out of scope).
+Grounded in the corpus at `learning_from_the_best/` (read 2026-06-04). All paths relative to `/Users/vince/playground/skill-developer/`. The lens: which excellent public skills are reproducible by a deterministic production pipeline (class A — the skill benchmark) versus which are excellent because of irreproducible taste (class B — out of scope).
 
 ## 1. The two classes
 

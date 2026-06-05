@@ -6,7 +6,7 @@ description: >
   Triggers: "study/revise this course", "revise these lecture slides", "make a
   study guide / cheat sheet for my midterm/final/quiz", "explain <course topic>
   simply", "$course-study". Do NOT use for: album/music review
-  (→ vince-album-review); open-ended tutoring conversation; solving or doing the
+  (→ album-review); open-ended tutoring conversation; solving or doing the
   user's graded homework / exam questions to submit; generating notes for a
   course with no materials AND no identifiable standard syllabus.
 license: MIT

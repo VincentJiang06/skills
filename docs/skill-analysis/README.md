@@ -1,4 +1,4 @@
-# vince-skill series vs. the best public skills — benchmark synthesis
+# skill series vs. the best public skills — benchmark synthesis
 
 Date: 2026-06-04. Corpus: the 8 reference repos in [`learning_from_the_best/`](../../learning_from_the_best/)
 (217k-star `superpowers`, official `anthropics/skills`, `addyosmani`, `vercel`, `kepano`, `trailofbits`,
@@ -6,7 +6,7 @@ the `agentskills` spec, the `composio` aggregator). Subject: the 4-stage pipelin
 
 Per-stage deep-dives (read these for the evidence):
 - [00 — Anatomy of an excellent industrial skill](00-anatomy-of-excellent-skills.md) (the shared rubric)
-- [vince-skill-conductor](vince-skill-conductor.md) · [vince-skill-guidance](vince-skill-guidance.md) · [vince-skill-engineer](vince-skill-engineer.md) · [vince-skill-zipper](vince-skill-zipper.md)
+- [skill-conductor](skill-conductor.md) · [skill-guidance](skill-guidance.md) · [skill-engineer](skill-engineer.md) · [skill-zipper](skill-zipper.md)
 
 ---
 
@@ -57,12 +57,12 @@ All four stages' bundled evals were **executed by the agents this session and pa
 Your whole pipeline reasons about skills *statically*: it scores files, validates schemas, runs the engineer's *own* scaffolder — but it never spawns the built skill via `claude -p` to measure **trigger-rate and behavior against a baseline**, which is exactly what [`skill-creator`](../../learning_from_the_best/anthropics-skills/skills/skill-creator/) does (`scripts/run_eval.py`, `run_loop.py`, `improve_description.py` — with a train/test split and mean±stddev variance). This is the line between *structurally* industrial (you) and *empirically* industrial (them). Port it once as a shared `trigger_eval` and wire it into guidance's metrics pillar, the engineer's `trigger` unit, and the zipper's Retrigger op.
 
 **P1 — The "description must not summarize the workflow" rule.**
-superpowers `writing-skills`' single most load-bearing finding: a description that summarizes *how* makes Claude follow the summary and **skip the body**; it must say *when* only. This rule is **absent** from the zipper's `description-quality.md` — and several vince-skill descriptions (the zipper's own included) violate it. Cheap, high-leverage. Add it as an 8th scorecard item.
+superpowers `writing-skills`' single most load-bearing finding: a description that summarizes *how* makes Claude follow the summary and **skip the body**; it must say *when* only. This rule is **absent** from the zipper's `description-quality.md` — and several skill descriptions (the zipper's own included) violate it. Cheap, high-leverage. Add it as an 8th scorecard item.
 
 **P2 — Hygiene: stale paths (a verified bug).**
-[conductor.md](vince-skill-conductor.md) found real doc-rot, masked by an eval fallback so it stays green:
-- `vince-skill-conductor/SKILL.md:36` & `rules/pipeline-loop.md:154` → point at `../chore-develop-vince-skill-zipper/vince-skill-zipper/…`; the skill is actually at `../vince-skill-zipper/`.
-- `vince-skill-conductor/SKILL.md:38` & `vince-skill-guidance/SKILL.md:27` → `Backing KB: ../develop-principle` is an off-by-one; the real KB is `../../develop-principle`.
+[conductor.md](skill-conductor.md) found real doc-rot, masked by an eval fallback so it stays green:
+- `skill-conductor/SKILL.md:36` & `rules/pipeline-loop.md:154` → point at `../chore-develop-skill-zipper/skill-zipper/…`; the skill is actually at `../skill-zipper/`.
+- `skill-conductor/SKILL.md:38` & `skill-guidance/SKILL.md:27` → `Backing KB: ../develop-principle` is an off-by-one; the real KB is `../../develop-principle`.
 Fix the references **and** add a guidance eval that greps sibling/KB paths and asserts each resolves (trailofbits `workflow-skill-design`'s anti-pattern catalog literally names this — adopting its checklist as a pre-ship gate would have caught it).
 
 **Per-stage extras** (detail in each file): guidance → per-pillar 0–1 confidence + validate the *emitted* spec with ajv (not just `JSON.parse`); engineer → bundle a frontmatter linter (`quick_validate.py`) + persist a regression set; zipper → real tokenizer (the `--tokenizer` flag is unimplemented; current count is a ±5% proxy) + a reference-*chain* guard.
