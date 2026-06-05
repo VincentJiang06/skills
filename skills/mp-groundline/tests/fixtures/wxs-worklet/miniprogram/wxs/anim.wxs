@@ -1,0 +1,7 @@
+// this comment mentions wx.worklet but must NOT fire
+var step = function (t) {
+  'worklet';
+  return t * 2;
+};
+var run = function () { return wx.worklet.timing(1, {}); };
+module.exports = { step: step, run: run };

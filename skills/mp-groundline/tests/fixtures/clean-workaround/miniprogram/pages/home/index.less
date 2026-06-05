@@ -9,10 +9,10 @@
   word-break: break-all;
 }
 .grid {
-  // flex + explicit width instead of display:grid (grid-view workaround)
+  // flex + explicit calc() width instead of display:grid (grid-view workaround)
   display: flex;
   flex-wrap: wrap;
 }
 .cell {
-  width: 33.33%;
+  width: calc(33.33% - 8px);
 }

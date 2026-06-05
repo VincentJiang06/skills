@@ -50,8 +50,34 @@ export const CATEGORY_ORDER = [
   "scroll_view_type"
 ];
 
+// Make any string safe to drop into a single Markdown TABLE cell. A finding's
+// snippet/note is arbitrary source text, so it can carry the three characters
+// that break a table row:
+//   - a pipe `|`        → cell shift / extra columns   ⇒ escape to `\|`
+//   - a CR/LF newline   → the row splits into two rows  ⇒ collapse to a space
+//   - a backtick `` ` ``→ closes the inline-code span    ⇒ neutralize to `'`
+// and unbounded length, which we cap. Order matters: collapse newlines first,
+// escape pipes, neutralize backticks, THEN cap (so a cap never severs a `\|`).
+const CELL_MAX = 200;
 function esc(s) {
-  return String(s == null ? "" : s).replace(/\|/g, "\\|").replace(/\n/g, " ");
+  let out = String(s == null ? "" : s)
+    .replace(/[\r\n]+/g, " ")   // collapse CR / LF / CRLF to one space (row stays single-line)
+    .replace(/\s{2,}/g, " ")     // squeeze runs of whitespace introduced by the above
+    .replace(/\|/g, "\\|")       // escape cell-delimiter pipes
+    .replace(/`/g, "'");          // neutralize backticks (would close the code span)
+  if (out.length > CELL_MAX) {
+    let cut = out.slice(0, CELL_MAX - 1);
+    // The cap can land in the MIDDLE of an escaped `\|`, keeping the lone `\` and
+    // dropping the `|` → a dangling `…\…` that would escape the following cell
+    // delimiter. An ODD run of trailing backslashes means the last `\` is a
+    // severed escape lead — drop it (one char) so the cell never ends in a lone
+    // `\` before the ellipsis. An even run is fully-paired literal backslashes;
+    // leave them intact.
+    const trail = (cut.match(/\\+$/) || [""])[0].length;
+    if (trail % 2 === 1) cut = cut.slice(0, -1);
+    out = cut + "…";
+  }
+  return out;
 }
 
 function sortFindings(findings) {

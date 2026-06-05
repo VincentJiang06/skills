@@ -1,0 +1,4 @@
+{
+  "pages": ["pages/anim/index"],
+  "renderer": "skyline"
+}

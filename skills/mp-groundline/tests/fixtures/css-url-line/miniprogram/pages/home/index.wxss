@@ -1,0 +1,8 @@
+/* BUG-1 regression (.wxss): a real url(https://…) on the SAME line as a keep
+   workaround must NOT blank the workaround. `//` is not valid .wxss syntax. */
+.hero { background: url(https://cdn.example.com/x.png); box-shadow: 0 0 0 1px #ccc; }
+.label { background: url(https://cdn.example.com/y.png); word-break: break-all; }
+.glass { background: url(https://cdn.example.com/z.png); backdrop-filter: blur(4px); }
+/* commented-out workaround — must NOT fire (block-comment immunity). */
+/* .ghost { box-shadow: 0 0 0 1px #ccc; word-break: break-all; backdrop-filter: blur(2px); } */
+.plain { color: #333; }

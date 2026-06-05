@@ -1,0 +1,1 @@
+<view class="grid"><view class="cell" wx:for="{{n}}" wx:key="*this"></view></view>

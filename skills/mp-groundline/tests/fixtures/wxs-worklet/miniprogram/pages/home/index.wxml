@@ -1,0 +1,2 @@
+<wxs module="anim" src="../../wxs/anim.wxs" />
+<view>{{anim.x}}</view>

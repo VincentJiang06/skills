@@ -1,0 +1,4 @@
+{
+  "pages": ["pages/cloud/index", "pages/grid/index"],
+  "renderer": "skyline"
+}

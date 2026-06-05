@@ -1,0 +1,6 @@
+/* CSS property names are case-insensitive per the CSS spec, so an uppercase /
+   mixed-case `WORD-BREAK` / `BACKDROP-FILTER` is valid CSS and must still be
+   detected as a keep workaround (parity with BOX_SHADOW_BORDER_RE's `i` flag).
+   Lines are pinned by the eval. */
+.wrap { WORD-BREAK: BREAK-ALL; }
+.glass { BACKDROP-FILTER: blur(4px); }

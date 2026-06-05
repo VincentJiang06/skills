@@ -1,0 +1,14 @@
+/* display:flex alone (a navbar) must NOT trigger flex_grid_workaround. */
+.navbar {
+  display: flex;
+  align-items: center;
+  height: calc(88rpx + env(safe-area-inset-top));
+}
+/* an UNRELATED flex-wrap:wrap (tag reflow) with NO calc() width — must NOT fire,
+   even though display:flex AND flex-wrap:wrap both appear in this file. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.tag { width: 100%; }

@@ -12,8 +12,9 @@ node scripts/scan.mjs <program-root>      # repo root (holds project.config.json
 ```
 
 It resolves `miniprogramRoot` from `project.config.json`, reads `app.json` and
-each page `.json`, walks `.wxml/.wxss/.less/.js/.ts` (skipping `node_modules` and
-`miniprogram_npm`), and prints `{ ok, error, miniprogramRoot, renderer_config,
+each page `.json` (including subpackage pages from **both** `subPackages` and
+`subpackages`), walks `.wxml/.wxss/.less/.js/.ts/.wxs` (skipping `node_modules`
+and `miniprogram_npm`), and prints `{ ok, error, miniprogramRoot, renderer_config,
 findings[], summary }`. On a blocker it prints a structured error and exits 1.
 
 ## The four actions
@@ -36,24 +37,43 @@ findings[], summary }`. On a blocker it prints a structured error and exits 1.
   whitespace, `/`, or `>`. The literal text inside a class name, attribute value,
   JS identifier (`spanning`, `listViewData`), or comment yields **no** finding.
   WXML comments are stripped before tag-scanning.
-- **worklet → rewrite (high):** `wx.worklet`, a `'worklet'` directive,
-  `applyAnimatedStyle`, `runOnUI`, `runOnJS`, `useSharedValue`, `Easing`,
-  `timing(`/`spring(`/`decay(` — **one finding per matching source line** (the
-  rewrite class flags every occurrence; never collapse a file's multiple worklet
-  lines to one). JS/TS comments are stripped first, so a comment mentioning
-  `wx.worklet` does not fire; multiple matches on the SAME line → one finding.
+- **worklet → rewrite (high):** detected via STRONG + WEAK tokens.
+  **STRONG, Skyline-exclusive** — `wx.worklet`, a `'worklet'` directive,
+  `applyAnimatedStyle`, `runOnUI`, `runOnJS`, `useSharedValue` — always fire,
+  **one finding per matching source line** (the rewrite class flags every
+  occurrence; never collapse a file's multiple worklet lines to one).
+  **WEAK** — `Easing`, bare `timing(`/`spring(`/`decay(` — fire **only when the
+  same file ALSO contains a STRONG signal**, because a generic charting/animation
+  lib reuses those bare names (`import { Easing } from 'chart-lib'`,
+  `function spring(){}`); in a file with a strong signal the weak lines still
+  count per occurrence (file-level gate, NOT a `wx.worklet.` prefix), in a file
+  with none they produce nothing. JS/TS comments are stripped first, so a comment
+  mentioning `wx.worklet` does not fire (and does not arm the weak tokens);
+  multiple matches on the SAME line → one finding.
 - **custom route → rewrite:** `routeBuilder`, `wx.router`, `wx://`,
   `open-container`/`openContainer`, `customRoute` — **one finding per matching
   source line** in JS/TS and **one per `<open-container>` tag** in WXML (every
   occurrence; never one-per-file).
 - **scroll-view** `type="list"/"custom"` → keep; if `enhanced` is already present
   the finding records it and the generator emits **no** redundant suggestion.
-- **workarounds → keep:** `box-shadow: 0 0 0 Npx` as a border, flex+wrap grid
-  substitute, `word-break: break-all`, `backdrop-filter`.
+- **workarounds → keep:** a `box-shadow` hairline-border clause `(inset )?0 0 0 Npx`
+  **anywhere** in the value (flush, `inset`, or a 2nd+ comma clause; unit
+  case-insensitive) — the spread must carry a length unit, so a no-op
+  `0 0 0 0`/`none`/`transparent` and a no-hairline multi-shadow are not flagged;
+  flex+wrap grid substitute (only when `flex-wrap:wrap` **and** a **non-`100%`**
+  `width: calc(...)` column co-occur — plain `display:flex`, an unrelated
+  `flex-wrap:wrap`, or a full-width `calc(100% - …)` never fires);
+  `word-break: break-all`; `backdrop-filter` (both **case-insensitive** — CSS
+  property names are case-insensitive, so `WORD-BREAK: BREAK-ALL` /
+  `BACKDROP-FILTER:` also fire). CSS/LESS comments are stripped with a
+  CSS-aware stripper that masks `url(...)`/strings first, so a `url(https://…)` does
+  **not** blank a real declaration sharing its line.
 - **camera tap-mask → verify.**
 - **config:** `renderer:"skyline"` → exactly one `renderer_flip` (mechanical);
   page-level `renderer` differing from app-level → a distinct `page_renderer_override`
-  (mechanical) at that page's json; `componentFramework:"glass-easel"` → keep;
+  (mechanical) at that page's json, **deduped by resolved path** so the same physical
+  page listed under both `subPackages` and `subpackages` yields exactly one (distinct
+  pages in different roots still each get their own); `componentFramework:"glass-easel"` → keep;
   `rendererOptions.skyline` → keep/strip note, never rewrite.
 - **already webview:** `renderer:"webview"` (or unset) → `summary.mechanical==0`,
   `summary.already_migrated==true`; STOP before editing.

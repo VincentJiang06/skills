@@ -1,0 +1,12 @@
+/* BUG-3 regression: an UNRELATED tag-cloud (flex-wrap:wrap) co-located in the
+   same file as an UNRELATED full-width container (width: calc(100% - …)) must
+   NOT fire flex_grid_workaround — a 100% calc is a container, not a grid column. */
+.tagcloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.banner {
+  width: calc(100% - 20px);
+  margin: 0 10px;
+}

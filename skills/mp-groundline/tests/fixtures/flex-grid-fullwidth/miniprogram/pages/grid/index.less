@@ -1,0 +1,13 @@
+/* The GENUINE flex-instead-of-grid: a flex-wrap container with the column-width
+   `width: calc(…)` declared in a SIBLING rule (mirrors the real demo's
+   home/index.less). A non-100% calc width IS a real grid column → MUST fire. */
+.features {
+  /* Skyline 不支持 CSS grid，回 flex + 显式 width 强制 2x2 */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+.feat-card {
+  width: calc(50% - 6rpx);
+  box-sizing: border-box;
+}

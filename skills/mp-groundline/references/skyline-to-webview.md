@@ -56,6 +56,14 @@ below marks it Skyline-only.
 > worklet findings, never a single collapsed one. (Dedupe is per-line only:
 > two matches on the same line → one finding for that line.) See the granularity
 > column in `references/scanner-contract.md`.
+>
+> Precision: the worklet **WEAK** tokens (`Easing`, bare `timing(`/`spring(`/`decay(`)
+> are names a generic charting/animation lib reuses, so they count **only when the
+> same file also carries a STRONG, Skyline-exclusive signal** (`wx.worklet`, a
+> `'worklet'` directive, `applyAnimatedStyle`, `runOnUI`, `runOnJS`,
+> `useSharedValue`). A file with only the weak names and no strong signal yields
+> **zero** worklet findings (no phantom rewrite). The gate is file-level, so a
+> bare `spring()` line in a strong-signal file still counts per occurrence.
 
 ## Skyline-era workarounds (→ keep — still render under WebView)
 
