@@ -146,7 +146,7 @@ export async function getPageSnapshot(page, elementMap, options = {}) {
     return summarizeElement(element, uid, options);
   });
 
-  return {
+  const result = {
     path: page.path ?? null,
     selector,
     elementCount: Array.isArray(elements) ? elements.length : 0,
@@ -154,4 +154,15 @@ export async function getPageSnapshot(page, elementMap, options = {}) {
     truncated: Array.isArray(elements) && elements.length > limited.length,
     elements: summaries,
   };
+
+  // A '*' wildcard that yields zero elements is ambiguous: the page may truly be
+  // empty, or this renderer may simply not enumerate every node through '*' (the
+  // catch above only fires when '*' THROWS — some renderers answer [] instead).
+  // Hand the caller a concrete next step so an empty snapshot isn't mistaken for
+  // an empty page. Renderer-neutral: helps both WebView and Skyline.
+  if (selector === "*" && result.returnedCount === 0) {
+    result.hint = "0 elements via the '*' wildcard — the universal '*' selector is not enumerated by every renderer. Pass a concrete selector (e.g. `snapshot view` or `snapshot .item`) to tell a genuinely empty page from an unsupported wildcard.";
+  }
+
+  return result;
 }
