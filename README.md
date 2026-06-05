@@ -1,5 +1,7 @@
 # Industrial-Grade Agent Skills
 
+![Industrial-Grade Agent Skills](assets/cover.png)
+
 > Agent skills for Claude Code that ship with contracts, validators, and eval suites — and get broken by an independent judge before release, not just self-reported green.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) · **English** · [简体中文](README.zh.md)
@@ -59,13 +61,7 @@ rather than claiming "industrial."
 Most skill collections are hand-written. **Every skill here is produced by a four-stage pipeline — and the
 repo ships that pipeline too.** This is the part I'm proudest of.
 
-```text
-idea / existing skill
- └─▶ ① guidance   audit · scope · score 7 readiness pillars   → schema-validated handoff spec
-     └─▶ ② engineer   build test-first (red → green → refactor) · prove triggering via `claude -p`   → build report
-         └─▶ ③ zipper   compress with lossless-diff + token-delta proof · won't touch an already-clean skill
-             └─▶ ④ conductor   wraps ①–③: loop, re-audit the result, send the weakest stage back around
-```
+![The skill-building pipeline: idea → ① guidance → ② engineer → ③ zipper, wrapped by ④ conductor's re-audit loop, out to a certified shipped skill](assets/pipeline.png)
 
 Each arrow is a **machine-readable contract** — one stage's typed artifact is the next stage's input. That
 buys four things a hand-written `SKILL.md` can't:
