@@ -1,6 +1,0 @@
-{
-  "pages": ["pages/home/index", "pages/legacy/index"],
-  "window": { "navigationStyle": "custom" },
-  "renderer": "skyline",
-  "componentFramework": "glass-easel"
-}

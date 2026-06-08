@@ -106,7 +106,7 @@ checkout` of `app.json` + touched page `.json`.
 
 - **migration_correctness** = every hard Skyline-only feature present is flagged
   `rewrite` AND zero false `rewrite` on a clean-workaround program (target 1.0;
-  oracle = `evals/run_all.mjs`).
+  oracle = the deterministic eval harness).
 - **minimal_diff** = files touched + lines changed (the mechanical flip is one
   `app.json` edit + N page-json edits only where a page override exists).
 - **activation_precision** = the 4 positives + 4 adjacent negatives in
@@ -129,8 +129,6 @@ checkout` of `app.json` + touched page `.json`.
 |------|-------|
 | `scripts/scan.mjs` | `node scripts/scan.mjs <root>` — the migration scanner (exports `scan(root)`; CLI prints JSON). |
 | `scripts/gen_migration_map.mjs` | `node scripts/gen_migration_map.mjs <root>` — pure scan→MIGRATION-MAP.md (exports `generate(scan)`). |
-| `scripts/validate-skill.mjs` | `node scripts/validate-skill.mjs` — structural gate; re-runs the eval harness. |
-| `evals/run_all.mjs` | `node evals/run_all.mjs` — the deterministic eval harness (imports both scripts). |
 
 ## Assets
 

@@ -3,18 +3,18 @@ name: low-visibility-fix
 description: >
   Audit existing mobile UI (WeChat mini-program / H5 / app) for FIELD
   low-visibility conditions — low light, glare, gloves, wet hands, vibration —
-  and emit a structured, implementer-ready handoff DOCUMENT SET (findings by
-  severity + prioritized fix recommendations). Runs a deterministic analyzer plus
-  a bounded visual/browser pass; scopes to specific page(s)/component(s) for cheap
-  multi-round re-runs. NEVER edits the target — it hands documents to another
-  agent to apply. Use when someone has an existing field/industrial UI and wants
-  it checked for contrast, tap-target size, color-only state, or icon-only
-  buttons, and wants a fix plan. Triggers: "审计这个界面在低光/眩光/戴手套下是否清晰可点，
-  给我修改建议文档", "audit this field UI and hand me a fix plan", "check only
-  <page/component> for low-visibility issues", "$low-visibility-fix". Not
-  for: editing/fixing the files directly (this skill produces docs, an implementer
-  applies them); designing a new UI from scratch; disability/screen-reader a11y
-  (colorblind, low-vision); generic CSS review with no low-visibility angle.
+  and emit an implementer-ready handoff DOCUMENT SET (findings by severity +
+  prioritized fixes). Runs a deterministic analyzer plus a bounded visual/browser
+  pass; scopes to specific page(s)/component(s) for cheap multi-round re-runs.
+  NEVER edits the target — it hands documents to another agent to apply. Use when
+  someone has an existing field/industrial UI to check for contrast, tap-target
+  size, color-only state, or icon-only buttons, and wants a fix plan. Triggers:
+  "审计这个界面在低光/眩光/戴手套下是否清晰可点，给我修改建议文档", "audit this field UI and
+  hand me a fix plan", "check only <page/component> for low-visibility issues",
+  "$low-visibility-fix". Not for: editing/fixing files directly (it produces docs,
+  an implementer applies them); designing a new UI from scratch;
+  disability/screen-reader a11y (colorblind, low-vision); generic CSS review with
+  no low-visibility angle.
 ---
 
 # Low-Visibility UI Audit → Handoff Docs
@@ -67,4 +67,3 @@ and degraded mode → the modules below.
 | `assets/fix-snippets.html` | compliant component patterns referenced by recommendations (never applied) |
 | `scripts/audit.py <target> [--pages a,b] [--selector .x] [--css f] [--out d] [--input-mode static\|visual_estimate] [--json]` | scope → analyze → emit doc set; never edits the target (exit 3 = empty scope) |
 | `scripts/analyze.py <file> [--css f] [--selector .x] [--viewport-px n]` | deterministic findings JSON for one file (H5 or WXML+WXSS) |
-| `evals/run_all.py` | regression + behavioral harness — every adversarial edge bound to a case |

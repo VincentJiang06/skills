@@ -1,19 +1,19 @@
 ---
 name: fact-check
 description: >
-  Fast, source-backed answer to a factual question — a technology, a term/noun, a
-  date/version/value, or a "is it true that…" claim. Triage the question simple vs
-  complex, fan out PARALLEL web searches, early-exit the moment the answer is
-  corroborated, and return a citation-backed bottom-line answer within a hard time
-  budget: simple ≤2 min, complex ≤5 min. Speed/efficiency is the defining goal.
-  Use when the user wants a quick verified answer: "fact-check this", "quickly find
-  out / look up X", "what is <tech/term>", "is it true that Y", "$fact-check".
-  Do NOT use for: a thorough, exhaustive, multi-source RESEARCH REPORT (that is
-  deep-research — this skill returns a bounded BLUF answer, not a report); subjective
-  / opinion / recommendation questions with no factual answer ("best laptop for me");
-  domain deep-evaluations with their own skill (album-review for 乐评,
-  hifi-review for audio gear); questions answerable from the open repo/context
-  with no web lookup; creative, math, or coding tasks with no external fact to verify.
+  Fast, source-backed answer to a factual question — a technology, term,
+  date/version/value, or an "is it true that…" claim. Triage simple vs complex,
+  fan out PARALLEL web searches, early-exit the moment the answer is corroborated,
+  and return a citation-backed bottom-line within a hard time budget: simple ≤2
+  min, complex ≤5 min. Speed/efficiency is the defining goal. Use when the user
+  wants a quick verified answer: "fact-check this", "quickly find out / look up
+  X", "what is <tech/term>", "is it true that Y", "$fact-check". Do NOT use for: a
+  thorough, exhaustive, multi-source RESEARCH REPORT (that is deep-research — this
+  skill returns a bounded BLUF answer, not a report); subjective / opinion /
+  recommendation questions with no factual answer ("best laptop for me"); domain
+  deep-evaluations with their own skill (album-review for 乐评, hifi-review for
+  audio gear); questions answerable from context with no web lookup; creative,
+  math, or coding tasks with no external fact to verify.
 ---
 
 # fact-check

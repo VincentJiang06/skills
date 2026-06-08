@@ -1,7 +1,0 @@
-{
-  "pages": ["pages/home/index"],
-  "window": { "navigationStyle": "custom" },
-  "renderer": "webview",
-  "componentFramework": "glass-easel",
-  "style": "v2"
-}

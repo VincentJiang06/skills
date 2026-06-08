@@ -1,3 +1,0 @@
-.lbl { color: #cccccc; background: #ffffff; font-size: 20rpx; }
-.act { width: 48rpx; height: 48rpx; }
-.tapper { width: 60rpx; height: 60rpx; }

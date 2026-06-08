@@ -1,3 +1,0 @@
-<scroll-view type="list" class="grid|cols" data-tpl="row-`tmpl`" scroll-y>
-  <view wx:for="{{items}}" wx:key="id">{{item}}</view>
-</scroll-view>

@@ -1,6 +1,0 @@
-{
-  "pages": ["pages/home/index"],
-  "renderer": "skyline",
-  "subPackages": [ { "root": "pkgCamel", "pages": ["detail/index"] } ],
-  "subpackages": [ { "root": "pkglower", "pages": ["page/index"] } ]
-}

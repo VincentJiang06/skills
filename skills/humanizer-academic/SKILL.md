@@ -1,23 +1,19 @@
 ---
 name: humanizer-academic
 description: >-
-  Rewrite ACADEMIC / scholarly / professional prose (English, Chinese, or mixed
-  EN-in-ZH) to remove AI-writing signals across three layers — lexical,
-  structural, and statistical — while PRESERVING scholarly register and ADDING
-  defined academic human texture (authorial stance, source-grounded specificity,
-  syntactic/paragraph burstiness, controlled asymmetry), never inventing facts.
-  Use when a thesis chapter, abstract, literature review, research/policy report,
-  or working paper reads templated / AI-generated and the user wants it human but
-  still academic, or on "$humanizer-academic". Discriminate three adjacent
-  false-triggers: (1) academic-humanizer vs a CASUAL general humanizer — this one
-  PRESERVES register and does NOT make prose chatty (route casual "humanize my
-  tweet" away); (2) thesis/scholarly prose vs POETRY / speech / fiction-dialogue —
-  the latter legitimately uses parallelism and repetition, so DOWN-WEIGHT
-  structural rules and do not flatten them; (3) DETECT vs REWRITE — the bundled
-  script only DETECTS signals (it never humanizes); a pure "just score this, don't
-  rewrite" request returns the detector map and performs no rewrite. Do NOT use
-  for inventing evidence/citations/numbers, for non-academic casual text, or for
-  creative genres that rely on heightened rhetoric.
+  Rewrite ACADEMIC / scholarly prose (English, Chinese, or mixed EN-in-ZH) to
+  remove AI-writing signals across three layers — lexical, structural, statistical
+  — while PRESERVING scholarly register and ADDING defined human texture (authorial
+  stance, source-grounded specificity, burstiness, controlled asymmetry), never
+  inventing facts. Use when a thesis, abstract, lit review, or policy report reads
+  templated / AI-generated and you want it human but still academic, or
+  "$humanizer-academic". Discriminate three false-triggers: (1) vs a CASUAL
+  humanizer — PRESERVE register, don't go chatty (route "humanize my tweet" away);
+  (2) vs POETRY / speech / fiction — these legitimately use parallelism/repetition,
+  so DOWN-WEIGHT structural rules, don't flatten; (3) DETECT vs REWRITE — the
+  bundled script only DETECTS (never humanizes); "just score this" returns the
+  detector map, no rewrite. Do NOT use for inventing evidence/citations/numbers,
+  non-academic casual text, or creative genres relying on heightened rhetoric.
 allowed-tools:
   - Read
   - Write
@@ -49,7 +45,7 @@ statistics). **It DETECTS; it never rewrites and is never described as a
 "humanizer".** Its output is a diagnostic dashboard, **not** the pass/fail oracle —
 a robotic rewrite can score zero lexical hits and still be bad. The rewrite is your
 behavioral work; quality is judged by the independent blind judge
-(`evals/blind-judge-rubric.md`), not by the detector's own counts.
+(`references/blind-judge-rubric.md`), not by the detector's own counts.
 
 ## When to use / not use
 
@@ -162,7 +158,7 @@ detector's JSON signal map (and a plain-language reading of the deltas).
 
 ## Metrics (how success is judged)
 - **independent_blind_judge_score** — a fresh evaluator scores residual AI-ness on
-  `evals/blind-judge-rubric.md` **without seeing the removal rules** (primary
+  `references/blind-judge-rubric.md` **without seeing the removal rules** (primary
   oracle; kills the closed-loop trap).
 - **register_preservation_score** — must NOT drop while AI-ness drops.
 - **fact_invention_rate** — net-new facts vs source = MUST be 0 (hard fail if >0).
@@ -180,7 +176,7 @@ detector's JSON signal map (and a plain-language reading of the deltas).
 | `references/structural-statistical-signals.md` | Steps 2–3, structural + statistical layers. |
 | `references/human-texture.md` | Step 4, the ADD target (stance / specificity / burstiness / asymmetry). |
 | `references/academic-register.md` | Preflight + Step 5, register-preservation guard. |
-| `evals/blind-judge-rubric.md` | The independent quality oracle (and how to self-check a rewrite). |
+| `references/blind-judge-rubric.md` | The independent quality oracle (and how to self-check a rewrite). |
 
 ## Scripts
 
@@ -189,7 +185,7 @@ detector's JSON signal map (and a plain-language reading of the deltas).
 | `scripts/detect_ai_signals.py` | `python3 scripts/detect_ai_signals.py [FILE]` (or stdin); `--summary` for per-layer totals + CV; `--language en\|zh\|auto`. Returns the three-layer signal map. **DETECTS only — never rewrites.** |
 
 ## Tests
-`evals/run_detector_tests.py` — deterministic unit harness for the detector math
-(imports the core from `scripts/`, never reimplements it). Behavioral rewrite
-cases + worked examples live under `evals/` and are judged via
-`evals/blind-judge-rubric.md`.
+A deterministic unit harness covers the detector math (it imports the core from
+`scripts/`, never reimplements it); behavioral rewrite cases + worked examples are
+judged with a blind-judge rubric. The eval suite is kept in the dev repo, not the
+shipped skill.

@@ -1,9 +1,0 @@
-[
-  {"prompt": "客观评价这条耳机声音怎么样", "expected_route": "hifi-review"},
-  {"prompt": "这个 DAC 推得动我的 300 欧大耳吗", "expected_route": "hifi-review"},
-  {"prompt": "帮我翻译这张专辑的歌词", "expected_route": "out-of-scope"},
-  {"prompt": "推荐几张类似的专辑给我买", "expected_route": "out-of-scope"},
-  {"prompt": "给 Radiohead 的专辑 OK Computer 写一篇深度乐评", "expected_route": "album-review"},
-  {"prompt": "comprehensive album review of Kind of Blue by Miles Davis", "expected_route": "album-review"},
-  {"prompt": "全面评测卡拉扬指挥的贝多芬第九交响曲这张专辑", "expected_route": "album-review"}
-]

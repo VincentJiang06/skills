@@ -1,4 +1,0 @@
-<view bind:tap="openSheet">open</view>
-<open-container>
-  <view class="sheet-body">content</view>
-</open-container>

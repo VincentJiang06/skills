@@ -22,3 +22,15 @@ node_modules/
 # Reference library (cloned for study only) and local mini-program test fixture
 learning_from_the_best/
 miniprogram_test/
+
+# ─── Local-only: eval/test fixtures, dev harnesses & internal notes ───
+# GitHub ships the minimum RUNNABLE set per skill (SKILL.md + references/ rules/
+# scripts/ schemas/ assets/ agents/). Full eval suites stay on disk for dev.
+skills/*/evals/
+skills/*/tests/
+skills/*/meta/
+skills/*/legacy/
+skills/mp-groundline/scripts/validate-skill.mjs
+/experiments/
+/docs/
+/tools/vince-mp-cli/test/

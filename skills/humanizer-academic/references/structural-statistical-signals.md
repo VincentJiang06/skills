@@ -106,4 +106,4 @@ Read it as a **before/after delta**: lexical_total ↓, structural_total ↓,
 `sentence_cv` / `paragraph_cv` ↑ after a good rewrite. **Do not** treat
 "all counts == 0" as success — a robotic, uniform rewrite can have zero lexical
 hits and still fail the blind judge. The detector diagnoses; the independent blind
-judge (evals/blind-judge-rubric.md) decides.
+judge (references/blind-judge-rubric.md) decides.

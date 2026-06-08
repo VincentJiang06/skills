@@ -108,8 +108,6 @@ Methodology substrate: **[`develop-principle/`](develop-principle/)** — an age
 skills/             # install-ready skills (one folder each, with its own README)
 develop-principle/  # agent-first KB powering the pipeline
 tools/vince-mp-cli/ # Node CLI that mp-cli-sup drives
-experiments/        # research / A-B material, not install-ready
-docs/               # internal design notes & skill analysis
 ```
 
 ## Acknowledgments

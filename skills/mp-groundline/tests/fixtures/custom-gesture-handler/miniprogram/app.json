@@ -1,5 +1,0 @@
-{
-  "pages": ["pages/home/index"],
-  "window": { "navigationStyle": "custom" },
-  "renderer": "skyline"
-}

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Humanizer Academic"
-  short_description: "Humanize bilingual academic prose without losing seriousness"
-  default_prompt: "Use $humanizer-academic to rewrite this text so it keeps an academic register while reducing English and Chinese AI-writing patterns, report-shell scaffolding, and list-heavy formatting residue."

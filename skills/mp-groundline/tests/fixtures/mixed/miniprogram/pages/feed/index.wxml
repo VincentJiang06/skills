@@ -1,9 +1,0 @@
-<!-- HARD feature (grid-view, real tag) AND a workaround (box-shadow border in .less)
-     AND a camera tap-mask. The scan must classify all three correctly in one pass. -->
-<grid-view class="masonry">
-  <view wx:for="{{cards}}" wx:key="id">{{item}}</view>
-</grid-view>
-<view class="camera-wrap">
-  <camera device-position="back" flash="off"></camera>
-  <view class="tap-mask" bind:tap="onCameraTap"></view>
-</view>
