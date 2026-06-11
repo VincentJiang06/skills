@@ -82,7 +82,8 @@
       ],
       "reference_ids": [
         "ref.skilldex.package_registry",
-        "ref.skills_re.registry"
+        "ref.skills_re.registry",
+        "ref.claude_code.skills_docs"
       ]
     },
     {

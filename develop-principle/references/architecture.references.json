@@ -3,17 +3,30 @@
   "topic": "skill_architecture",
   "references": [
     {
-      "id": "ref.veso.agentic_patterns",
+      "id": "ref.anthropic.equipping_agents_skills",
       "tier": 1,
-      "title_en": "Agentic Patterns",
-      "title_zh": "Agentic Patterns：前沿 Agent 系统的通用架构模式",
-      "authors_or_org": "Veso AI Research",
-      "source_type": "engineering_research_guide",
-      "url": "https://veso.ai/research/agentic-patterns/",
-      "summary_zh": "将 agentic 系统拆成 instruction、skills、control、context、interface、operate 和 anti-patterns。对本库最有价值的是：skill 不是孤立提示词，而是整个 agent 架构中的可复用工作流单元。",
-      "summary_en": "Frames agentic systems around instructions, skills, control, context, interface, operations, and anti-patterns. It supports treating skills as reusable workflow units inside a broader agent architecture.",
-      "reuse_notes": ["design_principles", "anti_patterns", "context_budget", "operations"],
-      "reliability_notes": "Useful engineering synthesis. Treat platform-specific claims as volatile."
+      "title_en": "Equipping agents for the real world with Agent Skills",
+      "title_zh": "用 Agent Skills 武装真实世界中的 Agent",
+      "authors_or_org": "Anthropic Engineering",
+      "source_type": "official_engineering_article",
+      "url": "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills",
+      "summary_zh": "Agent Skills 的权威首发定义：skill 是把指令、脚本和资源组织成的文件夹，agent 按需发现并加载。核心设计原则是渐进披露——启动时只预载 name 与 description，命中后才读 SKILL.md，再按需读支撑文件，从而把通用 agent 变成可组合、可移植、可扩展的专用 agent，而不是把能力塞进一段长提示词。",
+      "summary_en": "Anthropic's canonical first-party definition of Agent Skills: a skill is an organized folder of instructions, scripts, and resources that an agent discovers and loads on demand. Progressive disclosure is the core principle — only name and description are preloaded, SKILL.md is read when relevant, and supporting files only as needed — turning general agents into composable, portable, scalable specialists rather than cramming capability into one long prompt.",
+      "reuse_notes": ["skill_package_model", "progressive_disclosure", "description_as_trigger", "composability"],
+      "reliability_notes": "Canonical first-party source for what an Agent Skill is; use as the definitional/principle anchor, not as quantitative proof."
+    },
+    {
+      "id": "ref.anthropic.skill_authoring_best_practices",
+      "tier": 1,
+      "title_en": "Skill authoring best practices",
+      "title_zh": "Skill 编写最佳实践",
+      "authors_or_org": "Anthropic / Claude Docs",
+      "source_type": "official_documentation",
+      "url": "https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices",
+      "summary_zh": "官方 skill 编写指南，给出可操作的判断：上下文窗口是公共资源，正文要精简；description 是 Claude 在上百个 skill 中做选择的触发依据，必须写清「何时使用」；name ≤64 字符且仅小写字母/数字/连字符，description ≤1024 字符；SKILL.md 变大时拆分为被引用的独立文件；用真实任务而非合成场景测试，并据观察到的行为迭代。",
+      "summary_en": "Official authoring guide with concrete decisions: the context window is a public good, so keep the body concise; the description is the trigger Claude uses to pick among 100+ skills and must state WHEN to use the skill; name ≤64 chars ([a-z0-9-]), description ≤1024 chars; split SKILL.md into referenced files as it grows; test with real tasks (not synthetic scenarios) and iterate from observed behavior.",
+      "reuse_notes": ["description_as_trigger", "conciseness", "progressive_disclosure", "file_organization", "real_task_testing"],
+      "reliability_notes": "First-party authoring standard; the definitive reference for description/trigger wording and skill file structure."
     },
     {
       "id": "ref.microsoft.agent_skills",

@@ -28,7 +28,8 @@
       "reference_ids": [
         "ref.anthropic.building_effective_agents",
         "ref.microsoft.agent_skills",
-        "ref.veso.agentic_patterns"
+        "ref.anthropic.equipping_agents_skills",
+        "ref.anthropic.skill_authoring_best_practices"
       ]
     },
     {

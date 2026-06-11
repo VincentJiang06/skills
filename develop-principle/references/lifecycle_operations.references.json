@@ -144,6 +144,19 @@
       "summary_en": "Shows how feature flags change behavior without redeploying code and support canary, A/B, safe degradation, context-aware evaluation, hooks, events, and audit trails.",
       "reuse_notes": ["rollout_control", "feature_flag", "audit", "runtime_switch"],
       "reliability_notes": "Feature-flag standard; adapt to skill activation and registry pointer control."
+    },
+    {
+      "id": "ref.claude_code.skills_docs",
+      "tier": 1,
+      "title_en": "Extend Claude with skills (Claude Code)",
+      "title_zh": "用 Skill 扩展 Claude（Claude Code）",
+      "authors_or_org": "Anthropic / Claude Code Docs",
+      "source_type": "official_documentation",
+      "url": "https://code.claude.com/docs/en/skills",
+      "summary_zh": "Claude Code 中 skill 如何被创建、发现、调用与加载的官方运行时文档：正文仅在使用时加载，长参考材料在未命中前几乎零成本；遵循 Agent Skills 开放标准，并在其上扩展调用控制（frontmatter 决定由你还是 Claude 触发）、子代理执行与动态上下文注入；custom commands 已并入 skills（/name），覆盖 personal/project/plugin 三种作用域。",
+      "summary_en": "Official runtime documentation for how skills are created, discovered, invoked, and loaded in Claude Code: the body loads only when used, so long reference material costs almost nothing until needed; follows the Agent Skills open standard plus Claude Code extensions — invocation control (frontmatter decides whether you or Claude triggers it), subagent execution, and dynamic context injection — with custom commands merged into skills (/name) across personal/project/plugin scopes.",
+      "reuse_notes": ["runtime_loading", "invocation_control", "subagent_execution", "skill_scopes"],
+      "reliability_notes": "First-party runtime documentation; operational source for skill discovery, invocation, and scope precedence in Claude Code."
     }
   ]
 }

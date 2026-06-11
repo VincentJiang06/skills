@@ -22,10 +22,11 @@
         "anti_pattern.prompted_architecture"
       ],
       "reference_ids": [
-        "ref.veso.agentic_patterns",
+        "ref.anthropic.equipping_agents_skills",
         "ref.microsoft.agent_skills",
         "ref.anthropic.building_effective_agents",
         "ref.anthropic.writing_tools_for_agents",
+        "ref.anthropic.skill_authoring_best_practices",
         "ref.toolformer"
       ]
     },
@@ -137,6 +138,7 @@
         "ref.skills_re.registry",
         "ref.skillsvote.lifecycle_governance",
         "ref.skilldex.package_registry",
+        "ref.claude_code.skills_docs",
         "ref.secure_agent_skills.lifecycle_threats",
         "ref.opentelemetry.genai_agent_spans",
         "ref.openai.agents_tracing",
@@ -188,6 +190,8 @@
         "pillar.design"
       ],
       "reference_ids": [
+        "ref.anthropic.equipping_agents_skills",
+        "ref.anthropic.skill_authoring_best_practices",
         "ref.sok.agentic_skills",
         "ref.skillsbench",
         "ref.anthropic.context_engineering",
@@ -314,7 +318,8 @@
         "doc.architecture.industrial_skill_design"
       ],
       "reference_ids": [
-        "ref.veso.agentic_patterns"
+        "ref.anthropic.equipping_agents_skills",
+        "ref.anthropic.building_effective_agents"
       ]
     },
     "concept.execution_protocol": {
@@ -801,7 +806,8 @@
       ],
       "reference_ids": [
         "ref.skilldex.package_registry",
-        "ref.skills_re.registry"
+        "ref.skills_re.registry",
+        "ref.claude_code.skills_docs"
       ]
     },
     "pillar.design": {
@@ -822,7 +828,8 @@
       "reference_ids": [
         "ref.anthropic.building_effective_agents",
         "ref.microsoft.agent_skills",
-        "ref.veso.agentic_patterns"
+        "ref.anthropic.equipping_agents_skills",
+        "ref.anthropic.skill_authoring_best_practices"
       ]
     },
     "pillar.kb_architecture": {

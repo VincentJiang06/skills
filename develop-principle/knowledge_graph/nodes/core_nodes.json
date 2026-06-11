@@ -784,7 +784,8 @@
         "doc.architecture.industrial_skill_design"
       ],
       "reference_ids": [
-        "ref.veso.agentic_patterns"
+        "ref.anthropic.equipping_agents_skills",
+        "ref.anthropic.building_effective_agents"
       ]
     },
     {

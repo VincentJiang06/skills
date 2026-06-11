@@ -18,10 +18,10 @@
     "json_template_files": 7,
     "nodes": 57,
     "edges": 50,
-    "references": 117,
+    "references": 119,
     "metrics": 18,
     "template_contracts": 7,
-    "search_tokens": 16155,
+    "search_tokens": 16636,
     "route_goals": 7,
     "route_query_cases": 27,
     "compact_query_limit": 12,
@@ -57,7 +57,7 @@
       "technique": 3
     },
     "reference_tiers": {
-      "tier_1": 60,
+      "tier_1": 62,
       "tier_2": 40,
       "tier_3": 14,
       "tier_4": 3
@@ -86,9 +86,9 @@
       "doc.testing.tdd_for_skill_development"
     ],
     "long_docs_without_node_reference": [],
-    "references_used_by_nodes": 62,
-    "references_used_outside_reference_db": 117,
-    "references_total": 117,
+    "references_used_by_nodes": 64,
+    "references_used_outside_reference_db": 119,
+    "references_total": 119,
     "references_without_external_use": []
   },
   "quality_gates": {
@@ -186,7 +186,7 @@
         "required": true,
         "passed": true,
         "metric_path": "counts.search_tokens",
-        "actual": 16155,
+        "actual": 16636,
         "expected": 1000
       }
     ]

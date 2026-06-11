@@ -17,7 +17,8 @@
         "doc.architecture.industrial_skill_design"
       ],
       "references": [
-        "ref.veso.agentic_patterns"
+        "ref.anthropic.equipping_agents_skills",
+        "ref.anthropic.building_effective_agents"
       ],
       "parents": [
         "pillar.design"
@@ -852,7 +853,8 @@
       ],
       "references": [
         "ref.skilldex.package_registry",
-        "ref.skills_re.registry"
+        "ref.skills_re.registry",
+        "ref.claude_code.skills_docs"
       ],
       "parents": [
         "pillar.lifecycle"
@@ -892,7 +894,8 @@
       "references": [
         "ref.anthropic.building_effective_agents",
         "ref.microsoft.agent_skills",
-        "ref.veso.agentic_patterns"
+        "ref.anthropic.equipping_agents_skills",
+        "ref.anthropic.skill_authoring_best_practices"
       ],
       "parents": [],
       "children": [
