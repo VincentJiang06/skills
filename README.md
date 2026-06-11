@@ -91,6 +91,12 @@ Each skill: **what it does** + **why it's good**.
 - **[low-visibility-fix](skills/low-visibility-fix/)** — Audits field mobile UI (low light, glare, gloves) and hands back an implementer-ready fix-plan doc set; never edits the target. *Edge:* deterministic analyzer + bounded visual pass; scopeable to a single page for cheap re-runs; clean audit-vs-apply separation.
 - **[mp-cli-sup](skills/mp-cli-sup/)** — Debugs a *live* WeChat Mini Program through the `vince-mp` CLI. *Edge:* one persistent session → instant reused-connection commands with stable element uids; camera-less scan; a real `doctor` (tsc + .js freshness); client↔backend error correlation by requestId.
 
+### Coding discipline
+
+Day-to-day engineering discipline — auto-triggered as you build.
+
+- **[test-driven-development](skills/test-driven-development/)** — TDD for *non-trivial* behavior: write or update a failing test first, watch it fail once per feature-group, then write minimal code to pass — the suite is a *living spec* of the current target. *Edge:* a discriminative right-size gate that fixes over-triggering (engages on real logic / bugfix / behavior-change; skips renames, config-constants, spikes, generated code, docs); a **modify mode** that edits / merges / deletes over add (one test per feature-group, no proliferation); delegates inventory, test-runs, and stale-scans to subagents. Installs as `vince-tdd`.
+
 ### The skill-building pipeline
 
 Skills that build skills — run the conductor for the whole loop, or any stage alone.
