@@ -96,6 +96,7 @@ Each skill: **what it does** + **why it's good**.
 Day-to-day engineering discipline — auto-triggered as you build.
 
 - **[test-driven-development](skills/test-driven-development/)** — TDD for *non-trivial* behavior: write or update a failing test first, watch it fail once per feature-group, then write minimal code to pass — the suite is a *living spec* of the current target. *Edge:* a discriminative right-size gate that fixes over-triggering (engages on real logic / bugfix / behavior-change; skips renames, config-constants, spikes, generated code, docs); a **modify mode** that edits / merges / deletes over add (one test per feature-group, no proliferation); delegates inventory, test-runs, and stale-scans to subagents. Installs as `vince-tdd`.
+- **[neat](skills/neat/)** — End-of-session knowledge-base cleanup with OCD rigor: reconciles docs (CLAUDE.md/AGENTS.md, README, docs/) and cross-session agent memory against the code so nothing rots — cross-platform (Claude Code / Codex / OpenCode / OpenClaw). *Edge:* a deterministic anti-bloat/anti-rot linter (`kb_audit.mjs`) gates "sync complete" on machine-checkable HARD evidence — MEMORY.md byte/line ceilings, relative-time leakage, memory-vs-docs size inversion, broken index links; a memory→docs "graduation" valve against index bloat; thin-orchestrator SKILL.md (16.6% always-loaded, the rest on-demand). Installs as `vince-neat`.
 
 ### The skill-building pipeline
 
