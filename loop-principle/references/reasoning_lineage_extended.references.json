@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "reasoning_lineage_extended",
+  "references": [
+    {
+      "id": "ref.chen.self_debug",
+      "tier": 1,
+      "title_en": "Teaching Large Language Models to Self-Debug",
+      "title_zh": "教大语言模型自我调试",
+      "authors_or_org": "Xinyun Chen, Maxwell Lin, Nathanael Schärli, Denny Zhou (Google DeepMind)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2304.05128",
+      "summary_zh": "Self-Debugging 通过少样本示例教 LLM 调试自己生成的代码：在无正确性反馈/报错时靠\"橡皮鸭式\"自然语言解释代码来发现错误；在有单元测试时利用反馈消息和复用失败预测，把基准提升至 SOTA(MBPP/TransCoder 最多 +12%，Spider 难题 +9%)，且样本效率显著提升(可媲美 10× 候选生成)。这是 coding-agent loop 中 verify→fix 这一最关键环路的奠基论文——明确了\"用执行/测试反馈驱动迭代修复\"以及\"复用失败而非盲目重采\"两条核心循环设计原则。",
+      "summary_en": "Self-Debugging teaches an LLM via few-shot demonstrations to debug its own generated code: with no correctness feedback or error messages it finds bugs by rubber-duck explaining the code in natural language; with unit tests it leverages feedback messages and reuses failed predictions, reaching SOTA (up to +12% on MBPP/TransCoder, +9% on hardest Spider problems) with markedly better sample efficiency (matching 10x candidate generation). A foundational paper for the verify→fix loop at the heart of coding agents — it establishes execution/test feedback as the iteration driver and reusing failures over blind resampling as core loop-design principles.",
+      "reuse_notes": [
+        "verify_fix_loop",
+        "test_feedback_iteration",
+        "reuse_failures",
+        "sample_efficiency"
+      ],
+      "reliability_notes": "Primary source, ICLR 2024; directly about the iterate-on-failing-tests loop central to coding agents — very high relevance."
+    },
+    {
+      "id": "ref.wang.plan_and_solve",
+      "tier": 2,
+      "title_en": "Plan-and-Solve Prompting: Improving Zero-Shot Chain-of-Thought Reasoning by Large Language Models",
+      "title_zh": "先规划后求解提示：提升大语言模型的零样本思维链推理",
+      "authors_or_org": "Lei Wang, Wanyu Xu, Yihuai Lan, Zhiqiang Hu, Yunshi Lan, Roy Ka-Wei Lee, Ee-Peng Lim (Singapore Management University et al.)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2305.04091",
+      "summary_zh": "Plan-and-Solve(PS)提示把零样本推理拆成两步——先制定计划把任务分解为子任务，再按计划逐步执行——以缓解 Zero-shot-CoT 的计算错误、漏步、语义误解三类缺陷，无需示例即超越 Zero-shot-CoT。对 loop 工程的价值在于它把\"先 plan 再 act\"显式分离为两个阶段，是\"显式规划阶段优于一气呵成\"这一 agent loop 设计原则的早期零样本证据。",
+      "summary_en": "Plan-and-Solve (PS) prompting splits zero-shot reasoning into two stages — first devise a plan that decomposes the task into subtasks, then carry out the subtasks per the plan — mitigating Zero-shot-CoT's calculation, missing-step, and semantic-misunderstanding errors without exemplars. Its value to loop engineering is making the plan-then-act separation explicit, an early zero-shot demonstration that an explicit planning phase beats one-shot execution.",
+      "reuse_notes": [
+        "explicit_plan_phase",
+        "task_decomposition",
+        "zero_shot_planning"
+      ],
+      "reliability_notes": "Primary source, ACL 2023; solid empirical paper, moderate scope."
+    },
+    {
+      "id": "ref.wang.self_consistency",
+      "tier": 2,
+      "title_en": "Self-Consistency Improves Chain of Thought Reasoning in Language Models",
+      "title_zh": "自洽性提升语言模型的思维链推理",
+      "authors_or_org": "Xuezhi Wang, Jason Wei, Dale Schuurmans, Quoc Le, Ed Chi, Sharan Narang, Aakanksha Chowdhery, Denny Zhou (Google Research)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2203.11171",
+      "summary_zh": "用自洽性(self-consistency)替代贪婪解码：采样多条不同推理路径，再对答案做边缘化投票取最一致者，在 GSM8K(+17.9%)等多个基准上大幅提升。对 loop 工程的意义在于它是最早把\"多次采样 + 聚合裁决\"形式化的工作——即用冗余与投票来近似一个验证信号，正是\"无外部 verifier 时如何判断该停/该信哪一个\"这一停止/裁决问题的早期答案。",
+      "summary_en": "Replaces greedy decoding with self-consistency: sample multiple diverse reasoning paths and marginalize over them to vote for the most consistent answer, yielding large gains (e.g. GSM8K +17.9%). For loop engineering it is the earliest formalization of sample-many-then-aggregate as a stand-in verification signal — an early answer to the stop/adjudicate question of which output to trust when no external verifier exists.",
+      "reuse_notes": [
+        "sampling_aggregation",
+        "verification_proxy",
+        "adjudication_signal"
+      ],
+      "reliability_notes": "Primary source, ICLR 2023, very highly cited; canonical decoding technique."
+    },
+    {
+      "id": "ref.wang.voyager",
+      "tier": 1,
+      "title_en": "Voyager: An Open-Ended Embodied Agent with Large Language Models",
+      "title_zh": "Voyager：基于大语言模型的开放式具身智能体",
+      "authors_or_org": "Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Mandlekar, Chaowei Xiao, Yuke Zhu, Linxi Fan, Anima Anandkumar (NVIDIA, Caltech, UT Austin, ASU)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2305.16291",
+      "summary_zh": "Voyager 是首个 LLM 驱动的终身学习具身智能体(Minecraft)，由三部分组成：最大化探索的自动课程、不断增长的可执行代码技能库、以及一个把环境反馈/执行错误/自验证纳入其中的迭代提示机制以改进程序。对 loop 工程极具启发：它的核心就是一个\"写代码→在环境里执行→拿报错与自验证做反馈→迭代修正→把成功技能存库复用\"的自治循环，正是把执行反馈与可复用技能库引入 coding-agent loop 的奠基实例。",
+      "summary_en": "Voyager is the first LLM-powered lifelong-learning embodied agent (Minecraft), built from three parts: an automatic curriculum maximizing exploration, an ever-growing library of executable-code skills, and an iterative prompting mechanism that folds in environment feedback, execution errors, and self-verification to refine programs. Highly instructive for loop engineering: its core is an autonomous write-code → execute-in-environment → use-errors-and-self-verification-as-feedback → iterate → store-and-reuse-successful-skills loop — a foundational instance of bringing execution feedback and a reusable skill library into a coding-agent loop.",
+      "reuse_notes": [
+        "iterative_code_refinement",
+        "execution_feedback_loop",
+        "skill_library_reuse",
+        "self_verification"
+      ],
+      "reliability_notes": "Primary source, widely cited; first-party project with code. Core loop mechanics map cleanly onto coding-agent harnesses."
+    },
+    {
+      "id": "ref.wei.chain_of_thought",
+      "tier": 2,
+      "title_en": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+      "title_zh": "思维链提示激发大语言模型的推理能力",
+      "authors_or_org": "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed Chi, Quoc Le, Denny Zhou (Google Research)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2201.11903",
+      "summary_zh": "提出思维链(CoT)提示：让模型在给出答案前生成一串中间推理步骤，在算术、常识、符号推理任务上大幅提升大模型(~100B+)表现。这是 agent loop 中\"plan/think\"阶段最根本的原语——一个 loop 之所以能规划、能把推理产物当作可检查的中间产物，源头就是 CoT 把隐式推理外化为可观察、可验证的文本步骤。",
+      "summary_en": "Introduces chain-of-thought (CoT) prompting: have the model emit a series of intermediate reasoning steps before the final answer, sharply improving arithmetic/commonsense/symbolic reasoning on large (~100B+) models. CoT is the foundational primitive for the plan/think phase of any agent loop — it externalizes implicit reasoning into observable, inspectable intermediate steps, which is precisely what makes a loop's plan stage legible and verifiable.",
+      "reuse_notes": [
+        "plan_phase_primitive",
+        "reasoning_lineage_root",
+        "intermediate_step_legibility"
+      ],
+      "reliability_notes": "Primary source, foundational NeurIPS 2022 paper, extremely highly cited; canonical."
+    },
+    {
+      "id": "ref.yao.tree_of_thoughts",
+      "tier": 1,
+      "title_en": "Tree of Thoughts: Deliberate Problem Solving with Large Language Models",
+      "title_zh": "思维树：用大语言模型进行深思熟虑的问题求解",
+      "authors_or_org": "Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas L. Griffiths, Yuan Cao, Karthik Narasimhan (Princeton & Google DeepMind)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2305.10601",
+      "summary_zh": "思维树(ToT)把 CoT 从单条线性链推广为可搜索的树：模型生成多个\"想法\"作为中间状态，对每个状态自评价，并能前瞻、回溯做全局选择(Game of 24 上 GPT-4 从 CoT 的 4% 升到 74%)。这是 loop 工程的核心范式之一——它把\"plan-act-verify-iterate\"显式建模为带自评估与回溯的搜索过程，直接对应一个能在死路上退回、重选分支的自治循环控制器。",
+      "summary_en": "Tree of Thoughts (ToT) generalizes CoT from a single linear chain into a searchable tree: the model generates multiple candidate thoughts as intermediate states, self-evaluates each, and can look ahead and backtrack for global choices (Game of 24: GPT-4 jumps from 4% under CoT to 74%). A core loop-engineering paradigm — it explicitly models plan-act-verify-iterate as search with self-evaluation and backtracking, the blueprint for a controller that can abandon dead ends and re-pick branches.",
+      "reuse_notes": [
+        "search_over_plans",
+        "self_evaluation",
+        "backtracking_controller"
+      ],
+      "reliability_notes": "Primary source, NeurIPS 2023, highly cited; defines a major loop/search paradigm."
+    },
+    {
+      "id": "ref.zhou.language_agent_tree_search",
+      "tier": 1,
+      "title_en": "Language Agent Tree Search Unifies Reasoning, Acting, and Planning in Language Models",
+      "title_zh": "语言智能体树搜索：统一语言模型的推理、行动与规划",
+      "authors_or_org": "Andy Zhou, Kai Yan, Michal Shlapentokh-Rothman, Haohan Wang, Yu-Xiong Wang (UIUC)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2310.04406",
+      "summary_zh": "LATS 是首个把推理、行动、规划统一起来的通用框架：用蒙特卡洛树搜索(MCTS)组织 agent 的行动，配以 LM 价值函数、自反思与来自环境的外部反馈，在编程(HumanEval pass@1 92.7%)、问答、网页导航等任务上达到 SOTA。这是 loop 工程最完整的学术原型之一——它把 ReAct 式行动、Reflexion 式自反思与基于环境反馈的树搜索缝合成一个带价值估计与回溯的自治循环，正是\"如何用外部信号引导多步搜索并决定何时停\"的范本。",
+      "summary_en": "LATS is the first general framework unifying reasoning, acting, and planning: it organizes an agent's actions with Monte Carlo Tree Search (MCTS), augmented by LM value functions, self-reflection, and external environment feedback, reaching SOTA on programming (HumanEval pass@1 92.7%), QA, and web navigation. One of the most complete academic prototypes of loop engineering — it stitches ReAct-style acting, Reflexion-style self-reflection, and environment-grounded tree search into an autonomous loop with value estimation and backtracking, a template for using external signals to guide multi-step search and decide when to stop.",
+      "reuse_notes": [
+        "mcts_agent_loop",
+        "value_guided_search",
+        "environment_feedback",
+        "reasoning_acting_unified"
+      ],
+      "reliability_notes": "Primary source, ICML 2024; directly synthesizes the ReAct/Reflexion lineage into a search loop — high relevance."
+    },
+    {
+      "id": "ref.zhou.least_to_most",
+      "tier": 2,
+      "title_en": "Least-to-Most Prompting Enables Complex Reasoning in Large Language Models",
+      "title_zh": "由少到多提示使大语言模型具备复杂推理能力",
+      "authors_or_org": "Denny Zhou, Nathanael Schärli, Le Hou, Jason Wei, Nathan Scales, Xuezhi Wang, Dale Schuurmans, Claire Cui, Olivier Bousquet, Quoc Le, Ed Chi (Google Research)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2205.10625",
+      "summary_zh": "由少到多(least-to-most)提示把复杂问题分解为一串子问题，并按顺序求解——每个子问题的求解可复用此前子问题的答案，从而泛化到比示例更难的实例(SCAN 上 99.7%)。这是 agent loop 中\"分解 + 顺序求解、后一步消费前一步输出\"这一管线结构的奠基性论文，直接对应把一个大任务拆成可逐轮验证的小步骤的循环设计。",
+      "summary_en": "Least-to-most prompting decomposes a complex problem into a sequence of subproblems solved in order, where each subproblem's solution reuses answers from earlier ones, enabling generalization to instances harder than the exemplars (99.7% on SCAN). A foundational paper for the decompose-then-solve-sequentially pipeline where each step consumes the prior step's output — directly the loop design of breaking a large task into per-iteration verifiable sub-steps.",
+      "reuse_notes": [
+        "sequential_decomposition",
+        "output_chaining",
+        "compositional_generalization"
+      ],
+      "reliability_notes": "Primary source, ICLR 2023, highly cited; canonical decomposition method."
+    }
+  ]
+}

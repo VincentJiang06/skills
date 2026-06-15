@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "edges": [
+    {"id": "edge.canonical.extends_to_epic", "source_id": "procedure.canonical_loop", "target_id": "procedure.explore_plan_implement_commit", "type": "extends"},
+    {"id": "edge.epic.uses_separation", "source_id": "procedure.explore_plan_implement_commit", "target_id": "principle.separate_planning_from_execution", "type": "uses"},
+    {"id": "edge.separation.mitigates_wronggoal", "source_id": "principle.separate_planning_from_execution", "target_id": "anti_pattern.diligent_wrong_goal", "type": "mitigates"},
+    {"id": "edge.check.uses_spectrum", "source_id": "principle.closed_loop_needs_a_check", "target_id": "concept.feedback_signal_spectrum", "type": "uses"},
+    {"id": "edge.check.requires_dod", "source_id": "principle.closed_loop_needs_a_check", "target_id": "principle.machine_verifiable_dod", "type": "uses"},
+    {"id": "edge.dod.mitigates_wronggoal", "source_id": "principle.machine_verifiable_dod", "target_id": "anti_pattern.diligent_wrong_goal", "type": "mitigates"},
+    {"id": "edge.retry.needs_stopgate", "source_id": "pattern.retry_loop", "target_id": "procedure.stop_gate", "type": "depends_on"},
+    {"id": "edge.review.uses_makerchecker", "source_id": "pattern.review_loop", "target_id": "principle.maker_checker_separation", "type": "uses"},
+    {"id": "edge.bottleneck.supports_observability", "source_id": "concept.verification_bottleneck", "target_id": "pattern.production_observability_loop", "type": "supports"},
+    {"id": "edge.spectrum.tops_observability", "source_id": "concept.feedback_signal_spectrum", "target_id": "pattern.production_observability_loop", "type": "contains"},
+    {"id": "edge.hitl.supports_placement", "source_id": "pattern.human_in_the_loop", "target_id": "principle.human_on_vs_in_loop", "type": "supports"}
+  ]
+}

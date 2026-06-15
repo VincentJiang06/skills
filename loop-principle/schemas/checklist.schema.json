@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.dev/develop-principle/schemas/checklist.schema.json",
+  "title": "Develop Principle Checklist",
+  "type": "object",
+  "required": ["schema_version", "checklist_id", "title_zh", "title_en", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "checklist_id": {"type": "string"},
+    "title_zh": {"type": "string"},
+    "title_en": {"type": "string"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "required"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "required": {"type": "boolean"},
+          "check_zh": {"type": "string"},
+          "check_en": {"type": "string"},
+          "question_zh": {"type": "string"},
+          "question_en": {"type": "string"}
+        }
+      }
+    },
+    "reference_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

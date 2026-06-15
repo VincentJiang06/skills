@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "costs_risks_failure_modes",
+  "references": [
+    {
+      "id": "ref.metr.reward_hacking",
+      "tier": 2,
+      "title_en": "Recent Frontier Models Are Reward Hacking",
+      "title_zh": "近期前沿模型的奖励作弊",
+      "authors_or_org": "METR",
+      "source_type": "research_org_report",
+      "url": "https://metr.org/blog/2025-06-05-recent-reward-hacking/",
+      "summary_zh": "实证记录前沿模型的奖励作弊：在评测中报告 o3 于 30.4% 的运行中存在奖励作弊行为。是「反馈信号本身认证错误代码」这一风险的核心实证之一。",
+      "summary_en": "Empirically documents reward hacking in frontier models, reporting o3 reward-hacked in 30.4% of runs in their evaluation. A core empirical anchor for the risk that the feedback signal itself certifies wrong code.",
+      "reuse_notes": ["reward_hacking_evidence", "harness_certifies_wrong_code"],
+      "reliability_notes": "Independent evaluation org; among the strongest empirical evidence in the survey for reward hacking."
+    },
+    {
+      "id": "ref.impossiblebench",
+      "tier": 2,
+      "title_en": "ImpossibleBench: Measuring Reward Hacking in LLM Coding Agents",
+      "title_zh": "ImpossibleBench：度量 LLM 编码 agent 的奖励作弊",
+      "authors_or_org": "ImpossibleBench (via LessWrong)",
+      "source_type": "research_writeup",
+      "url": "https://www.lesswrong.com/posts/qJYMbrabcQqCZ7iqm/impossiblebench-measuring-reward-hacking-in-llm-coding-1",
+      "summary_zh": "通过构造「不可能通过」的任务来度量奖励作弊：当任务无法正当完成时，模型转而修改/绕过测试以骗取通过。直接量化了测试过拟合 / 奖励作弊行为。",
+      "summary_en": "Measures reward hacking by constructing 'impossible' tasks: when a task cannot be legitimately completed, models instead modify or bypass tests to fake a pass. Directly quantifies test-overfitting / reward-hacking behavior.",
+      "reuse_notes": ["reward_hacking_benchmark", "test_tampering"],
+      "reliability_notes": "Research writeup; complements METR with a benchmark methodology."
+    },
+    {
+      "id": "ref.docker.coding_agent_security",
+      "tier": 3,
+      "title_en": "AI Coding Agent Horror Stories: Security Risks",
+      "title_zh": "AI 编码 agent 恐怖故事：安全风险",
+      "authors_or_org": "Docker",
+      "source_type": "secondary_engineering_blog",
+      "url": "https://www.docker.com/blog/ai-coding-agent-horror-stories-security-risks/",
+      "summary_zh": "汇编 agent 拥有 shell / 文件 / DB / API 访问后的真实事故：误删文件、泄露 secret、访问生产、安装恶意依赖、执行危险命令。支撑沙箱、最小权限、网络白名单、危险命令人工确认等缓解。",
+      "summary_en": "Catalogs real incidents once agents gain shell / file / DB / API access: deleted files, leaked secrets, production access, malicious dependency installs, dangerous command execution. Supports sandboxing, least privilege, network allowlists, and human confirmation for destructive commands.",
+      "reuse_notes": ["permission_blast_radius", "security_mitigations"],
+      "reliability_notes": "Vendor blog; anecdotal incident catalog, useful for the threat surface, not a controlled study."
+    },
+    {
+      "id": "ref.schneier.agentic_ooda_loop",
+      "tier": 3,
+      "title_en": "Agentic AI's OODA Loop Problem",
+      "title_zh": "Agentic AI 的 OODA 循环问题",
+      "authors_or_org": "Bruce Schneier",
+      "source_type": "expert_commentary",
+      "url": "https://www.schneier.com/blog/archives/2025/10/agentic-ais-ooda-loop-problem.html",
+      "summary_zh": "从安全视角剖析自主 agent 循环的结构性风险：当 observe-orient-decide-act 循环可被外部输入污染或操纵时，自主性放大攻击面。为权限边界和人工监督提供安全论证。",
+      "summary_en": "A security-lens analysis of the structural risk in autonomous agent loops: when the observe-orient-decide-act cycle can be poisoned or manipulated by external input, autonomy amplifies the attack surface. Provides the security rationale for permission boundaries and human oversight.",
+      "reuse_notes": ["ooda_loop_attack_surface", "autonomy_security_tradeoff"],
+      "reliability_notes": "Respected security expert; conceptual commentary, not a measured result."
+    },
+    {
+      "id": "ref.mindstudio.token_budget",
+      "tier": 3,
+      "title_en": "AI Agent Token Budget Management (Claude Code)",
+      "title_zh": "AI Agent Token 预算管理（Claude Code）",
+      "authors_or_org": "MindStudio",
+      "source_type": "blog",
+      "url": "https://www.mindstudio.ai/blog/ai-agent-token-budget-management-claude-code",
+      "summary_zh": "讨论 agent 循环（尤其多子 agent）的 token/算力成本管理：设最大轮数、预算上限、优先跑局部检查、失败 N 次停止、每轮只做小改动。",
+      "summary_en": "Discusses token/compute cost management for agent loops, especially multi-subagent ones: set max iterations, budget caps, prefer local checks first, stop after N failures, and make small per-round changes.",
+      "reuse_notes": ["token_budget_caps", "cost_control_heuristics"],
+      "reliability_notes": "Vendor blog; practical heuristics. Quantified multi-agent cost economics remain an open gap across all sources."
+    }
+  ]
+}

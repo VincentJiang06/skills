@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "harness_feedback_observability",
+  "references": [
+    {
+      "id": "ref.anthropic.claude_code_best_practices",
+      "tier": 1,
+      "title_en": "Claude Code Best Practices",
+      "title_zh": "Claude Code 最佳实践",
+      "authors_or_org": "Anthropic / Claude Code Docs",
+      "source_type": "official_documentation",
+      "url": "https://code.claude.com/docs/en/best-practices",
+      "summary_zh": "本调研中被交叉印证最多的来源。核心：「没有可运行的检查时，『看起来完成了』是唯一信号，你就成了验证循环……给 Claude 一个能产出 pass/fail 的东西，循环就自己闭合了。」推荐四阶段 Explore→Plan→Implement→Commit，并明确分离规划与执行「以免解决错误的问题」。规定 Stop hook 作为确定性闸门，但连续 8 次阻塞后 Claude Code 会覆盖并结束。还规定对抗式审查子 agent：在全新上下文中只看 diff 和验收标准，且只标记影响正确性/既定需求的缺口以避免过度工程。",
+      "summary_en": "The most cross-corroborated source in this research. Core: 'Without a check it can run, looks done is the only signal available, and you become the verification loop… Give Claude something that produces a pass or fail, and the loop closes on its own.' Recommends the four-phase Explore→Plan→Implement→Commit and explicitly separates planning from execution 'to avoid solving the wrong problem.' Specifies a Stop hook as a deterministic gate, overridden after 8 consecutive blocks. Prescribes an adversarial reviewer subagent that sees only the diff and criteria in a fresh context, flagging only correctness/stated-requirement gaps to avoid over-engineering.",
+      "reuse_notes": ["closed_loop_needs_a_check", "explore_plan_implement_commit", "separate_planning_from_execution", "stop_gate_8_block_cap", "adversarial_review_subagent"],
+      "reliability_notes": "First-party live docs; load-bearing for most verified findings. Version-dependent (e.g. the '8 consecutive blocks' cap may change)."
+    },
+    {
+      "id": "ref.anthropic.claude_code_hooks",
+      "tier": 1,
+      "title_en": "Hooks reference (Claude Code)",
+      "title_zh": "Hooks 参考（Claude Code）",
+      "authors_or_org": "Anthropic / Claude Code Docs",
+      "source_type": "official_documentation",
+      "url": "https://code.claude.com/docs/en/hooks",
+      "summary_zh": "Hooks 是把建议（可被忽略）变成强制（由 harness 执行）的确定性粘合层。可定义 shell 命令 / HTTP / LLM prompt，在 Claude Code 生命周期的特定点自动执行；事件可发生在 session、turn，或 agentic loop 内每次工具调用前后。Stop hook 以退出码 2 阻止停止、继续对话。",
+      "summary_en": "Hooks are the deterministic glue that turns advisory (ignorable) into enforced (executed by the harness). Define shell commands / HTTP endpoints / LLM prompts that fire at lifecycle points — session, turn, or before/after each tool call inside the agentic loop. A Stop hook with exit code 2 prevents stopping and continues the conversation.",
+      "reuse_notes": ["hooks_as_deterministic_gate", "lifecycle_event_points"],
+      "reliability_notes": "First-party reference. The standalone page does not restate the specific '8 blocks' number; that lives on the best-practices page."
+    },
+    {
+      "id": "ref.anthropic.agent_skills",
+      "tier": 3,
+      "title_en": "Equipping agents for the real world with Agent Skills",
+      "title_zh": "用 Agent Skills 武装真实世界中的 Agent",
+      "authors_or_org": "Anthropic Engineering",
+      "source_type": "official_engineering_article",
+      "url": "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills",
+      "summary_zh": "把成功方法和常见错误捕获进可复用的 context 与 code（skills），作为循环的知识记忆层。安全提醒：skills 因含指令和代码，可能引入漏洞或诱导数据外泄，应只从可信来源安装并审计。",
+      "summary_en": "Capture successful methods and common errors into reusable context and code (skills) as the loop's knowledge-memory layer. Security caveat: because skills contain instructions and code, they can introduce vulnerabilities or induce data exfiltration, so install only from trusted sources and audit them.",
+      "reuse_notes": ["skill_as_memory", "skill_security_audit"],
+      "reliability_notes": "First-party. Dual use as both a memory mechanism and a security-risk source."
+    },
+    {
+      "id": "ref.datadog.harness_first_agents",
+      "tier": 1,
+      "title_en": "Harness-first agents: Closing the verification loop",
+      "title_zh": "Harness 优先的 agent：闭合验证循环",
+      "authors_or_org": "Datadog Engineering",
+      "source_type": "official_engineering_article",
+      "url": "https://www.datadoghq.com/blog/ai/harness-first-agents/",
+      "summary_zh": "提出瓶颈已从写代码转向验证/信任代码：「AI agent 现在产出软件的速度已超过任何团队能验证的速度。瓶颈从写代码转移到信任所写的代码。」于是 code review 变成「布隆过滤器——一道快速闸门，而非正确性来源」。主张生产可观测性闭合验证循环（争议点：可观测性平台 vs harness 谁是控制层）。",
+      "summary_en": "Argues the bottleneck moved from writing to verifying/trusting code: 'AI agents can now produce software faster than any team can verify it. The bottleneck has moved from writing code to trusting what was written.' So 'code reviews become bloom filters — a fast gate, not the source of correctness.' Argues production observability closes the verification loop (contested: observability platform vs harness as the control layer).",
+      "reuse_notes": ["verification_bottleneck", "review_as_bloom_filter", "production_observability_loop"],
+      "reliability_notes": "First-party engineering blog; the writing→trusting premise is an industry consensus (Sonar, AWS, OpenAI, Anthropic). Vendor self-interest attaches to its observability product — the 'observability as control layer' line is the most marketing-flavored and drew split (2-1) verification votes."
+    },
+    {
+      "id": "ref.oreilly.agent_harness_engineering",
+      "tier": 2,
+      "title_en": "Agent Harness Engineering",
+      "title_zh": "Agent Harness 工程",
+      "authors_or_org": "O'Reilly Radar",
+      "source_type": "industry_analysis",
+      "url": "https://www.oreilly.com/radar/agent-harness-engineering/",
+      "summary_zh": "对 harness 工程的独立分析，补充 OpenAI/Anthropic 的第一方说法，讨论脚手架、反馈循环与工具集成如何决定 agent 可靠性。",
+      "summary_en": "Independent analysis of harness engineering that complements the OpenAI/Anthropic first-party accounts, discussing how scaffolding, feedback loops, and tool integration determine agent reliability.",
+      "reuse_notes": ["harness_independent_view"],
+      "reliability_notes": "Reputable third-party analysis; not a primary account of any one team's harness."
+    }
+  ]
+}

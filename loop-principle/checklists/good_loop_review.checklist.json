@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "checklist_id": "checklist.good_loop_review",
+  "title_zh": "好循环审查清单",
+  "title_en": "Good Loop Review Checklist",
+  "items": [
+    {"id": "loop.goal", "question_zh": "目标是否单一、清晰、可机器验证？", "question_en": "Is the goal single, clear, and machine-verifiable?", "required": true},
+    {"id": "loop.check", "question_zh": "是否有一个产出 pass/fail 的快速检查让循环自主闭合？", "question_en": "Is there a fast pass/fail check that closes the loop on its own?", "required": true},
+    {"id": "loop.context", "question_zh": "agent 是否获得足够上下文（代码、约定、约束）？", "question_en": "Does the agent get sufficient context (code, conventions, constraints)?", "required": true},
+    {"id": "loop.small_steps", "question_zh": "每步是否足够小且有反馈，而不是一次大跳？", "question_en": "Are steps small with per-step feedback rather than one big jump?", "required": true},
+    {"id": "loop.strategy_change", "question_zh": "失败时是否换策略而非机械撞墙？", "question_en": "Does it change strategy on failure rather than head-bang?", "required": true},
+    {"id": "loop.caps", "question_zh": "是否设有最大轮数和 token/成本预算？", "question_en": "Are max-iterations and a token/cost budget set?", "required": true},
+    {"id": "loop.rollback", "question_zh": "工作是否可回滚（worktree/分支）？", "question_en": "Is the work reversible (worktree/branch)?", "required": true},
+    {"id": "loop.checker", "question_zh": "checker 是否独立于 maker（全新上下文、只看 diff+标准）？", "question_en": "Is the checker separate from the maker (fresh context, diff+criteria only)?", "required": true},
+    {"id": "loop.state", "question_zh": "状态是否外置以在上下文重置后存活？", "question_en": "Is state externalized so it survives context resets?", "required": true},
+    {"id": "loop.audit", "question_zh": "是否产出可审计的最终总结（根因、改动、检查、结果、剩余风险）？", "question_en": "Does it produce an auditable final summary (root cause, changes, checks, results, residual risk)?", "required": true}
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.dev/loop-principle/schemas/metric.schema.json",
+  "title": "Skill Metric Definition",
+  "type": "object",
+  "required": ["id", "group", "title_zh", "title_en", "definition_zh", "definition_en", "formula", "inputs", "interpretation", "failure_modes", "reference_ids"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "pattern": "^metric\\.[a-z0-9_\\.]+$"},
+    "group": {"type": "string"},
+    "title_zh": {"type": "string"},
+    "title_en": {"type": "string"},
+    "definition_zh": {"type": "string"},
+    "definition_en": {"type": "string"},
+    "formula": {"type": "string"},
+    "inputs": {"type": "array", "items": {"type": "string"}},
+    "interpretation": {"type": "string"},
+    "failure_modes": {"type": "array", "items": {"type": "string"}},
+    "reference_ids": {"type": "array", "items": {"type": "string"}}
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.multi_agent_plan",
+  "title_zh": "多 agent 循环计划",
+  "title_en": "Multi-Agent Loop Plan",
+  "roles": [
+    {"name": "implementer", "mandate": "produce the diff against the DoD"},
+    {"name": "tester", "mandate": "write/extend the machine-verifiable checks"},
+    {"name": "reviewer", "mandate": "fresh-context adversarial review of the diff vs criteria only"},
+    {"name": "security", "mandate": "check permissions, secrets, deps, blast radius"},
+    {"name": "docs", "mandate": "update docs/memory to match the change"}
+  ],
+  "isolation": [
+    "git_worktree_per_agent",
+    "separate_branch",
+    "separate_dev_database",
+    "sandbox",
+    "separate_logs",
+    "least_privilege_permissions"
+  ],
+  "shared_state": "an external markdown file or Linear board holding what's done and what's next, outside any single conversation",
+  "reference_ids": ["ref.osmani.code_agent_orchestra", "ref.osmani.loop_engineering"]
+}

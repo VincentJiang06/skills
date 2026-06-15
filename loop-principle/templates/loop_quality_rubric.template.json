@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.loop_quality_rubric",
+  "title_zh": "循环质量评分卡",
+  "title_en": "Loop Quality Rubric",
+  "instructions": "Score each dimension yes/no/partial against a concrete loop. A good loop scores yes across the board. Map low scores to the linked node for the fix.",
+  "dimensions": [
+    {"id": "goal_clarity", "question": "Is the goal single and clear?", "node_id": "principle.machine_verifiable_dod", "score": null},
+    {"id": "machine_acceptance", "question": "Is acceptance machine-verifiable (a script returns pass/fail)?", "node_id": "principle.closed_loop_needs_a_check", "score": null},
+    {"id": "sufficient_context", "question": "Does the agent get sufficient context (code, conventions, constraints)?", "node_id": "concept.harness", "score": null},
+    {"id": "small_steps", "question": "Are steps small enough that each is checkable?", "node_id": "procedure.canonical_loop", "score": null},
+    {"id": "per_step_feedback", "question": "Is there per-step feedback, not just an end check?", "node_id": "concept.feedback_signal_spectrum", "score": null},
+    {"id": "strategy_change", "question": "On failure does it change strategy rather than head-bang?", "node_id": "pattern.retry_loop", "score": null},
+    {"id": "iteration_budget_cap", "question": "Are there max-iterations and a token/cost budget?", "node_id": "anti_pattern.token_blowup", "score": null},
+    {"id": "rollback", "question": "Is work reversible / rollbackable (worktree, branch)?", "node_id": "technique.git_worktree_isolation", "score": null},
+    {"id": "permission_boundaries", "question": "Are there permission boundaries (least privilege, sandbox)?", "node_id": "anti_pattern.permission_blast_radius", "score": null},
+    {"id": "auditable_summary", "question": "Does it produce an auditable final summary (root cause, files, checks, results, residual risk)?", "node_id": "procedure.escalation_triggers", "score": null},
+    {"id": "checker_separate", "question": "Is the checker separate from the maker?", "node_id": "principle.maker_checker_separation", "score": null},
+    {"id": "externalized_state", "question": "Is state externalized so it survives context resets?", "node_id": "concept.external_state_memory", "score": null}
+  ],
+  "verdict_rule": "All dimensions yes → industrial loop. Any of {machine_acceptance, iteration_budget_cap, checker_separate, permission_boundaries} no → do not run unattended."
+}

@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "context_engineering_memory",
+  "references": [
+    {
+      "id": "ref.amem.agentic_memory",
+      "tier": 2,
+      "title_en": "A-MEM: Agentic Memory for LLM Agents",
+      "title_zh": "A-MEM：面向大模型智能体的能动式记忆",
+      "authors_or_org": "Xu, Liang, Mei, Gao, Tan, Zhang (Rutgers / AGI Research)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2502.12110",
+      "summary_zh": "针对现有记忆系统“操作与结构固定、跨任务适应性差”的问题，借鉴 Zettelkasten 卡片盒法：为每条新记忆构造含结构化属性与嵌入向量的原子笔记，自动建立链接并随新记忆动态演化、更新旧笔记，从而无需预设固定记忆操作即可自组织。对 agent loop 的意义在于：提供一种让记忆网络随循环推进自我重构的机制，支撑长程任务中的关联检索与知识沉淀。",
+      "summary_en": "Addresses the rigidity of fixed memory operations/structures by adapting the Zettelkasten method: each new memory becomes an atomic note with structured attributes plus embeddings, auto-linked and dynamically evolved so older notes update as new ones arrive — self-organizing memory without predetermined operations. For loops it offers a mechanism whereby the memory network restructures itself as iterations proceed, supporting associative retrieval and knowledge accretion over long horizons.",
+      "reuse_notes": [
+        "self_organizing_memory",
+        "zettelkasten_linking",
+        "dynamic_note_evolution",
+        "associative_retrieval"
+      ],
+      "reliability_notes": "arXiv paper with open-source code (agiresearch/A-mem); academic group, results from the authors."
+    },
+    {
+      "id": "ref.anthropic.context_engineering_agents",
+      "tier": 1,
+      "title_en": "Effective context engineering for AI agents",
+      "title_zh": "面向 AI 智能体的有效上下文工程",
+      "authors_or_org": "Anthropic (Applied AI / Engineering)",
+      "source_type": "official_engineering_article",
+      "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents",
+      "summary_zh": "Anthropic 把上下文工程定义为提示工程的延伸：核心问题从“写什么词”变成“在推理的每一步，往有限的上下文窗口里放入哪一组最小、最高信噪比的 token”。文中明确引入“context rot”（上下文腐烂）——随着 token 数增长，模型从上下文中准确召回信息的能力下降——并给出 just-in-time 检索、压缩、子智能体隔离等策略。对设计 agent loop 至关重要：它解释了为什么不能把所有历史一股脑塞进窗口，以及循环每一轮该如何主动 curate 状态。",
+      "summary_en": "Anthropic frames context engineering as the successor to prompt engineering: the design question shifts from word choice to 'what minimal, highest-signal set of tokens to place in a finite context window at each inference step.' It explicitly names 'context rot' (recall accuracy degrades as token count grows) and prescribes just-in-time retrieval, compaction, and sub-agent isolation. Foundational for loop design because it justifies why agents must actively curate state every iteration rather than accumulate full history.",
+      "reuse_notes": [
+        "context_curation_per_turn",
+        "context_rot_rationale",
+        "compaction_strategy",
+        "loop_state_budget"
+      ],
+      "reliability_notes": "First-party Anthropic engineering article; primary/authoritative, vendor-authored so framing favors their tooling."
+    },
+    {
+      "id": "ref.anthropic.cookbook_memory_compaction",
+      "tier": 1,
+      "title_en": "Context engineering: memory, compaction, and tool clearing",
+      "title_zh": "上下文工程：记忆、压缩与工具结果清理",
+      "authors_or_org": "Anthropic — Claude Cookbook (Isabella He)",
+      "source_type": "official_documentation",
+      "url": "https://platform.claude.com/cookbook/tool-use-context-engineering-context-engineering-tools",
+      "summary_zh": "官方 Claude Cookbook，给出三个一等的上下文管理原语并附可运行代码与实测数据：compaction（接近窗口上限时摘要历史，有损）、tool-result clearing（用占位符替换旧工具结果、可按需重取，无损）、memory tool（在 /memories 跨会话持久化笔记）。还提供“何时用哪一个”的诊断表。对长跑 agent loop 极具操作性：它把“如何在循环中有界地维护状态”从理念落到 API 参数（trigger/keep/clear_at_least 等）与峰值 token 对照实验。",
+      "summary_en": "Official Claude Cookbook presenting three first-class context-management primitives with runnable code and measured peak-token results: compaction (lossy summarization near the window limit), tool-result clearing (replace old tool results with re-fetchable placeholders, lossless), and the memory tool (persist notes under /memories across sessions). Includes a 'which primitive when' diagnostic table. Highly actionable for long-running loops: it turns 'keep state bounded across iterations' into concrete API knobs and before/after token measurements.",
+      "reuse_notes": [
+        "compaction_primitive",
+        "tool_result_clearing",
+        "cross_session_memory_tool",
+        "bounded_context_loop",
+        "primitive_selection_table"
+      ],
+      "reliability_notes": "First-party Anthropic docs with executable examples and quantitative results; vendor-specific API surface."
+    },
+    {
+      "id": "ref.anthropic.harnesses_long_running",
+      "tier": 1,
+      "title_en": "Effective harnesses for long-running agents",
+      "title_zh": "面向长跑智能体的有效执行框架（harness）",
+      "authors_or_org": "Anthropic (Justin Young)",
+      "source_type": "official_engineering_article",
+      "url": "https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents",
+      "summary_zh": "针对“agent 在离散会话中工作、每个新会话对之前一无所知”的核心难题，Anthropic 主张仅靠 compaction/摘要不够，应通过环境脚手架来携带记忆：由 initializer agent 生成 feature 清单、进度文档（claude-progress.txt）和 git 历史，后续 coding agent 开局先读这些持久化产物再继续。对设计多会话 agent loop 的“记忆与续接”尤为关键——把 episodic 记忆外置为文件系统状态而非依赖窗口内压缩。",
+      "summary_en": "Tackling the core problem that agents work in discrete sessions with no memory of prior ones, Anthropic argues compaction/summarization alone is insufficient and instead carries memory via environmental scaffolding: an initializer agent writes a feature list, a progress file (claude-progress.txt), and git history; later coding agents read these artifacts to resume. Central to multi-session loop design — it externalizes episodic memory as filesystem state rather than relying on in-window compaction.",
+      "reuse_notes": [
+        "external_episodic_memory",
+        "progress_file_resume",
+        "multi_session_continuity",
+        "scaffolding_over_compaction"
+      ],
+      "reliability_notes": "First-party Anthropic engineering article (Nov 2025); authoritative on Claude Agent SDK patterns, vendor-framed."
+    },
+    {
+      "id": "ref.chroma.context_rot",
+      "tier": 2,
+      "title_en": "Context Rot: How Increasing Input Tokens Impacts LLM Performance",
+      "title_zh": "上下文腐烂：输入 token 增加如何影响大模型性能",
+      "authors_or_org": "Kelly Hong, Anton Troynikov, Jeff Huber (Chroma)",
+      "source_type": "research_org_report",
+      "url": "https://research.trychroma.com/context-rot",
+      "summary_zh": "Chroma 技术报告，跨 18 个前沿模型（GPT-4.1、Claude 4、Gemini 2.5、Qwen3 等）实测：模型并非均匀利用上下文，性能随输入长度增长而越发不可靠，即便是简单任务也会随长度波动。归纳出三重机制：lost-in-the-middle、注意力稀释（注意力随长度二次膨胀）、干扰项干预（语义相近但无关的内容主动误导模型）。为 loop 工程提供跨模型、可复现的证据，论证“窗口越大≠效果越好”，支撑循环中的有界上下文与去噪策略。",
+      "summary_en": "Chroma technical report empirically testing 18 frontier models (GPT-4.1, Claude 4, Gemini 2.5, Qwen3, etc.): models do not use context uniformly and grow increasingly unreliable as input length rises, even on simple tasks. It attributes this to three compounding mechanisms — lost-in-the-middle, attention dilution (quadratic attention), and distractor interference (semantically similar but irrelevant content actively misleads). Gives loop engineering cross-model, replicable evidence that 'bigger window ≠ better,' backing bounded-context and de-noising strategies in the loop.",
+      "reuse_notes": [
+        "cross_model_evidence",
+        "distractor_interference",
+        "attention_dilution",
+        "bounded_context_justification"
+      ],
+      "reliability_notes": "Industry research-lab report with open replication toolkit (chroma-core/context-rot); not peer-reviewed but methodology is public."
+    },
+    {
+      "id": "ref.liu.lost_in_the_middle",
+      "tier": 2,
+      "title_en": "Lost in the Middle: How Language Models Use Long Contexts",
+      "title_zh": "迷失于中段：语言模型如何使用长上下文",
+      "authors_or_org": "Nelson F. Liu, Kevin Lin, John Hewitt, Ashwin Paranjape, Michele Bevilacqua, Fabio Petroni, Percy Liang (Stanford et al., TACL 2024)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2307.03172",
+      "summary_zh": "用多文档问答与键值检索两个任务系统量化了长上下文利用：当相关信息位于上下文开头或结尾时性能最高，落在中段时显著下降——即使是号称支持长上下文的模型也存在这种 U 形位置偏差。这是 context rot / 位置退化的实证奠基论文。对 loop 工程的直接启示：循环中拼接历史与检索片段时，关键信息的位置与数量会影响可用性，故须主动排序、裁剪与压缩，而非堆长。",
+      "summary_en": "Systematically quantifies long-context use across multi-document QA and key-value retrieval: performance peaks when relevant info sits at the start or end and degrades sharply in the middle — a U-shaped positional bias present even in explicitly long-context models. The empirical bedrock for context-rot / positional degradation. Direct loop-engineering implication: when assembling history and retrieved chunks each iteration, the placement and quantity of key info affects usability, so order/trim/compress rather than simply lengthen.",
+      "reuse_notes": [
+        "positional_degradation",
+        "u_shaped_recall",
+        "context_ordering",
+        "evidence_for_trimming"
+      ],
+      "reliability_notes": "Peer-reviewed (TACL 2024), highly cited foundational study; robust experimental methodology."
+    },
+    {
+      "id": "ref.mem0.scalable_longterm_memory",
+      "tier": 2,
+      "title_en": "Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory",
+      "title_zh": "Mem0：构建具备可扩展长期记忆的生产级 AI 智能体",
+      "authors_or_org": "Chhikara, Khant, Aryan, Singh, Yadav (Mem0 / mem0ai)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2504.19413",
+      "summary_zh": "提出以记忆为中心的架构，从持续对话中动态抽取、巩固、检索关键信息；其变体 Mem0g 用图结构表达实体间复杂关系。在 LOCOMO 类长对话基准上覆盖单跳/时序/多跳/开放域问题并优于现有记忆系统，并给出工程指标：相较全上下文 p95 延迟降约 91%、token 成本省 90%+。对长跑 loop 的价值在于：把“记住什么、何时检索”做成可量化、低成本的外置记忆层，直接关系到循环的成本与可持续性。",
+      "summary_en": "Proposes a memory-centric architecture that dynamically extracts, consolidates, and retrieves salient facts from ongoing conversation, plus a Mem0g variant using graph memory for complex relations. Outperforms prior memory systems across single-hop/temporal/multi-hop/open-domain questions and reports ~91% lower p95 latency and 90%+ token-cost savings versus full-context. Useful for loops because it makes 'what to remember and when to retrieve' a measurable, low-cost external memory layer — directly bearing on loop cost and sustainability.",
+      "reuse_notes": [
+        "extract_consolidate_retrieve",
+        "graph_memory",
+        "token_cost_reduction",
+        "retrieval_augmented_state"
+      ],
+      "reliability_notes": "arXiv paper with benchmark numbers; authored by the vendor (Mem0), so comparative claims warrant independent replication."
+    },
+    {
+      "id": "ref.memgpt.llm_operating_systems",
+      "tier": 2,
+      "title_en": "MemGPT: Towards LLMs as Operating Systems",
+      "title_zh": "MemGPT：把大语言模型当作操作系统",
+      "authors_or_org": "Packer, Wooders, Lin, Fang, Patil, Gonzalez (UC Berkeley)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2310.08560",
+      "summary_zh": "提出 virtual context management：借鉴 OS 的分层内存，在“快内存”（窗口内 main context）与“慢内存”（窗口外 archival/recall 存储）间自主搬运数据，并用 interrupt 控制自我与用户间的控制流，从而在有限窗口上营造“无限内存”的假象。在长文档分析与多会话聊天两个场景验证。是外置/分层 agent 记忆的奠基工作（后演化为 Letta），为长跑 loop 提供“模型自管理记忆”的范式。",
+      "summary_en": "Introduces virtual context management: an OS-inspired memory hierarchy that autonomously pages data between fast in-window 'main context' and out-of-window archival/recall storage, using interrupts to manage control flow, creating the illusion of unbounded memory on a finite window. Validated on long-document analysis and multi-session chat. The canonical foundation for tiered/self-managed agent memory (later productized as Letta) and a core paradigm for state in long-running loops.",
+      "reuse_notes": [
+        "tiered_memory_hierarchy",
+        "self_managed_paging",
+        "infinite_context_illusion",
+        "multi_session_memory"
+      ],
+      "reliability_notes": "Peer-followed arXiv paper, highly cited; reference architecture widely reimplemented."
+    }
+  ]
+}

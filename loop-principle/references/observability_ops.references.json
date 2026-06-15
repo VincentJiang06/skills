@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "observability_agent_ops",
+  "references": [
+    {
+      "id": "ref.agentops.agent_monitoring",
+      "tier": 1,
+      "title_en": "AgentOps — Python SDK for AI Agent Monitoring, Session Replay, and LLM Cost Tracking",
+      "title_zh": "AgentOps——AI 代理监控、会话回放与 LLM 成本追踪的 Python SDK",
+      "authors_or_org": "AgentOps-AI",
+      "source_type": "official_documentation",
+      "url": "https://github.com/AgentOps-AI/agentops",
+      "summary_zh": "AgentOps 是面向代理的监控/调试 SDK，以'session'为单位把一次工作流执行中的所有代理、LLM、工具调用聚合在一个唯一 session ID 下，给出总耗时、token 成本与成功/失败状态。核心能力包括 session replay（可视化回放 LLM/工具/多代理交互）、time-travel 调试（回放并重放某次代理运行）、错误与 prompt-injection 尝试的审计日志，以及跨 400+ LLM 的成本追踪，原生集成 CrewAI/AutoGen/LangChain/OpenAI Agents SDK。意义：把代理循环的'每一步'变成可重放、可成本归因的运维对象，是 AgentOps（运维代理）层面把遥测接回循环的代表。",
+      "summary_en": "AgentOps is an agent monitoring/debugging SDK organized around sessions: one workflow execution groups all agents, LLM calls, and tool calls under a unique session ID with total time, token cost, and success/failure state. Core features include session replay (visual replay of LLM/tool/multi-agent interactions), time-travel debugging (rewind and replay an agent run), an audit trail of errors and prompt-injection attempts, and cost tracking across 400+ LLMs, with native integrations for CrewAI/AutoGen/LangChain/OpenAI Agents SDK. It matters because it makes each step of an agent loop replayable and cost-attributable — a representative AgentOps-layer way of feeding telemetry back into the loop.",
+      "reuse_notes": [
+        "session_replay",
+        "time_travel_debug",
+        "cost_attribution",
+        "prompt_injection_audit"
+      ],
+      "reliability_notes": "First-party open-source SDK; feature/coverage claims are vendor-stated."
+    },
+    {
+      "id": "ref.arize.phoenix_observability",
+      "tier": 1,
+      "title_en": "Arize Phoenix — Open-Source AI Observability & Evaluation (OpenInference/OpenTelemetry)",
+      "title_zh": "Arize Phoenix——开源 AI 可观测性与评估（OpenInference/OpenTelemetry）",
+      "authors_or_org": "Arize AI",
+      "source_type": "official_documentation",
+      "url": "https://github.com/Arize-ai/phoenix",
+      "summary_zh": "Arize Phoenix 是开源、可自托管的 LLM/代理可观测性与评估平台。它通过 OpenTelemetry + OpenInference 自动埋点捕获每次 LLM 调用、检索和代理步骤的分布式 trace（父子 span 清晰、含系统提示/工具参数/时序/最终响应），并用 phoenix.evals 库在这些 trace 上运行基于 LLM 的评估，按延迟/token/评估指标突出问题 span。意义：把'追踪'与'在 trace 上做评估'合到一个开放标准里，是构建可移植、可验证代理循环的开源参照，OpenInference 提供了厂商无关的 trace 约定。",
+      "summary_en": "Arize Phoenix is an open-source, self-hostable LLM/agent observability and evaluation platform. It captures distributed traces of every LLM call, retrieval, and agent step via OpenTelemetry + OpenInference auto-instrumentation (clean parent-child spans with system prompts, tool args, timings, final response) and runs LLM-based evaluations directly on those traces with the phoenix.evals library, surfacing problem spans by latency/token/eval metrics. It matters because it fuses tracing with eval-on-traces under an open standard (OpenInference), giving a vendor-neutral reference for building portable, verifiable agent loops.",
+      "reuse_notes": [
+        "open_standard_tracing",
+        "eval_on_traces",
+        "self_hostable",
+        "span_inspection"
+      ],
+      "reliability_notes": "First-party open-source repo from Arize; capability claims; OpenInference is Arize-led but increasingly cross-framework."
+    },
+    {
+      "id": "ref.langchain.langsmith_observability",
+      "tier": 1,
+      "title_en": "LangSmith Observability — Tracing, Online Evaluation, and Production Monitoring for Agents",
+      "title_zh": "LangSmith 可观测性——代理的链路追踪、在线评估与生产监控",
+      "authors_or_org": "LangChain (LangSmith)",
+      "source_type": "official_documentation",
+      "url": "https://docs.langchain.com/langsmith/observability",
+      "summary_zh": "LangSmith 官方文档：框架无关的代理可观测性+评估平台，捕获每一次 LLM 调用、工具调用与中间推理步骤的完整轨迹（trajectory），可定义评估器对中间决策打分、用生产 trace 构建数据集、并以'在线评估'对真实生产流量实时打分以检测质量漂移；同时跟踪成本/延迟/错误并接入 OpenTelemetry。对循环工程的价值：把生产遥测变成持续的验证信号，定位代理在哪一步走偏，是'评估在生产中（eval-in-production）'喂回验证循环的典型实现。",
+      "summary_en": "Official LangSmith docs for a framework-agnostic agent observability + evaluation platform. It captures the full trajectory (every LLM call, tool invocation, reasoning step), lets you define evaluators that score intermediate decisions, build datasets from production traces, and run online evals that score real production traffic in real time to detect quality drift, while tracking cost/latency/errors and exporting via OpenTelemetry. For loop engineering it is a concrete eval-in-production implementation: production telemetry becomes a continuous verification signal that pinpoints where an agent's loop went wrong.",
+      "reuse_notes": [
+        "online_eval",
+        "trajectory_scoring",
+        "drift_detection",
+        "verify_signal"
+      ],
+      "reliability_notes": "Vendor first-party docs (commercial platform); descriptive of capabilities rather than independently benchmarked."
+    },
+    {
+      "id": "ref.langfuse.observability_platform",
+      "tier": 1,
+      "title_en": "Langfuse — Open-Source LLM Engineering Platform (Observability, Evals, Tracing)",
+      "title_zh": "Langfuse——开源 LLM 工程平台（可观测性、评估、追踪）",
+      "authors_or_org": "Langfuse",
+      "source_type": "official_documentation",
+      "url": "https://github.com/langfuse/langfuse",
+      "summary_zh": "Langfuse 是 MIT 许可、可一容器自托管的开源 LLM/代理工程平台，核心是 LLM 可观测性、执行指标、评估（evals）、prompt 管理与基于数据集的应用测试，集成 OpenTelemetry、LangChain、OpenAI SDK、LiteLLM。其文档显示已被 2300+ 公司使用、每月处理数十亿条 observation。对循环工程的价值：提供一个开放、可私有部署的'追踪+在线评估+打分'栈，把生产遥测沉淀为可回归的数据集，支撑代理循环的持续验证与改进——是 LangSmith 的开源对标。",
+      "summary_en": "Langfuse is an MIT-licensed, one-container self-hostable open-source LLM/agent engineering platform whose core is LLM observability, execution metrics, evals, prompt management, and dataset-based application testing, integrating OpenTelemetry, LangChain, OpenAI SDK, and LiteLLM; its docs cite 2,300+ companies and billions of observations per month. For loop engineering it offers an open, privately deployable trace + online-eval + scoring stack that turns production telemetry into regression datasets, supporting continuous verification and improvement of agent loops — an open-source counterpart to LangSmith.",
+      "reuse_notes": [
+        "open_source_observability",
+        "trace_to_dataset",
+        "scores_evals",
+        "self_hosted"
+      ],
+      "reliability_notes": "First-party open-source repo/docs; adoption numbers self-reported by vendor."
+    },
+    {
+      "id": "ref.li.llm_as_a_judge_survey",
+      "tier": 2,
+      "title_en": "A Survey on LLM-as-a-Judge",
+      "title_zh": "LLM-as-a-Judge 综述",
+      "authors_or_org": "Gu, Jiang, Wang, et al.",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2411.15594",
+      "summary_zh": "系统综述 LLM-as-a-Judge：给出形式化定义与分类，核心追问'如何构建可靠的 LLM 评判系统'——通过提升一致性、缓解偏差、适配多样评估场景，并提出评估评判可靠性的方法与基准。对循环工程的意义：自动化评判是把'验证'步骤规模化的关键机制（在线评估、生产打分、CI 门禁都依赖它），而本综述把其已知的偏差与可靠性陷阱讲清楚——直接关系到能否信任评判信号来决定循环的继续/停止。",
+      "summary_en": "A systematic survey of LLM-as-a-Judge: it gives a formal definition and taxonomy and centers on how to build reliable LLM-judge systems by improving consistency, mitigating biases, and adapting to diverse assessment scenarios, plus methods and a benchmark for evaluating judge reliability. For loop engineering, automated judging is the key mechanism for scaling the verification step (online eval, production scoring, CI gates all depend on it), and this survey lays out its known biases and reliability pitfalls — directly bearing on whether a judge signal can be trusted to decide whether a loop continues or stops.",
+      "reuse_notes": [
+        "automated_verification",
+        "judge_reliability",
+        "bias_mitigation",
+        "scoring_signal"
+      ],
+      "reliability_notes": "Widely cited survey (multiple revisions on arXiv); secondary synthesis, not new empirical measurement."
+    },
+    {
+      "id": "ref.opentelemetry.genai_observability",
+      "tier": 1,
+      "title_en": "GenAI Observability with OpenTelemetry: The GenAI Semantic Conventions",
+      "title_zh": "基于 OpenTelemetry 的 GenAI 可观测性：GenAI 语义约定",
+      "authors_or_org": "OpenTelemetry project",
+      "source_type": "official_documentation",
+      "url": "https://opentelemetry.io/blog/2026/genai-observability/",
+      "summary_zh": "OpenTelemetry 官方文章，阐述 GenAI 语义约定如何把代理执行标准化为可观测的 span 层级：顶层 invoke_agent span 下挂每次 LLM 调用的 chat span 与每次工具调用的 execute_tool span，并记录 gen_ai.usage.input_tokens/output_tokens、模型、finish_reason、（可选）完整 prompt/响应/工具结果。这把代理循环的每一步从黑盒变成可测量、可对比、跨厂商互通的遥测数据——是把'验证'信号接回循环的标准化底座，能区分延迟来自模型、工具还是重试循环。",
+      "summary_en": "Official OpenTelemetry article on the GenAI semantic conventions: it standardizes agent execution into an observable span hierarchy — a top-level invoke_agent span with child chat spans per LLM call and execute_tool spans per tool call — capturing model, token usage, finish reasons, and (opt-in) full prompts/responses/tool results. This turns each plan-act-verify step of an agent loop from a black box into measurable, comparable, vendor-neutral telemetry, letting you tell whether latency/retry-loops come from the model, tools, or the loop itself.",
+      "reuse_notes": [
+        "telemetry_schema",
+        "verify_signal",
+        "cross_vendor_tracing",
+        "token_cost_visibility"
+      ],
+      "reliability_notes": "First-party OpenTelemetry publication; the conventions are still partly experimental and the canonical spec has since moved to a dedicated semantic-conventions-genai repo."
+    },
+    {
+      "id": "ref.rebedea.nemo_guardrails",
+      "tier": 3,
+      "title_en": "NeMo Guardrails: A Toolkit for Controllable and Safe LLM Applications with Programmable Rails",
+      "title_zh": "NeMo Guardrails：用可编程护栏构建可控、安全 LLM 应用的工具包",
+      "authors_or_org": "Rebedea, Dinu, Sreedhar, Parisien, Cohen (NVIDIA)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2310.10501",
+      "summary_zh": "NVIDIA 在 EMNLP 2023 提出的开源工具包，用受对话管理启发的运行时为 LLM 应用加'可编程护栏'：输入护栏做内容审核/越狱检测，对话护栏管流程，检索护栏服务 RAG，输出护栏做事实核查与响应审核。护栏由用户定义、独立于底层 LLM、可解释，区别于训练期对齐。对循环工程的意义：护栏是代理循环里的运行时'守门员/停止条件'，决定哪些动作/输出被允许通过——把安全与边界检查作为在线验证步骤嵌入 act→verify 环节。",
+      "summary_en": "Open-source toolkit from NVIDIA (EMNLP 2023) that adds programmable guardrails to LLM apps via a dialogue-management-inspired runtime: input rails for moderation/jailbreak detection, dialog rails for flow, retrieval rails for RAG, and output rails for fact-checking and response moderation. Rails are user-defined, independent of the underlying LLM, and interpretable — unlike train-time alignment. For loop engineering, guardrails act as a runtime gatekeeper / stopping condition in the agent loop, deciding which actions and outputs pass, embedding safety and boundary checks as an online verification step in act→verify.",
+      "reuse_notes": [
+        "runtime_guardrails",
+        "stop_condition",
+        "online_safety_check",
+        "output_validation"
+      ],
+      "reliability_notes": "Peer-reviewed primary source (EMNLP 2023) plus maintained open-source toolkit; vendor-authored."
+    },
+    {
+      "id": "ref.you.agent_as_a_judge",
+      "tier": 2,
+      "title_en": "Agent-as-a-Judge: Agentic, Tool-Augmented Evaluation",
+      "title_zh": "Agent-as-a-Judge：具备工具增强的代理式评估",
+      "authors_or_org": "You, Cai, Zhang, Xu, Liu, Yu, Li, Li",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2601.05111",
+      "summary_zh": "提出'Agent-as-a-Judge'范式：让评判者本身成为代理，运用规划、工具增强验证、多代理协作与持久记忆，克服单次浅层推理 LLM 评判的固有偏差与'无法对照真实世界观测来核验'的弱点。对循环工程的意义：当被验证的产物是代理在环境中产生的（如代码改动、运行结果），静态打分不够，需要会执行、会取证的代理式验证——这正是把'verify'本身做成一个可运行循环、用真实观测闭环代理工作的方向。",
+      "summary_en": "Introduces the Agent-as-a-Judge paradigm: the judge itself is an agent that uses planning, tool-augmented verification, multi-agent collaboration, and persistent memory to overcome the inherent biases, shallow single-pass reasoning, and inability to verify against real-world observations of plain LLM-as-judge. For loop engineering, when the artifact being verified was produced by an agent acting in an environment (e.g. code changes, run results), static scoring is insufficient and you need an executing, evidence-gathering agentic verifier — i.e. making 'verify' itself a runnable loop that closes the agent's work against real observations.",
+      "reuse_notes": [
+        "agentic_verification",
+        "tool_augmented_eval",
+        "grounded_checking",
+        "verify_as_loop"
+      ],
+      "reliability_notes": "Recent (Jan 2026) arXiv preprint; primary but not yet peer-reviewed; survey/position framing."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "edges": [
+    {"id": "edge.foundations.defines_le", "source_id": "pillar.foundations", "target_id": "concept.loop_engineering", "type": "defines"},
+    {"id": "edge.le.builds_on_harness", "source_id": "concept.loop_engineering", "target_id": "concept.harness", "type": "depends_on"},
+    {"id": "edge.le.replaces_prompter", "source_id": "concept.loop_engineering", "target_id": "principle.replace_the_prompter", "type": "uses"},
+    {"id": "edge.stack.places_loop", "source_id": "principle.engineering_stack_progression", "target_id": "concept.loop_engineering", "type": "contextualizes"},
+    {"id": "edge.react.generalizes_to_loop", "source_id": "concept.react", "target_id": "procedure.canonical_loop", "type": "generalizes"},
+    {"id": "edge.reflexion.enables_memory", "source_id": "concept.reflexion", "target_id": "concept.external_state_memory", "type": "enables"},
+    {"id": "edge.selfrefine.motivates_makerchecker", "source_id": "concept.self_refine", "target_id": "principle.maker_checker_separation", "type": "motivates"},
+    {"id": "edge.iter.informs_stop", "source_id": "principle.iterative_refinement", "target_id": "procedure.stop_gate", "type": "supports"},
+    {"id": "edge.reflexion.warns_reward_hacking", "source_id": "concept.reflexion", "target_id": "anti_pattern.reward_hacking", "type": "warns"},
+    {"id": "edge.microcycle.requires_ctx_mgmt", "source_id": "concept.agent_loop_microcycle", "target_id": "principle.context_window_management", "type": "uses"}
+  ]
+}

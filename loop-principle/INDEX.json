@@ -1,0 +1,169 @@
+{
+  "schema_version": "1.0.0",
+  "library_id": "loop-principle",
+  "title_zh": "Loop Engineering 原则知识库",
+  "title_en": "Loop Engineering Principle Knowledge Base",
+  "purpose_zh": "为研究和设计 agent 工作循环（loop engineering）的人和 agent 提供低上下文、可检索、可溯源、可自验证的中立调研知识库：如何设计、修改、更新并保证一个循环工程好用。",
+  "purpose_en": "An agent-first, low-context, searchable, source-traceable, self-validating neutral survey of loop engineering — how to design, modify, update, and ensure an agentic work-loop is sound.",
+  "root_definition": {
+    "id": "concept.loop_engineering",
+    "summary_zh": "Loop engineering 是设计一个替你给 agent 发提示的系统——发现任务、分配、检查结果、记录状态、决定下一步——而不是人逐轮提示。其内核是验证工程。",
+    "summary_en": "Loop engineering is designing the system that prompts the agent — discovering work, dispatching it, checking results, recording state, deciding the next step — instead of a human prompting turn-by-turn. At its core it is verification engineering."
+  },
+  "coverage": [
+    {
+      "goal_id": "goal.foundations",
+      "title_zh": "loop engineering 的定义、进阶栈与各家框架的调和",
+      "primary_docs": ["doc.foundations.loop_engineering_foundations", "doc.research.loop_engineering_survey"],
+      "primary_nodes": ["concept.loop_engineering", "concept.loop", "concept.harness", "principle.replace_the_prompter", "principle.engineering_stack_progression"]
+    },
+    {
+      "goal_id": "goal.lineage",
+      "title_zh": "理论谱系：ReAct / Reflexion / Self-Refine / 迭代精炼形式化",
+      "primary_docs": ["doc.lineage.theoretical_lineage"],
+      "primary_nodes": ["concept.react", "concept.reflexion", "concept.self_refine", "principle.iterative_refinement"]
+    },
+    {
+      "goal_id": "goal.anatomy",
+      "title_zh": "循环解剖与五种具体模式",
+      "primary_docs": ["doc.anatomy.loop_anatomy_and_patterns"],
+      "primary_nodes": ["procedure.canonical_loop", "procedure.explore_plan_implement_commit", "pattern.retry_loop", "pattern.review_loop", "pattern.human_in_the_loop"]
+    },
+    {
+      "goal_id": "goal.feedback",
+      "title_zh": "反馈、验证与可观测性——让循环自主闭合",
+      "primary_docs": ["doc.feedback.feedback_verification_observability"],
+      "primary_nodes": ["principle.closed_loop_needs_a_check", "concept.feedback_signal_spectrum", "principle.machine_verifiable_dod", "concept.verification_bottleneck", "pattern.production_observability_loop"]
+    },
+    {
+      "goal_id": "goal.harness",
+      "title_zh": "Harness 与工具层：构件、hooks、worktree、子 agent、记忆",
+      "primary_docs": ["doc.harness.harness_and_tooling_layer"],
+      "primary_nodes": ["concept.loop_primitives", "technique.hooks_as_deterministic_gate", "technique.git_worktree_isolation", "technique.subagent_split", "concept.external_state_memory"]
+    },
+    {
+      "goal_id": "goal.governance",
+      "title_zh": "停止条件、人类位置与多 agent 治理",
+      "primary_docs": ["doc.governance.stop_conditions_and_multi_agent"],
+      "primary_nodes": ["procedure.stop_gate", "procedure.escalation_triggers", "principle.maker_checker_separation", "principle.adversarial_review_subagent", "principle.human_on_vs_in_loop", "pattern.multi_agent_orchestra", "technique.git_worktree_isolation"]
+    },
+    {
+      "goal_id": "goal.risks",
+      "title_zh": "成本、风险与失败模式",
+      "primary_docs": ["doc.risks.costs_risks_failure_modes"],
+      "primary_nodes": ["anti_pattern.error_amplification", "anti_pattern.reward_hacking", "anti_pattern.comprehension_debt", "anti_pattern.context_drift", "anti_pattern.permission_blast_radius", "anti_pattern.token_blowup", "principle.infra_prerequisite"]
+    },
+    {
+      "goal_id": "goal.practice",
+      "title_zh": "落地路线、质量评分与误区",
+      "primary_docs": ["doc.practice.adoption_rubric_misconceptions"],
+      "primary_nodes": ["procedure.adoption_roadmap", "procedure.loop_quality_rubric", "anti_pattern.loop_is_a_while_loop", "anti_pattern.autonomy_maximalism"]
+    },
+    {
+      "goal_id": "goal.measurement",
+      "title_zh": "循环度量：用指标量化循环是否好用",
+      "primary_docs": ["doc.measurement.loop_metrics"],
+      "primary_nodes": ["pillar.measurement", "metric.task_success_rate", "metric.autonomous_resolution_rate", "metric.reward_hack_rate", "metric.regression_escape_rate", "metric.cost_per_resolution", "metric.reviewer_catch_rate"]
+    }
+  ],
+  "files": [
+    {"id": "doc.foundations.loop_engineering_foundations", "path": "docs/foundations/loop_engineering_foundations.md", "kind": "long_doc", "tags": ["foundations", "definition", "harness", "progression"]},
+    {"id": "doc.lineage.theoretical_lineage", "path": "docs/lineage/theoretical_lineage.md", "kind": "long_doc", "tags": ["lineage", "react", "reflexion", "self_refine"]},
+    {"id": "doc.anatomy.loop_anatomy_and_patterns", "path": "docs/anatomy/loop_anatomy_and_patterns.md", "kind": "long_doc", "tags": ["anatomy", "patterns", "explore_plan_implement_commit"]},
+    {"id": "doc.feedback.feedback_verification_observability", "path": "docs/feedback/feedback_verification_observability.md", "kind": "long_doc", "tags": ["feedback", "verification", "observability", "dod"]},
+    {"id": "doc.harness.harness_and_tooling_layer", "path": "docs/harness/harness_and_tooling_layer.md", "kind": "long_doc", "tags": ["harness", "hooks", "worktree", "subagent", "memory"]},
+    {"id": "doc.governance.stop_conditions_and_multi_agent", "path": "docs/governance/stop_conditions_and_multi_agent.md", "kind": "long_doc", "tags": ["governance", "stop", "maker_checker", "multi_agent", "human_in_loop"]},
+    {"id": "doc.risks.costs_risks_failure_modes", "path": "docs/risks/costs_risks_failure_modes.md", "kind": "long_doc", "tags": ["risks", "reward_hacking", "context_drift", "security", "cost"]},
+    {"id": "doc.practice.adoption_rubric_misconceptions", "path": "docs/practice/adoption_rubric_misconceptions.md", "kind": "long_doc", "tags": ["adoption", "rubric", "misconceptions", "roadmap"]},
+    {"id": "doc.measurement.loop_metrics", "path": "docs/measurement/loop_metrics.md", "kind": "long_doc", "tags": ["measurement", "metrics", "integrity", "cost", "control"]},
+    {"id": "doc.research.loop_engineering_survey", "path": "docs/research/loop_engineering_survey.md", "kind": "long_doc", "tags": ["survey", "master", "sources", "caveats", "disagreements"]},
+    {"id": "doc.reading.context_and_lineage", "path": "docs/reading/context_and_lineage.md", "kind": "long_doc", "tags": ["reading", "bibliography", "context", "memory", "lineage"]},
+    {"id": "doc.reading.harness_and_multiagent", "path": "docs/reading/harness_and_multiagent.md", "kind": "long_doc", "tags": ["reading", "bibliography", "harness", "multi_agent", "observability"]},
+    {"id": "doc.reading.verification_and_governance", "path": "docs/reading/verification_and_governance.md", "kind": "long_doc", "tags": ["reading", "bibliography", "verification", "reward_hacking", "governance"]},
+
+    {"id": "nodes.pillars", "path": "knowledge_graph/nodes/pillars.json", "kind": "node_file"},
+    {"id": "nodes.core", "path": "knowledge_graph/nodes/core_nodes.json", "kind": "node_file"},
+    {"id": "nodes.anatomy", "path": "knowledge_graph/nodes/anatomy_nodes.json", "kind": "node_file"},
+    {"id": "nodes.harness", "path": "knowledge_graph/nodes/harness_nodes.json", "kind": "node_file"},
+    {"id": "nodes.risk", "path": "knowledge_graph/nodes/risk_nodes.json", "kind": "node_file"},
+    {"id": "nodes.metrics", "path": "knowledge_graph/nodes/metrics_nodes.json", "kind": "node_file"},
+    {"id": "edges.core", "path": "knowledge_graph/edges/core_edges.json", "kind": "edge_file"},
+    {"id": "edges.anatomy", "path": "knowledge_graph/edges/anatomy_edges.json", "kind": "edge_file"},
+    {"id": "edges.harness", "path": "knowledge_graph/edges/harness_edges.json", "kind": "edge_file"},
+    {"id": "edges.risk", "path": "knowledge_graph/edges/risk_edges.json", "kind": "edge_file"},
+    {"id": "edges.metrics", "path": "knowledge_graph/edges/metrics_edges.json", "kind": "edge_file"},
+
+    {"id": "refs.foundations", "path": "references/foundations.references.json", "kind": "reference_file"},
+    {"id": "refs.lineage", "path": "references/lineage.references.json", "kind": "reference_file"},
+    {"id": "refs.harness_feedback", "path": "references/harness_feedback.references.json", "kind": "reference_file"},
+    {"id": "refs.risks", "path": "references/risks.references.json", "kind": "reference_file"},
+    {"id": "refs.context_memory", "path": "references/context_memory.references.json", "kind": "reference_file"},
+    {"id": "refs.reasoning_lineage_extended", "path": "references/reasoning_lineage_extended.references.json", "kind": "reference_file"},
+    {"id": "refs.harness_tooling", "path": "references/harness_tooling.references.json", "kind": "reference_file"},
+    {"id": "refs.multi_agent_orchestration", "path": "references/multi_agent_orchestration.references.json", "kind": "reference_file"},
+    {"id": "refs.observability_ops", "path": "references/observability_ops.references.json", "kind": "reference_file"},
+    {"id": "refs.verification_evals", "path": "references/verification_evals.references.json", "kind": "reference_file"},
+    {"id": "refs.reward_hacking_safety", "path": "references/reward_hacking_safety.references.json", "kind": "reference_file"},
+    {"id": "refs.human_governance", "path": "references/human_governance.references.json", "kind": "reference_file"},
+
+    {"id": "metrics.catalog", "path": "metrics/metric_catalog.json", "kind": "metric_file", "tags": ["metric", "metrics", "catalog", "success", "cost", "reward", "hacking", "autonomy", "control"]},
+    {"id": "report.kb_quality", "path": "reports/kb_quality_report.json", "kind": "report_file", "tags": ["report", "quality", "coverage", "graph", "gate"]},
+
+    {"id": "template.loop_design", "path": "templates/loop_design.template.md", "kind": "template_file", "tags": ["template", "loop", "design", "prompt", "phases", "stop"]},
+    {"id": "template.loop_quality_rubric", "path": "templates/loop_quality_rubric.template.json", "kind": "template_file", "tags": ["template", "rubric", "quality", "score"]},
+    {"id": "template.dod_spec", "path": "templates/dod_spec.template.json", "kind": "template_file", "tags": ["template", "dod", "acceptance", "done", "verifiable", "stop"]},
+    {"id": "template.multi_agent_plan", "path": "templates/multi_agent_plan.template.json", "kind": "template_file", "tags": ["template", "multi", "agent", "roles", "isolation", "parallel"]},
+    {"id": "template.escalation_record", "path": "templates/escalation_record.template.json", "kind": "template_file", "tags": ["template", "escalation", "stop", "record"]},
+    {"id": "template.loop_run_report", "path": "templates/loop_run_report.template.md", "kind": "template_file", "tags": ["template", "run", "report", "audit", "summary"]},
+    {"id": "template.retro_postmortem", "path": "templates/retro_postmortem.template.md", "kind": "template_file", "tags": ["template", "retro", "postmortem", "failure", "fix"]},
+
+    {"id": "checklist.good_loop_review", "path": "checklists/good_loop_review.checklist.json", "kind": "checklist_file", "tags": ["checklist", "loop", "review", "quality", "gate"]},
+    {"id": "checklist.loop_safety_boundary", "path": "checklists/loop_safety_boundary.checklist.json", "kind": "checklist_file", "tags": ["checklist", "safety", "boundary", "permissions", "autonomy", "reward_hacking"]},
+    {"id": "checklist.loop_design_review", "path": "checklists/loop_design_review.checklist.json", "kind": "checklist_file", "tags": ["checklist", "design", "review", "dod", "maker_checker", "stop"]},
+    {"id": "checklist.loop_preflight", "path": "checklists/loop_preflight.checklist.json", "kind": "checklist_file", "tags": ["checklist", "preflight", "safety", "sandbox", "budget", "rollback"]},
+    {"id": "checklist.loop_observability", "path": "checklists/loop_observability.checklist.json", "kind": "checklist_file", "tags": ["checklist", "observability", "feedback", "diff", "reward_hacking"]},
+
+    {"id": "testing.query_effectiveness_cases", "path": "testing/query_effectiveness_cases.json", "kind": "testing_file", "tags": ["testing", "query", "retrieval", "routing"]},
+    {"id": "testing.kb_quality_gates", "path": "testing/kb_quality_gates.json", "kind": "testing_file", "tags": ["testing", "quality", "gates", "thresholds", "report"]},
+    {"id": "testing.context_budget_rules", "path": "testing/context_budget_rules.json", "kind": "testing_file", "tags": ["testing", "context", "budget", "tokens", "low"]},
+    {"id": "testing.doc_traceability_rules", "path": "testing/doc_traceability_rules.json", "kind": "testing_file", "tags": ["testing", "traceability", "docs", "references", "nodes"]},
+    {"id": "testing.search_aliases", "path": "testing/search_aliases.json", "kind": "testing_file", "tags": ["testing", "query", "alias", "retrieval", "routing"]},
+    {"id": "testing.template_contracts", "path": "testing/template_contracts.json", "kind": "testing_file", "tags": ["testing", "template", "contract", "schema", "validation"]},
+
+    {"id": "schema.node", "path": "schemas/node.schema.json", "kind": "schema_file", "tags": ["schema", "node", "graph"]},
+    {"id": "schema.reference", "path": "schemas/reference.schema.json", "kind": "schema_file", "tags": ["schema", "reference", "source"]},
+    {"id": "schema.checklist", "path": "schemas/checklist.schema.json", "kind": "schema_file", "tags": ["schema", "checklist", "gate"]},
+    {"id": "schema.index", "path": "schemas/index.schema.json", "kind": "schema_file", "tags": ["schema", "index", "files", "coverage"]},
+    {"id": "schema.metric", "path": "schemas/metric.schema.json", "kind": "schema_file", "tags": ["schema", "metric", "catalog"]},
+    {"id": "schema.search_aliases", "path": "schemas/search_aliases.schema.json", "kind": "schema_file", "tags": ["schema", "alias", "query"]},
+    {"id": "schema.quality_gate", "path": "schemas/quality_gate.schema.json", "kind": "schema_file", "tags": ["schema", "quality", "gate", "threshold"]},
+    {"id": "schema.quality_report", "path": "schemas/quality_report.schema.json", "kind": "schema_file", "tags": ["schema", "quality", "report", "coverage"]},
+    {"id": "schema.summary_cards", "path": "schemas/summary_cards.schema.json", "kind": "schema_file", "tags": ["schema", "summary", "cards", "compressed"]},
+    {"id": "schema.template_contracts", "path": "schemas/template_contracts.schema.json", "kind": "schema_file", "tags": ["schema", "template", "contract", "validation"]},
+    {"id": "schema.query_effectiveness", "path": "schemas/query_effectiveness.schema.json", "kind": "schema_file", "tags": ["schema", "query", "retrieval", "testing"]},
+    {"id": "schema.context_budget_rules", "path": "schemas/context_budget_rules.schema.json", "kind": "schema_file", "tags": ["schema", "context", "budget", "tokens"]},
+    {"id": "schema.doc_traceability_rules", "path": "schemas/doc_traceability_rules.schema.json", "kind": "schema_file", "tags": ["schema", "traceability", "docs", "references"]},
+
+    {"id": "tool.build_indexes", "path": "tools/build_indexes.mjs", "kind": "validation_tool", "tags": ["tool", "index", "search", "graph", "route", "summary"]},
+    {"id": "tool.validate_kb", "path": "tools/validate_kb.mjs", "kind": "validation_tool", "tags": ["tool", "validation", "schema", "graph", "references", "index", "checks"]},
+    {"id": "tool.query_kb", "path": "tools/query_kb.mjs", "kind": "validation_tool", "tags": ["tool", "query", "search", "retrieval", "graph", "route"]},
+    {"id": "tool.evaluate_query_cases", "path": "tools/evaluate_query_cases.mjs", "kind": "validation_tool", "tags": ["tool", "validation", "query", "retrieval", "routing"]},
+    {"id": "tool.check_context_budget", "path": "tools/check_context_budget.mjs", "kind": "validation_tool", "tags": ["tool", "validation", "context", "budget", "tokens"]},
+    {"id": "tool.check_doc_traceability", "path": "tools/check_doc_traceability.mjs", "kind": "validation_tool", "tags": ["tool", "validation", "traceability", "docs", "nodes", "references"]},
+    {"id": "tool.generate_quality_report", "path": "tools/generate_quality_report.mjs", "kind": "validation_tool", "tags": ["tool", "report", "quality", "coverage", "graph", "gate"]},
+    {"id": "tool.run_all_checks", "path": "tools/run_all_checks.mjs", "kind": "validation_tool", "tags": ["tool", "validation", "checks", "ci", "quality", "audit"]},
+
+    {"id": "index.search", "path": "indexes/search_index.json", "kind": "search_index", "tags": ["index", "search", "inverted", "retrieval"]},
+    {"id": "index.graph_adjacency", "path": "indexes/graph_adjacency.json", "kind": "search_index", "tags": ["index", "graph", "adjacency", "neighbors"]},
+    {"id": "index.route_map", "path": "indexes/route_map.json", "kind": "search_index", "tags": ["index", "route", "goal", "query"]},
+    {"id": "index.summary_cards", "path": "indexes/summary_cards.json", "kind": "search_index", "tags": ["index", "summary", "cards", "compressed"]},
+
+    {"id": "decision.0001", "path": "decisions/0001-loop-principle-mesh.md", "kind": "decision_record", "tags": ["decision", "architecture", "mesh", "knowledge_graph"]}
+  ],
+  "reference_tiers": {
+    "1": "Method / workflow core: directly defines or shapes how to design, run, verify, or stop a loop.",
+    "2": "Evidence / benchmark / transferable theory: academic lineage or empirical risk evidence.",
+    "3": "Governance / risk / boundary context: security, permissions, cost, and policy boundaries.",
+    "4": "Context / watchlist: secondary reporting and ecosystem signal."
+  }
+}

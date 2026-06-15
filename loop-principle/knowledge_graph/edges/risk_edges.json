@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "edges": [
+    {"id": "edge.iter.warns_amplification", "source_id": "principle.iterative_refinement", "target_id": "anti_pattern.error_amplification", "type": "warns"},
+    {"id": "edge.bottleneck.warns_rewardhack", "source_id": "concept.verification_bottleneck", "target_id": "anti_pattern.reward_hacking", "type": "warns"},
+    {"id": "edge.makerchecker.mitigates_rewardhack", "source_id": "principle.maker_checker_separation", "target_id": "anti_pattern.reward_hacking", "type": "mitigates"},
+    {"id": "edge.ctxmgmt.mitigates_drift", "source_id": "principle.context_window_management", "target_id": "anti_pattern.context_drift", "type": "mitigates"},
+    {"id": "edge.infra.supports_debug", "source_id": "principle.infra_prerequisite", "target_id": "pattern.explore_narrow_debug", "type": "supports"},
+    {"id": "edge.autonomy.mitigates_overdelegation", "source_id": "principle.autonomy_by_blast_radius", "target_id": "anti_pattern.premature_over_delegation", "type": "mitigates"},
+    {"id": "edge.autonomy.contradicts_maximalism", "source_id": "principle.autonomy_by_blast_radius", "target_id": "anti_pattern.autonomy_maximalism", "type": "contradicts"},
+    {"id": "edge.rubric.measures_le", "source_id": "procedure.loop_quality_rubric", "target_id": "concept.loop_engineering", "type": "measures"},
+    {"id": "edge.roadmap.supports_le", "source_id": "procedure.adoption_roadmap", "target_id": "concept.loop_engineering", "type": "supports"}
+  ]
+}

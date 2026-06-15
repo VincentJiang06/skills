@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "loop_engineering_foundations",
+  "references": [
+    {
+      "id": "ref.osmani.loop_engineering",
+      "tier": 1,
+      "title_en": "Loop Engineering",
+      "title_zh": "Loop Engineering（循环工程）",
+      "authors_or_org": "Addy Osmani",
+      "source_type": "primary_essay",
+      "url": "https://addyosmani.com/blog/loop-engineering",
+      "summary_zh": "本术语的定义性来源（2026-06）。原话：「Loop engineering 就是替换掉你这个发提示的人，转而设计一个替你发提示的系统。」它「比 harness 高一层：harness 但装上定时器，会自己派生小助手、自己喂自己」。给出五个构件 + 一处外部记忆，并强调 maker/checker 分离是「循环里最有用的结构」，因为「写代码的模型给自己作业打分时太宽容」，「done 是声明而非证明」。",
+      "summary_en": "The defining source of the term (June 2026). Verbatim: 'Loop engineering is replacing yourself as the person who prompts the agent. You design the system that does it instead,' and it 'sits one floor above the harness… but it runs on a timer, it spawns little helpers, and it feeds itself.' Enumerates five primitives plus one external-memory store, and names maker/checker separation 'the most useful structural thing in a loop, by far' because 'the model that wrote the code is way too nice grading its own homework' and 'done is a claim and not a proof.'",
+      "reuse_notes": ["definition_of_loop_engineering", "five_primitives_plus_memory", "maker_checker_separation", "three_sharpening_risks"],
+      "reliability_notes": "Canonical first-author definition. One author's taxonomy, not yet a vendor-neutral standard; the four-stage prompt→context→harness→loop progression is synthesis, not stated verbatim here."
+    },
+    {
+      "id": "ref.osmani.code_agent_orchestra",
+      "tier": 2,
+      "title_en": "The Code Agent Orchestra",
+      "title_zh": "代码 Agent 交响乐团",
+      "authors_or_org": "Addy Osmani",
+      "source_type": "blog",
+      "url": "https://addyosmani.com/blog/code-agent-orchestra/",
+      "summary_zh": "多 agent 并行协作的实践框架：implementer / tester / reviewer / security / docs 等角色分工，前提是隔离环境（worktree、分支、独立日志和权限），再谈并行。",
+      "summary_en": "A practical framing for parallel multi-agent work — implementer / tester / reviewer / security / docs roles — with isolation (worktrees, branches, separate logs and permissions) as the precondition before parallelism.",
+      "reuse_notes": ["multi_agent_roles", "isolation_before_parallelism"],
+      "reliability_notes": "Same-author companion piece; practitioner guidance, not benchmarked."
+    },
+    {
+      "id": "ref.openai.harness_engineering",
+      "tier": 1,
+      "title_en": "Harness Engineering",
+      "title_zh": "Harness Engineering（脚手架工程）",
+      "authors_or_org": "OpenAI",
+      "source_type": "official_engineering_article",
+      "url": "https://openai.com/index/harness-engineering/",
+      "summary_zh": "定义 loop 之下的 harness 层：「围绕 AI agent 的脚手架、约束和反馈循环的完整环境」——仓库结构、CI、格式化、包管理、框架、项目指令、外部工具集成和 linter 都属于 harness。工程师角色从写代码转向设计环境、明确意图、构建反馈循环。Codex 的循环「跑到客观标准满足为止——测试通过、类型检查通过、构建完成」，约束通过自定义 linter、结构测试和 CI 机械化执行。",
+      "summary_en": "Defines the harness layer beneath the loop: 'the full environment of scaffolding, constraints, and feedback loops that surrounds an AI agent' — repo structure, CI, formatting, package managers, frameworks, project instructions, tool integration, linters. The engineer's job shifts from writing code to designing the environment. Codex's loop 'runs until objective criteria are met — tests pass, type checks succeed, builds complete,' with constraints enforced mechanically via custom linters (Codex-generated), structural tests, and CI gates.",
+      "reuse_notes": ["harness_definition", "machine_verifiable_termination", "mechanical_constraint_enforcement", "role_shift"],
+      "reliability_notes": "First-party self-report of internal practice (unaudited). openai.com returned HTTP 403 to fetchers; verified via ≥3 independent verbatim mirrors plus search, not first-hand."
+    },
+    {
+      "id": "ref.openai.unrolling_codex_agent_loop",
+      "tier": 1,
+      "title_en": "Unrolling the Codex Agent Loop",
+      "title_zh": "拆解 Codex Agent 循环",
+      "authors_or_org": "OpenAI",
+      "source_type": "official_engineering_article",
+      "url": "https://openai.com/index/unrolling-the-codex-agent-loop/",
+      "summary_zh": "描述 agent 的微循环：模型可能请求工具调用，系统执行工具，把输出追加回上下文，再重新查询模型；重复直到模型不再调用工具并返回最终消息。指出随对话变长 prompt 增长、agent 可能耗尽上下文窗口，因此上下文窗口管理是 agent 的职责。",
+      "summary_en": "Describes the agent micro-loop: the model may request a tool call, the system executes it, appends the output back to context, and re-queries the model; this repeats until the model stops calling tools and returns a final message. Notes that as conversations grow the prompt grows and the agent can exhaust the context window, making context-window management the agent's responsibility.",
+      "reuse_notes": ["agent_loop_microcycle", "context_window_management"],
+      "reliability_notes": "First-party. Canonical URL 403'd to fetchers; corroborated via mirrors and search."
+    },
+    {
+      "id": "ref.fowler.humans_and_agents",
+      "tier": 1,
+      "title_en": "Humans and Agents in Software Engineering Loops",
+      "title_zh": "软件工程循环中的人与 Agent",
+      "authors_or_org": "Martin Fowler (martinfowler.com)",
+      "source_type": "engineering_article",
+      "url": "https://martinfowler.com/articles/exploring-gen-ai/humans-and-agents.html",
+      "summary_zh": "区分软件交付的上层「why loop」（人关注为什么做、要什么结果）与下层「how loop」（agent 处理构建过程中的代码、测试、工具和基础设施）。为「人站在循环之上、agent 处理构建机制」的分工提供框架。",
+      "summary_en": "Distinguishes an upper 'why loop' (humans focused on why and on outcomes) from a lower 'how loop' (agents handling code, tests, tools, and infrastructure during the build). Frames the division of labor where humans sit above the loop and agents own build mechanics.",
+      "reuse_notes": ["why_loop_vs_how_loop", "human_above_the_loop"],
+      "reliability_notes": "High-quality practitioner framing; conceptual, not a controlled study. Not independently re-verified in this research run."
+    },
+    {
+      "id": "ref.kilo.what_is_loop_engineering",
+      "tier": 2,
+      "title_en": "What Is Loop Engineering? AI Feedback Loops",
+      "title_zh": "什么是 Loop Engineering？AI 反馈循环",
+      "authors_or_org": "Kilo",
+      "source_type": "blog",
+      "url": "https://kilo.ai/articles/what-is-loop-engineering",
+      "summary_zh": "把 loop engineering 定义为：不把 AI 当一次性代码生成器，而是把软件工作组织成「定义目标、检查代码、修改、验证、读取结果、决定下一步」的迭代系统。",
+      "summary_en": "Defines loop engineering as organizing software work — not as one-shot generation but as an iterative system of define-goal, inspect-code, modify, verify, read-results, decide-next.",
+      "reuse_notes": ["loop_as_dev_cycle_automated"],
+      "reliability_notes": "Vendor blog; useful framing, not independently re-verified as a standalone claim in this run."
+    },
+    {
+      "id": "ref.mindstudio.loop_engineering",
+      "tier": 2,
+      "title_en": "What Is Loop Engineering? The New Meta for AI Coding Agents",
+      "title_zh": "什么是 Loop Engineering？AI 编码 agent 的新范式",
+      "authors_or_org": "MindStudio",
+      "source_type": "blog",
+      "url": "https://www.mindstudio.ai/blog/what-is-loop-engineering-ai-coding-agents",
+      "summary_zh": "把 agent loop 描述为：agent 不是只响应一次，而是行动、观察结果、决定下一步，并重复直到满足某个终止条件。",
+      "summary_en": "Describes the agent loop as: the agent does not respond once but acts, observes results, decides the next step, and repeats until a termination condition is met.",
+      "reuse_notes": ["act_observe_decide_repeat", "termination_condition"],
+      "reliability_notes": "Vendor blog; useful framing, not independently re-verified as a standalone claim in this run."
+    },
+    {
+      "id": "ref.demmel.feedback_loop_engineering",
+      "tier": 1,
+      "title_en": "Feedback Loop Engineering",
+      "title_zh": "反馈循环工程",
+      "authors_or_org": "Daniel Demmel",
+      "source_type": "blog",
+      "url": "https://www.danieldemmel.me/blog/feedback-loop-engineering",
+      "summary_zh": "核心主张：你希望 agent 能运行它自己的代码、看到结果，然后像开发者一样迭代；反馈越快越紧，输出越好。",
+      "summary_en": "Core claim: you want the agent to run its own code, see the result, and iterate like a developer; the faster and tighter the feedback, the better the output.",
+      "reuse_notes": ["tight_fast_feedback", "agent_runs_its_own_code"],
+      "reliability_notes": "Practitioner blog; the tight-feedback thesis is independently corroborated by Anthropic and OpenAI primary sources."
+    },
+    {
+      "id": "ref.infoq.fowler_ai_assisted_dev",
+      "tier": 4,
+      "title_en": "Martin Fowler on AI-Assisted Development",
+      "title_zh": "Martin Fowler 谈 AI 辅助开发",
+      "authors_or_org": "InfoQ",
+      "source_type": "secondary_reporting",
+      "url": "https://www.infoq.com/news/2026/03/mf-aiassisted-dev/",
+      "summary_zh": "二手报道，转述 Fowler 的 why/how loop 框架，并记录工程师角色从实现代码转向「设计环境、明确意图、提供结构化反馈」。可用于交叉印证 OpenAI 的角色转变说法。",
+      "summary_en": "Secondary reporting that restates Fowler's why/how loop framing and records the engineer's shift from implementing code to 'designing environments, specifying intent, and providing structured feedback.' Useful to cross-corroborate OpenAI's role-shift claim.",
+      "reuse_notes": ["role_shift_corroboration"],
+      "reliability_notes": "Secondary source; use only to corroborate primary statements."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "theoretical_lineage",
+  "references": [
+    {
+      "id": "ref.react",
+      "tier": 2,
+      "title_en": "ReAct: Synergizing Reasoning and Acting in Language Models",
+      "title_zh": "ReAct：在语言模型中协同推理与行动",
+      "authors_or_org": "Yao et al. (ICLR 2023)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2210.03629",
+      "summary_zh": "loop engineering 的直接理论祖先。以交错方式生成推理轨迹与任务行动，使二者相互增强：推理帮助模型归纳、跟踪、更新计划并处理异常；行动让模型与外部来源交互以获取更多信息。这就是 loop 概括的 Act→Observe→Adjust 反馈循环。",
+      "summary_en": "The direct theoretical ancestor. Generates reasoning traces and task-specific actions in an interleaved manner so the two reinforce each other: reasoning helps the model induce, track, and update plans and handle exceptions, while actions let it interface with external sources to gather more information. This is the Act→Observe→Adjust feedback cycle that loop engineering generalizes.",
+      "reuse_notes": ["reason_act_interleaving", "act_observe_adjust"],
+      "reliability_notes": "Peer-reviewed. Predates the term 'loop engineering' (2026); the ancestry link is connective synthesis matching the field's self-described lineage, not source-stated."
+    },
+    {
+      "id": "ref.reflexion",
+      "tier": 2,
+      "title_en": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "title_zh": "Reflexion：具备语言强化学习的语言 agent",
+      "authors_or_org": "Shinn et al. (NeurIPS 2023)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2303.11366",
+      "summary_zh": "无权重更新的「语言强化学习」：通过语言反馈而非微调来强化 agent。agent 对任务反馈进行口头反思，并把反思文本存入情景记忆缓冲，以改进后续 trial 的决策。在 HumanEval 上达到 91% pass@1，超过 GPT-4 的 80%。注意：91% 依赖其自生成的内部单元测试作为反馈信号，论文自承「把瓶颈转移到正确生成测试」。",
+      "summary_en": "Weight-free 'verbal reinforcement learning': reinforces agents through linguistic feedback rather than fine-tuning. The agent verbally reflects on task feedback and stores that reflective text in an episodic memory buffer to improve decisions on subsequent trials. Achieves 91% pass@1 on HumanEval, beating GPT-4's 80%. Caveat: the 91% relies on Reflexion's self-generated internal unit tests as the signal; the paper admits this 'shifts the bottleneck to correct test generation' — reward-hacking in embryo.",
+      "reuse_notes": ["verbal_reinforcement", "episodic_memory_buffer", "iterative_beats_single_pass", "test_generation_bottleneck"],
+      "reliability_notes": "Peer-reviewed; an independent replication reports ~89.4 (validates, not contradicts). The self-test dependency is the methodological caveat tying it to reward-hacking risk."
+    },
+    {
+      "id": "ref.self_refine",
+      "tier": 2,
+      "title_en": "Self-Refine: Iterative Refinement with Self-Feedback",
+      "title_zh": "Self-Refine：基于自我反馈的迭代精炼",
+      "authors_or_org": "Madaan et al. (NeurIPS 2023)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2303.17651",
+      "summary_zh": "测试期迭代精炼循环，单个 LLM 同时担任生成器、反馈者和精炼者，无外部组件：生成初稿 → 自我批评 → 据反馈精炼 → 重复。无需监督数据、额外训练或 RL。批评集中在「效力」（弱模型难自我精炼、数学增益约 5%），而非训练自由的机制本身。",
+      "summary_en": "A test-time iterative refinement loop using a single LLM as generator, feedback-provider, and refiner with no external components: generate an initial output, critique it, refine from that feedback, and repeat. Requires no supervised data, additional training, or RL. Critiques target efficacy (weak models struggle to refine; ~5% math gains even with oracle feedback), not the training-free mechanism.",
+      "reuse_notes": ["single_model_self_feedback", "training_free_refinement"],
+      "reliability_notes": "Peer-reviewed. Efficacy is model-dependent; the loop structure is the transferable contribution."
+    },
+    {
+      "id": "ref.agentic_reasoning_survey",
+      "tier": 2,
+      "title_en": "LLM-based Agentic Reasoning Frameworks: A Survey from Methods to Scenarios",
+      "title_zh": "基于 LLM 的 Agentic 推理框架综述：从方法到场景",
+      "authors_or_org": "Zhao et al. (Aug 2025; MPI, Lancaster Univ.)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/html/2508.17692v1",
+      "summary_zh": "把迭代精炼形式化为「将输出 y 与标准 S 比较，进入精炼迭代循环直到条件满足」（停止谓词 Q ≜ (y ⊨ S)）。命名三种失败模式：反馈机制有缺陷时收敛到次优解；级联失败（早期一步出错使整链停摆）；陷入无效循环（撞墙），需要精心设计的终止条件。",
+      "summary_en": "Formalizes iterative refinement as 'the agent checks [output] against a standard S, entering an iterative loop of refinement until the condition is met' (stop predicate Q ≜ (y ⊨ S)). Names three failure modes: converging on a suboptimal solution when feedback is flawed; cascading failure (one early error halts the chain); getting stuck in unproductive loops (head-banging), requiring carefully designed termination conditions.",
+      "reuse_notes": ["formal_stop_predicate", "three_iterative_failure_modes"],
+      "reliability_notes": "Peer-style academic survey. NOTE: a separate proposed claim that this survey offers a clean single/tool/multi-agent taxonomy mapping to loop patterns was REFUTED 0-3 in verification and is excluded."
+    }
+  ]
+}

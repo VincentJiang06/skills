@@ -1,0 +1,51 @@
+{
+  "task": "Fix the intermittent 500 on POST /checkout without changing the response schema",
+  "definition_of_done": {
+    "goal": "npm test checkout exits 0 and the 500 no longer reproduces over 50 runs of scripts/repro_checkout.sh",
+    "machine_verifiable": true
+  },
+  "loop_pattern": "plan_execute_verify",
+  "feedback_signal": {
+    "check": "npm test checkout && node scripts/repro_checkout.sh --runs 50",
+    "expect": "pass"
+  },
+  "stop_conditions": {
+    "success": "all acceptance checks pass and diff stays within touched checkout module",
+    "failure": [
+      "3 consecutive same-type failures",
+      "scope exceeds the checkout module",
+      "requirement contradiction surfaces",
+      "security/data risk discovered"
+    ],
+    "escalate": [
+      "public-API/response-schema change becomes necessary",
+      "production permission required",
+      "tests look flaky/untrustworthy"
+    ],
+    "max_iterations": 8
+  },
+  "human_placement": "on_the_loop",
+  "maker_checker": {
+    "separate_checker": true,
+    "scope": "fresh-context reviewer sees only the diff + acceptance checks; flags correctness / stated-requirement gaps only"
+  },
+  "harness_primitives": [
+    "git worktree isolation for reversible work",
+    "pre-commit hook runs the check as a deterministic gate",
+    "external scratch file for run-state across context resets"
+  ],
+  "risk_guards": [
+    {
+      "risk": "reward hacking / test overfitting (agent edits the test to pass)",
+      "mitigation": "checker diffs test files; repro script is independent of the unit test"
+    },
+    {
+      "risk": "error amplification across retries",
+      "mitigation": "stop after 3 consecutive same-type failures and change strategy, not head-bang"
+    },
+    {
+      "risk": "permission blast radius",
+      "mitigation": "no production resources; sandbox + least-privilege tokens"
+    }
+  ]
+}

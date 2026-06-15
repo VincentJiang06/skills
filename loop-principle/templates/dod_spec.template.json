@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.dod_spec",
+  "title_zh": "完成定义（DoD）规格",
+  "title_en": "Definition-of-Done Spec",
+  "goal": "<single, machine-verifiable goal — e.g. fix intermittent 500 on checkout without changing the response schema>",
+  "constraints": [
+    "minimal viable change; do not touch unrelated files",
+    "no public API change without justification",
+    "no production resources"
+  ],
+  "acceptance_checks": [
+    {"command": "<test cmd, e.g. pnpm test auth>", "expect": "pass"},
+    {"command": "<lint/type/build cmd>", "expect": "pass"}
+  ],
+  "stop_conditions": {
+    "success": "all acceptance_checks pass and diff within limits",
+    "failure": ["3 consecutive same-type failures", "scope exceeds limit", "restricted resource needed", "requirement contradiction", "security/data risk"],
+    "escalate": ["product judgment", "architecture choice", "production permission", "public-API change", "flaky/untrustworthy tests"]
+  },
+  "metric_ids": ["metric.task_success_rate", "metric.reward_hack_rate"],
+  "reference_ids": ["ref.anthropic.claude_code_best_practices", "ref.openai.harness_engineering"]
+}

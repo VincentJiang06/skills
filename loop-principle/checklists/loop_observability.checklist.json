@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "checklist_id": "checklist.loop_observability",
+  "title_zh": "循环可观测性清单",
+  "title_en": "Loop Observability Checklist",
+  "reference_ids": ["ref.datadog.harness_first_agents", "ref.openai.unrolling_codex_agent_loop", "ref.metr.reward_hacking"],
+  "items": [
+    {"id": "obs.per_step_feedback", "question_zh": "每一步是否都有可读的反馈（不仅最终结果）？", "question_en": "Does every step emit readable feedback, not just a final result?", "required": true},
+    {"id": "obs.diff_inspected", "question_zh": "是否检查 diff 而不仅是绿色检查（防 harness 认证错误代码）？", "question_en": "Is the diff inspected, not just the green check (anti harness-certifying-wrong-code)?", "required": true},
+    {"id": "obs.test_integrity", "question_zh": "是否监控测试被删除/弱化、断言被降级（奖励作弊信号）？", "question_en": "Is deletion/weakening of tests and downgraded assertions monitored (reward-hack signals)?", "required": true},
+    {"id": "obs.context_watch", "question_zh": "是否监控上下文窗口占用，逼近上限时触发压缩/外部记忆？", "question_en": "Is context-window utilization watched, triggering compaction/external memory near the ceiling?", "required": true},
+    {"id": "obs.metrics_tracked", "question_zh": "是否记录成功率与其完整性对照指标（成功率+奖励作弊率）？", "question_en": "Are success metrics tracked alongside their integrity counterweights (success + reward-hack rate)?", "required": true},
+    {"id": "obs.audit_summary", "question_zh": "循环停止时是否产出可审计总结（根因、改动、检查、剩余风险）？", "question_en": "On stop, does it produce an auditable summary (root cause, changes, checks, residual risk)?", "required": true},
+    {"id": "obs.production_loop", "question_zh": "对已上线改动，生产遥测是否回流以发现建模与真实执行的偏差？", "question_en": "For shipped changes, does production telemetry feed back to surface model-vs-reality mismatches?", "required": false}
+  ]
+}

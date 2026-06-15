@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "checklist_id": "checklist.loop_design_review",
+  "title_zh": "循环设计审查清单",
+  "title_en": "Loop Design Review Checklist",
+  "reference_ids": ["ref.osmani.loop_engineering", "ref.anthropic.claude_code_best_practices", "ref.openai.harness_engineering"],
+  "items": [
+    {"id": "design.intent", "question_zh": "目标是否单一、清晰，并写成机器可验证的完成定义（DoD）？", "question_en": "Is the goal single, clear, and written as a machine-verifiable Definition of Done?", "required": true},
+    {"id": "design.plan_split", "question_zh": "是否分离探索/规划与执行，避免解决错误的问题？", "question_en": "Is exploration/planning separated from execution to avoid solving the wrong problem?", "required": true},
+    {"id": "design.check", "question_zh": "是否有一个可运行、产出 pass/fail 的检查让循环自主闭合？", "question_en": "Is there a runnable pass/fail check that closes the loop autonomously?", "required": true},
+    {"id": "design.signal_speed", "question_zh": "反馈信号是否足够快、足够紧（优先最便宜能抓住该失败类的信号）？", "question_en": "Is the feedback signal fast and tight (cheapest signal that still catches the failure class)?", "required": true},
+    {"id": "design.maker_checker", "question_zh": "checker 是否独立于 maker（全新上下文、只看 diff+标准）？", "question_en": "Is the checker independent of the maker (fresh context, diff+criteria only)?", "required": true},
+    {"id": "design.stop", "question_zh": "是否有确定性停止闸门 + 最大轮数 + 升级触发？", "question_en": "Is there a deterministic stop gate + max-iterations + escalation triggers?", "required": true},
+    {"id": "design.memory", "question_zh": "状态是否外置以在上下文重置后存活？", "question_en": "Is state externalized so it survives context resets?", "required": true},
+    {"id": "design.autonomy", "question_zh": "自主度是否匹配爆炸半径 × 可逆性 × 反馈质量？", "question_en": "Is autonomy matched to blast radius × reversibility × feedback quality?", "required": true}
+  ]
+}

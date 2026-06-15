@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "template_id": "template.escalation_record",
+  "title_zh": "升级 / 停止记录",
+  "title_en": "Escalation / Stop Record",
+  "trigger": "<what fired the stop, e.g. 3 consecutive failing auth tests with the same root cause>",
+  "category": "failure_stop",
+  "context": "<what the loop had done so far; current hypothesis; files touched>",
+  "decision": "<what the human/system decided: revert, narrow scope, hand to human, change strategy>",
+  "reference_ids": ["ref.anthropic.claude_code_best_practices", "ref.schneier.agentic_ooda_loop"]
+}

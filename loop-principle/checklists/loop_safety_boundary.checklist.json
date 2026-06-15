@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "checklist_id": "checklist.loop_safety_boundary",
+  "title_zh": "循环安全边界清单",
+  "title_en": "Loop Safety Boundary Checklist",
+  "items": [
+    {"id": "safety.autonomy_match", "question_zh": "自主度是否匹配爆炸半径 × 可逆性 × 反馈质量？", "question_en": "Is autonomy matched to blast radius × reversibility × feedback quality?", "required": true},
+    {"id": "safety.human_gate", "question_zh": "高风险动作（权限/支付/数据迁移/删除/生产/公共 API）是否人在循环内？", "question_en": "Are high-risk actions (permissions/payments/migration/deletes/prod/public-API) human-in-the-loop?", "required": true},
+    {"id": "safety.least_privilege", "question_zh": "是否最小权限 + 沙箱 + dev-only 凭据 + 网络白名单？", "question_en": "Least privilege + sandbox + dev-only creds + network allowlist?", "required": true},
+    {"id": "safety.destructive_confirm", "question_zh": "危险命令是否需人工确认？", "question_en": "Do destructive commands require human confirmation?", "required": true},
+    {"id": "safety.test_integrity", "question_zh": "是否禁止未说明理由地删除/弱化测试（防奖励作弊）？", "question_en": "Is deleting/weakening tests without justification forbidden (anti reward-hacking)?", "required": true},
+    {"id": "safety.diff_inspect", "question_zh": "是否检查 diff 而不仅是绿色检查（防 harness 认证错误代码）？", "question_en": "Is the diff inspected, not just the green check (anti harness certifying wrong code)?", "required": true},
+    {"id": "safety.deps_audit", "question_zh": "新依赖与安装的 skills 是否经过审计（可信来源）？", "question_en": "Are new dependencies and installed skills audited (trusted sources)?", "required": true},
+    {"id": "safety.infra_eyes", "question_zh": "是否有测试/日志/CI 给循环『眼睛』，否则不要无人值守？", "question_en": "Are there tests/logs/CI to give the loop eyes — else do not run unattended?", "required": true}
+  ]
+}

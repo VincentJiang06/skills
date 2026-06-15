@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "multi_agent_orchestration",
+  "references": [
+    {
+      "id": "ref.anthropic.multi_agent_research_system",
+      "tier": 1,
+      "title_en": "How we built our multi-agent research system",
+      "title_zh": "我们如何构建多智能体研究系统",
+      "authors_or_org": "Anthropic (Engineering)",
+      "source_type": "official_engineering_article",
+      "url": "https://www.anthropic.com/engineering/built-multi-agent-research-system",
+      "summary_zh": "Anthropic 工程团队详述其 Research 功能背后的编排者-工作者（orchestrator-worker）架构：一个 lead agent 把查询写入记忆、制定计划、并行派生 3-5 个 subagent，每个 subagent 拿到目标/输出格式/工具与边界的明确契约。报告给出关键经验数据——多智能体比单智能体 Opus 4 在内部评测上高 90.2%，但消耗约 15 倍 token（token 用量本身解释 80% 的性能方差），并明确指出该架构只适合可重并行的读取型任务、不适合需要共享上下文或强依赖的写入型任务。对设计循环的价值：把'扩散努力随查询复杂度缩放''教编排者如何委派''像你的 agent 一样思考'变成可复用的循环工程原则，并提供停止/边界判据。",
+      "summary_en": "Anthropic's engineering account of the orchestrator-worker architecture behind its Research feature: a lead agent records the plan to memory, decomposes the query, and spawns 3-5 subagents in parallel, each handed an explicit contract (objective, output format, tools/sources, task boundaries). It supplies the canonical numbers — multi-agent beat single-agent Opus 4 by 90.2% on internal evals but used ~15x the tokens (token usage alone explains 80% of performance variance) — and is explicit that the pattern only fits parallelizable read tasks, not write tasks needing shared context or tight inter-agent dependencies. Core to loop design: turns 'scale effort to query complexity', 'teach the orchestrator to delegate', and 'think like your agents' into reusable loop-engineering principles plus stop/boundary criteria.",
+      "reuse_notes": [
+        "orchestrator_worker_pattern",
+        "delegation_contract",
+        "parallel_fanout",
+        "when_multiagent_helps"
+      ],
+      "reliability_notes": "First-party Anthropic engineering blog (Jun 13 2025); primary source with measured internal eval numbers, though prompts not released."
+    },
+    {
+      "id": "ref.cemri.why_multi_agent_fail",
+      "tier": 2,
+      "title_en": "Why Do Multi-Agent LLM Systems Fail?",
+      "title_zh": "多智能体 LLM 系统为何失败？",
+      "authors_or_org": "Mert Cemri, Melissa Z. Pan, Shuyi Yang et al. (UC Berkeley)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2503.13657",
+      "summary_zh": "首个基于实证的多智能体系统失败分类法（MAST）。研究人员标注了 7 个主流 MAS 框架、200+ 任务、1600+ 轨迹（6 名专家标注，Cohen's Kappa 0.88），归纳出 14 种失败模式，分为三大类：(i) 规格/任务定义问题，(ii) 智能体间错位（协调/沟通失败），(iii) 任务验证不足。这为'多智能体何时会坏、坏在哪里'提供了可度量的证据基础，直接服务于循环工程中的失败诊断与验证环节设计——把验证缺失、上下文不共享、角色越界等具体失败点暴露为可检查项。",
+      "summary_en": "The first empirically grounded taxonomy of multi-agent system failures (MAST). The authors annotated 7 popular MAS frameworks across 200+ tasks and 1600+ traces (6 expert annotators, Cohen's Kappa 0.88) to derive 14 failure modes in three categories: (i) specification/task-definition issues, (ii) inter-agent misalignment (coordination/communication failures), and (iii) task verification. It gives a measurable evidence base for where and why multi-agent loops break, directly informing failure diagnosis and the design of verification steps — exposing missing verification, unshared context, and role overstepping as concrete checkable items.",
+      "reuse_notes": [
+        "failure_taxonomy",
+        "verification_gap",
+        "inter_agent_misalignment",
+        "empirical_evidence"
+      ],
+      "reliability_notes": "Peer-reviewed/arXiv (Mar 2025), UC Berkeley + collaborators; strong methodology, open dataset and code on GitHub."
+    },
+    {
+      "id": "ref.cognition.dont_build_multi_agents",
+      "tier": 1,
+      "title_en": "Don't Build Multi-Agents",
+      "title_zh": "不要构建多智能体",
+      "authors_or_org": "Walden Yan (Cognition)",
+      "source_type": "official_engineering_article",
+      "url": "https://cognition.ai/blog/dont-build-multi-agents",
+      "summary_zh": "Devin 背后团队 Cognition 给出与 Anthropic 相反的立场：在 2025 年并行多智能体本质脆弱，因为子智能体看不到彼此的工作，'动作隐含决策，冲突的决策导致糟糕结果'。两条核心原则——(1) 共享上下文，且共享完整 agent trace 而非单条消息；(2) 动作携带隐含决策。它主张用单线程线性 agent 维持连续上下文，对超长任务用一个专门的压缩模型把历史动作/决策摘要成关键细节，而不是引入并行子智能体的协调脆弱性。这是设计循环时'要不要拆多智能体'决策的关键反方论据，也直接定义了上下文工程这一术语。",
+      "summary_en": "Cognition (the Devin team) argues the opposite of Anthropic: in 2025 parallel multi-agent setups are inherently fragile because subagents can't see each other's work, and 'actions carry implicit decisions; conflicting decisions carry bad results.' Two principles: (1) share context, and share full agent traces, not just individual messages; (2) actions carry implicit decisions. It favors single-threaded linear agents that keep continuous context, and for tasks exceeding the window it adds a dedicated compression model that summarizes history into key details rather than spawning parallel subagents. The essential counter-argument for the 'should I split into multiple agents?' decision, and the post that popularized the term context engineering.",
+      "reuse_notes": [
+        "single_agent_default",
+        "share_full_traces",
+        "context_compression",
+        "when_multiagent_hurts"
+      ],
+      "reliability_notes": "First-party Cognition engineering blog (Jun 12 2025) by Walden Yan; opinionated primary source, not empirical benchmark."
+    },
+    {
+      "id": "ref.google.a2a_protocol",
+      "tier": 3,
+      "title_en": "Announcing the Agent2Agent Protocol (A2A)",
+      "title_zh": "发布 Agent2Agent（A2A）智能体互操作协议",
+      "authors_or_org": "Google (Developers Blog)",
+      "source_type": "official_documentation",
+      "url": "https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/",
+      "summary_zh": "Google 于 2025 年 4 月发布的开放 Agent2Agent（A2A）协议公告，逾 50 家技术伙伴支持，后于 6 月捐赠给 Linux Foundation。A2A 让不同厂商/框架构建的 AI agent 之间安全交换信息、协调动作（通过 Agent Card 声明能力、任务/消息生命周期等）。对多智能体编排的价值：它定义了 agent 之间委派与协作的标准接口边界——当循环跨越多个独立 agent 时，这是协议层的'契约'，与单进程内 subagent 派生形成对照，也带来跨信任域的治理/安全考量。",
+      "summary_en": "Google's April 2025 announcement of the open Agent2Agent (A2A) protocol, backed by 50+ partners and later donated to the Linux Foundation (June 2025). A2A lets AI agents built by different vendors/frameworks securely exchange information and coordinate actions (via Agent Cards declaring capabilities, task/message lifecycles, etc.). For multi-agent orchestration it defines the standardized interface boundary for delegation and collaboration across independent agents — the protocol-level 'contract' when a loop spans multiple separately-owned agents, contrasting with in-process subagent spawning and raising cross-trust-domain governance and security concerns.",
+      "reuse_notes": [
+        "agent_to_agent_protocol",
+        "delegation_interface",
+        "cross_vendor_interop",
+        "governance_boundary"
+      ],
+      "reliability_notes": "First-party Google Developers Blog (Apr 9 2025); primary protocol announcement, now a Linux Foundation project — durable canonical reference."
+    },
+    {
+      "id": "ref.langchain.how_when_multi_agent",
+      "tier": 1,
+      "title_en": "How and when to build multi-agent systems",
+      "title_zh": "如何以及何时构建多智能体系统",
+      "authors_or_org": "Harrison Chase (LangChain)",
+      "source_type": "official_engineering_article",
+      "url": "https://www.langchain.com/blog/how-and-when-to-build-multi-agent-systems",
+      "summary_zh": "LangChain 创始人 Harrison Chase 调和 Anthropic 与 Cognition 的对立：两者其实都同意核心是上下文工程——把正确的上下文自动送到每个组件。关键可操作判据是'读 vs 写'区分：读取动作天然可并行（研究/检索），写入动作隐含会冲突的决策，并行化会更糟，因此 Anthropic 把综合（写）刻意放在单个 agent 调用里完成。何时上多智能体：任务高价值、重并行、信息量超单一上下文窗口。对循环工程的价值：给出一个判断'这一段该并行派生还是单线程串行'的清晰、可迁移规则。",
+      "summary_en": "LangChain founder Harrison Chase reconciles the Anthropic vs Cognition debate by showing both agree the real problem is context engineering — automatically getting the right context to each component. The actionable criterion is the read-vs-write distinction: read actions are inherently parallelizable (research/retrieval) while write actions carry conflicting decisions and degrade when parallelized, which is why Anthropic deliberately does synthesis (writing) in a single agent call. Use multi-agent when the task is high-value, heavily parallelizable, and exceeds a single context window. For loop design, it gives a clean, portable rule for deciding when a loop segment should fan out vs stay single-threaded.",
+      "reuse_notes": [
+        "read_vs_write_split",
+        "parallelizability_test",
+        "multiagent_decision_rule",
+        "context_engineering"
+      ],
+      "reliability_notes": "First-party LangChain blog (Jun 16 2025) by Harrison Chase; synthesis/opinion bridging two primary posts, well-reasoned but not empirical."
+    },
+    {
+      "id": "ref.nakajima.birth_of_babyagi",
+      "tier": 4,
+      "title_en": "Birth of BabyAGI",
+      "title_zh": "BabyAGI 的诞生",
+      "authors_or_org": "Yohei Nakajima",
+      "source_type": "blog",
+      "url": "https://yoheinakajima.com/birth-of-babyagi/",
+      "summary_zh": "BabyAGI 作者 Yohei Nakajima 的第一手记述，讲述这个'任务驱动自治智能体'（2023 年 3 月）如何诞生及其循环结构：用户给定目标与首个任务，执行 agent 完成任务，任务创建 agent 据结果生成后续任务，优先级 agent 重排任务列表，再把下一个任务送回执行 agent——一个由 LLM + 向量记忆驱动的 plan→execute→create→prioritize 自治循环。它是当代 agent 循环（计划-行动-迭代）与多 agent 角色分工的开创性血脉，对理解'自治循环'范式的起点至关重要。",
+      "summary_en": "First-hand account by BabyAGI's creator Yohei Nakajima of how this 'task-driven autonomous agent' (March 2023) came to be and its loop structure: the user gives an objective and a first task; an execution agent completes it; a task-creation agent generates follow-up tasks from the result; a prioritization agent reorders the task list; then the next task is sent back to the execution agent — a plan→execute→create→prioritize autonomous loop driven by an LLM plus vector memory. A foundational lineage source for the modern plan-act-iterate agent loop and role-specialized multi-agent decomposition.",
+      "reuse_notes": [
+        "autonomous_loop_lineage",
+        "task_creation_prioritization",
+        "plan_act_iterate_origin",
+        "role_specialization"
+      ],
+      "reliability_notes": "Creator's personal blog; authoritative for its own origin story but informal — best as historical lineage, not engineering benchmark."
+    },
+    {
+      "id": "ref.significantgravitas.autogpt",
+      "tier": 4,
+      "title_en": "AutoGPT (Significant-Gravitas) — autonomous GPT-4 agent",
+      "title_zh": "AutoGPT（Significant-Gravitas）——自治 GPT-4 智能体",
+      "authors_or_org": "Toran Bruce Richards / Significant Gravitas",
+      "source_type": "official_documentation",
+      "url": "https://github.com/Significant-Gravitas/AutoGPT",
+      "summary_zh": "AutoGPT 官方仓库——2023 年 3 月 30 日由 Toran Bruce Richards 发布、史上增长最快的开源项目之一（13 天 3 万星）。它把 GPT-4 包成自治软件 agent：把用户自然语言目标拆成子任务，自行循环调用浏览/文件/工具直到完成，无需逐步人工指令。作为'自治循环'范式的开创性参考实现，它确立了 goal→decompose→act→observe→loop 的雏形，也暴露了早期无监督长循环的失控、漂移与成本问题——这些正是后来 harness/停止判据/验证设计要解决的核心痛点。",
+      "summary_en": "The official AutoGPT repository — released Mar 30 2023 by Toran Bruce Richards and one of the fastest-growing open-source projects ever (30k stars in 13 days). It wraps GPT-4 as an autonomous software agent: it decomposes a user's natural-language goal into sub-tasks and loops over browsing/file/tool calls until done, with no step-by-step human commands. As the seminal reference implementation of the autonomous-loop paradigm, it established the goal→decompose→act→observe→loop skeleton and surfaced the early failure modes of unsupervised long loops (runaway, drift, cost) — the very pain points that later harness, stopping-criteria, and verification design exist to solve.",
+      "reuse_notes": [
+        "autonomous_loop_lineage",
+        "goal_decomposition",
+        "runaway_loop_risk",
+        "reference_implementation"
+      ],
+      "reliability_notes": "Official first-party GitHub repo; canonical for the artifact and its history, but a moving project — cite as lineage/origin, not a stable spec."
+    },
+    {
+      "id": "ref.xi.rise_of_llm_agents_survey",
+      "tier": 2,
+      "title_en": "The Rise and Potential of Large Language Model Based Agents: A Survey",
+      "title_zh": "基于大语言模型的智能体的崛起与潜力：综述",
+      "authors_or_org": "Zhiheng Xi, Wenxiang Chen, Xin Guo et al. (Fudan NLP)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2309.07864",
+      "summary_zh": "一篇被广泛引用的 86 页 LLM 智能体综述，提出统一的 brain-perception-action 框架，并系统梳理单智能体能力、多智能体的协作/对抗交互拓扑（合作、辩论、分工）、人-智能体协作，以及评测与开放问题。它为多智能体编排提供了学术坐标系——把'协作/辩论/竞争'等交互范式、社会模拟与角色分工放进统一框架，便于把工程实践（编排者-工作者、A2A）对照到学术分类，理解多智能体循环的设计空间与已知局限。",
+      "summary_en": "A widely cited 86-page survey of LLM-based agents proposing a unified brain-perception-action framework and systematically mapping single-agent capabilities, multi-agent interaction topologies (cooperative, debate, division-of-labor), human-agent collaboration, evaluation, and open problems. It gives the academic coordinate system for multi-agent orchestration — placing cooperation/debate/competition paradigms, social simulation, and role specialization in one framework so engineering practices (orchestrator-worker, A2A) can be mapped to academic categories, clarifying the design space and known limits of multi-agent loops.",
+      "reuse_notes": [
+        "academic_taxonomy",
+        "interaction_topologies",
+        "multiagent_design_space",
+        "lineage_context"
+      ],
+      "reliability_notes": "arXiv survey (Sep 2023, Fudan NLP), later published in Science China Information Sciences; authoritative breadth source, but a survey not a primary method."
+    }
+  ]
+}

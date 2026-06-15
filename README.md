@@ -97,6 +97,7 @@ Day-to-day engineering discipline — auto-triggered as you build.
 
 - **[test-driven-development](skills/test-driven-development/)** — TDD for *non-trivial* behavior: write or update a failing test first, watch it fail once per feature-group, then write minimal code to pass — the suite is a *living spec* of the current target. *Edge:* a discriminative right-size gate that fixes over-triggering (engages on real logic / bugfix / behavior-change; skips renames, config-constants, spikes, generated code, docs); a **modify mode** that edits / merges / deletes over add (one test per feature-group, no proliferation); delegates inventory, test-runs, and stale-scans to subagents. Installs as `vince-tdd`.
 - **[neat](skills/neat/)** — End-of-session knowledge-base cleanup with OCD rigor: reconciles docs (CLAUDE.md/AGENTS.md, README, docs/) and cross-session agent memory against the code so nothing rots — cross-platform (Claude Code / Codex / OpenCode / OpenClaw). *Edge:* a deterministic anti-bloat/anti-rot linter (`kb_audit.mjs`) gates "sync complete" on machine-checkable HARD evidence — MEMORY.md byte/line ceilings, relative-time leakage, memory-vs-docs size inversion, broken index links; a memory→docs "graduation" valve against index bloat; thin-orchestrator SKILL.md (16.6% always-loaded, the rest on-demand). Installs as `vince-neat`.
+- **[loop-constructor](skills/loop-constructor/)** — Designs the engineered *loop* for a task you want an AI agent to run (semi-)autonomously: a machine-verifiable Definition of Done, the right loop pattern (retry / plan-execute-verify / explore-narrow / review / human-in-the-loop), the feedback signal that closes it, stop & escalation conditions, human placement, maker/checker, harness primitives, and risk guards — emitting a filled, machine-checkable loop-design spec. *Edge:* a deterministic linter (`lint_loop_design.mjs`) that **rejects any design with no runnable check** (loop engineering ≈ verification engineering); designs loops, never runs them; grounded in the [`loop-principle/`](loop-principle/) KB (cites node ids, reuses its templates/checklists).
 
 ### The skill-building pipeline
 
@@ -107,13 +108,14 @@ Skills that build skills — run the conductor for the whole loop, or any stage 
 - **[skill-engineer](skills/skill-engineer/)** — Builds and tests a skill from that spec, red-green-refactor. *Edge:* deterministic-script eval + mutation spot-checks + a `trigger_eval` that runs the skill via `claude -p` to measure real trigger-rate.
 - **[skill-zipper](skills/skill-zipper/)** — Restructures an existing skill for token efficiency, reliability, and trigger accuracy. *Edge:* lossless-diff + token-delta proof; a "describe WHEN, not the workflow" rubric; refuses to churn an already-clean skill.
 
-Methodology substrate: **[`develop-principle/`](develop-principle/)** — an agent-first KB for building industrial skills.
+Methodology substrate — two agent-first, self-validating KBs: **[`develop-principle/`](develop-principle/)** (building industrial skills) and **[`loop-principle/`](loop-principle/)** (engineering agent loops — the substrate `loop-constructor` stands on).
 
 ## Layout
 
 ```
 skills/             # install-ready skills (one folder each, with its own README)
 develop-principle/  # agent-first KB powering the pipeline
+loop-principle/     # agent-first KB on loop engineering (powers loop-constructor)
 tools/vince-mp-cli/ # Node CLI that mp-cli-sup drives
 ```
 

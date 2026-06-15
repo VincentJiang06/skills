@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "human_governance_autonomy",
+  "references": [
+    {
+      "id": "ref.anthropic.measuring_agent_autonomy_practice",
+      "tier": 1,
+      "title_en": "Measuring AI agent autonomy in practice",
+      "title_zh": "在实践中度量 AI 智能体的自主性",
+      "authors_or_org": "Anthropic (Miles McCain, Thomas Millar, Saffron Huang, Jake Eaton, et al.)",
+      "source_type": "official_engineering_article",
+      "url": "https://www.anthropic.com/research/measuring-agent-autonomy",
+      "summary_zh": "Anthropic 基于数百万次 Claude Code / API 真实人机交互测量自主性：2025/10→2026/01 间 Claude Code 会话 99.9 分位 turn 时长从 <25 分钟近翻倍到 >45 分钟；有经验用户采取‘双向调整’策略——自动批准比例从约 20% 升到 40%，同时打断比例从 5% 升到 9%，体现主动监督而非放手；并指出‘有效监督不是批准每一步，而是处于能在关键时刻介入的位置’，Claude 主动求澄清的频率超过人类打断的两倍。对 loop engineering 极具价值：用真实数据告诉你审批门该选择性放在哪、何时从 in-the-loop 退到 on-the-loop、何时让 agent 自己停下来求助。",
+      "summary_en": "Anthropic measures autonomy from millions of real Claude Code / API interactions: between Oct 2025 and Jan 2026 the 99.9th-percentile Claude Code turn duration nearly doubled from <25 to >45 minutes; experienced users shift strategy by auto-approving more (≈20%→40%) while simultaneously interrupting more (5%→9%), reflecting active monitoring not abdication; it argues 'effective oversight doesn't require approving every action but being in a position to intervene when it matters,' and Claude asks for clarification more than twice as often as humans interrupt. Highly valuable for loop engineering: empirical guidance on where to place approval gates selectively, when to step back from in-the-loop to on-the-loop, and when an agent should stop and ask.",
+      "reuse_notes": [
+        "empirical_oversight",
+        "selective_approval_gating",
+        "interrupt_vs_autoapprove",
+        "agent_initiated_stop"
+      ],
+      "reliability_notes": "First-party Anthropic research with measured data on a deployed coding agent (Claude Code); directly relevant to loop oversight. Vendor source, so framing favors their product, but the metrics are concrete."
+    },
+    {
+      "id": "ref.cihon.measuring_autonomy_code_inspection",
+      "tier": 2,
+      "title_en": "Measuring AI agent autonomy: Towards a scalable approach with code inspection",
+      "title_zh": "通过代码审查度量 AI 智能体自主性：一种可扩展方法",
+      "authors_or_org": "Peter Cihon, Merlin Stein, Gagan Bansal, Sam Manning, Kevin Xu",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2502.15212",
+      "summary_zh": "提出无需运行 agent、仅静态审查其编排（orchestration）代码即可评估自主性的方法，沿‘影响（impact）×监督（oversight）’两个维度建立分类法，并用 AutoGen 框架的应用做演示，以降低评估成本与风险。对 loop engineering 的意义：把‘这个循环有多自主、人类的审批/监督钩子埋在哪’变成可从 harness 代码里直接读出的可度量属性——即从循环骨架本身判断它是 human-in-the-loop 还是放任自走。",
+      "summary_en": "Proposes assessing agent autonomy by statically inspecting orchestration code rather than running the agent, scoring along two dimensions—impact and oversight—and demonstrates it on AutoGen applications to cut evaluation cost and risk. For loop engineering it makes 'how autonomous is this loop, and where are the human approval/oversight hooks' a measurable property readable directly from the harness code, i.e. judging human-in-the-loop vs free-running from the loop skeleton itself.",
+      "reuse_notes": [
+        "impact_oversight_taxonomy",
+        "static_autonomy_audit",
+        "harness_inspection",
+        "oversight_hooks"
+      ],
+      "reliability_notes": "arXiv preprint (Feb 2025) by GitHub/Oxford/Microsoft-affiliated authors; concrete two-dimensional (impact × oversight) taxonomy. Not yet a journal/conference publication at time of writing."
+    },
+    {
+      "id": "ref.feng.levels_of_autonomy_agents",
+      "tier": 1,
+      "title_en": "Levels of Autonomy for AI Agents",
+      "title_zh": "AI 智能体的自主性分级",
+      "authors_or_org": "K. J. Kevin Feng, David W. McDonald, Amy X. Zhang (Knight First Amendment Institute / arXiv)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2506.12469",
+      "summary_zh": "提出自主性是一项可独立于能力之外的‘刻意设计决策’，并按用户角色定义五个递增等级：operator（人主导，agent 按需协助）、collaborator（频繁往返协作）、consultant（agent 规划、人间接反馈）、approver（人仅对阻塞和重大决策介入）、observer（全自主，人通过日志监控并保留急停）。这正是把 SAE 式自动驾驶分级移植到 coding agent 的核心框架，直接回答 loop engineering 的‘该让循环自主跑多远、人在哪一档介入、何时只需 on-the-loop 监控’，并提出‘自主性证书’治理思路。",
+      "summary_en": "Argues autonomy is a deliberate design decision separable from capability, and defines five escalating levels by user role: operator (user leads, agent assists on demand), collaborator (frequent back-and-forth), consultant (agent plans, user gives indirect feedback), approver (user intervenes only on blockers/consequential decisions), and observer (fully autonomous, user monitors logs with emergency-stop only). This is the central SAE-style adaptation of self-driving levels to agents, directly answering loop engineering's question of how far to let a loop run unsupervised, at which level a human gates, and when human-on-the-loop monitoring suffices; it also proposes 'autonomy certificates' for governance.",
+      "reuse_notes": [
+        "agent_autonomy_levels",
+        "oversight_roles",
+        "approval_gating",
+        "human_on_the_loop"
+      ],
+      "reliability_notes": "Strong primary source; published by the Knight First Amendment Institute (Columbia) with arXiv version; authors are established HCI/AI-governance researchers (UW). The most directly on-topic SAE-style agent framework found."
+    },
+    {
+      "id": "ref.nvidia.agentic_autonomy_levels_security",
+      "tier": 3,
+      "title_en": "Agentic Autonomy Levels and Security",
+      "title_zh": "智能体自主性分级与安全",
+      "authors_or_org": "NVIDIA Technical Blog (Martin Sablotny et al.)",
+      "source_type": "official_engineering_article",
+      "url": "https://developer.nvidia.com/blog/agentic-autonomy-levels-and-security/",
+      "summary_zh": "NVIDIA 把 agent 系统按复杂度与决策能力分为 0–3 四个自主级别（L3 最自主、威胁建模最难），并指出风险主要来自其可用的工具/插件；推荐随自主级别施加相应安全控制：污点追踪（taint tracing）、敏感动作的人工批准、对不可信数据的清洗，尤其在存在潜在漏洞时强烈建议对‘敏感’命令强制 human-in-the-loop 审批。对 loop engineering 提供把自主分级直接映射到‘哪些工具调用必须过审批门’的安全侧操作指南——这是给 agent 循环装审批闸门的实战依据。",
+      "summary_en": "NVIDIA categorizes agentic systems into four autonomy levels (0–3; L3 the most autonomous and hardest to threat-model), notes that risk lies largely in the tools/plugins available, and recommends autonomy-level-dependent controls: taint tracing, manual approval of sensitive actions, and sanitization of untrusted data—strongly advising human-in-the-loop approval for sensitive commands, especially where vulnerabilities exist. For loop engineering it maps autonomy levels directly onto which tool calls must pass an approval gate, a practical security-side basis for installing approval gating into an agent loop.",
+      "reuse_notes": [
+        "autonomy_to_gating",
+        "tool_call_approval",
+        "taint_tracing",
+        "security_oversight"
+      ],
+      "reliability_notes": "First-party NVIDIA engineering blog (Apr 2025); practitioner-oriented security guidance rather than a peer-reviewed study, but actionable and tool-focused."
+    },
+    {
+      "id": "ref.parasuraman.types_levels_automation",
+      "tier": 2,
+      "title_en": "A Model for Types and Levels of Human Interaction with Automation",
+      "title_zh": "人机交互自动化的类型与层级模型",
+      "authors_or_org": "Raja Parasuraman, Thomas B. Sheridan, Christopher D. Wickens (IEEE Transactions on Systems, Man, and Cybernetics)",
+      "source_type": "research_paper",
+      "url": "https://ieeexplore.ieee.org/document/844354",
+      "summary_zh": "经典人因工程论文，提出可对四类信息处理功能（信息获取、信息分析、决策与行动选择、行动执行）分别施加自动化，并沿 Sheridan-Verplank 十级量表选择自动化等级；强调自动化不是替代而是改变人的活动并带来新的协调负担。它为‘agent 循环中哪一步该交给机器、哪一步保留人工审批’提供了奠基性的功能分解词汇——把‘要不要 human-in-the-loop’拆成对计划/执行/验证各阶段独立设级的工程决策。",
+      "summary_en": "The canonical human-factors paper establishing that automation can be applied independently across four information-processing stages (acquisition, analysis, decision/action selection, action implementation), each set to a level on the 10-point Sheridan-Verplank scale; automation does not merely supplant but reshapes human activity and imposes new coordination demands. It is the foundational vocabulary for deciding which step of an agent's plan-act-verify loop is delegated vs gated, turning 'human-in-the-loop?' into a per-stage, per-level engineering choice.",
+      "reuse_notes": [
+        "stage_decomposition",
+        "autonomy_levels_lineage",
+        "oversight_per_step",
+        "loop_design_vocabulary"
+      ],
+      "reliability_notes": "Primary peer-reviewed IEEE paper (2000), thousands of citations; the field's reference taxonomy. IEEE page may be paywalled; DOI 10.1109/3468.844354 is stable."
+    },
+    {
+      "id": "ref.wang.mi9_runtime_governance",
+      "tier": 3,
+      "title_en": "MI9: An Integrated Runtime Governance Framework for Agentic AI",
+      "title_zh": "MI9：面向智能体 AI 的集成式运行时治理框架",
+      "authors_or_org": "Charles L. Wang, Trisha Singhal, Ameya Kelkar, Jason Tuo",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2508.03858",
+      "summary_zh": "针对 agent 在运行时出现的涌现/意外行为，提出超越部署前措施的运行时治理框架，含六个机制：能动性风险指数、agent 语义遥测、持续授权监控、基于有限状态机的合规引擎、目标条件漂移检测、分级遏制策略。其‘分级遏制’意味着按检测到的风险给出层级化介入而非二元放/禁，‘持续授权监控’把人类审批做成贯穿全程的检查点。对 loop engineering 这是 on-the-loop 监督的工程蓝图：如何在循环跑动中检测漂移、在出格时分级中断或收紧自主权。",
+      "summary_en": "Targets emergent and unexpected runtime behaviors, proposing governance beyond pre-deployment via six mechanisms: an agency-risk index, agent-semantic telemetry, continuous authorization monitoring, finite-state-machine conformance engines, goal-conditioned drift detection, and graduated containment. 'Graduated containment' means tiered intervention proportional to detected risk rather than binary allow/deny, and 'continuous authorization monitoring' makes human approval an ongoing checkpoint. For loop engineering it is an engineering blueprint for human-on-the-loop supervision: detecting drift while the loop runs and escalating containment or tightening autonomy when it goes off-spec.",
+      "reuse_notes": [
+        "runtime_oversight",
+        "drift_detection",
+        "graduated_containment",
+        "continuous_authorization"
+      ],
+      "reliability_notes": "arXiv preprint (Aug 2025, rev Nov 2025); detailed mechanism design but a proposal not yet empirically validated at scale. Useful as a structured runtime-governance vocabulary."
+    },
+    {
+      "id": "ref.wu.hitl_ml_survey",
+      "tier": 2,
+      "title_en": "A Survey of Human-in-the-loop for Machine Learning",
+      "title_zh": "机器学习中人在回路（Human-in-the-loop）综述",
+      "authors_or_org": "Xingjiao Wu, Luwei Xiao, Yixuan Sun, Junhang Zhang, Tianlong Ma, Liang He",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2108.00941",
+      "summary_zh": "系统综述把机器学习中的‘人在回路’工作归为三类：通过数据处理提升模型、通过人介入的训练过程提升模型，以及与具体系统无关的 HITL 系统设计；覆盖 NLP、CV 等领域并讨论各自优劣。它给 loop engineering 提供了 HITL 概念的学术血统：人不是事后旁观者，而是数据/反馈/纠错回路里的一个可设计的内部环节——正是 agent 循环中‘人类提供验证信号、纠正轨迹’的理论前身。",
+      "summary_en": "A structured survey classifying human-in-the-loop ML into three families: improving models via data processing, via interventional training, and via system-independent HITL architectures, across NLP/CV and beyond. It supplies the academic lineage of the HITL concept for loop engineering: the human is not a post-hoc observer but a designable internal node in a data/feedback/correction loop, the direct ancestor of an agent loop where humans supply verification signals and steer the trajectory.",
+      "reuse_notes": [
+        "hitl_lineage",
+        "feedback_node",
+        "correction_loop",
+        "intervention_taxonomy"
+      ],
+      "reliability_notes": "Peer-reviewed (published in Artificial Intelligence Review, 2022) with arXiv preprint; widely cited survey. Broad rather than agent-specific."
+    }
+  ]
+}

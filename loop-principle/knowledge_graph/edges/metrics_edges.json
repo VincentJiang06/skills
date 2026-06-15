@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "edges": [
+    {"id": "edge.measurement.measures_success", "source_id": "pillar.measurement", "target_id": "metric.task_success_rate", "type": "measures"},
+    {"id": "edge.measurement.measures_autonomy", "source_id": "pillar.measurement", "target_id": "metric.autonomous_resolution_rate", "type": "measures"},
+    {"id": "edge.measurement.measures_iterations", "source_id": "pillar.measurement", "target_id": "metric.iterations_to_acceptance", "type": "measures"},
+    {"id": "edge.measurement.measures_intervention", "source_id": "pillar.measurement", "target_id": "metric.human_intervention_rate", "type": "measures"},
+    {"id": "edge.measurement.measures_rewardhack", "source_id": "pillar.measurement", "target_id": "metric.reward_hack_rate", "type": "measures"},
+    {"id": "edge.measurement.measures_escape", "source_id": "pillar.measurement", "target_id": "metric.regression_escape_rate", "type": "measures"},
+    {"id": "edge.measurement.measures_cost", "source_id": "pillar.measurement", "target_id": "metric.cost_per_resolution", "type": "measures"},
+    {"id": "edge.measurement.measures_context", "source_id": "pillar.measurement", "target_id": "metric.context_window_utilization", "type": "measures"},
+    {"id": "edge.measurement.measures_stopgate", "source_id": "pillar.measurement", "target_id": "metric.stop_gate_trigger_rate", "type": "measures"},
+    {"id": "edge.measurement.measures_reviewer", "source_id": "pillar.measurement", "target_id": "metric.reviewer_catch_rate", "type": "measures"},
+    {"id": "edge.rewardhack_metric.measures_antipattern", "source_id": "metric.reward_hack_rate", "target_id": "anti_pattern.reward_hacking", "type": "measures"},
+    {"id": "edge.context_metric.measures_drift", "source_id": "metric.context_window_utilization", "target_id": "anti_pattern.context_drift", "type": "measures"},
+    {"id": "edge.stopgate_metric.measures_gate", "source_id": "metric.stop_gate_trigger_rate", "target_id": "procedure.stop_gate", "type": "measures"},
+    {"id": "edge.reviewer_metric.measures_makerchecker", "source_id": "metric.reviewer_catch_rate", "target_id": "principle.maker_checker_separation", "type": "measures"},
+    {"id": "edge.success_metric.measures_check", "source_id": "metric.task_success_rate", "target_id": "principle.closed_loop_needs_a_check", "type": "measures"},
+    {"id": "edge.cost_metric.measures_tokenblowup", "source_id": "metric.cost_per_resolution", "target_id": "anti_pattern.token_blowup", "type": "measures"},
+    {"id": "edge.intervention_metric.measures_humanloop", "source_id": "metric.human_intervention_rate", "target_id": "principle.human_on_vs_in_loop", "type": "measures"},
+    {"id": "edge.escape_metric.measures_bottleneck", "source_id": "metric.regression_escape_rate", "target_id": "concept.verification_bottleneck", "type": "measures"}
+  ]
+}

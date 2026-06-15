@@ -1,0 +1,154 @@
+{
+  "schema_version": "1.0.0",
+  "suite_id": "query_effectiveness.loop_engineering_requirements",
+  "purpose": "Validate that loop-principle routes realistic loop-engineering questions to relevant docs, graph nodes, and assets through public indexes.",
+  "cases": [
+    {
+      "id": "query.what_is_loop_engineering",
+      "requirement": "什么是 loop engineering？它和 prompt/context/harness engineering 有什么区别？",
+      "expected_doc_ids": ["doc.foundations.loop_engineering_foundations", "doc.research.loop_engineering_survey"],
+      "expected_node_ids": ["concept.loop_engineering", "concept.harness", "principle.engineering_stack_progression"],
+      "expected_asset_ids": []
+    },
+    {
+      "id": "query.lineage_react_reflexion",
+      "requirement": "loop engineering 的理论来源是什么？ReAct、Reflexion、Self-Refine 怎么演化来的？",
+      "expected_doc_ids": ["doc.lineage.theoretical_lineage"],
+      "expected_node_ids": ["concept.react", "concept.reflexion", "concept.self_refine", "principle.iterative_refinement"],
+      "expected_asset_ids": []
+    },
+    {
+      "id": "query.loop_anatomy_phases",
+      "requirement": "一个标准循环长什么样？Explore-Plan-Implement-Commit 该怎么排？",
+      "expected_doc_ids": ["doc.anatomy.loop_anatomy_and_patterns"],
+      "expected_node_ids": ["procedure.canonical_loop", "procedure.explore_plan_implement_commit", "principle.separate_planning_from_execution"],
+      "expected_asset_ids": ["template.loop_design"]
+    },
+    {
+      "id": "query.loop_patterns",
+      "requirement": "有哪些具体循环模式？retry、plan-execute-verify、调试、review、human-in-the-loop 分别什么时候用？",
+      "expected_doc_ids": ["doc.anatomy.loop_anatomy_and_patterns"],
+      "expected_node_ids": ["pattern.retry_loop", "pattern.review_loop", "pattern.human_in_the_loop"],
+      "expected_asset_ids": ["template.loop_design"]
+    },
+    {
+      "id": "query.feedback_and_check",
+      "requirement": "怎样让循环自主闭合？反馈信号有哪些、为什么快反馈更好？",
+      "expected_doc_ids": ["doc.feedback.feedback_verification_observability"],
+      "expected_node_ids": ["principle.closed_loop_needs_a_check", "concept.feedback_signal_spectrum", "principle.machine_verifiable_dod"],
+      "expected_asset_ids": []
+    },
+    {
+      "id": "query.harness_primitives_hooks",
+      "requirement": "构建一个循环需要哪些工具构件？hooks、worktree、子 agent、skills、连接器怎么用？",
+      "expected_doc_ids": ["doc.harness.harness_and_tooling_layer"],
+      "expected_node_ids": ["concept.loop_primitives", "technique.hooks_as_deterministic_gate", "technique.git_worktree_isolation", "technique.subagent_split"],
+      "expected_asset_ids": []
+    },
+    {
+      "id": "query.stop_conditions",
+      "requirement": "循环什么时候停？怎么设停止条件、最大轮数和升级到人？",
+      "expected_doc_ids": ["doc.governance.stop_conditions_and_multi_agent"],
+      "expected_node_ids": ["procedure.stop_gate", "procedure.escalation_triggers"],
+      "expected_asset_ids": ["checklist.loop_safety_boundary"]
+    },
+    {
+      "id": "query.maker_checker_review",
+      "requirement": "为什么写代码的 agent 不能给自己打分？maker/checker 和对抗式审查怎么做？",
+      "expected_doc_ids": ["doc.governance.stop_conditions_and_multi_agent"],
+      "expected_node_ids": ["principle.maker_checker_separation", "principle.adversarial_review_subagent", "pattern.review_loop"],
+      "expected_asset_ids": []
+    },
+    {
+      "id": "query.multi_agent_isolation",
+      "requirement": "多 agent 并行循环怎么做？worktree、分支、独立 DB、沙箱、权限隔离怎么排？",
+      "expected_doc_ids": ["doc.governance.stop_conditions_and_multi_agent", "doc.harness.harness_and_tooling_layer"],
+      "expected_node_ids": ["pattern.multi_agent_orchestra", "technique.git_worktree_isolation"],
+      "expected_asset_ids": ["checklist.loop_safety_boundary"]
+    },
+    {
+      "id": "query.risks_reward_hacking",
+      "requirement": "循环有什么风险？奖励作弊/测试过拟合、错误放大、上下文漂移、token 暴涨怎么防？",
+      "expected_doc_ids": ["doc.risks.costs_risks_failure_modes"],
+      "expected_node_ids": ["anti_pattern.reward_hacking", "anti_pattern.error_amplification", "anti_pattern.context_drift", "anti_pattern.token_blowup"],
+      "expected_asset_ids": ["checklist.loop_safety_boundary"]
+    },
+    {
+      "id": "query.security_permissions",
+      "requirement": "agent 能跑 shell、改文件、连 DB，安全怎么控？最小权限、沙箱、人工确认？",
+      "expected_doc_ids": ["doc.risks.costs_risks_failure_modes"],
+      "expected_node_ids": ["anti_pattern.permission_blast_radius", "principle.infra_prerequisite", "principle.autonomy_by_blast_radius"],
+      "expected_asset_ids": ["checklist.loop_safety_boundary"]
+    },
+    {
+      "id": "query.judge_loop_quality",
+      "requirement": "怎么判断一个循环好不好？给我一个评分清单和落地路线。",
+      "expected_doc_ids": ["doc.practice.adoption_rubric_misconceptions"],
+      "expected_node_ids": ["procedure.loop_quality_rubric", "procedure.adoption_roadmap"],
+      "expected_asset_ids": ["template.loop_quality_rubric", "checklist.good_loop_review"]
+    },
+    {
+      "id": "query.misconceptions",
+      "requirement": "loop engineering 有哪些常见误区？是不是越自动越好、是不是就是写个 while 循环？",
+      "expected_doc_ids": ["doc.practice.adoption_rubric_misconceptions"],
+      "expected_node_ids": ["anti_pattern.loop_is_a_while_loop", "anti_pattern.autonomy_maximalism"],
+      "expected_asset_ids": []
+    },
+    {
+      "id": "query.human_on_vs_in_loop",
+      "requirement": "人应该在循环之内还是之上？什么时候 human-in-the-loop，什么时候 on-the-loop？",
+      "expected_doc_ids": ["doc.governance.stop_conditions_and_multi_agent"],
+      "expected_node_ids": ["principle.human_on_vs_in_loop", "principle.autonomy_by_blast_radius", "pattern.human_in_the_loop"],
+      "expected_asset_ids": []
+    },
+    {
+      "id": "query.loop_metrics",
+      "requirement": "怎么量化一个循环好不好？有哪些循环度量指标，比如任务成功率？",
+      "expected_doc_ids": ["doc.measurement.loop_metrics"],
+      "expected_node_ids": ["pillar.measurement", "metric.task_success_rate", "metric.autonomous_resolution_rate"],
+      "expected_asset_ids": ["metrics.catalog"]
+    },
+    {
+      "id": "query.reward_hack_metric",
+      "requirement": "怎么度量奖励作弊？成功率指标要和什么完整性指标配对？",
+      "expected_doc_ids": ["doc.measurement.loop_metrics"],
+      "expected_node_ids": ["metric.reward_hack_rate", "metric.task_success_rate"],
+      "expected_asset_ids": ["metrics.catalog"]
+    },
+    {
+      "id": "query.dod_template",
+      "requirement": "我要写一个机器可验证的完成定义 DoD，有没有模板和验收检查格式？",
+      "expected_doc_ids": ["doc.feedback.feedback_verification_observability"],
+      "expected_node_ids": ["principle.machine_verifiable_dod", "principle.closed_loop_needs_a_check"],
+      "expected_asset_ids": ["template.dod_spec"]
+    },
+    {
+      "id": "query.escalation_template",
+      "requirement": "循环停止或升级时怎么记录？有没有升级记录模板和停止条件？",
+      "expected_doc_ids": ["doc.governance.stop_conditions_and_multi_agent"],
+      "expected_node_ids": ["procedure.escalation_triggers", "procedure.stop_gate"],
+      "expected_asset_ids": ["template.escalation_record"]
+    },
+    {
+      "id": "query.multi_agent_template",
+      "requirement": "多 agent 并行循环怎么排角色和隔离？有没有计划模板？",
+      "expected_doc_ids": ["doc.governance.stop_conditions_and_multi_agent"],
+      "expected_node_ids": ["pattern.multi_agent_orchestra", "technique.git_worktree_isolation"],
+      "expected_asset_ids": ["template.multi_agent_plan"]
+    },
+    {
+      "id": "query.preflight_safety",
+      "requirement": "无人值守跑循环前要检查什么？权限、沙箱、回滚、预算怎么把关？",
+      "expected_doc_ids": ["doc.risks.costs_risks_failure_modes"],
+      "expected_node_ids": ["anti_pattern.permission_blast_radius", "principle.infra_prerequisite"],
+      "expected_asset_ids": ["checklist.loop_preflight", "checklist.loop_safety_boundary"]
+    },
+    {
+      "id": "query.observability_review",
+      "requirement": "怎么审查循环的可观测性？每步反馈、检查 diff、监控测试被弱化？",
+      "expected_doc_ids": ["doc.feedback.feedback_verification_observability"],
+      "expected_node_ids": ["concept.feedback_signal_spectrum", "pattern.production_observability_loop"],
+      "expected_asset_ids": ["checklist.loop_observability"]
+    }
+  ]
+}

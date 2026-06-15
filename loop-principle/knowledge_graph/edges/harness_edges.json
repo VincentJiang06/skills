@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "edges": [
+    {"id": "edge.harness.has_primitives", "source_id": "pillar.harness", "target_id": "concept.loop_primitives", "type": "contains"},
+    {"id": "edge.primitives.use_worktree", "source_id": "concept.loop_primitives", "target_id": "technique.git_worktree_isolation", "type": "contains"},
+    {"id": "edge.primitives.use_subagent", "source_id": "concept.loop_primitives", "target_id": "technique.subagent_split", "type": "contains"},
+    {"id": "edge.subagent.enables_makerchecker", "source_id": "technique.subagent_split", "target_id": "principle.maker_checker_separation", "type": "enables"},
+    {"id": "edge.subagent.warns_tokenblowup", "source_id": "technique.subagent_split", "target_id": "anti_pattern.token_blowup", "type": "warns"},
+    {"id": "edge.hooks.enables_stopgate", "source_id": "technique.hooks_as_deterministic_gate", "target_id": "procedure.stop_gate", "type": "enables"},
+    {"id": "edge.worktree.enables_cdploop", "source_id": "technique.git_worktree_isolation", "target_id": "pattern.cdp_per_worktree_loop", "type": "enables"},
+    {"id": "edge.worktree.enables_orchestra", "source_id": "technique.git_worktree_isolation", "target_id": "pattern.multi_agent_orchestra", "type": "enables"},
+    {"id": "edge.extmemory.mitigates_drift", "source_id": "concept.external_state_memory", "target_id": "anti_pattern.context_drift", "type": "mitigates"},
+    {"id": "edge.skills.warns_blastradius", "source_id": "concept.skill_as_memory", "target_id": "anti_pattern.permission_blast_radius", "type": "warns"},
+    {"id": "edge.stopgate.contains_escalation", "source_id": "procedure.stop_gate", "target_id": "procedure.escalation_triggers", "type": "contains"},
+    {"id": "edge.makerchecker.uses_adversarial", "source_id": "principle.maker_checker_separation", "target_id": "principle.adversarial_review_subagent", "type": "uses"}
+  ]
+}

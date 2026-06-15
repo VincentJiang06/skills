@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "topic": "harness_agentic_tooling",
+  "references": [
+    {
+      "id": "ref.aider.docs",
+      "tier": 1,
+      "title_en": "Aider — AI Pair Programming in Your Terminal (Documentation)",
+      "title_zh": "Aider —— 终端中的 AI 结对编程（官方文档）",
+      "authors_or_org": "Paul Gauthier / Aider-AI",
+      "source_type": "official_documentation",
+      "url": "https://aider.chat/docs/",
+      "summary_zh": "Aider 是一个终端内 AI 结对编程工具，直接在本地 Git 仓库中编辑代码，并把每次改动作为一次原子 commit 自动提交，可用 git diff/undo 回退。其'edit-then-commit'循环与可监视文件、自动跑测试/lint 并回灌错误的能力，是一个把 Git 本身当作验证与回滚边界的轻量循环范式的代表。",
+      "summary_en": "Aider is a terminal AI pair programmer that edits code directly in the local Git repo and auto-commits every change as a discrete atomic commit (reversible via git diff/undo). Its edit-then-commit loop, file-watching, and ability to run tests/lint and feed errors back make it a canonical lightweight loop that treats Git itself as the verification and rollback boundary.",
+      "reuse_notes": [
+        "git_as_boundary",
+        "atomic_commit_loop",
+        "test_feedback",
+        "rollback"
+      ],
+      "reliability_notes": "First-party official documentation of a widely adopted open-source tool; authoritative for its own design."
+    },
+    {
+      "id": "ref.anthropic.claude_code_worktrees",
+      "tier": 1,
+      "title_en": "Run parallel sessions with worktrees (Claude Code Docs)",
+      "title_zh": "用 worktree 运行并行会话（Claude Code 官方文档）",
+      "authors_or_org": "Anthropic",
+      "source_type": "official_documentation",
+      "url": "https://code.claude.com/docs/en/worktrees",
+      "summary_zh": "Claude Code 官方文档：用 git worktree 让多个智能体真正并行——每个 agent 一个独立工作目录与分支、各自的文件/端口/数据库，但共享同一 git 历史与对象，互不踩踏。可对子智能体设置 `isolation: worktree`，完成且无改动时自动清理。这是'多循环并行编排'的隔离边界基础设施。",
+      "summary_en": "Official Claude Code docs: use git worktrees to run multiple agents truly in parallel — each agent gets its own working directory and branch, with its own files/ports/database while sharing the same git history and objects, so edits never clobber each other. Subagents can be set to `isolation: worktree`, auto-cleaned when they finish with no changes. This is the isolation-boundary infrastructure for orchestrating parallel loops.",
+      "reuse_notes": [
+        "parallel_loops",
+        "isolation_boundary",
+        "worktree_per_agent",
+        "auto_cleanup"
+      ],
+      "reliability_notes": "First-party official documentation; authoritative for the parallel-agent isolation mechanism."
+    },
+    {
+      "id": "ref.anthropic.ralph_wiggum_plugin",
+      "tier": 1,
+      "title_en": "Claude Code ralph-wiggum plugin (README)",
+      "title_zh": "Claude Code 官方 ralph-wiggum 插件（README）",
+      "authors_or_org": "Anthropic (anthropics/claude-code)",
+      "source_type": "official_documentation",
+      "url": "https://github.com/anthropics/claude-code/blob/main/plugins/ralph-wiggum/README.md",
+      "summary_zh": "Anthropic 官方将 Ralph 循环工程化为 Claude Code 插件：用 Stop hook 拦截智能体的退出尝试，把同一 prompt 重新喂回会话，让它在已改文件与 git 历史上继续，直到输出指定的'完成承诺'字符串。明确给出两道停机/安全闸：`--max-iterations`（推荐作为主要安全机制）与精确字符串匹配的 `--completion-promise`——是把 ralph 这种自主循环加上硬性停机边界的官方参考实现。",
+      "summary_en": "Anthropic's official engineering of the Ralph loop as a Claude Code plugin: a Stop hook intercepts the agent's exit attempts and re-feeds the same prompt into the session so it continues against modified files and git history until it outputs a designated 'completion promise' string. It specifies two stop/safety gates: `--max-iterations` (recommended as the primary safety mechanism) and exact-string `--completion-promise` — an official reference implementation that bolts hard stopping boundaries onto an autonomous loop.",
+      "reuse_notes": [
+        "stop_hook",
+        "iteration_cap",
+        "completion_promise",
+        "loop_safety_gates"
+      ],
+      "reliability_notes": "First-party official plugin in Anthropic's claude-code repo; authoritative implementation with explicit safety caveats."
+    },
+    {
+      "id": "ref.cognition.introducing_devin",
+      "tier": 1,
+      "title_en": "Introducing Devin, the first AI software engineer",
+      "title_zh": "介绍 Devin：首个 AI 软件工程师",
+      "authors_or_org": "Scott Wu / Cognition",
+      "source_type": "official_engineering_article",
+      "url": "https://cognition.ai/blog/introducing-devin",
+      "summary_zh": "Cognition 官方发布 Devin：一个能规划并执行需要数千步决策的工程任务的自主智能体，配有自己的 shell、代码编辑器和浏览器，运行在沙箱计算环境中，能在每一步回忆上下文、随时间学习、并自我纠错。它是'长程自主编码循环 + 沙箱工具集 + 实时进度汇报/人类反馈'这一形态的标志性首发产品。",
+      "summary_en": "Cognition's official launch of Devin: an autonomous agent that plans and executes engineering tasks requiring thousands of decisions, equipped with its own shell, code editor, and browser in a sandboxed compute environment, recalling context at each step, learning over time, and fixing its own mistakes. It is the landmark first-mover product for the long-horizon autonomous coding loop with a sandboxed toolset and real-time progress reporting / human feedback.",
+      "reuse_notes": [
+        "long_horizon_loop",
+        "sandboxed_toolset",
+        "self_correction",
+        "progress_reporting"
+      ],
+      "reliability_notes": "First-party announcement (vendor, promotional); authoritative for design intent but benchmark claims should be read with vendor bias in mind."
+    },
+    {
+      "id": "ref.cursor.agent_overview",
+      "tier": 1,
+      "title_en": "Cursor Docs — Agent Overview",
+      "title_zh": "Cursor 官方文档 —— Agent 概览",
+      "authors_or_org": "Anysphere / Cursor",
+      "source_type": "official_documentation",
+      "url": "https://cursor.com/docs/agent/overview",
+      "summary_zh": "Cursor 官方对其 Agent 的定义：自主搜索代码库、跨文件编辑、执行终端命令并监控输出，工具调用次数不设上限，可派生子智能体并行处理研究/命令/浏览器任务。循环相关的工程要素包括：改动前自动 checkpoint（出错可回退）、排队消息、以及 Cmd+Enter 实时打断/纠偏——体现了'人在环上'的可中断自主循环设计。",
+      "summary_en": "Cursor's first-party definition of its Agent: autonomously searches the codebase, edits across files, runs terminal commands and monitors output, with no cap on tool calls, and can spawn subagents to parallelize research/shell/browser work. Loop-relevant engineering includes automatic pre-change checkpoints (revert on a wrong turn), queued messages, and Cmd+Enter to interrupt/redirect — a human-on-the-loop, interruptible autonomy design.",
+      "reuse_notes": [
+        "checkpoints_rollback",
+        "interruptible_autonomy",
+        "subagent_parallelism",
+        "tool_call_budget"
+      ],
+      "reliability_notes": "First-party official product documentation; authoritative for Cursor's own harness behavior."
+    },
+    {
+      "id": "ref.ghuntley.ralph",
+      "tier": 1,
+      "title_en": "Ralph Wiggum as a 'software engineer'",
+      "title_zh": "把 Ralph Wiggum 当作一名'软件工程师'",
+      "authors_or_org": "Geoffrey Huntley",
+      "source_type": "blog",
+      "url": "https://ghuntley.com/ralph/",
+      "summary_zh": "Ralph 循环的原始来源：核心是一行 bash —— `while :; do cat PROMPT.md | claude-code ; done`，每次迭代用全新（fresh）上下文喂入同一个 PROMPT.md，让智能体在 git 历史/已改文件上不断逼近目标，直到满足完成条件或人工中断。作者强调它最适合 greenfield、需要专家监督并持续调 prompt——是'无状态重启循环 + 外部持久化（文件/git）作为记忆'这一范式的奠基论述。",
+      "summary_en": "The originating source of the Ralph loop: at its core a one-line bash loop — `while :; do cat PROMPT.md | claude-code ; done` — feeding the same PROMPT.md into a fresh context each iteration so the agent converges on git history / modified files until a completion condition or manual stop. The author stresses it suits greenfield work, needs expert oversight, and demands continuous prompt tuning — the foundational articulation of the stateless-restart loop with external persistence (files/git) as memory.",
+      "reuse_notes": [
+        "fresh_context_restart",
+        "external_memory_persistence",
+        "stopping_condition",
+        "prompt_tuning"
+      ],
+      "reliability_notes": "Primary personal blog by the technique's originator (July 2025); opinionated, anecdotal cost/ROI claims; authoritative for the pattern definition."
+    },
+    {
+      "id": "ref.openhands.platform",
+      "tier": 1,
+      "title_en": "OpenHands: An Open Platform for AI Software Developers as Generalist Agents",
+      "title_zh": "OpenHands：作为通用智能体的 AI 软件开发者开放平台",
+      "authors_or_org": "Xingyao Wang et al. (UIUC, CMU, Yale, UC Berkeley; All Hands AI / OpenHands community)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2407.16741",
+      "summary_zh": "（前身 OpenDevin）开源的智能体软件开发平台，定义了一套智能体与世界交互的方式：写代码、操作命令行、浏览网页，并在沙箱中安全执行、协调多智能体、对接评测基准。提供了一个可复现的开源参照实现，展示如何把'感知-行动-验证'循环、事件流与沙箱执行环境工程化落地。",
+      "summary_en": "(formerly OpenDevin) An open-source platform defining how agents interact with the world — writing code, driving a command line, browsing the web — with sandboxed execution, multi-agent coordination, and built-in benchmark evaluation. It is a reproducible reference harness showing how to engineer the perceive-act-verify loop, an event stream, and a safe execution environment. ICLR 2025.",
+      "reuse_notes": [
+        "reference_harness",
+        "sandbox_execution",
+        "event_stream",
+        "multi_agent"
+      ],
+      "reliability_notes": "Peer-reviewed (ICLR 2025); large open-source project with 188+ contributors; widely used as a research baseline."
+    },
+    {
+      "id": "ref.swe_agent.aci",
+      "tier": 1,
+      "title_en": "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering",
+      "title_zh": "SWE-agent：智能体-计算机接口使自动化软件工程成为可能",
+      "authors_or_org": "John Yang, Carlos E. Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao, Karthik Narasimhan, Ofir Press (Princeton NLP)",
+      "source_type": "research_paper",
+      "url": "https://arxiv.org/abs/2405.15793",
+      "summary_zh": "提出'智能体-计算机接口(ACI)'概念：通过为 LLM 设计专门的命令与文件查看/编辑接口（而非让它直接用人类 shell），SWE-agent 在 SWE-bench 上从 3.8% 提升到 12.5%。核心论点是接口设计本身——动作如何被呈现、反馈如何被格式化、错误如何被守护——直接决定智能体循环的成败。",
+      "summary_en": "Introduces the 'agent-computer interface (ACI)' concept: by designing LM-specific commands and file viewing/editing primitives (rather than raw human shell access), SWE-agent jumps from 3.8% to 12.5% on SWE-bench. The core thesis is that interface design itself — how actions are surfaced, how feedback is formatted, how errors are guardrailed — directly governs whether the agent's act-observe loop succeeds.",
+      "reuse_notes": [
+        "aci_design",
+        "feedback_formatting",
+        "action_surface",
+        "error_guardrails"
+      ],
+      "reliability_notes": "Primary peer-reviewed paper (NeurIPS 2024); canonical, highly cited; from the SWE-bench authors."
+    }
+  ]
+}

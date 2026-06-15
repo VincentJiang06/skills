@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "checklist_id": "checklist.loop_preflight",
+  "title_zh": "循环起飞前清单",
+  "title_en": "Loop Pre-Flight Checklist",
+  "reference_ids": ["ref.demmel.feedback_loop_engineering", "ref.anthropic.claude_code_best_practices", "ref.docker.coding_agent_security"],
+  "items": [
+    {"id": "pre.infra_eyes", "question_zh": "是否已有测试/日志/CI 给循环『眼睛』，否则不要无人值守运行？", "question_en": "Are tests/logs/CI present to give the loop eyes — else do not run it unattended?", "required": true},
+    {"id": "pre.runnable_check", "question_zh": "验收检查本地确实能跑起来并返回 pass/fail？", "question_en": "Does the acceptance check actually run locally and return pass/fail?", "required": true},
+    {"id": "pre.sandbox", "question_zh": "是否在沙箱/最小权限/dev-only 凭据下运行？", "question_en": "Is it running under sandbox / least privilege / dev-only credentials?", "required": true},
+    {"id": "pre.reversible", "question_zh": "改动是否可回滚（worktree/分支），随时能丢弃？", "question_en": "Are changes reversible (worktree/branch) and discardable at any time?", "required": true},
+    {"id": "pre.budget", "question_zh": "是否设了最大轮数与 token/成本预算上限？", "question_en": "Are max-iterations and a token/cost budget cap set?", "required": true},
+    {"id": "pre.scope", "question_zh": "改动范围是否被约束，且无关文件被排除？", "question_en": "Is the change scope bounded and unrelated files excluded?", "required": true},
+    {"id": "pre.destructive_gate", "question_zh": "危险/不可逆命令是否需要人工确认？", "question_en": "Do destructive/irreversible commands require human confirmation?", "required": true}
+  ]
+}

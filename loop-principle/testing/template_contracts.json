@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "contract_set_id": "testing.template_contracts",
+  "purpose": "Structural contracts for every JSON template in loop-principle, validated by tools/validate_kb.mjs.",
+  "contracts": [
+    {
+      "template_id": "template.loop_quality_rubric",
+      "required_paths": ["dimensions", "verdict_rule"],
+      "array_paths": ["dimensions"],
+      "reference_id_paths": [],
+      "metric_id_paths": [],
+      "file_id_paths": [],
+      "enum_paths": []
+    },
+    {
+      "template_id": "template.dod_spec",
+      "required_paths": ["goal", "constraints", "acceptance_checks", "stop_conditions"],
+      "array_paths": ["constraints", "acceptance_checks", "metric_ids", "reference_ids"],
+      "reference_id_paths": ["reference_ids"],
+      "metric_id_paths": ["metric_ids"],
+      "file_id_paths": [],
+      "enum_paths": []
+    },
+    {
+      "template_id": "template.multi_agent_plan",
+      "required_paths": ["roles", "isolation", "shared_state"],
+      "array_paths": ["roles", "isolation", "reference_ids"],
+      "reference_id_paths": ["reference_ids"],
+      "metric_id_paths": [],
+      "file_id_paths": [],
+      "enum_paths": []
+    },
+    {
+      "template_id": "template.escalation_record",
+      "required_paths": ["trigger", "category", "decision"],
+      "array_paths": ["reference_ids"],
+      "reference_id_paths": ["reference_ids"],
+      "metric_id_paths": [],
+      "file_id_paths": [],
+      "enum_paths": [
+        {"path": "category", "values": ["success_stop", "failure_stop", "human_escalation"]}
+      ]
+    }
+  ]
+}
