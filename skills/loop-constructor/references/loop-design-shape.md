@@ -40,8 +40,10 @@ prose/Markdown render of the same design).
 
 | Field | FAILs when |
 |-------|------------|
-| `feedback_signal.check` | missing / empty / whitespace-only / null (presence ≠ a real signal). **Anchor.** |
+| `feedback_signal.check` | missing / empty / whitespace-only / null, **or a check that cannot fail on a broken impl** — analyzed over shell `; \|\| && \|` (e.g. `true`, `… \|\| true`, `…; true`, `sh -c true`, `printf ''`, empty-pattern `grep ''`, constant-true `[ 1 = 1 ]`, grep-your-own-`.loop/`-scratch). Conservative: a real `npm test` is never flagged; a *custom* always-0 command is undecidable here → caught by `passing_but_wrong` + the fresh-reader. **Anchor.** |
+| `feedback_signal.expect` | not `"pass"` (the gate polarity must be declared — the check is expected to pass for the gate to close; a missing/garbage `expect` is no longer decorative) |
 | `stop_conditions` | missing or `{}` (empty) |
+| `stop_conditions.success` | missing or not a non-empty string — **the success state must be explicitly stated** (the done-condition) |
 | `stop_conditions.failure` | not a non-empty list of **non-empty strings** (`[null]` / `[""]` FAIL) |
 | `stop_conditions.max_iterations` | missing, or not a positive integer **≤ 10000** (the cap must be a real bound, not effectively-infinite) |
 | `human_placement` | missing or not `in_the_loop`/`on_the_loop` |
@@ -73,9 +75,10 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
       "definition_of_done": { "goal": "<predicate/command>", "machine_verifiable": true },
       "loop_pattern": "retry | plan_execute_verify | explore_narrow | review | human_in_the_loop",
       "feedback_signal": {
-        "check": "<runnable cmd — REQUIRED per stage; the anchor>",
+        "check": "<runnable cmd — REQUIRED per stage; the anchor; must not be an always-green no-op>",
         "expect": "pass",
-        "falsifiable_when": "<REQUIRED: the concrete broken state that makes this check FAIL>"
+        "falsifiable_when": "<REQUIRED: the concrete broken state that makes this check FAIL>",
+        "passing_but_wrong": "<REQUIRED: a concrete passing-but-WRONG implementation this check would wrongly accept, or 'none: <why the check is exhaustive>'>"
       },
       "stop_conditions": {
         "failure": ["<>=1 non-empty string>"],
@@ -117,15 +120,17 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 | `stages[i].id` | missing/empty, or duplicated across stages |
 | `stages[i].definition_of_done` | missing, empty `goal`, or `machine_verifiable !== true` |
 | `stages[i].loop_pattern` | missing or not one of the five patterns |
-| `stages[i].feedback_signal.check` | missing/empty — **the anchor, per stage** |
+| `stages[i].feedback_signal.check` | missing/empty, **or a check that cannot fail on a broken impl** (cannot-fail analysis over `; \|\| && \|`: `true` / `… \|\| true` / `…; true` / `sh -c true` / empty-pattern grep / constant-true test / grep-your-own-`.loop/`-scratch) — **the anchor, per stage** |
+| `stages[i].feedback_signal.expect` | not `"pass"` — the gate polarity must be declared |
 | `stages[i].feedback_signal.falsifiable_when` | missing/empty — a check must declare the broken state that makes it FAIL (structural presence; the *quality* of the statement is judged by the skill's fresh-reader step, not the linter) |
+| `stages[i].feedback_signal.passing_but_wrong` | missing/empty — record the passing-but-WRONG implementation the check would wrongly accept (or `"none: <why exhaustive>"`); presence is structural, the fresh-reader judges whether it's real |
 | `stages[i].stop_conditions.failure` | not a non-empty list of **non-empty strings** (`[null]` / `[""]` / `[0]` FAIL) |
 | `stages[i].stop_conditions.max_iterations` | missing, or not a positive integer **≤ 10000** (an effectively-infinite cap is no cap) |
 | `stages[i].stop_conditions.on_failure` | `action` not `loopback`/`escalate`/`abort`; a `loopback` whose `to` is missing, unresolved, the stage **itself**, or **not an upstream stage** (must be a transitive `depends_on` ancestor); or an `escalate`/`abort` carrying a stray `to` |
 | `stages[i].depends_on` | present but not an array, **or** references a stage id that does not exist |
 | `stages.reachability` | the `depends_on` edges form a cycle (no enterable root ⇒ cannot terminate) |
 | `hybrid.*` | a top-level `feedback_signal` / `definition_of_done` / `loop_pattern` alongside `stages[]` (per-loop fields belong inside a stage) |
-| design-level | `stop_conditions` (non-empty-string `failure`, capped `max_iterations`) / `human_placement` / `maker_checker` / `risk_guards` / `harness_primitives` — same rules as the flat shape |
+| design-level | `stop_conditions` (non-empty-string **`success`** + non-empty-string `failure` + capped `max_iterations`) / `human_placement` / `maker_checker` / `risk_guards` / `harness_primitives` — same rules as the flat shape |
 
 A complete staged design → all `PASS`, exit 0. See
 `assets/golden-loop-design-medium.json` for a passing staged fixture.

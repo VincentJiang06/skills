@@ -13,7 +13,8 @@
       "feedback_signal": {
         "check": "npm test api:contract",
         "expect": "pass",
-        "falsifiable_when": "any existing endpoint returns a different status/body than the captured baseline — the suite goes red"
+        "falsifiable_when": "any existing endpoint returns a different status/body than the captured baseline — the suite goes red",
+        "passing_but_wrong": "a stale/empty contract suite that vacuously passes with zero assertions — ruled out: the suite asserts a concrete status+body per endpoint and fails if the captured baseline file is empty"
       },
       "stop_conditions": {
         "failure": ["contract suite cannot be made green on the untouched baseline (environment broken, not our change)"],
@@ -32,7 +33,8 @@
       "feedback_signal": {
         "check": "npm test api:ratelimit && npm test api:contract",
         "expect": "pass",
-        "falsifiable_when": "the 101st request inside the window still returns 200 (no 429), or any contract test regresses"
+        "falsifiable_when": "the 101st request inside the window still returns 200 (no 429), or any contract test regresses",
+        "passing_but_wrong": "middleware returns 429 for EVERY request (even below the threshold), passing a naive 'a 429 appeared' test — ruled out: the ratelimit test asserts 200 below the threshold AND 429 only above it"
       },
       "stop_conditions": {
         "failure": [
@@ -54,7 +56,8 @@
       "feedback_signal": {
         "check": "node scripts/loadtest.mjs --rps 200 --assert",
         "expect": "pass",
-        "falsifiable_when": "p99 exceeds the budget or any 5xx is observed at the target RPS — the harness exits non-zero"
+        "falsifiable_when": "p99 exceeds the budget or any 5xx is observed at the target RPS — the harness exits non-zero",
+        "passing_but_wrong": "the harness reports green because it never actually reached the target RPS (connection-capped) — ruled out: the harness asserts achieved RPS >= target before it judges p99/5xx, exiting non-zero otherwise"
       },
       "stop_conditions": {
         "failure": [

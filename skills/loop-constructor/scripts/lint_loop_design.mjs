@@ -55,6 +55,146 @@ function isNonEmptyStringList(v) {
 
 const VALID_ON_FAILURE_ACTIONS = new Set(["loopback", "escalate", "abort"]);
 
+// The check is the success gate. Presence alone is not enough: a check that
+// CANNOT fail on a broken implementation (`true`, `npm test || true`, `cmd; true`,
+// `sh -c true`, an empty-pattern grep, a constant-true `[ 1 = 1 ]`) is a no-op the
+// loop reward-hacks — it declares success while wrong.
+//
+// Rather than enumerate bad strings (a denylist misses every form not listed), we
+// ANALYZE shell exit semantics over `; || && |`: a check is hollow iff it
+// structurally reduces to an always-green atom. This is heuristic and CONSERVATIVE
+// — it only flags when it can prove always-green, so a real `npm test` atom is
+// never flagged. The undecidable residual (a custom command that happens to always
+// exit 0, e.g. `mytool` aliased to true) is NOT catchable here by design and stays
+// the job of the required `passing_but_wrong` field + the fresh-reader pass.
+
+// Split on a shell operator at top level (not inside single/double quotes, not
+// inside (), {}, ``); never splits `|` inside `||`.
+function splitTopLevelShell(s, op) {
+  const parts = [];
+  let cur = "", q = null, depth = 0, i = 0;
+  while (i < s.length) {
+    const ch = s[i];
+    if (q) { cur += ch; if (ch === q) q = null; i++; continue; }
+    if (ch === "'" || ch === '"' || ch === "`") { q = ch; cur += ch; i++; continue; }
+    if (ch === "(" || ch === "{") { depth++; cur += ch; i++; continue; }
+    if (ch === ")" || ch === "}") { depth = Math.max(0, depth - 1); cur += ch; i++; continue; }
+    if (depth === 0) {
+      if (op === "|" && s[i] === "|" && s[i + 1] === "|") { cur += "||"; i += 2; continue; }
+      if (op === "&" && s[i] === "&") {
+        if (s[i + 1] === "&") { cur += "&&"; i += 2; continue; } // && is not a background split
+        if (s[i + 1] === ">" || s[i - 1] === ">") { cur += "&"; i += 1; continue; } // &> / >& redirection, not background
+      }
+      if (s.startsWith(op, i)) { parts.push(cur); cur = ""; i += op.length; continue; }
+    }
+    cur += ch; i++;
+  }
+  parts.push(cur);
+  return parts.map((p) => p.trim()).filter((p) => p.length);
+}
+
+function stripMatchedQuotes(a) {
+  if (a.length >= 2 && ((a[0] === "'" && a[a.length - 1] === "'") || (a[0] === '"' && a[a.length - 1] === '"'))) {
+    return a.slice(1, -1);
+  }
+  return a;
+}
+
+// A single command atom (no top-level operators) that always exits 0. Unwraps the
+// common shells/builtins/groups/quotes that hide an always-green inner command, and
+// recurses back into checkCannotFail when the unwrap reveals a compound.
+function atomAlwaysGreen(atom, depth) {
+  let a = String(atom).trim();
+  if (depth > 20) return false; // pathological-nesting guard
+  // matched surrounding quotes / backticks / $() / () subshell / {} group → analyze inner
+  const stripped = stripMatchedQuotes(a);
+  if (stripped !== a) return checkCannotFail(stripped, depth + 1);
+  let m =
+    a.match(/^`(.*)`$/) ||
+    a.match(/^\$\((.*)\)$/) ||
+    a.match(/^\((.*)\)$/);
+  if (m) return checkCannotFail(m[1], depth + 1);
+  m = a.match(/^\{(.*)\}$/);
+  if (m) return checkCannotFail(m[1].replace(/;\s*$/, ""), depth + 1);
+  if (a[0] === "\\") return checkCannotFail(a.slice(1), depth + 1); // \true
+  // leading env-var assignments: FOO=1 BAR=2 <X> → the assignments don't change the exit
+  m = a.match(/^(?:\w+=\S*\s+)+(.+)$/);
+  if (m) return checkCannotFail(m[1], depth + 1);
+  // transparent runner wrappers that exit with their child — skip the wrapper's own
+  // leading flags / numeric durations / env assignments, then analyze the command:
+  // eval/command/builtin/time/nice/nohup/env/stdbuf/ionice/chrt/timeout/xargs <…> <X>
+  m = a.match(/^(?:eval|command|builtin|time|nice|nohup|env|stdbuf|ionice|chrt|timeout|xargs)\s+(?:(?:-\S+|\d+\S*|\w+=\S*)\s+)*(.+)$/i);
+  if (m) return checkCannotFail(m[1], depth + 1);
+  // sh / bash / dash / zsh with any flags then a -c|-lc|-xc … then <X>
+  m = a.match(/^(?:\/[\w./-]*)?(?:ba|z|da)?sh\s+(?:-\S+\s+)*-\w*c\b\s*(.+)$/i);
+  if (m) return checkCannotFail(stripMatchedQuotes(m[1].trim()), depth + 1);
+  // ---- terminal atom checks ----
+  // strip trailing redirections — pure plumbing, never changes exit status
+  // (`true 2>/dev/null`, `: > file`, `true >/dev/null 2>&1`).
+  let prev;
+  do { prev = a; a = a.replace(/\s*(?:\d*>>?|&>|<|\d*>&[\d-]*)\s*\S*\s*$/, "").trim(); } while (a !== prev && a);
+  const base = a.toLowerCase().replace(/^\/(?:usr\/)?(?:local\/)?bin\//, ""); // strip a leading path
+  if (["true", ":", "exit 0", "exit 0;", "return 0"].includes(base)) return true;
+  if (/^let\s+[1-9]/.test(base)) return true; // let <nonzero> exits 0
+  if (/^echo\b/.test(base) || /^printf\b/.test(base)) return true; // always exit 0
+  if (/^(ls|cat|pwd|whoami|date|hostname|uptime|head|tail|dirname|basename)\b/.test(base)) return true; // inspect, never assert
+  if (/^(python3?|node|ruby|perl)\s+-c\s+['"]?\s*(pass|exit\(0\)|0|true)\s*['"]?\s*$/.test(base)) return true;
+  // test -n <nonempty LITERAL> — always true (but `[ -n "$VAR" ]` is runtime-dependent, so exclude $-expansions)
+  {
+    const mn = base.match(/^(?:test|\[+)\s+-n\s+(\S+)/);
+    if (mn && !mn[1].includes("$") && mn[1] !== '""' && mn[1] !== "''") return true;
+  }
+  if (/^(test|\[+)\s+-z\s+(''|""|\])/.test(base)) return true; // test -z "" — always true
+  // single non-empty LITERAL operand: `[ x ]` / `test 1` (POSIX [ str ] ≡ [ -n str ]).
+  // Exclude flags (-f), the empty-string literal, and variable expansions ($X / ${X}).
+  {
+    const one = base.match(/^(?:test|\[)\s+(\S+)\s*\]?\s*$/);
+    if (one && one[1] !== '""' && one[1] !== "''" && !one[1].startsWith("-") && !one[1].includes("$")) return true;
+  }
+  if (/\b(\d+)\s*(-eq|=|==)\s*\1\b/.test(base)) return true; // 1 -eq 1 / 1 = 1 — constant true
+  if (/\bgrep\b[^|;&]*\s(''|"")(\s|$)/.test(base)) return true; // empty pattern matches every line
+  if (/\bgrep\b/.test(base) && /(\.loop\/|agent[-_. ]?log|run[-_]?state|\bscratch\b|self[-_. ]?report)/.test(base)) return true; // grades its own homework
+  return false;
+}
+
+// Does the whole check unconditionally exit 0? Walks ; (last wins) → || (any green
+// wins) → && (all must be green) → | (last stage wins) → atom. Newlines act as ';'
+// and `|&` as a pipe.
+function checkCannotFail(expr, depth = 0) {
+  const e = String(expr).replace(/#.*$/, "").replace(/[\r\n]+/g, ";").replace(/\|&/g, "|").trim();
+  if (!e || depth > 20) return false;
+  // a trailing single `&` backgrounds the job; the shell returns 0 regardless.
+  if (/(^|[^&])&\s*$/.test(e)) return true;
+  const semi = splitTopLevelShell(e, ";");
+  if (semi.length > 1) return checkCannotFail(semi[semi.length - 1], depth + 1);
+  const bg = splitTopLevelShell(e, "&"); // single `&` backgrounds the left; last foreground wins
+  if (bg.length > 1) return checkCannotFail(bg[bg.length - 1], depth + 1);
+  const or = splitTopLevelShell(e, "||");
+  if (or.length > 1) return or.some((p) => checkCannotFail(p, depth + 1));
+  const and = splitTopLevelShell(e, "&&");
+  if (and.length > 1) return and.every((p) => checkCannotFail(p, depth + 1));
+  const pipe = splitTopLevelShell(e, "|");
+  if (pipe.length > 1) return checkCannotFail(pipe[pipe.length - 1], depth + 1);
+  return atomAlwaysGreen(e, depth + 1);
+}
+
+function hollowCheckReason(raw) {
+  const c = String(raw).trim();
+  if (!c) return null; // emptiness is handled by the presence check
+  if (checkCannotFail(c)) {
+    return `the check ${JSON.stringify(c)} cannot fail on a broken implementation — it reduces to an always-green no-op or its failure path is swallowed (e.g. \`… || true\`, \`…; true\`, \`sh -c true\`, an empty-pattern grep, a constant-true test). The success gate must be able to FAIL.`;
+  }
+  return null;
+}
+
+// The gate-polarity field: the check is expected to PASS (exit 0) for the gate to
+// close. "pass" is the only sensible value in this model; anything else (or a
+// missing field) leaves the polarity undeclared and the field decorative.
+function checkExpectIssue(fs, label) {
+  if (fs.expect === "pass") return null;
+  return `${label} must declare expect:"pass" (the check is expected to pass for the gate to close); got ${JSON.stringify(fs.expect)}`;
+}
+
 // Shape detector shared with the renderer so the two can never diverge.
 export function isStagedShape(design) {
   return isPlainObject(design) && Array.isArray(design.stages);
@@ -176,7 +316,18 @@ function validateFlatLoop(input, add) {
       `feedback_signal.check is missing/empty/whitespace/null (got ${JSON.stringify(fs.check)}); presence is not a real signal — no runnable check ⇒ reject`
     );
   } else {
-    add("feedback_signal.check", true);
+    const hollow = hollowCheckReason(fs.check);
+    if (hollow) {
+      add("feedback_signal.check", false, `feedback_signal.check is a no-op: ${hollow}`);
+    } else {
+      add("feedback_signal.check", true);
+    }
+  }
+  // expect — the gate must declare it is expected to pass (not a decorative field).
+  if (isPlainObject(fs)) {
+    const ei = checkExpectIssue(fs, "feedback_signal.expect");
+    if (ei) add("feedback_signal.expect", false, ei);
+    else add("feedback_signal.expect", true);
   }
 }
 
@@ -323,7 +474,8 @@ function validateOneStage(stage, idx, checks, add) {
     add(`stages[${idx}].loop_pattern`, false, `${label}.loop_pattern missing or invalid; expected one of ${[...VALID_PATTERNS].join("|")}`);
   }
 
-  // feedback_signal.check — THE ANCHOR, per stage — plus a falsifiability clause.
+  // feedback_signal.check — THE ANCHOR, per stage — plus the falsifiability +
+  // false-pass clauses and the no-op tripwire (the check is the per-stage success gate).
   const fs = stage.feedback_signal;
   if (!isPlainObject(fs) || !isNonEmptyString(fs.check)) {
     add(
@@ -331,15 +483,33 @@ function validateOneStage(stage, idx, checks, add) {
       false,
       `${label}.feedback_signal.check missing/empty; no runnable check ⇒ this stage cannot close (the anchor holds per stage)`
     );
-  } else if (!isNonEmptyString(fs.falsifiable_when)) {
-    // Structural, not NLP-judged: the author must STATE the broken state that makes
-    // the check fail. The semantic quality of that statement is judged by the
-    // skill's fresh-reader step, not here (keep the linter honest and dumb).
-    add(
-      `stages[${idx}].feedback_signal.falsifiable_when`,
-      false,
-      `${label}.feedback_signal.falsifiable_when missing/empty; a check must declare the concrete broken state that makes it FAIL (else it may be a no-op the loop reward-hacks)`
-    );
+  } else {
+    const hollow = hollowCheckReason(fs.check);
+    if (hollow) {
+      add(`stages[${idx}].feedback_signal.check`, false, `${label}.feedback_signal.check is a no-op: ${hollow}`);
+    }
+    // expect — gate polarity must be declared (not decorative).
+    const ei = checkExpectIssue(fs, `${label}.feedback_signal.expect`);
+    if (ei) add(`stages[${idx}].feedback_signal.expect`, false, ei);
+    // falsifiable_when — the concrete broken state that makes the check FAIL.
+    if (!isNonEmptyString(fs.falsifiable_when)) {
+      add(
+        `stages[${idx}].feedback_signal.falsifiable_when`,
+        false,
+        `${label}.feedback_signal.falsifiable_when missing/empty; a check must declare the concrete broken state that makes it FAIL (else it may be a no-op the loop reward-hacks)`
+      );
+    }
+    // passing_but_wrong — the recorded false-pass: a passing-but-WRONG implementation
+    // the check would wrongly accept (or "none: <why exhaustive>"). Structural presence
+    // here; the SKILL.md fresh-reader pass judges whether it's real. This operationalizes
+    // the "describe a passing-but-wrong implementation" self-test as a reviewable artifact.
+    if (!isNonEmptyString(fs.passing_but_wrong)) {
+      add(
+        `stages[${idx}].feedback_signal.passing_but_wrong`,
+        false,
+        `${label}.feedback_signal.passing_but_wrong missing/empty; record the concrete passing-but-wrong implementation this check would WRONGLY accept (or "none: <why the check is exhaustive>") — this forces the success gate to be real, not reward-hacked`
+      );
+    }
   }
 
   // stop_conditions — non-empty failure-branch STRINGS + a real (bounded) cap.
@@ -447,6 +617,18 @@ function validateDesignLevel(input, add) {
     );
     add("stop_conditions.max_iterations", false, "stop_conditions.max_iterations missing (no cap)");
   } else {
+    // success — the stated success state. Was previously UNVALIDATED while the
+    // error string above promised "success + failure branches"; a loop with no
+    // stated done-condition judged success too easily. Mirror the failure check.
+    if (!isNonEmptyString(sc.success)) {
+      add(
+        "stop_conditions.success",
+        false,
+        `stop_conditions.success missing or not a non-empty string (got ${JSON.stringify(sc.success)}); the success state must be explicitly stated — the loop's done-condition`
+      );
+    } else {
+      add("stop_conditions.success", true);
+    }
     if (!isNonEmptyStringList(sc.failure)) {
       add(
         "stop_conditions.failure",

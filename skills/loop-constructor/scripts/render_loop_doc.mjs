@@ -100,6 +100,7 @@ function renderStage(stage, idx) {
     `- **Done when:** ${mdText(stage.definition_of_done && stage.definition_of_done.goal)}`,
     `- **Check (run — the gate):** ${codeSpan(fs.check)}  ·  expect: ${expect}`,
     `- **Falsifiable when:** ${mdText(fs.falsifiable_when)}`,
+    `- **Passing-but-wrong (ruled out):** ${mdText(fs.passing_but_wrong)}`,
     `- **Depends on:** ${dep}  ·  admit downstream only once this check passes.`,
     `- **Stop:** max ${sc.max_iterations} iterations; failure branches:`,
     list(sc.failure, "    - "),

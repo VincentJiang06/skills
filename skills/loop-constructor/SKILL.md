@@ -72,15 +72,24 @@ passed their checks (gate after every stage; the graph must be acyclic).
 3. **Feedback signal** — the cheapest runnable check on the spectrum
    (lint → typecheck → tests → build → diff → screenshot → logs → telemetry)
    that still catches the failure class. **If no runnable check exists, REJECT.**
-   For every stage's check, also fill **`falsifiable_when`**: the concrete broken
-   state that makes the check FAIL. Self-test: *describe a passing-but-wrong
-   implementation that still satisfies this check* — if you can, the check is too
-   weak (a no-op the loop would reward-hack); strengthen it. The linter only gates
-   that `falsifiable_when` is **present**; judging its quality is your job (and the
-   fresh-reader pass below), not the linter's — keep the linter dumb and honest.
+   The check is the **success gate**, so the linter now runs a cannot-fail
+   analysis over shell `; || && |` and rejects any check that can't fail on a
+   broken impl (`true` / `npm test || true` / `…; true` / `sh -c true` /
+   empty-pattern grep / grep-your-own-`.loop/`-scratch), and requires
+   `expect:"pass"` — but a *custom* always-0 command is undecidable, so those are
+   still the floor, not the ceiling. For every stage's check
+   fill two clauses: **`falsifiable_when`** (the concrete broken state that makes
+   the check FAIL) and **`passing_but_wrong`** (the self-test made a field:
+   *describe a passing-but-wrong implementation that still satisfies this check* —
+   if you can name one, the check is too weak; strengthen it, or record
+   `"none: <why exhaustive>"`). The linter gates **presence** of both; judging
+   whether the check *truly discriminates* and whether `passing_but_wrong` is
+   honest is your job + the fresh-reader pass — keep the linter dumb but no longer
+   blind to the easy reward-hacks.
    → `concept.feedback_signal_spectrum`, `principle.closed_loop_needs_a_check`, `anti_pattern.reward_hacking`
-4. **Stop conditions** — success + a non-empty `failure` branch list + escalate
-   triggers + a **mandatory `max_iterations`/budget cap**.
+4. **Stop conditions** — a non-empty **`success`** state (the stated done-condition,
+   now linter-required) + a non-empty `failure` branch list + escalate triggers +
+   a **mandatory `max_iterations`/budget cap**.
    → `procedure.stop_gate`, `procedure.escalation_triggers`
 5. **Human placement** — `in_the_loop` vs `on_the_loop`, decided by
    blast-radius × reversibility × feedback-quality.
@@ -120,16 +129,22 @@ after the linter PASSes.
 for a design the linter rejects** — so a successfully written `.loop/` doc is
 itself proof the design passed. A `REFUSED:` line means fix the design and re-run.
 
-**Fresh-reader pass (do this — the linter can't).** The linter checks *structure*,
-not *meaning*: it cannot tell whether a check actually discriminates. Before
-returning, re-read the emitted design cold and confirm, for each stage: (a) the
-`check` is a command you could literally run and that would FAIL on a broken
-implementation (not `echo done` / `true` / grepping the agent's own log); (b) the
-`falsifiable_when` names a real broken state, not a restatement of the goal; (c)
-the failure branches are reachable from that check's failure modes; (d) the
-`maker_checker.scope` names a concrete adversarial target. If any fails, fix the
-design — a green linter on a hollow check is exactly the trap this pass exists to
-catch.
+**Fresh-reader pass (do this — the linter can't).** The linter now catches the
+*obvious* always-green no-ops (`true` / `echo done` / grep-your-own-log) and
+requires `success` + `expect:"pass"` + `passing_but_wrong`, but it still checks
+*structure*, not *meaning*: it cannot tell whether a real-looking check actually
+discriminates. Before returning, re-read the emitted design cold and confirm, for
+each stage: (a) the `check` is a command you could literally run that would FAIL on
+a broken implementation — and that it isn't a *subtler* hollow gate the denylist
+can't see (e.g. a test suite with zero assertions, a check whose target the agent
+also writes); (b) the `falsifiable_when` names a real broken state, not a
+restatement of the goal; (c) the **`passing_but_wrong`** entry is an *honest*,
+concrete false-pass (or a justified `"none"`), not hand-waving — if you can think
+of a passing-but-wrong impl it omits, the check is still too weak; (d) the failure
+branches are reachable from that check's failure modes; (e) the `maker_checker.scope`
+names a concrete adversarial target; (f) the `stop_conditions.success` state matches
+what the stage checks actually prove. If any fails, fix the design — a green linter
+on a hollow check is exactly the trap this pass exists to catch.
 
 ## Report
 
