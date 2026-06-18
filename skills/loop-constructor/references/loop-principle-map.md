@@ -37,6 +37,30 @@ under `<kb>/docs/`.
 | 8 | Risk guards | `anti_pattern.reward_hacking`, `anti_pattern.error_amplification`, `anti_pattern.context_drift`, `anti_pattern.token_blowup`, `anti_pattern.permission_blast_radius` | `<kb>/docs/risks/costs_risks_failure_modes.md` |
 | 9 | Emit + self-score | `procedure.canonical_loop` | `<kb>/templates/loop_design.template.md`, `<kb>/templates/loop_quality_rubric.template.json` |
 
+## Decomposition (medium/large altitude) → node ids → reuse
+
+A medium/large task is **a tree/sequence of gated sub-loops**, not one flat loop.
+Before filling `stages[]`, SURFACE the KB's existing decomposition substance —
+do **not** re-author a splitting method. Retrieval recipe:
+
+```
+node <kb>/tools/query_kb.mjs "decompose break large task into milestones gated phases"
+```
+
+| Concern | Grounding node ids | Reuse by path |
+|---|------|--------------------|
+| Split before doing (the "plan ≠ execute" defense against diligently building the wrong thing) | `principle.separate_planning_from_execution`, `procedure.explore_plan_implement_commit` | `<kb>/docs/anatomy/loop_anatomy_and_patterns.md` |
+| Each stage's inner loop (plan → small steps → verify each, revise mid-flight) | `pattern.plan_execute_verify` | `<kb>/docs/anatomy/loop_anatomy_and_patterns.md` |
+| How far to scale the effort (manual → semi-auto → tooled → multi-agent → org) | `procedure.adoption_roadmap` | `<kb>/docs/practice/adoption_rubric_misconceptions.md` |
+| Large-altitude parallel fan-out (roles / isolation / shared-state ledger) | `pattern.multi_agent_orchestra` | `<kb>/templates/multi_agent_plan.template.json`, `<kb>/docs/governance/stop_conditions_and_multi_agent.md` |
+| The staged spine itself (gate after every stage; never advance past a failing gate) | `procedure.canonical_loop` (already cited at step 9, here as the per-stage anchor) | — |
+
+> **Surface vs author.** The splitting *theory* lives in these 5 KB nodes — cite
+> them, don't restate. The staged *schema* (the `stages[]` array, `depends_on`
+> edges, the gate-after-every-stage rule, the acyclic/reachability requirement)
+> is structure authored in this skill (`references/loop-design-shape.md`): the KB
+> has no node describing a gated staged-sub-loop schema, so the skill owns it.
+
 ## Checklists to reuse (load on demand, do not restate)
 
 - `<kb>/checklists/loop_preflight.checklist.json` — before designing.
@@ -45,5 +69,16 @@ under `<kb>/docs/`.
 - `<kb>/checklists/loop_safety_boundary.checklist.json` — stop/escalate/permission.
 - `<kb>/checklists/loop_observability.checklist.json` — telemetry/auditability.
 
-All 19 node ids above were verified present in the KB at build time (grouped in
-`<kb>/knowledge_graph/nodes/*.json` and resolvable via `query_kb`).
+> **`loop_design.template.md` is the per-STAGE frame.** That KB template renders
+> *one* flat plan-execute-verify loop — i.e. a single stage. The staged envelope
+> (`stages[]` / `depends_on` / `loop_altitude` / per-stage `on_failure`) is the
+> skill's own shape in `references/loop-design-shape.md`, and the rendered runbook
+> comes from `scripts/render_loop_doc.mjs`, not from the KB template directly.
+
+All grounding ids above (the 9-step table + the Decomposition table) were verified
+present in the KB at build time and resolve via `query_kb`: **node** ids
+(`principle.* concept.* pattern.* procedure.* technique.* anti_pattern.*`) live in
+`<kb>/knowledge_graph/nodes/*.json`; **doc** ids (the `doc.*` entries, e.g.
+`doc.anatomy.loop_anatomy_and_patterns`) are long-docs under `<kb>/docs/`, not
+nodes — they appear here for their grounding content, shown with their path in the
+"Reuse by path" column.

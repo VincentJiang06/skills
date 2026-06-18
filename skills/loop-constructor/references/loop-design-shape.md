@@ -42,8 +42,8 @@ prose/Markdown render of the same design).
 |-------|------------|
 | `feedback_signal.check` | missing / empty / whitespace-only / null (presence ≠ a real signal). **Anchor.** |
 | `stop_conditions` | missing or `{}` (empty) |
-| `stop_conditions.failure` | missing or empty list |
-| `stop_conditions.max_iterations` | missing or not a positive integer (the cap is mandatory) |
+| `stop_conditions.failure` | not a non-empty list of **non-empty strings** (`[null]` / `[""]` FAIL) |
+| `stop_conditions.max_iterations` | missing, or not a positive integer **≤ 10000** (the cap must be a real bound, not effectively-infinite) |
 | `human_placement` | missing or not `in_the_loop`/`on_the_loop` |
 | `maker_checker.separate_checker` | missing object or `separate_checker !== true` |
 | `risk_guards` | missing or empty list, or any item missing `risk`/`mitigation` |
@@ -53,3 +53,96 @@ prose/Markdown render of the same design).
 
 A complete, check-first design → all `PASS`, exit 0. See
 `assets/golden-loop-design.json` for a passing fixture to copy.
+
+## Staged shape (medium/large — what the skill emits)
+
+Entering a loop means the task is big enough to decompose, so the skill emits a
+**staged** design: every task is a tree/sequence of gated sub-loops. The flat
+shape above is **not deprecated** — it is the atomic unit (one stage *is* a flat
+loop), and the linter still accepts a lone flat object for back-compat. But the
+9-step protocol produces the staged shape below.
+
+```json
+{
+  "task": "<one line>",
+  "loop_altitude": "medium | large",
+  "loop_altitude_rationale": "<why this altitude, from blast-radius × reversibility × surface-area>",
+  "stages": [
+    {
+      "id": "<unique slug — referenced by depends_on>",
+      "definition_of_done": { "goal": "<predicate/command>", "machine_verifiable": true },
+      "loop_pattern": "retry | plan_execute_verify | explore_narrow | review | human_in_the_loop",
+      "feedback_signal": {
+        "check": "<runnable cmd — REQUIRED per stage; the anchor>",
+        "expect": "pass",
+        "falsifiable_when": "<REQUIRED: the concrete broken state that makes this check FAIL>"
+      },
+      "stop_conditions": {
+        "failure": ["<>=1 non-empty string>"],
+        "max_iterations": 8,
+        "on_failure": { "action": "loopback | escalate | abort", "to": "<UPSTREAM stage id (a depends_on ancestor) — loopback only>" }
+      },
+      "depends_on": ["<stage id>", "..."]
+    }
+  ],
+  "human_placement": "in_the_loop | on_the_loop",
+  "maker_checker": { "separate_checker": true, "scope": "<string>" },
+  "harness_primitives": ["<>=0 items>"],
+  "stop_conditions": {
+    "success": "<string>",
+    "failure": ["<>=1 outer/full-loop branch>"],
+    "escalate": ["<trigger>", "..."],
+    "max_iterations": 4
+  },
+  "risk_guards": [ { "risk": "<string>", "mitigation": "<string>" } ]
+}
+```
+
+- **`loop_altitude`** — `medium` (sequential gated stages, single-agent) or
+  `large` (+ parallel fan-out; see `pattern.multi_agent_orchestra`). `small` is
+  **not** a valid altitude.
+- **Each stage is a flat loop** carrying its own DoD + pattern + runnable check +
+  per-stage cap. The anchor (`feedback_signal.check`) holds **per stage**.
+- **`depends_on`** wires the gate: a stage is admitted only once every stage it
+  depends on has passed its check (gate-after-every-stage; never advance past a
+  failing gate). The design-level `stop_conditions.max_iterations` is the
+  **outer** budget; each stage's `max_iterations` is its **inner** retry cap.
+
+### What the linter enforces for STAGED designs (FAIL rules)
+
+| Field | FAILs when |
+|-------|------------|
+| `loop_altitude` | missing or not `medium`/`large` (small is not a loop altitude) |
+| `stages` | present but not a non-empty array |
+| `stages[i].id` | missing/empty, or duplicated across stages |
+| `stages[i].definition_of_done` | missing, empty `goal`, or `machine_verifiable !== true` |
+| `stages[i].loop_pattern` | missing or not one of the five patterns |
+| `stages[i].feedback_signal.check` | missing/empty — **the anchor, per stage** |
+| `stages[i].feedback_signal.falsifiable_when` | missing/empty — a check must declare the broken state that makes it FAIL (structural presence; the *quality* of the statement is judged by the skill's fresh-reader step, not the linter) |
+| `stages[i].stop_conditions.failure` | not a non-empty list of **non-empty strings** (`[null]` / `[""]` / `[0]` FAIL) |
+| `stages[i].stop_conditions.max_iterations` | missing, or not a positive integer **≤ 10000** (an effectively-infinite cap is no cap) |
+| `stages[i].stop_conditions.on_failure` | `action` not `loopback`/`escalate`/`abort`; a `loopback` whose `to` is missing, unresolved, the stage **itself**, or **not an upstream stage** (must be a transitive `depends_on` ancestor); or an `escalate`/`abort` carrying a stray `to` |
+| `stages[i].depends_on` | present but not an array, **or** references a stage id that does not exist |
+| `stages.reachability` | the `depends_on` edges form a cycle (no enterable root ⇒ cannot terminate) |
+| `hybrid.*` | a top-level `feedback_signal` / `definition_of_done` / `loop_pattern` alongside `stages[]` (per-loop fields belong inside a stage) |
+| design-level | `stop_conditions` (non-empty-string `failure`, capped `max_iterations`) / `human_placement` / `maker_checker` / `risk_guards` / `harness_primitives` — same rules as the flat shape |
+
+A complete staged design → all `PASS`, exit 0. See
+`assets/golden-loop-design-medium.json` for a passing staged fixture.
+
+## The loop docs (persisted artifact)
+
+`scripts/render_loop_doc.mjs` turns a **linter-valid** design into a runnable
+Markdown runbook and writes it to a fixed project directory:
+
+```
+node scripts/render_loop_doc.mjs <design.json> [--out <dir>] [--slug <name>]
+```
+
+- Default `--out` is **`.loop/`** at the project root (override for a visible
+  path like `docs/loops/`). It writes `<out>/<slug>.loop.md` (the runbook) plus
+  `<out>/<slug>.loop.json` (the checked spec).
+- It **validates first** and **refuses to write** a doc for a design the linter
+  rejects — no runbook is ever produced for a non-loop.
+- The Markdown is a deterministic function of the design (no timestamps), so
+  re-rendering the same design is byte-identical.
