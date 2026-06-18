@@ -6,6 +6,9 @@ __pycache__/
 # Machine-local Claude Code config (never publish)
 .claude/settings.local.json
 
+# Internal research notes (never publish)
+.research/
+
 # skill pipeline build provenance (not part of the shipped skill)
 .skill-conductor/
 .skill-guidance/
@@ -34,3 +37,4 @@ skills/mp-groundline/scripts/validate-skill.mjs
 /experiments/
 /docs/
 /tools/vince-mp-cli/test/
+/tools/vince-mp-cli/tests/

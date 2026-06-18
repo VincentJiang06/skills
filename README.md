@@ -10,6 +10,32 @@ Most agent skills are a prompt and a hope. These are built like software: each o
 validator, a red-green eval loop, and an independent fresh-agent battery that *tries to break it*. Small,
 sharply-scoped, bilingual (EN / 中文; several Chinese-first). Adapt them, make them your own.
 
+## Skills at a glance
+
+One line each — what every skill does. Full write-ups (with each skill's *edge*) are in [Reference](#reference) below.
+
+**Product**
+- **[album-review](skills/album-review/)** — One 10,000–15,000-字 Chinese 乐评 from an artist + album, source-traced across every musical dimension.
+- **[hifi-review](skills/hifi-review/)** — Objective HiFi-gear evaluation: transducer signature from FR-vs-target, source-gear competence from measurements — every claim traced to evidence.
+- **[course-study](skills/course-study/)** — Turns a course's materials into complete-coverage, Feynman-explained, exam-ready revision notes.
+- **[fact-check](skills/fact-check/)** — A fast, citation-backed BLUF answer to a factual question, inside a hard ≤2-min (simple) / ≤5-min (complex) budget.
+- **[humanizer-academic](skills/humanizer-academic/)** — Rewrites academic prose (EN / ZH / mixed) to strip AI-writing signals while keeping scholarly register.
+- **[low-visibility-fix](skills/low-visibility-fix/)** — Audits field mobile UI (low light, glare, gloves) and hands back an implementer-ready fix-plan doc set; never edits the target.
+- **[mp-cli-sup](skills/mp-cli-sup/)** — Debugs a *live* WeChat Mini Program through the `vince-mp` CLI — one persistent session, stable element uids, camera-less scan.
+- **[mp-groundline](skills/mp-groundline/)** — Migrates a WeChat Mini Program from Skyline to WebView, consistency-first, with a read-only scanner + a migration map (keeps workarounds, never reverts).
+
+**Coding discipline** — auto-triggered as you build
+- **[test-driven-development](skills/test-driven-development/)** — TDD for *non-trivial* behavior: a failing test first, the suite kept as a *living spec* of the current target. Installs as `vince-tdd`.
+- **[neat](skills/neat/)** — End-of-session knowledge-base cleanup: reconciles docs + cross-session agent memory against the code so nothing rots. Installs as `vince-neat`.
+- **[loop-constructor](skills/loop-constructor/)** — Designs the engineered *loop* for a medium/large agent task — decomposed into gated sub-loops — and writes a runnable `.loop/` runbook.
+- **[reorganize-logic](skills/reorganize-logic/)** — Rebuilds a project's design-contract layer from scratch (architecture + structure + interface definitions) with the code as the single source of truth, behind a strict gate.
+
+**The skill-building pipeline** — skills that build skills
+- **[skill-conductor](skills/skill-conductor/)** — Drives guidance → engineer → zipper end to end with anti-inflation final acceptance.
+- **[skill-guidance](skills/skill-guidance/)** — Audits a skill/repo (scores, scopes, finds gaps) and emits a schema-validated handoff spec.
+- **[skill-engineer](skills/skill-engineer/)** — Builds and tests a skill from that spec, red-green-refactor, with an independent battery.
+- **[skill-zipper](skills/skill-zipper/)** — Restructures an existing skill for token efficiency, reliability, and trigger accuracy — losslessly.
+
 ## Quickstart
 
 ```bash
@@ -90,6 +116,7 @@ Each skill: **what it does** + **why it's good**.
 - **[humanizer-academic](skills/humanizer-academic/)** — Rewrites academic prose (EN / ZH / mixed) to strip AI-writing signals while keeping scholarly register. *Edge:* removes signal on three layers (lexical + structural + statistical burstiness), not a word denylist; adds defined texture (stance, specificity, variance — never casual, never invented); detect-only instrument + independent blind judge.
 - **[low-visibility-fix](skills/low-visibility-fix/)** — Audits field mobile UI (low light, glare, gloves) and hands back an implementer-ready fix-plan doc set; never edits the target. *Edge:* deterministic analyzer + bounded visual pass; scopeable to a single page for cheap re-runs; clean audit-vs-apply separation.
 - **[mp-cli-sup](skills/mp-cli-sup/)** — Debugs a *live* WeChat Mini Program through the `vince-mp` CLI. *Edge:* one persistent session → instant reused-connection commands with stable element uids; camera-less scan; a real `doctor` (tsc + .js freshness); client↔backend error correlation by requestId.
+- **[mp-groundline](skills/mp-groundline/)** — Migrates a WeChat Mini Program from the Skyline renderer to WebView, consistency-first. *Edge:* flips the renderer and **keeps** the workarounds (never reverts), with a read-only scanner + a generated MIGRATION-MAP doc; hardened over 5 engineer rounds × 4 fresh batteries (11 latent bugs caught, incl. markdown injection + CSS url-comment-eating).
 
 ### Coding discipline
 
@@ -97,7 +124,8 @@ Day-to-day engineering discipline — auto-triggered as you build.
 
 - **[test-driven-development](skills/test-driven-development/)** — TDD for *non-trivial* behavior: write or update a failing test first, watch it fail once per feature-group, then write minimal code to pass — the suite is a *living spec* of the current target. *Edge:* a discriminative right-size gate that fixes over-triggering (engages on real logic / bugfix / behavior-change; skips renames, config-constants, spikes, generated code, docs); a **modify mode** that edits / merges / deletes over add (one test per feature-group, no proliferation); delegates inventory, test-runs, and stale-scans to subagents. Installs as `vince-tdd`.
 - **[neat](skills/neat/)** — End-of-session knowledge-base cleanup with OCD rigor: reconciles docs (CLAUDE.md/AGENTS.md, README, docs/) and cross-session agent memory against the code so nothing rots — cross-platform (Claude Code / Codex / OpenCode / OpenClaw). *Edge:* a deterministic anti-bloat/anti-rot linter (`kb_audit.mjs`) gates "sync complete" on machine-checkable HARD evidence — MEMORY.md byte/line ceilings, relative-time leakage, memory-vs-docs size inversion, broken index links; a memory→docs "graduation" valve against index bloat; thin-orchestrator SKILL.md (16.6% always-loaded, the rest on-demand). Installs as `vince-neat`.
-- **[loop-constructor](skills/loop-constructor/)** — Designs the engineered *loop* for a task you want an AI agent to run (semi-)autonomously: a machine-verifiable Definition of Done, the right loop pattern (retry / plan-execute-verify / explore-narrow / review / human-in-the-loop), the feedback signal that closes it, stop & escalation conditions, human placement, maker/checker, harness primitives, and risk guards — emitting a filled, machine-checkable loop-design spec. *Edge:* a deterministic linter (`lint_loop_design.mjs`) that **rejects any design with no runnable check** (loop engineering ≈ verification engineering); designs loops, never runs them; grounded in the [`loop-principle/`](loop-principle/) KB (cites node ids, reuses its templates/checklists).
+- **[loop-constructor](skills/loop-constructor/)** — Designs the engineered *loop* for a medium/large task you want an AI agent to run (semi-)autonomously — **decomposing it into a tree of gated sub-loops** (each a flat loop with its own machine-verifiable DoD + runnable check + cap, wired by `depends_on`, acyclic): the right pattern per stage (retry / plan-execute-verify / explore-narrow / review / human-in-the-loop), the feedback signal that closes each gate, stop/escalation conditions, human placement, maker/checker, harness primitives, and risk guards — emitting a filled, machine-checkable loop-design spec **and persisting it as a runnable `.loop/` runbook** in the project. *Edge:* a deterministic linter (`lint_loop_design.mjs`) that **rejects any design with no runnable check** (loop engineering ≈ verification engineering, per stage), plus a renderer that refuses to write a runbook for a design the linter rejects; designs loops, never runs them; grounded in the [`loop-principle/`](loop-principle/) KB (cites node ids, reuses its templates/checklists).
+- **[reorganize-logic](skills/reorganize-logic/)** — Rebuilds a project's **design-contract layer** from scratch when its docs have rotted past where incremental sync is worth it: compacts the old contracts into read-only context (never copied), re-derives an architecture diagram + structure diagram + explicit interface definitions from the **code as the single source of truth**, and deletes stale legacy only behind a human review gate. *Edge:* a deterministic, language-agnostic gate (`verify_contracts.mjs`) that ties every documented interface to a real `file:line` and proves no recognized export was silently dropped — it **flags** ambiguous near-name matches for the agent to reconcile rather than rubber-stamping (no green-but-wrong); contrast with [neat](skills/neat/), which *syncs* docs incrementally rather than rebuilding them.
 
 ### The skill-building pipeline
 
