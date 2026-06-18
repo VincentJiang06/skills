@@ -30,7 +30,7 @@
       "task_zh": "模拟拓器没法用真相机，模拟一次扫码，看看有没有生成记录。",
       "expected_activation": "must_activate",
       "acceptance_criteria": [
-        "Uses vince-mp scan <code> (callPageMethod onScanCode with a fake {result,scanType}), not a real camera.",
+        "Uses vince-mp scan <code> (callPageMethod onScanCode with a fake bindscancode event carrying detail.result/detail.scanType), not a real camera.",
         "Reads pageData afterward to confirm the new record / latest.",
         "Notes that real camera frames still require a device."
       ]

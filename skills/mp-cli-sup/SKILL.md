@@ -43,7 +43,7 @@ vince-mp data                   # read pageData — instant (reuses the session)
 vince-mp query .submit-btn      # mint a uid (e.g. "button_0")
 vince-mp tap button_0           # act by uid — the uid is STILL valid in this separate call
 vince-mp data                   # confirm the effect
-vince-mp scan PKG-2026-0605     # camera-less: callPageMethod onScanCode with a fake code
+vince-mp scan PKG-2026-0605     # camera-less: callPageMethod onScanCode with a fake bindscancode event
 vince-mp console                # console buffered since session start
 vince-mp session stop           # when done (or it idle-reaps itself)
 ```
@@ -56,7 +56,7 @@ use a distinct port to debug two projects at once). The session is keyed per wor
 - **Session lifecycle:** `session start|status|stop|restart|reconnect` (auto-reconnects on a dropped connection; `reconnect` forces it).
 - **Read (instant):** `page`, `stack`, `data [path]`, `sysinfo`, `query <sel> [--all]`,
   `snapshot <sel>`, `console [--clear]`, `eval '<expr>'`.
-- **Act (uids persist):** `tap <uid>`, `input <uid> <text>`, `scan <code> [--type t] [--method m]`,
+- **Act (uids persist):** `tap <uid>`, `input <uid> <text>`, `scan <code> [--type t] [--method m] [--raw]`,
   `shot <output>`, `nav <url>`, `step '<json>'` (any of the 46 step types), `run --stdin` (batch).
 - **Diagnose / cross-stack:** `doctor [--skip-typecheck]`, `env list|use <key>|current|token <t>`,
   `logs --request-id <id> | --user-id <id> | --code <n>`.

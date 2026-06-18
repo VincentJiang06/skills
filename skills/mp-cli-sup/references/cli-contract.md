@@ -36,7 +36,7 @@ idle-reaps itself. Every later command auto-starts a session if none is running.
 | `snapshot [<sel>] [--position]` | snapshot | batched reads; pass a concrete selector (`*` is unsupported on some renderers) |
 | `tap <uid>` / `input <uid> <text>` | tap / input | uid from a prior query/snapshot; valid across calls in a session |
 | `eval '<js expr>'` | evaluate | wraps as `function(){ return (<expr>); }` |
-| `scan <code> [--type qrcode] [--method onScanCode]` | callPageMethod | camera-less: fakes a scan via the page's scan handler |
+| `scan <code> [--type qrcode] [--method onScanCode] [--raw]` | callPageMethod | camera-less: fakes a `bindscancode` event via the page's scan handler; `--raw` sends legacy `{result,scanType}` |
 | `shot <output>` | screenshot | full-page PNG under `--workspace-root` |
 | `nav <url>` | navigateTo | navigation (invalidates uids) |
 | `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (capped 1000) |

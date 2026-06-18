@@ -21,6 +21,7 @@ export const STEP_OPTIONS = {
   "idle-timeout-ms": { type: "string" },
   all: { type: "boolean" },
   position: { type: "boolean" },
+  raw: { type: "boolean" },
   "max-bytes": { type: "string" },
   "max-elements": { type: "string" },
   method: { type: "string" },
@@ -51,7 +52,21 @@ function requireArg(value, message) {
   return value;
 }
 
-function buildStep(command, args, positionals) {
+function buildScanPayload(code, scanType, rawPayload = false) {
+  if (rawPayload) {
+    return { result: code, scanType };
+  }
+  return {
+    type: "scancode",
+    detail: {
+      result: code,
+      scanType,
+      type: scanType,
+    },
+  };
+}
+
+export function buildStep(command, args, positionals) {
   switch (command) {
     case "page":
       return { type: "currentPage" };
@@ -93,12 +108,16 @@ function buildStep(command, args, positionals) {
     case "nav":
       return { type: "navigateTo", url: requireArg(positionals[0], "nav requires a url") };
     case "scan":
-      return {
-        type: "callPageMethod",
-        method: args.method ?? "onScanCode",
-        args: [{ result: requireArg(positionals[0], "scan requires a code"), scanType: args.type ?? "qrcode" }],
-        maxJsonBytes: BIG_JSON_BYTES,
-      };
+      {
+        const code = requireArg(positionals[0], "scan requires a code");
+        const scanType = args.type ?? "qrcode";
+        return {
+          type: "callPageMethod",
+          method: args.method ?? "onScanCode",
+          args: [buildScanPayload(code, scanType, Boolean(args.raw))],
+          maxJsonBytes: BIG_JSON_BYTES,
+        };
+      }
     case "console":
       return args.clear
         ? { type: "clearConsole" }

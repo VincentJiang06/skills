@@ -34,8 +34,8 @@ DevTools/webview has no real Skyline camera preview, so the scan/decode path can
 camera. Drive it without hardware via the page's scan handler:
 
 ```bash
-vince-mp scan PKG-2026-0605 --type qrcode            # callPageMethod onScanCode {result,scanType}
-vince-mp scan 123 --method onDecodeResult            # custom handler name
+vince-mp scan PKG-2026-0605 --type qrcode            # callPageMethod onScanCode {detail:{result,scanType}}
+vince-mp scan 123 --method onDecodeResult            # custom handler name; add --raw for legacy {result,scanType}
 ```
 
 Then read the effect with `vince-mp data` (e.g. the new record / `latest`). This is the supported

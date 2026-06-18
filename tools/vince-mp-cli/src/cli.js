@@ -113,7 +113,7 @@ export async function dispatch(argv) {
         "vince-mp session start                 # connect once (auto-resolves project + automation port)",
         "vince-mp data                          # read pageData (instant; reuses the session)",
         "vince-mp query .submit-btn             # mint a uid, then: vince-mp tap <uid>",
-        "vince-mp scan PKG-123                  # camera-less: callPageMethod onScanCode",
+        "vince-mp scan PKG-123                  # camera-less: callPageMethod onScanCode with bindscancode event",
       ],
       note: "All commands return JSON. Shorthands auto-start a session; pass --no-session for a one-shot connect.",
     };

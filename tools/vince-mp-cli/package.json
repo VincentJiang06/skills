@@ -16,8 +16,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "lint": "node --check bin/vince-mp.js && node --check src/*.js && node --check test/*.test.js",
-    "test": "node --test test/*.test.js",
+    "lint": "node --check bin/vince-mp.js && node --check src/*.js && node --check test/*.test.js && node --check tests/*.test.js",
+    "test": "node --test test/*.test.js tests/*.test.js",
     "validate": "npm run lint && npm test"
   },
   "dependencies": {
