@@ -7,7 +7,7 @@ description: >
   rewrite), and emit an agent-facing MIGRATION-MAP doc classifying every finding
   KEEP / VERIFY / REWRITE. Triggers: "把小程序从 skyline 迁移到 webview 保持页面一致",
   "migrate this mini program off Skyline to WebView", "生成 skyline→webview 迁移对照 doc",
-  "$vince-mp-groundline". Do NOT use for: live runtime debugging (vince-mp-cli-sup),
+  "$mp-groundline". Do NOT use for: live runtime debugging (mp-cli-sup),
   DEVELOPING Skyline components/animations (the skyline-* skills), webview→skyline
   reverse migration, perf-only optimization, or non-WeChat work.
 version: 0.1.0
@@ -77,7 +77,7 @@ per-page `disableScroll`; keep or strip `rendererOptions.skyline` (ignored by
 WebView).
 
 ### Step 4 — Verify  → load `rules/verify-with-vince-mp.md`
-Use the system `vince-mp` CLI (the tool `vince-mp-cli-sup` drives — do **NOT**
+Use the system `vince-mp` CLI (the tool `mp-cli-sup` drives — do **NOT**
 rebuild it) to capture before/after screenshots + `pageData` per page and diff →
 the list of **actual** deltas.
 
@@ -94,7 +94,7 @@ checkout` of `app.json` + touched page `.json`.
 
 - **IN:** Skyline→WebView migration of a WeChat mini program; consistency-first
   minimal-diff edits; the deterministic scan + MIGRATION-MAP doc.
-- **OUT (route elsewhere):** live runtime debugging → `vince-mp-cli-sup`;
+- **OUT (route elsewhere):** live runtime debugging → `mp-cli-sup`;
   DEVELOPING Skyline components / worklet animations / custom routes → the
   `skyline-*` skills (opposite direction); webview→skyline reverse migration;
   perf-only optimization with no renderer change; modernizing/reverting a

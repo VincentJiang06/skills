@@ -1,158 +1,150 @@
-# Industrial-Grade Agent Skills
+# 工业级 Agent Skills
 
-![Industrial-Grade Agent Skills](assets/cover.png)
+![工业级 Agent Skills](assets/cover.png)
 
-> Agent skills for Claude Code that ship with contracts, validators, and eval suites — and get broken by an independent judge before release, not just self-reported green.
+> 给 Claude Code 用的 agent skills：自带合约、校验器与 eval 套件 —— 上线前先被一个独立评审「往死里挑」，而不是自测绿了就算。
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) · **English** · [简体中文](README.zh.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) · [English](README.en.md) · **简体中文**
 
-Most agent skills are a prompt and a hope. These are built like software: each one has a deterministic
-validator, a red-green eval loop, and an independent fresh-agent battery that *tries to break it*. Small,
-sharply-scoped, bilingual (EN / 中文; several Chinese-first). Adapt them, make them your own.
+大多数 agent skill 只是「一段 prompt + 一份侥幸」。这些 skill 是当软件来造的：每个都有一个确定性校验器、
+一套红绿 eval 循环，以及一个**专门想把它弄坏**的独立新 agent 测试组。小而专、范围锋利、中英双语（其中数个
+中文优先）。拿去改，改成你自己的。
 
-## Skills at a glance
+## 一句话速览
 
-One line each — what every skill does. Full write-ups (with each skill's *edge*) are in [Reference](#reference) below.
+每个 skill 一句话 —— 详细写法（含每个 skill 的「好在哪」）见下方[逐个说明](#逐个说明)。
 
-**Product**
-- **[album-review](skills/album-review/)** — One 10,000–15,000-字 Chinese 乐评 from an artist + album, source-traced across every musical dimension.
-- **[hifi-review](skills/hifi-review/)** — Objective HiFi-gear evaluation: transducer signature from FR-vs-target, source-gear competence from measurements — every claim traced to evidence.
-- **[course-study](skills/course-study/)** — Turns a course's materials into complete-coverage, Feynman-explained, exam-ready revision notes.
-- **[fact-check](skills/fact-check/)** — A fast, citation-backed BLUF answer to a factual question, inside a hard ≤2-min (simple) / ≤5-min (complex) budget.
-- **[humanizer-academic](skills/humanizer-academic/)** — Rewrites academic prose (EN / ZH / mixed) to strip AI-writing signals while keeping scholarly register.
-- **[low-visibility-fix](skills/low-visibility-fix/)** — Audits field mobile UI (low light, glare, gloves) and hands back an implementer-ready fix-plan doc set; never edits the target.
-- **[mp-cli-sup](skills/mp-cli-sup/)** — Debugs a *live* WeChat Mini Program through the `vince-mp` CLI — one persistent session, stable element uids, camera-less scan.
-- **[mp-groundline](skills/mp-groundline/)** — Migrates a WeChat Mini Program from Skyline to WebView, consistency-first, with a read-only scanner + a migration map (keeps workarounds, never reverts).
+**成品**
+- **[album-review](skills/album-review/)** —— 由「主创署名 + 专辑名」产出一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。
+- **[hifi-review](skills/hifi-review/)** —— 客观 HiFi 器材评价：换能器风格由频响-对-目标得出、源头器材素质由测量得出，每条结论都追溯到证据。
+- **[course-study](skills/course-study/)** —— 把一门课的材料变成全覆盖、费曼式、可应试的复习笔记。
+- **[fact-check](skills/fact-check/)** —— 对事实性问题给出快速、有出处的 BLUF 回答，限时 ≤2 分钟（简单）/ ≤5 分钟（复杂）。
+- **[humanizer-academic](skills/humanizer-academic/)** —— 重写学术文本（中 / 英 / 混合），去掉 AI 写作痕迹同时保留学术腔。
+- **[low-visibility-fix](skills/low-visibility-fix/)** —— 审计现场移动 UI（低光、眩光、戴手套），交回可直接落地的修复方案文档；绝不改目标本身。
+- **[mp-cli-sup](skills/mp-cli-sup/)** —— 通过 `vince-mp` CLI 调试*实时*运行的微信小程序 —— 一次持久会话、元素 uid 稳定、免相机 scan。
+- **[mp-groundline](skills/mp-groundline/)** —— 把微信小程序从 Skyline 渲染器迁到 WebView，一致性优先，配只读扫描器 + 迁移地图（保留 workaround，绝不回退）。
 
-**Coding discipline** — auto-triggered as you build
-- **[test-driven-development](skills/test-driven-development/)** — TDD for *non-trivial* behavior: a failing test first, the suite kept as a *living spec* of the current target. Installs as `vince-tdd`.
-- **[neat](skills/neat/)** — End-of-session knowledge-base cleanup: reconciles docs + cross-session agent memory against the code so nothing rots. Installs as `vince-neat`.
-- **[loop-constructor](skills/loop-constructor/)** — Designs the engineered *loop* for a medium/large agent task — decomposed into gated sub-loops — and writes a runnable `.loop/` runbook.
-- **[reorganize-logic](skills/reorganize-logic/)** — Rebuilds a project's design-contract layer from scratch (architecture + structure + interface definitions) with the code as the single source of truth, behind a strict gate.
+**编码纪律 —— 写代码时自动触发**
+- **[test-driven-development](skills/test-driven-development/)** —— 对*非平凡*行为做 TDD：先写会失败的测试，把测试套件当成当前目标的*活规格*。
+- **[neat](skills/neat/)** —— 会话收尾时把文档 + 跨会话 agent 记忆对着代码对账，让知识不腐烂。
+- **[loop-constructor](skills/loop-constructor/)** —— 为中大型 agent 任务设计工程化*循环* —— 分解成带 gate 的子循环树 —— 并写出可直接照跑的 `.loop/` runbook。
+- **[reorganize-logic](skills/reorganize-logic/)** —— 以**代码为唯一事实源**，从零重建项目的设计契约层（架构图 + 结构图 + 接口定义），删除遗留走评审门。
 
-**The skill-building pipeline** — skills that build skills
-- **[skill-conductor](skills/skill-conductor/)** — Drives guidance → engineer → zipper end to end with anti-inflation final acceptance.
-- **[skill-guidance](skills/skill-guidance/)** — Audits a skill/repo (scores, scopes, finds gaps) and emits a schema-validated handoff spec.
-- **[skill-engineer](skills/skill-engineer/)** — Builds and tests a skill from that spec, red-green-refactor, with an independent battery.
-- **[skill-zipper](skills/skill-zipper/)** — Restructures an existing skill for token efficiency, reliability, and trigger accuracy — losslessly.
+**造 skill 的流水线 —— 造 skill 的 skill**
+- **[skill-conductor](skills/skill-conductor/)** —— 带防注水最终验收地驱动 guidance → engineer → zipper 全程。
+- **[skill-guidance](skills/skill-guidance/)** —— 审计 skill/仓库（打分、定范围、找缺口）并产出 schema 校验的 handoff spec。
+- **[skill-engineer](skills/skill-engineer/)** —— 从该 spec 构建并测试 skill，红-绿-重构，配独立测试组。
+- **[skill-zipper](skills/skill-zipper/)** —— 为 token 效率、可靠性与触发准确度无损重构现有 skill。
 
-## Quickstart
+## 快速开始
 
 ```bash
-npx skills add VincentJiang06/skills        # pick which skills to install
+npx skills add VincentJiang06/skills        # 选择要安装的 skill
 ```
 
-Pulls straight from this repo (via [skills.sh](https://github.com/vercel-labs/skills)), auto-discovers every skill, and installs into `.claude/skills/` or `.agents/skills/`. Manual alternative: `cp -R skills/<name> ~/.claude/skills/` (or `<your-repo>/.claude/skills/` for project scope).
+直接从本仓库拉取（基于 [skills.sh](https://github.com/vercel-labs/skills)），自动发现所有 skill 并装入 `.claude/skills/` 或 `.agents/skills/`。手动方式：`cp -R skills/<name> ~/.claude/skills/`（项目内则拷到 `<你的仓库>/.claude/skills/`）。
 
-Then just ask — Claude Code auto-triggers from your request — or call `/<skill-name>` explicitly:
-
-```
-> is it true that the Eiffel Tower gets taller in summer?     # → fact-check
-```
-
-## Why these are different
-
-Five principles, learned the hard way building every skill here.
-
-### 1. Proof, not vibes
-A skill you can't verify is a skill you can't trust. Each one ships a **deterministic validator**
-(`check_review.py`, `check_answer.mjs`, `fact_lint.mjs`, …) and an eval suite, built test-first.
-Benchmarked against 8 of the top public skill repos, this collection leads on machine-readable contracts and
-deterministic proof.
-
-### 2. The closed loop lies
-A skill's own tests go green while it's still wrong — *green-but-wrong by default*. So every skill faces an
-**independent fresh-agent battery, blind to its build rules**. It caught real bugs the self-tests missed in
-*every* skill (5 in the humanizer, twice in company-background, four rounds in fact-check). The humanizer goes
-further: success is scored by a blind judge, never by "count the patterns I deleted."
-
-### 3. Accuracy over speed
-Crude buckets and fixed enums mislabel every edge case — *"分三派还不如不分."* Skills classify from **rich
-per-item descriptors + judgment at runtime**, not a hard taxonomy. The single deliberate exception is
-`fact-check` (speed-first by design) — and even it is never confident-and-wrong.
-
-### 4. Sharp scope, no creep
-"More features = better" is a trap; extra machinery is friction, not value. Each skill does **one job well**.
-course-study deliberately dropped quizzing, spaced-repetition, and Anki export to stay a clean revision tool.
-Thin `SKILL.md`, progressive disclosure, low always-loaded cost.
-
-### 5. Every claim has a receipt
-Models fabricate to fill gaps. Here, source-traceability is **machine-checked** (backing JSON maps every
-`claim` to its `evidence`), "consensus" is never dressed up as "measurement," thin inputs **degrade honestly**
-(资料不足) instead of inventing, and the build **never fakes a pass** — it stops at an honest "candidate"
-rather than claiming "industrial."
-
-## Built by a pipeline, not by hand
-
-Most skill collections are hand-written. **Every skill here is produced by a four-stage pipeline — and the
-repo ships that pipeline too.** This is the part I'm proudest of.
-
-![The skill-building pipeline: idea → ① guidance → ② engineer → ③ zipper, wrapped by ④ conductor's re-audit loop, out to a certified shipped skill](assets/pipeline.png)
-
-Each arrow is a **machine-readable contract** — one stage's typed artifact is the next stage's input. That
-buys four things a hand-written `SKILL.md` can't:
-
-- **Proof at every stage** — deterministic evals, lossless-diff + token-delta, and a `trigger_eval` that
-  *runs* the skill against a baseline, not "looks good to me."
-- **No self-graded inflation** — the conductor accepts on `min(re-audit, independent-battery)`, loops back to
-  the gap-owning stage, and **stops honestly** (`stopped_unmet`) when it can't clear the bar instead of faking a pass.
-- **Ahead of the field** — benchmarked against 8 of the top public skill repos, it leads on machine-readable
-  contracts + deterministic proof; nothing else there emits a program-consumable handoff spec.
-- **Self-building, self-validating** — that same pipeline built every skill in this repo, on top of a
-  self-checked KB, [`develop-principle/`](develop-principle/).
-
-Run the whole loop with **[skill-conductor](skills/skill-conductor/)**, or drive any stage yourself.
-
-## Reference
-
-Each skill: **what it does** + **why it's good**.
-
-### Product skills
-
-- **[album-review](skills/album-review/)** — One 10,000–15,000-字 Chinese 乐评 from a primary credit + album name, across every musical dimension. *Edge:* deterministic 字-count + genre-adaptive validator; every fact traced to a source; classical separates work from performance with reference-recording comparison; obscure albums degrade honestly, never fabricated.
-- **[hifi-review](skills/hifi-review/)** — Objective HiFi gear evaluation in two tracks: transducers (量感 + 风格 from FR-vs-target) and source gear (measured competence + system matching). *Edge:* rig-aware FR analysis (711 ≠ 5128) with a peak/dip pass; a "consensus ≠ measurement" no-inflation gate; a media roster judged dynamically, not bucketed.
-- **[course-study](skills/course-study/)** — Course materials (slides, a topic list, or a course name) → complete-coverage, Feynman-explained, exam-ready notes. *Edge:* completeness is enforced (coverage checklist → reconciliation); every concept gets a Feynman block (capsule → intuition → formal → worked example → misconception); deliberately lean.
-- **[fact-check](skills/fact-check/)** — A fast, citation-backed answer to a factual question: triage → parallel search → early-exit → BLUF within ≤2 min (simple) / ≤5 min (complex). *Edge:* the one speed-first skill, but a "speed-safety" rule forbids guessed high-confidence answers; deterministic answer-contract validator.
-- **[humanizer-academic](skills/humanizer-academic/)** — Rewrites academic prose (EN / ZH / mixed) to strip AI-writing signals while keeping scholarly register. *Edge:* removes signal on three layers (lexical + structural + statistical burstiness), not a word denylist; adds defined texture (stance, specificity, variance — never casual, never invented); detect-only instrument + independent blind judge.
-- **[low-visibility-fix](skills/low-visibility-fix/)** — Audits field mobile UI (low light, glare, gloves) and hands back an implementer-ready fix-plan doc set; never edits the target. *Edge:* deterministic analyzer + bounded visual pass; scopeable to a single page for cheap re-runs; clean audit-vs-apply separation.
-- **[mp-cli-sup](skills/mp-cli-sup/)** — Debugs a *live* WeChat Mini Program through the `vince-mp` CLI. *Edge:* one persistent session → instant reused-connection commands with stable element uids; camera-less scan; a real `doctor` (tsc + .js freshness); client↔backend error correlation by requestId.
-- **[mp-groundline](skills/mp-groundline/)** — Migrates a WeChat Mini Program from the Skyline renderer to WebView, consistency-first. *Edge:* flips the renderer and **keeps** the workarounds (never reverts), with a read-only scanner + a generated MIGRATION-MAP doc; hardened over 5 engineer rounds × 4 fresh batteries (11 latent bugs caught, incl. markdown injection + CSS url-comment-eating).
-
-### Coding discipline
-
-Day-to-day engineering discipline — auto-triggered as you build.
-
-- **[test-driven-development](skills/test-driven-development/)** — TDD for *non-trivial* behavior: write or update a failing test first, watch it fail once per feature-group, then write minimal code to pass — the suite is a *living spec* of the current target. *Edge:* a discriminative right-size gate that fixes over-triggering (engages on real logic / bugfix / behavior-change; skips renames, config-constants, spikes, generated code, docs); a **modify mode** that edits / merges / deletes over add (one test per feature-group, no proliferation); delegates inventory, test-runs, and stale-scans to subagents. Installs as `vince-tdd`.
-- **[neat](skills/neat/)** — End-of-session knowledge-base cleanup with OCD rigor: reconciles docs (CLAUDE.md/AGENTS.md, README, docs/) and cross-session agent memory against the code so nothing rots — cross-platform (Claude Code / Codex / OpenCode / OpenClaw). *Edge:* a deterministic anti-bloat/anti-rot linter (`kb_audit.mjs`) gates "sync complete" on machine-checkable HARD evidence — MEMORY.md byte/line ceilings, relative-time leakage, memory-vs-docs size inversion, broken index links; a memory→docs "graduation" valve against index bloat; thin-orchestrator SKILL.md (16.6% always-loaded, the rest on-demand). Installs as `vince-neat`.
-- **[loop-constructor](skills/loop-constructor/)** — Designs the engineered *loop* for a medium/large task you want an AI agent to run (semi-)autonomously — **decomposing it into a tree of gated sub-loops** (each a flat loop with its own machine-verifiable DoD + runnable check + cap, wired by `depends_on`, acyclic): the right pattern per stage (retry / plan-execute-verify / explore-narrow / review / human-in-the-loop), the feedback signal that closes each gate, stop/escalation conditions, human placement, maker/checker, harness primitives, and risk guards — emitting a filled, machine-checkable loop-design spec **and persisting it as a runnable `.loop/` runbook** in the project. *Edge:* a deterministic linter (`lint_loop_design.mjs`) that **rejects any design with no runnable check** (loop engineering ≈ verification engineering, per stage), plus a renderer that refuses to write a runbook for a design the linter rejects; designs loops, never runs them; grounded in the [`loop-principle/`](loop-principle/) KB (cites node ids, reuses its templates/checklists).
-- **[reorganize-logic](skills/reorganize-logic/)** — Rebuilds a project's **design-contract layer** from scratch when its docs have rotted past where incremental sync is worth it: compacts the old contracts into read-only context (never copied), re-derives an architecture diagram + structure diagram + explicit interface definitions from the **code as the single source of truth**, and deletes stale legacy only behind a human review gate. *Edge:* a deterministic, language-agnostic gate (`verify_contracts.mjs`) that ties every documented interface to a real `file:line` and proves no recognized export was silently dropped — it **flags** ambiguous near-name matches for the agent to reconcile rather than rubber-stamping (no green-but-wrong); contrast with [neat](skills/neat/), which *syncs* docs incrementally rather than rebuilding them.
-
-### The skill-building pipeline
-
-Skills that build skills — run the conductor for the whole loop, or any stage alone.
-
-- **[skill-conductor](skills/skill-conductor/)** — Drives guidance → engineer → zipper end to end with quality-gate loops. *Edge:* anti-inflation final acceptance (`min(re-audit, battery)`); loops back to the gap-owning stage; never fakes a pass.
-- **[skill-guidance](skills/skill-guidance/)** — Audits a skill/repo (scores, scopes, finds gaps) and emits a schema-validated handoff spec. *Edge:* a 7-pillar readiness scorecard grounded in the `develop-principle` KB; a machine-consumable contract.
-- **[skill-engineer](skills/skill-engineer/)** — Builds and tests a skill from that spec, red-green-refactor. *Edge:* deterministic-script eval + mutation spot-checks + a `trigger_eval` that runs the skill via `claude -p` to measure real trigger-rate.
-- **[skill-zipper](skills/skill-zipper/)** — Restructures an existing skill for token efficiency, reliability, and trigger accuracy. *Edge:* lossless-diff + token-delta proof; a "describe WHEN, not the workflow" rubric; refuses to churn an already-clean skill.
-
-Methodology substrate — two agent-first, self-validating KBs: **[`develop-principle/`](develop-principle/)** (building industrial skills) and **[`loop-principle/`](loop-principle/)** (engineering agent loops — the substrate `loop-constructor` stands on).
-
-## Layout
+之后直接用自然语言提问，Claude Code 会按描述自动触发；也可用 `/<skill-name>` 显式调用：
 
 ```
-skills/             # install-ready skills (one folder each, with its own README)
-develop-principle/  # agent-first KB powering the pipeline
-loop-principle/     # agent-first KB on loop engineering (powers loop-constructor)
-tools/vince-mp-cli/ # Node CLI that mp-cli-sup drives
+> 查一下：埃菲尔铁塔夏天会变高吗？               # → fact-check
 ```
 
-## Acknowledgments
+## 凭什么不一样
 
-Methodology draws on the wider Agent Skills ecosystem — Anthropic's
-[skills](https://github.com/anthropics/skills) (spec + `skill-creator`) and obra's
-[superpowers](https://github.com/obra/superpowers).
+五条原则，都是把每个 skill 造出来时踩出来的。
 
-## License
+### 1. 要证据，不要感觉
+验证不了的 skill 就是信不过的 skill。每个都带一个**确定性校验器**（`check_review.py`、`check_answer.mjs`、
+`fact_lint.mjs`……）和一套 eval，测试先行。与 8 个顶级公开 skill 仓库对标后，这套在「机器可读的合约 +
+确定性证明」上领先。
 
-[MIT](LICENSE) © 2026 Vince Jiang. Use, adapt, and redistribute freely.
+### 2. 闭环会骗人
+skill 自己的测试会在它仍然错着的时候亮绿灯 —— *默认就是「绿而错」*。所以每个 skill 都要面对一个
+**对构建规则一无所知的、独立的新 agent 测试组**。它在*每一个* skill 里都抓出了自测漏掉的真 bug
+（humanizer 5 个、company-background 两轮、fact-check 四轮）。humanizer 更进一步：成败由一个盲审判定，
+而不是「数我删了几个套路」。
+
+### 3. 准确 ≫ 速度
+粗暴的分桶和固定枚举会把每个边缘情况都贴错标签 ——*「分三派还不如不分」*。skill 用**丰富的逐项描述符 +
+运行时判断**来分类，而不是一套硬分类法。唯一刻意的例外是 `fact-check`（设计上速度优先）——
+即便如此，它也绝不「自信地答错」。
+
+### 4. 范围锋利，绝不蔓延
+「功能越多越好」是个陷阱；多出来的机械结构是摩擦，不是价值。每个 skill 只把**一件事做好**。
+course-study 刻意砍掉了刷题、间隔重复和 Anki 导出，只做一个干净的复习工具。瘦的 `SKILL.md`、
+渐进式披露、低常驻开销。
+
+### 5. 每个结论都有凭证
+模型会靠编造来填空。这里，来源可追溯是**机器校验**的（backing JSON 把每条 `claim` 映射到它的
+`evidence`），「评测共识」绝不被包装成「测量背书」，材料不足的输入**诚实降级**（资料不足）而非杜撰，
+构建过程也**绝不假装通过** —— 宁可停在诚实的「candidate」，也不谎称「industrial」。
+
+## 全部由流水线造出，而非手写
+
+大多数 skill 集都是一份份手写的。**这里每个 skill 都由一条四阶段流水线产出 —— 而且仓库把这条流水线本身也一并带上。**
+这是我最自豪的部分。
+
+![造 skill 的流水线：想法 → ① guidance → ② engineer → ③ zipper，由 ④ conductor 的复审循环包住，产出一个已认证、可发布的 skill](assets/pipeline.png)
+
+每个箭头都是一份**机器可读的合约** —— 上一阶段的强类型产物，正是下一阶段的输入。这买来了手写 `SKILL.md` 给不了的四样东西：
+
+- **每一阶段都有证明** —— 确定性 eval、无损 diff + token 增量，以及一个真正*运行*该 skill、与基线对比的 `trigger_eval`，而非「我看着还行」。
+- **无法给自己注水** —— conductor 以 `min(复审, 独立测试组)` 验收，把出问题的那一阶段打回，过不了线就**诚实停下**（`stopped_unmet`），绝不假装通过。
+- **领先于同类** —— 与 8 个顶级公开 skill 仓库对标，这套在「机器可读合约 + 确定性证明」上领先；没有谁产出可被程序消费的 handoff spec。
+- **自我构建、自我验证** —— 仓库里每个 skill 都由这条流水线、在一个自校验的知识库 [`develop-principle/`](develop-principle/) 上造出。
+
+用 **[skill-conductor](skills/skill-conductor/)** 跑完整条循环，或自己驱动任一阶段。
+
+## 逐个说明
+
+每个 skill：**做什么** + **好在哪**。
+
+### 成品 skill
+
+- **[album-review](skills/album-review/)** —— 由「主创署名 + 专辑名」产出一篇 10,000–15,000 字的中文乐评，覆盖每个音乐维度。**好在哪：** 确定性字数 + 曲风自适应校验；每条事实都追溯到来源；古典区分作品与演绎并要求参考录音比较；冷门专辑诚实降级，绝不杜撰。
+- **[hifi-review](skills/hifi-review/)** —— 客观的 HiFi 器材评价，两条轨：换能器（量感 + 风格，由频响-对-目标得出）与源头器材（测量素质 + 系统匹配）。**好在哪：** 带耦合腔感知的频响分析（711 ≠ 5128）+ 峰谷扫描；「共识 ≠ 测量」的防注水门；媒体名单动态判断而非分桶。
+- **[course-study](skills/course-study/)** —— 把课程材料（讲义、提纲或课程名）变成全覆盖、费曼式、可应试的笔记。**好在哪：** 强制完整性（覆盖清单 → 对账）；每个概念都有费曼块（白话 → 直觉 → 形式 → 例题 → 误区）；刻意精简。
+- **[fact-check](skills/fact-check/)** —— 对一个事实性问题给出快速、有出处的回答：分诊 → 并行检索 → 尽早收敛 → BLUF，限时 ≤2 分钟（简单）/ ≤5 分钟（复杂）。**好在哪：** 唯一速度优先的 skill，但有「速度安全」规则禁止靠猜给出高置信答案；确定性答案合约校验器。
+- **[humanizer-academic](skills/humanizer-academic/)** —— 重写学术文本（中 / 英 / 混合），去掉 AI 写作痕迹同时保留学术腔。**好在哪：** 在三个层面去信号（词汇 + 结构 + 统计/突发度），而非一张词表；并补上定义清晰的纹理（立场、具体性、变化 —— 绝不口语化、绝不杜撰）；检测器只检测，成败交独立盲审。
+- **[low-visibility-fix](skills/low-visibility-fix/)** —— 审计现场移动 UI（低光、眩光、戴手套）并交回一套可直接落地的修复方案文档；绝不改目标本身。**好在哪：** 确定性分析器 + 有界视觉走查；可只锁定单页做廉价复跑；审计与落地清晰分离。
+- **[mp-cli-sup](skills/mp-cli-sup/)** —— 通过 `vince-mp` CLI 调试*实时*运行的微信小程序。**好在哪：** 一次持久会话 → 复用连接的瞬时命令、元素 uid 跨调用稳定；免相机 scan；真正的 `doctor`（tsc + .js 新鲜度）；按 requestId 关联前后端错误。
+- **[mp-groundline](skills/mp-groundline/)** —— 把微信小程序从 Skyline 渲染器迁移到 WebView，一致性优先。**好在哪：** 翻转渲染器并**保留** workaround（绝不回退），配只读扫描器 + 生成的 MIGRATION-MAP 文档；经 5 轮工程师 × 4 组新鲜测试硬化（抓出 11 个潜伏 bug，含 markdown 注入 + CSS url 注释吞噬）。
+
+### 编码纪律
+
+日常工程纪律 —— 在你写代码时自动触发。
+
+- **[test-driven-development](skills/test-driven-development/)** —— 对*非平凡*行为做测试驱动开发：先写或改一个会失败的测试，按「功能组」看它失败一次，再写最小实现使其通过 —— 测试套件是当前目标的*活规格*。**好在哪：** 一个有判别力的「适度门」治好过度触发（只在真逻辑 / 改 bug / 改已测行为时介入；重命名、配置常量、抛弃式试验、生成代码、纯文档一律跳过）；一个**修改模式**优先改 / 合并 / 删除而非新增（一个功能组一个测试，绝不增殖）；把清点、跑测试、扫陈旧测试派给 subagent。
+- **[neat](skills/neat/)** —— 会话收尾时对知识库做洁癖级清理：把文档（CLAUDE.md/AGENTS.md、README、docs/）与跨会话 agent 记忆对着代码对账，让知识不腐烂 —— 跨平台（Claude Code / Codex / OpenCode / OpenClaw）。**好在哪：** 一个确定性的防膨胀/防腐烂 linter（`kb_audit.mjs`）把「同步完成」卡在机器可校验的硬证据上 —— MEMORY.md 字节/行数上限、相对时间泄漏、记忆-对-文档的体量倒挂、索引死链；一个 记忆→文档 的「毕业」阀门防索引膨胀；瘦编排型 SKILL.md（16.6% 常驻，其余按需）。
+- **[loop-constructor](skills/loop-constructor/)** —— 为一个你想让 AI agent (半)自主完成的**中大型**任务设计它的工程化*循环* —— **把任务分解成一棵带各自 gate 的子循环树**（每段都是一个扁平循环，自带机器可验证 DoD + 可运行 check + 上限，用 `depends_on` 连接、无环）：每段合适的循环模式（retry / plan-execute-verify / explore-narrow / review / human-in-the-loop）、让每个 gate 闭合的反馈信号、停止与升级条件、人类位置、maker/checker、harness 构件与风险护栏 —— 产出一份填好的、可机器校验的循环设计，**并落盘为项目里一份可直接照跑的 `.loop/` runbook**。**好在哪：** 一个确定性 linter（`lint_loop_design.mjs`）**拒绝任何没有可运行检查的设计**（循环工程 ≈ 验证工程，逐段成立），外加一个渲染器：linter 不过就拒绝写出 runbook；只设计循环、绝不运行；扎根 [`loop-principle/`](loop-principle/) 知识库（引用节点 id、复用其模板/清单）。
+- **[reorganize-logic](skills/reorganize-logic/)** —— 当项目文档烂到「增量同步不值得」时，以**代码为唯一事实源**从零重建**设计契约层**：把旧契约压成只读 context（绝不复制），重新推导出架构图 + 结构图 + 明确接口定义，过时遗留只在人工评审门后删除。**好在哪：** 一个确定性、语言无关的门（`verify_contracts.mjs`）把每个文档化接口绑到真实 `file:line`、并证明没有「被识别的导出形式」被悄悄漏掉 —— 对模糊的近名匹配只**标记**交 agent 复核而非盖章放行（杜绝「绿但错」）；与 [neat](skills/neat/) 区分：后者是*增量同步*文档，而非推倒重建。
+
+### 造 skill 的流水线
+
+造 skill 的 skill —— 用 conductor 跑整条循环，或单独调任一阶段。
+
+- **[skill-conductor](skills/skill-conductor/)** —— 带质量门循环地驱动 guidance → engineer → zipper 全程。**好在哪：** 防注水的最终验收（`min(re-audit, battery)`）；回退到出问题的那一阶段；绝不假装通过。
+- **[skill-guidance](skills/skill-guidance/)** —— 审计一个 skill/仓库（打分、定范围、找缺口）并产出经 schema 校验的 handoff spec。**好在哪：** 扎根 `develop-principle` 知识库的 7 支柱就绪度评分；机器可消费的合约。
+- **[skill-engineer](skills/skill-engineer/)** —— 从该 spec 构建并测试 skill，红-绿-重构。**好在哪：** 确定性脚本 eval + 变异抽查 + 一个用 `claude -p` 跑真实触发率的 `trigger_eval`。
+- **[skill-zipper](skills/skill-zipper/)** —— 为 token 效率、可靠性与触发准确度重构现有 skill。**好在哪：** 无损 diff + token 增量证明；「描述何时用、而非工作流」的评分表；对已经干净的 skill 拒绝瞎改。
+
+方法论底座 —— 两个 agent-first、自我校验的知识库：**[`develop-principle/`](develop-principle/)**（打造工业级 skill）与 **[`loop-principle/`](loop-principle/)**（工程化 agent 循环，是 `loop-constructor` 的底座）。
+
+## 目录结构
+
+```
+skills/             # 开箱即用的 skill（各一个文件夹，含各自 README）
+develop-principle/  # 驱动流水线的 agent-first 知识库
+loop-principle/     # loop engineering 的 agent-first 知识库（驱动 loop-constructor）
+tools/vince-mp-cli/ # mp-cli-sup 驱动的 Node CLI
+```
+
+## 致谢
+
+方法论借鉴了更广的 Agent Skills 生态 —— Anthropic 的 [skills](https://github.com/anthropics/skills)（规范 +
+`skill-creator`）与 obra 的 [superpowers](https://github.com/obra/superpowers)。
+
+## 许可证
+
+[MIT](LICENSE) © 2026 Vince Jiang。可自由使用、修改、再分发。

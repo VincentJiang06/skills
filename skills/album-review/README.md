@@ -1,10 +1,20 @@
 # album-review
 
-深度、来源可追溯的长篇中文乐评（10,000–15,000 字），覆盖每个音乐维度与曲风。
-Deep, source-traceable long-form Chinese album review (乐评) across every musical dimension and idiom.
+> 由「主创署名 + 专辑名」产出一篇全维度覆盖的长篇中文乐评 —— 每条事实都追溯到来源，冷门专辑诚实降级，绝不杜撰。
 
-- **触发 Triggers** — “给 <艺术家> 的专辑 <名称> 写一篇深度乐评” · “comprehensive album review of <album> by <artist>” · `/album-review`
-- **用法 Use** — 提供一个主创署名（歌手 / 作曲家 / 指挥家 / 乐队 / 演奏家）+ 专辑名。Give a primary credit + an album name.
-- **不适用 Not for** — 音频器材评测（→ hifi-review）、购买 / 流媒体建议、纯歌词翻译。Audio-gear eval, buying advice, or bare lyric translation.
+[English](README.en.md) · **简体中文**
 
-完整说明 / Full spec: [SKILL.md](SKILL.md)
+**做什么** —— 由「主创署名（歌手 / 作曲家 / 指挥家 / 乐队 / 演奏家）+ 专辑名」产出一篇 10,000–15,000 字的中文乐评，覆盖每一个音乐维度。
+
+**好在哪** ——
+- 确定性字数窗口 + 曲风自适应校验器，长度与章节覆盖在交付前由脚本把关。
+- 每一条事实都追溯到具体来源；缺源即判 FAIL，杜绝「言之凿凿却无据」。
+- 古典区分**作品**与**演绎**，并强制带参考录音 / 版本比较。
+- 冷门专辑诚实降级（显式标注「资料不足」），绝不杜撰曲目 / 班底 / 日期。
+
+**什么时候用** —— 「给 <艺术家/作曲家/指挥家> 的专辑 <名称> 写一篇深度乐评」·「全面评测这张专辑」·「comprehensive album review of <album> by <artist>」；也可用 `/album-review` 显式调用。
+**不适用** —— 音频器材评测（「这条耳机声音怎么样」「这个 DAC 推得动吗」→ hifi-review）；购买 / 价格 / 在哪听的建议；只译歌词、无乐评内容；非音乐主题。
+
+**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/album-review ~/.claude/skills/`）。
+
+完整说明见 [SKILL.md](SKILL.md)。

@@ -1,59 +1,20 @@
 # hifi-review
 
-A Claude Code skill that produces **objective, source-traceable** evaluations of
-HiFi gear by searching all sources (measurements, media reviews, specs/family),
-cleaning them, and rendering a **bilingual (中文 + English)** verdict where every
-claim traces back to evidence. **Accuracy ≫ speed.**
+> 客观、可溯源的 HiFi 器材评价 —— 每条结论都追到证据，绝不把评测共识包装成测量背书。
 
-## Two device classes, two objective models
-- **Transducer** (IEM / headphone / TWS) → **量感** (per-band quantity) + **风格**
-  (signature) from frequency-response-vs-target; sharp **peaks/dips** (e.g. 8 kHz
-  sibilance) and a continuous **tilt** that band-averaging hides; technicalities
-  (soundstage/imaging/resolution…) from **review consensus only**.
-- **Source gear** (DAC / amp / DAP) → measured competence (SINAD / THD / output-Z /
-  power) + system matching + chip/topology; a competent source is audibly transparent.
+[English](README.en.md) · **简体中文**
 
-Sources are weighted via a **style-profiled media roster** (each source has a 2–3
-sentence `style_profile`; orientation judged dynamically — no fixed faction buckets).
+**做什么** —— 两条轨的器材评价。**换能器**（耳机 / 耳塞 / TWS）：量感（各频段量的多少）+ 风格（声音走向），由频响-对-目标得出。**源头器材**（DAC / 耳放 / 播放器）：测量素质（SINAD / THD / 输出阻抗 / 推力）+ 系统匹配。
 
-## Output modes
-1. **Compact** bilingual structured profile + summary.
-2. **~4000字 long-form 评测长文** (Chinese-primary, traceability appendix + backing
-   `evaluation.json`) — see `rules/longform-review.md`.
+**好在哪** ——
+- 带耦合腔感知的频响分析（711 ≠ 5128）+ 峰谷扫描，量感与风格都从曲线落到 dB。
+- 「共识 ≠ 测量」的防注水门：绝不把评测共识当成测量背书。
+- 媒体名单按风格取向**动态判断**，而非死分桶 —— 测量背书的高可信、印象主导的纠偏。
+- 每条结论都追溯到证据，并标注 `measured | consensus | prior` 与置信度。
 
-## Deterministic engines (`scripts/`)
-| Script | Purpose |
-|--------|---------|
-| `fr_analyze.py` | transducer FR → 8-band 量感 + 风格 + **tilt** + **peak/dip features** |
-| `source_analyze.py` | source metrics → competence tier + drive/damping/hiss matching |
-| `compare.py` | two devices → per-band + tilt deltas, who-has-more-where, rig guard |
-| `infer_target.py` | device FR + rig → "looks tuned toward X" (ranks same-rig targets) |
-| `validate_output.py` | schema + **traceability gate** (every claim sourced; no over-claim) |
-| `check_longform.py` | long-form QA: 字 count + sections + backing gate |
+**什么时候用** —— 「客观评价这条耳机」·「对比 A 和 B 的声音」·「这个 DAC 素质如何 / 推得动吗」；也可用 `/hifi-review` 显式调用。
+**不适用** —— 买买买 / 价格推荐；EQ 调音；音箱；非音频。
 
-## Targets & rigs (rig-aware)
-Targets in `references/targets.json` are **rig-tagged** — 711 and 5128 are **not**
-interchangeable, and the engines flag a rig↔target mismatch. Included: Harman IE 2019,
-Harman OE 2013/2018, IEF Neutral, Diffuse Field (711); **JM-1, B&K 5128 DF/FF**, and
-**`vince_iem_ref`** (Vince's personal IEM reference = JM-1 −1 dB/oct + 4 dB bass, 5128).
+**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/hifi-review ~/.claude/skills/`）。
 
-## Protocol (8 steps)
-scope & classify → identify → gather (live) → **clean & normalize** → measure &
-quantize → corroborate → synthesize (compact or long-form) → self-verify. See `SKILL.md`.
-
-## Run / test
-```bash
-python3 scripts/fr_analyze.py <fr.csv> --target harman_ie_2019 --rig iec711
-python3 scripts/infer_target.py <fr.csv> --rig bk5128
-python3 scripts/compare.py <a.csv> <b.csv> --target vince_iem_ref
-python3 scripts/validate_output.py <evaluation.json>
-python3 evals/run_all.py        # full regression (L0 schema + L1 goldens + gates)
-```
-
-## Layout
-`SKILL.md` (entry) · `rules/` (9 on-demand) · `references/` (targets + roster +
-glossary + bibliography) · `scripts/` (6 engines) · `schemas/` · `evals/` (fixtures +
-goldens + runner) · `meta/` (design record, metric plan, release gates, eval results).
-
-The design spec and implementation plan live in the parent `skill-developer` repo
-under `docs/superpowers/` (not shipped with the standalone skill).
+完整说明见 [SKILL.md](SKILL.md)。

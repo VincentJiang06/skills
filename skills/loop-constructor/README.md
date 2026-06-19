@@ -1,30 +1,19 @@
 # loop-constructor
 
-Design the engineered **loop** for one concrete task you want an AI coding agent to run (semi-)autonomously — and emit a filled, machine-checkable loop-design spec. It **designs** loops; it does not run them.
+> 为你想让 AI agent (半)自主完成的中大型任务，设计它的工程化*循环* —— 而且只设计，绝不执行。
 
-The anchor: a fast, machine-runnable check is what closes a loop on its own, so the skill designs **backward from the check** — *no runnable check ⇒ it is not a loop* (loop engineering ≈ verification engineering).
+[English](README.en.md) · **简体中文**
 
-## What it produces
+**做什么** —— 把任务分解成一棵带各自 gate 的子循环树（每段是一个扁平循环，自带机器可验证的 DoD + 可运行 check + 上限，用 `depends_on` 连接、无环），并落盘为项目里一份可直接照跑的 `.loop/` runbook。它只设计循环、不执行。
 
-A loop-design object covering, in order:
+**好在哪** ——
+- **反向设计** —— 从「什么 check 能证明这件事做完了」倒推（循环工程 ≈ 验证工程）。
+- 一个确定性 linter（`lint_loop_design.mjs`）拒绝任何没有可运行检查的设计；渲染器对被拒的设计拒绝写出 runbook —— 写出的 `.loop/` 文档本身就是「通过」的证明。
+- 扎根 `loop-principle/` 知识库：引用节点 id、复用其模板/清单，绝不另起炉灶。
 
-1. **Definition of Done** — a single machine-verifiable goal (predicate/command, not prose).
-2. **Pattern** — retry · plan-execute-verify · explore-narrow (debug) · review (maker/checker) · human-in-the-loop, with fit + failure mode.
-3. **Feedback signal** — the cheapest runnable check that still catches the failure class.
-4. **Stop conditions** — success + failure branches + escalation, with a mandatory max-iteration/budget cap.
-5. **Human placement** — in-the-loop vs on-the-loop, by blast-radius × reversibility × feedback-quality.
-6. **Maker/checker** — a separate, fresh-context adversarial reviewer.
-7. **Harness primitives** — hooks · worktrees · subagents · external memory · connectors.
-8. **Risk guards** — reward hacking, error amplification, context drift, permission blast radius, token blowup, premature over-delegation.
-9. **Emit + self-score** — the filled loop-design JSON + a self-scored quality rubric + residual risks.
+**什么时候用** —— 「该怎么给 X 设计一个循环」·「设计一个 agent loop」·「搭一个自主 / 自运行的 agent 工作流」；也可用 `/loop-constructor` 显式调用。
+**不适用** —— 「帮我改写这段 prompt」/ 单次 prompt 工程（不是循环设计）；「现在真的把这个循环跑起来 / 把功能做出来」（它只设计、不执行）；「给 loop-principle 加个节点」/ 改知识库（KB 编写，超范围）；非 agent / 非循环或领域问题（乐评 / 音频 / 课程 → 对应 skill）。
 
-## How it's good
+**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/loop-constructor ~/.claude/skills/`）。
 
-- A deterministic linter, `scripts/lint_loop_design.mjs`, **rejects any design with no runnable check** (and enforces the mandatory cap, non-empty failure branches, separate checker, risk guards, machine-verifiable DoD). The skill eats its own dogfood — it returns a design only after the linter PASSes.
-- Grounded in the **`loop-principle/`** knowledge base: it retrieves from the KB (`node <loop-principle>/tools/query_kb.mjs "<q>"`) and reuses its templates/checklists, citing node ids instead of asserting from memory.
-
-## Requires
-
-The `loop-principle/` KB reachable at `../../loop-principle` (in-repo) or via `$LOOP_PRINCIPLE` / an absolute path after install. If the KB is absent the skill degrades to the cited node ids rather than failing.
-
-Built and verified through the vince-skill pipeline (guidance → engineer → zipper → independent fresh-agent battery): `done` / `industrial`, 0 loops.
+完整说明见 [SKILL.md](SKILL.md)。

@@ -1,33 +1,20 @@
 # humanizer-academic
 
-Bilingual academic rewriting skill for English, Chinese, and mixed-language prose. It removes AI-writing
-signals across lexical, structural, and statistical layers while **preserving scholarly register**, and adds
-defined academic human texture (authorial stance, source-grounded specificity, controlled asymmetry)
-without inventing facts.
+> 重写学术文本，去掉 AI 写作痕迹 —— 同时保住学术腔，绝不杜撰事实。
 
-It keeps full English-humanizer coverage, adds Chinese-specific AI-writing detection rules, and defaults to
-an academic register instead of the casual "add personality" drift common to general humanizers.
+[English](README.en.md) · **简体中文**
 
-## Layout
+**做什么** —— 重写学术 / 学者 / 专业文本（英文、中文，或中英混排），去掉 AI 写作痕迹，同时保留学术腔、绝不杜撰事实。
 
-- `SKILL.md` — skill entry point
-- `references/` — English rules, Chinese rules, and academic-register guidance
-- `scripts/` — the detect-only AI-signal scanner and helpers
-- `evals/` — trigger/behavior eval cases
-- `_meta.json`, `CHANGELOG.md` — version metadata and change history
+**好在哪** ——
+- 在三个层面去信号 —— **词汇 + 结构 + 统计/突发度**，而不是靠一张词表黑名单。
+- 不止做减法：补上定义清晰的**人味纹理**（作者立场、来源具体性、句段长短变化）—— 绝不口语化、绝不编造。
+- 随附脚本**只检测、不改写**，永远不是「去 AI 工具」本身。
+- 成败交一个**独立盲审**判定，而不是「数我删了几个套路」。
 
-## Evaluation harness
+**什么时候用** —— 论文章节 / 摘要 / 文献综述 / 研究或政策报告读起来像模板、像 AI 生成，想把它改得像人写、但仍是学术文；也可用 `/humanizer-academic` 显式调用。
+**不适用** —— 三个相邻的「假触发」要区分：(1) 口语化的通用 humanizer —— 本 skill **保留学术腔**、不把文字改聊天化；(2) 诗歌 / 演讲 / 小说对白 —— 它们本就该用排比与重复，**别压平**；(3) 只检测、不改写 —— 脚本本身只产出信号图，「只打分别改」的请求只返回检测结果、不做重写。也不用于编造证据 / 引用 / 数字，或非学术的随意文本。
 
-A bilingual benchmark — ten AI-generated papers (5 model families × 2 languages on one shared research
-topic), a rubric, scoring scripts, and reports — lives in
-[`experiments/humanizer-academic-eval/`](../../experiments/humanizer-academic-eval/). Use it to check that a
-rewrite (1) reduces obvious AI patterns, (2) preserves meaning and academic seriousness, and (3) avoids
-over-humanizing into casual prose.
+**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/humanizer-academic ~/.claude/skills/`）。
 
-## Install
-
-From the repo root:
-
-```bash
-cp -R skills/humanizer-academic ~/.claude/skills/
-```
+完整说明见 [SKILL.md](SKILL.md)。
