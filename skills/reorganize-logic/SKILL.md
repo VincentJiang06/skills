@@ -11,7 +11,7 @@ description: >
   project or a named module/dir. Use-when: "reorganize/rewrite the logic", "rebuild
   the contracts from scratch", "从代码重新推导一套契约", "重写架构/结构/接口文档",
   "$reorganize-logic". Do-NOT (route away): (1) incremental doc sync / session
-  cleanup → vince-neat — a REBUILD that DELETES legacy, not keep-and-sync (sharpest
+  cleanup → neat — a REBUILD that DELETES legacy, not keep-and-sync (sharpest
   boundary); (2) designing an agent loop → loop-constructor; (3) editing the
   implementation code (rebuilds the CONTRACT/doc layer, not the logic, despite the
   name); (4) a greenfield project with no existing contracts (nothing to clean).
@@ -33,15 +33,15 @@ are written *before* anything legacy is deleted. *A contract the gate can't tie 
 real code is a hallucination; the gate rejects it. The gate flags everything
 ambiguous for you to reconcile — it never rubber-stamps.*
 
-## When this fires (vs vince-neat — the key boundary)
+## When this fires (vs neat — the key boundary)
 
 - **reorganize-logic** = deliberate, heavyweight, ground-up REBUILD. Old contracts
   are untrusted; **deleting legacy is a feature.** Use when docs have drifted so far
   that syncing is not worth it.
-- **vince-neat** = incremental sync at session end; keeps what's right, fixes drift,
+- **neat** = incremental sync at session end; keeps what's right, fixes drift,
   non-destructive. Route there for "tidy up / sync the docs / 同步一下".
 
-If the docs are mostly right → vince-neat. If you'd rather throw them out and
+If the docs are mostly right → neat. If you'd rather throw them out and
 re-derive from code → this skill.
 
 ## Protocol
@@ -109,4 +109,4 @@ responsibilities, and signatures are actually true of the code.
   gate-parseable schema (downstream contracts must be re-authored).
 - **Rollback** = `git restore docs/contracts/`; the deletion-manifest is never
   auto-applied, so a bad run leaves the legacy intact.
-- **Superseded by** vince-neat for the lighter keep-and-sync path.
+- **Superseded by** neat for the lighter keep-and-sync path.

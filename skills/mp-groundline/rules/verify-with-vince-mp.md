@@ -6,7 +6,7 @@ is how you check it on the LIVE runtime using the system `vince-mp` CLI. This is
 already verified on fixtures; this step needs a live DevTools session and is run
 at use time on the real program.
 
-> `vince-mp` is a system dependency the sibling skill `vince-mp-cli-sup` drives —
+> `vince-mp` is a system dependency the sibling skill `mp-cli-sup` drives —
 > do **NOT** rebuild it. Subcommands below are confirmed against
 > `~/.claude/skills/.../mp-cli-sup/references/cli-contract.md` (or
 > `/Users/vince/playground/skill-developer/skills/mp-cli-sup/references/cli-contract.md`).

@@ -38,7 +38,7 @@
     {
       "id": "eval.groundline.manual_phrase",
       "case_type": "happy_path",
-      "task_zh": "$vince-mp-groundline 帮我把这个项目落到 webview",
+      "task_zh": "$mp-groundline 帮我把这个项目落到 webview",
       "expected_activation": "must_activate",
       "acceptance_criteria": [
         "Activates on the manual phrase.",
@@ -51,7 +51,7 @@
       "task_zh": "连上这个小程序读一下 pageData，点个按钮看看运行时状态。",
       "expected_activation": "must_not_activate",
       "acceptance_criteria": [
-        "This is LIVE RUNTIME DEBUGGING → route to vince-mp-cli-sup, not a migration.",
+        "This is LIVE RUNTIME DEBUGGING → route to mp-cli-sup, not a migration.",
         "mp-groundline does not activate (no renderer change requested)."
       ]
     },

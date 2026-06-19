@@ -9,9 +9,9 @@
   "problem_statement_en": "Ground a WeChat Mini Program off the Skyline renderer onto WebView while keeping pages visually/behaviorally consistent (minimal diff, not a rewrite): mechanically flip app.json renderer, KEEP the Skyline-era workarounds that still render under WebView, DETECT+FLAG hard Skyline-only features as rewrite, verify each page with the system vince-mp CLI and fix only real deltas, and emit an agent-facing MIGRATION-MAP debug doc. A deterministic Node scanner is the testable core; the doc generator is the headline deliverable.",
   "trigger": {
     "must_activate_on": ["migrate/ground a mini program OFF Skyline ONTO WebView keeping pages consistent", "generate a Skyline→WebView migration/correspondence doc"],
-    "must_not_activate_on": ["live runtime debugging (→ vince-mp-cli-sup)", "developing Skyline components/worklet/custom-route (→ skyline-* skills)", "WebView→Skyline reverse migration", "perf-only optimization with no renderer change"],
-    "adjacent_confusions": ["a runtime screenshot/tap that mentions Skyline but is debugging → vince-mp-cli-sup", "a 'which Skyline component' question → skyline-components"],
-    "manual_activation_phrases": ["$vince-mp-groundline", "把小程序从 skyline 迁移到 webview 保持页面一致", "migrate this mini program off Skyline to WebView"]
+    "must_not_activate_on": ["live runtime debugging (→ mp-cli-sup)", "developing Skyline components/worklet/custom-route (→ skyline-* skills)", "WebView→Skyline reverse migration", "perf-only optimization with no renderer change"],
+    "adjacent_confusions": ["a runtime screenshot/tap that mentions Skyline but is debugging → mp-cli-sup", "a 'which Skyline component' question → skyline-components"],
+    "manual_activation_phrases": ["$mp-groundline", "把小程序从 skyline 迁移到 webview 保持页面一致", "migrate this mini program off Skyline to WebView"]
   },
   "execution_protocol": {
     "preflight": ["resolve miniprogramRoot from project.config.json", "locate app.json + confirm renderer==skyline (if webview → already-migrated, STOP)", "confirm a clean git working tree (flip is revertible)"],
