@@ -1,5 +1,49 @@
 # Changelog — low-visibility-fix
 
+## 0.4.0 — 2026-06-21
+
+**Analyzer rebuilt from scratch around PROVE-OR-FLAG.** The deterministic analyzer
+(`scripts/analyze.py`) now emits a finding only when a threshold violation is
+**provable from fully-resolved values**, and turns **every** value it cannot
+resolve into an explicit `needs_judgment` row with a specific reason — it never
+silently drops a rule and never fabricates a default. This makes coverage honest:
+the doc set shows exactly what was proven vs what the visual pass must resolve.
+The correct WCAG math, the `design-tokens.json` thresholds, and all plumbing
+(`audit.py`, `scope.py`, `policy.py`, `emit_docs.py`, OUTPUT_ONLY, schemas) are
+preserved.
+
+### Fixed (each pinned by a unit test in `evals/run_unit_tests.py`)
+- **`em`/`%` font-size inherits the parent chain** (0.5em under a 40px parent =
+  20px), no longer assumed 16px; unresolvable chain → `font_size_relative_unresolved`.
+- **Undeclared background → `bg_undeclared`** judgment, never a fabricated white
+  (which produced wrong contrast on dark-themed apps whose bg sits in a global sheet).
+- **Flexbox/grid `gap` spacing is checked** (was margin-only, a silent miss);
+  unresolvable → `spacing_unresolved`.
+- **Cross-wrapper adjacency** — adjacent controls one wrapper apart are compared,
+  not only same-parent siblings.
+- **Balanced-brace CSS parse** — `@media`/`@supports` rules apply (flagged
+  `media_conditional`); an unhandleable block → `css_rule_unparsed`, never dropped.
+- **UA-default control boxes** — WeChat `<button>` ~48px, HTML controls ~21px; no
+  known default → `target_size_no_uadefault`.
+- **Bold large-text contrast tier** — ≥18.66px-bold / ≥24px-normal uses the 3:1/4.5:1 tier.
+
+### Added
+- **Threshold honesty**: every finding carries `tier` (`critical` = below WCAG /
+  `major` = field-elevated **engineering recommendation, not a standard**) and a
+  `standard` label, so a WCAG-AA control isn't reported as "broken".
+- **6 new `needs_judgment` reasons** (`bg_undeclared`, `font_size_relative_unresolved`,
+  `target_size_no_uadefault`, `spacing_unresolved`, `media_conditional`,
+  `css_rule_unparsed`) flowing through `emit_docs.py` + the schema.
+- SKILL.md reframed around prove-or-flag + honest scope (4 measurable axes; the
+  five field conditions map onto them via the threshold tier).
+
+### Eval
+- `evals/run_all.py` GREEN (39/39), `evals/run_unit_tests.py` GREEN (27/27),
+  `evals/check.py` 13/13; new adversarial fixtures one per bug; realism-checked on
+  real mini-program pages (honest findings + `bg_undeclared` judgment, no fabricated
+  white-bg contrast). Independently adversarially verified (5-lens skeptic sweep).
+  (Eval tree kept local per the repo's minimal-runnable layout.)
+
 ## 0.3.0 — 2026-06-04
 
 **Re-scope: audit + handoff docs (no longer auto-fixes).** The skill now AUDITS

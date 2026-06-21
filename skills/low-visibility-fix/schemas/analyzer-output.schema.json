@@ -37,6 +37,8 @@
           },
           "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
           "location": { "type": "string" },
+          "tier": { "type": "string", "enum": ["critical", "major"] },
+          "standard": { "type": "string" },
           "measured": { "type": "number" },
           "threshold": { "type": "number" },
           "axis": {
@@ -57,7 +59,10 @@
             "type": "string",
             "enum": ["css_var_unresolved", "bg_image", "js_state", "image_only",
                      "external_stylesheet", "target_size_unresolved",
-                     "unresolved_color", "selector_no_match", "analyzer_error"]
+                     "unresolved_color", "selector_no_match", "analyzer_error",
+                     "bg_undeclared", "font_size_relative_unresolved",
+                     "target_size_no_uadefault", "spacing_unresolved",
+                     "media_conditional", "css_rule_unparsed"]
           },
           "location": { "type": "string" }
         }

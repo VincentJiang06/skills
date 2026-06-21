@@ -25,8 +25,8 @@ import emit_docs     # noqa: E402
 
 
 def _read(path):
-    with open(path, encoding="utf-8") as fh:
-        return fh.read()
+    # tolerant decoding so a non-UTF-8 stylesheet never crashes the audit
+    return analyze.read_text_tolerant(path)
 
 
 def _auto_css(path):

@@ -47,6 +47,23 @@ _NJ_GUIDANCE = {
                          "nothing in this scope was actually inspected.",
     "analyzer_error": "The analyzer could not process this file — inspect it manually / via the "
                       "visual pass; the rest of the scope was still audited.",
+    "bg_undeclared": "No background is declared in the read CSS for this element or any "
+                     "ancestor — the page/theme background is likely set in a global sheet "
+                     "not provided. Supply it (or re-run with --css), or read the actual "
+                     "background in the visual pass; do NOT assume white.",
+    "font_size_relative_unresolved": "A relative font-size (em/%) was used but the inherited "
+                                     "parent font-size could not be resolved — determine the "
+                                     "computed px in the visual pass before judging.",
+    "target_size_no_uadefault": "An interactive control declares no size and has no known "
+                                "UA-default box — measure the rendered/computed hit area in the "
+                                "visual pass; do not assume it passes.",
+    "spacing_unresolved": "The gap/margin between adjacent controls is declared but could not "
+                         "be parsed — check the rendered spacing in the visual pass.",
+    "media_conditional": "This element's relevant style is set inside a conditional at-rule "
+                        "(@media/@supports/...), so the result is viewport/feature-conditional — "
+                        "verify it at the target viewport in the visual pass.",
+    "css_rule_unparsed": "A CSS block could not be parsed (e.g. CSS nesting or a malformed rule) — "
+                        "its declarations were NOT applied; inspect that rule manually.",
 }
 
 
@@ -90,7 +107,7 @@ def build_doc_set(analyses, meta=None):
                 ev = "measured value vs field threshold"
             item = {"id": ident, "file": f_file, "rule": f["rule"],
                     "severity": f["severity"], "location": f["location"]}
-            for k in ("measured", "threshold", "axis"):
+            for k in ("measured", "threshold", "axis", "tier", "standard"):
                 if k in f:
                     item[k] = f[k]
             item["evidence"] = ev

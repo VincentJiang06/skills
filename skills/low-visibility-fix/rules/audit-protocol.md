@@ -44,11 +44,18 @@ concluded it — never fabricate a ratio:
 | reason | How to complete |
 |---|---|
 | `css_var_unresolved` | Auto-resolved for `:root`/`html`; this fires for runtime-themed/locally-scoped/undefined vars. Assess each theme or the worst case. |
-| `bg_image` | Text on an image — contrast is not one number. Estimate visually; recommend a scrim/overlay or solid text background. |
+| `bg_undeclared` | No background is declared on the element or any ancestor in the markup/sheet provided — it likely lives in a global/app sheet. **Never assume white.** Re-run with `--css <global-sheet>` or read the rendered background, then judge contrast. |
+| `bg_image` | Text on an image/gradient — contrast is not one number. Estimate visually; recommend a scrim/overlay or solid text background. |
+| `unresolved_color` | A color function the parser can't evaluate (`color-mix()`, `lab()`, `oklch()`, `currentColor` with no resolvable source). Read the rendered color; don't guess a ratio. |
+| `font_size_relative_unresolved` | An `em`/`%` font-size whose parent chain isn't resolvable — **not** assumed 16px. Check the inherited/rendered px size. |
+| `target_size_unresolved` | Size is layout-dependent — check the rendered/computed box before judging. |
+| `target_size_no_uadefault` | An interactive control with no explicit size and no known UA default — check the rendered box. |
+| `spacing_unresolved` | The `gap`/`margin` between adjacent targets couldn't be resolved — check the rendered spacing. |
+| `media_conditional` | A rule applies only under a `@media`/`@supports` condition — judge which condition holds on the target field device. |
+| `css_rule_unparsed` | A CSS block the parser couldn't safely handle (exotic at-rule/syntax) — inspect that rule manually or supply simpler CSS. (Surfaced, never silently dropped.) |
 | `external_stylesheet` | A `<link>` could not be read. Re-run with `--css <sheet>` (or inline it) for an exact audit; else audit inline only and say so. |
 | `js_state` | State styles applied at runtime — inspect the JS/class logic or ask which states exist. |
 | `image_only` | Screenshot input — give a labelled visual estimate, not a measurement. |
-| `target_size_unresolved` | Size is layout-dependent — check the rendered/computed box before judging. |
 
 ## Output, not edits (replaces the old fix gate)
 

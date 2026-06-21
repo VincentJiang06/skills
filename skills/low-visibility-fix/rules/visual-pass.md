@@ -16,14 +16,25 @@ available, degrade and still emit the doc set.
 
 ## What the visual pass catches (beyond static)
 
+The analyzer's `needs_judgment` rows are your worklist. The common ones:
+- **Undeclared background** (`bg_undeclared`) — bg lives in a global/app sheet not
+  provided; read the rendered bg (or re-run with `--css <global>`), never assume white.
 - Text over a **background image / gradient** (`bg_image`) — estimate contrast on
   the busiest region; recommend a scrim/overlay.
+- **Unresolvable color** (`unresolved_color`) — `color-mix()`/`lab()`/`oklch()`/
+  `currentColor`; read the rendered color.
 - **Runtime-themed** or locally-scoped CSS vars (`css_var_unresolved`) — judge the
   worst theme.
+- **Conditional rules** (`media_conditional`) — `@media`/`@supports`; judge which
+  condition holds on the field device.
+- **Relative font size with no known parent** (`font_size_relative_unresolved`) —
+  read the inherited/rendered px.
 - **Dynamic / JS state** (`js_state`) — pressed/disabled/selected styles applied at
   runtime.
 - Real **rendered size & spacing** under the actual viewport when the box was
-  layout-dependent (`target_size_unresolved`).
+  layout-dependent (`target_size_unresolved`, `target_size_no_uadefault`,
+  `spacing_unresolved`).
+- **Unparsed CSS** (`css_rule_unparsed`) — inspect that rule by hand.
 
 Label every visual finding an **estimate** (the doc set carries `input_mode` and
 tags the evidence). Never fabricate a precise ratio from a screenshot.
