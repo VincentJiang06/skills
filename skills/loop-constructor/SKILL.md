@@ -2,13 +2,14 @@
 name: loop-constructor
 description: >
   Design the engineered loop for a medium/large (semi-)autonomous AI-coding task
-  — decomposing it into gated sub-loops — and emit a filled, machine-checkable
-  loop-design spec, persisted as a runnable .loop/ runbook in the project. It
+  — by running an explicit selection procedure (D0–D5) that decomposes it into a
+  tree of gated sub-loops — and emit a filled, machine-checkable loop-design spec
+  plus a decision log, persisted as a runnable .loop/ runbook in the project. It
   DESIGNS and teaches loop design; it does NOT execute the loop. Applied
   front-end over the loop-principle KB (reuses its templates/checklists, doesn't
   restate them). Anchor: design backward from "what check proves this is done?"
-  (loop engineering ≈ verification engineering). Use-when: "how should I design
-  a loop for X", "design an agent loop", "set up an autonomous loop / self-running
+  (loop engineering ≈ verification engineering). Use-when: "how should I design a
+  loop for X", "design an agent loop", "set up an autonomous loop / self-running
   agent workflow", "$loop-constructor". Do-NOT (route away): (1) "reword this
   prompt" / single-shot prompt engineering — not a loop design; (2) "now actually
   run the loop / build the feature" — designs, does not execute; (3) "add a node
@@ -18,174 +19,125 @@ description: >
 
 # loop-constructor
 
-Design the engineered loop for a medium/large (semi-)autonomous coding task —
-**decomposing it into a tree of gated sub-loops** — and emit a **filled,
-machine-checkable loop-design JSON** that `scripts/lint_loop_design.mjs` PASSes,
-then persist it as a runnable runbook under the project's `.loop/` directory.
+Design the engineered loop for a medium/large (semi-)autonomous coding task by
+running an **explicit selection procedure** that decomposes it into a **tree of
+gated sub-loops**, then emit a **machine-checkable loop-design JSON** (which
+`scripts/lint_loop_design.mjs` PASSes) plus a **decision log**, and persist it as
+a runnable runbook under the project's `.loop/`.
 
 **The anchor (read first):** a loop closes autonomously only when a fast,
 machine-runnable check can answer "is it done?". So design **backward from the
-check** — `principle.closed_loop_needs_a_check`. *No runnable check ⇒ it is not
-a loop; the linter rejects it.*
+check** — `principle.closed_loop_needs_a_check`. *No runnable check ⇒ it is not a
+loop; the linter rejects it.*
 
 This skill is the applied front-end over the **loop-principle KB**. It does not
 restate theory — it RETRIEVES from the KB and REUSES its templates/checklists by
-path. Resolve the KB path once (see "Grounding" below), then cite node ids for
-every design judgment instead of asserting from memory.
+path. Resolve the KB path once (see "Grounding"), then cite node ids for design
+judgments instead of asserting from memory.
 
-## Preflight
+## The mechanism: SELECT → FILL → VERIFY → PERSIST
 
-1. Confirm the request is to **DESIGN a loop** — not run one (route away), not
-   edit loop-principle (KB authoring, route away), not reword a single prompt.
-2. Restate the target task in one line, then pick the **loop altitude** —
-   `medium` or `large` (**never `small`**: entering a loop at all means the task
-   is big enough to decompose), from blast-radius × reversibility × surface-area.
-3. **Decompose** the task into independently-checkable phases — the *stages* of
-   the loop, each closed by its own gate. Surface the KB's splitting nodes
-   (`references/loop-principle-map.md` → "Decomposition"); do not invent a method.
-4. Resolve the KB path and warm up retrieval:
-   `node <loop-principle>/tools/query_kb.mjs "loop anatomy patterns feedback"`.
-   (Optional preflight checklist: `loop-principle/checklists/loop_preflight.checklist.json`.)
+Four phases. The redesign moves all the hard calls (is-it-a-loop, decompose,
+pattern, autonomy, parallelism) into one **ordered, operational selection
+procedure** — no more "use judgment + query the KB" hand-waving.
 
-## The 9-step protocol
+### 1. SELECT — run the decision procedure (`references/loop-selection.md`)
+Answer **D0–D5 in order**; each answer determines part of the shape and is
+recorded with a one-line justification (the **decision log**):
 
-Work the steps in order; each maps to KB node ids (see
-`references/loop-principle-map.md`). Fill the canonical **staged** loop-design
-object as you go (shape in `references/loop-design-shape.md`; the linter binds to
-those keys).
+- **D0 — Is it a loop?** Name a fast runnable check that answers "done?" without a
+  human reading output. No check and can't build one → route away (not a loop).
+- **D1 — Decompose?** List phases; accept a stage boundary only where a stable,
+  checkable artifact is handed across it (the *seam test*). 0 seams → flat; ≥1 →
+  staged.
+- **D2 — Per stage: pattern + check.** Pattern by the stage's failure mode; the
+  cheapest check on the spectrum that still fails on that mode; fill
+  `falsifiable_when` + `passing_but_wrong`.
+- **D3 — Autonomy.** `in_the_loop` vs `on_the_loop` from blast-radius ×
+  reversibility × feedback-quality (weakest check wins).
+- **D4 — Parallelism.** Independent stages that benefit from fan-out → `large`
+  (multi-agent); else `medium` (sequential).
+- **D5 — Guards.** Per-stage caps + `on_failure` routing; outer budget + failure +
+  escalate; risk guards with mitigations.
 
-**How the steps apply to a staged design:** steps 1–4 (DoD · pattern · feedback
-signal · stop conditions) are filled **per stage** — each stage is itself a flat
-check-first loop, and the anchor (a runnable check) holds for *every* stage.
-Steps 5–8 (human placement · maker/checker · harness · risk guards) and the
-outer `stop_conditions` budget are **design-level**. Wire stages with
-`depends_on` so a stage is admitted only once the stages it depends on have
-passed their checks (gate after every stage; the graph must be acyclic).
+The procedure is the **selection method** — it replaces altitude-by-vibes with a
+reviewable derivation. Record the answers as the `selection_log` array.
 
-1. **Definition of Done** — write a single *machine-verifiable* goal as a
-   predicate/command, never prose. Reuse
-   `loop-principle/templates/dod_spec.template.json`.
-   → `principle.machine_verifiable_dod`
-2. **Pattern** — pick one of `retry | plan_execute_verify | explore_narrow |
-   review | human_in_the_loop`; state its fit + failure mode.
-   → `doc.anatomy.loop_anatomy_and_patterns`, `pattern.retry_loop`
-3. **Feedback signal** — the cheapest runnable check on the spectrum
-   (lint → typecheck → tests → build → diff → screenshot → logs → telemetry)
-   that still catches the failure class. **If no runnable check exists, REJECT.**
-   The check is the **success gate**, so the linter now runs a cannot-fail
-   analysis over shell `; || && |` and rejects any check that can't fail on a
-   broken impl (`true` / `npm test || true` / `…; true` / `sh -c true` /
-   empty-pattern grep / grep-your-own-`.loop/`-scratch), and requires
-   `expect:"pass"` — but a *custom* always-0 command is undecidable, so those are
-   still the floor, not the ceiling. For every stage's check
-   fill two clauses: **`falsifiable_when`** (the concrete broken state that makes
-   the check FAIL) and **`passing_but_wrong`** (the self-test made a field:
-   *describe a passing-but-wrong implementation that still satisfies this check* —
-   if you can name one, the check is too weak; strengthen it, or record
-   `"none: <why exhaustive>"`). The linter gates **presence** of both; judging
-   whether the check *truly discriminates* and whether `passing_but_wrong` is
-   honest is your job + the fresh-reader pass — keep the linter dumb but no longer
-   blind to the easy reward-hacks.
-   → `concept.feedback_signal_spectrum`, `principle.closed_loop_needs_a_check`, `anti_pattern.reward_hacking`
-4. **Stop conditions** — a non-empty **`success`** state (the stated done-condition,
-   now linter-required) + a non-empty `failure` branch list + escalate triggers +
-   a **mandatory `max_iterations`/budget cap**.
-   → `procedure.stop_gate`, `procedure.escalation_triggers`
-5. **Human placement** — `in_the_loop` vs `on_the_loop`, decided by
-   blast-radius × reversibility × feedback-quality.
-   → `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
-6. **Maker/checker** — a separate, fresh-context adversarial reviewer scoped to
-   correctness / stated requirements only.
-   → `principle.maker_checker_separation`, `principle.adversarial_review_subagent`
-7. **Harness primitives** — hooks / worktrees / subagents / external-memory /
-   connectors.
-   → `concept.harness`, `technique.git_worktree_isolation`,
-   `concept.external_state_memory`, `technique.hooks_as_deterministic_gate`
-8. **Risk guards** — flag each with a mitigation: reward hacking / test
-   overfitting, error amplification, context drift, permission blast radius,
-   token blowup, premature over-delegation.
-   → `anti_pattern.{reward_hacking,error_amplification,context_drift,token_blowup,permission_blast_radius}`
-9. **Emit + persist + self-score** — output the filled **staged** loop-design
-   JSON, run the linter (below), then **persist the runbook** to the project:
-   `node scripts/render_loop_doc.mjs <design.json>` writes
-   `.loop/<slug>.loop.md` (a runnable runbook) + `.loop/<slug>.loop.json` (the
-   checked spec). Add a self-scored rubric
-   (`loop-principle/templates/loop_quality_rubric.template.json`) and residual
-   risks. Tell the user the two written paths.
+### 2. FILL — write the loop-design JSON (`references/loop-design-shape.md`)
+The decisions above mostly determine the spec. Fill the canonical **staged**
+object (or **flat** if D1 found 0 seams): per-stage `definition_of_done` (a
+machine-verifiable predicate, not prose) · `loop_pattern` · `feedback_signal`
+(`check` + `expect:"pass"` + `falsifiable_when` + `passing_but_wrong`) ·
+`stop_conditions` (per-stage cap + `on_failure`) · `depends_on`; and
+design-level `loop_altitude` (+rationale) · `human_placement` · `maker_checker`
+(a fresh-context adversarial reviewer scoped to correctness/requirements) ·
+`harness_primitives` · outer `stop_conditions` (with a non-empty `success`) ·
+`risk_guards`. Include the `selection_log`. Reuse KB templates by path
+(`references/loop-principle-map.md`).
 
-## Verify (eat the dogfood)
-
+### 3. VERIFY — linter + fresh-reader (eat the dogfood)
 Run the linter on the produced JSON **before** returning it:
-
 ```
 node scripts/lint_loop_design.mjs <produced-design.json>
 ```
+It must print all `PASS` and exit 0. Any `FAIL <field>: <reason>` → fix and re-run.
 
-It must print all `PASS` lines and exit 0. Any `FAIL <field>: <reason>` means the
-design is not check-first/complete — fix it and re-run. Return the design only
-after the linter PASSes.
+Then do the **fresh-reader pass** with the operational template
+`assets/fresh-reader-checklist.md` — the linter checks structure, not *meaning*.
+Re-read the design cold and confirm, per stage, that the `check` would actually
+fail on a broken impl, `falsifiable_when` is a real break (not a goal
+restatement), `passing_but_wrong` is an honest concrete false-pass, failure
+branches are reachable, and `success` matches what the checks prove. A green
+linter on a hollow check is the exact trap this pass exists to catch.
 
-`render_loop_doc.mjs` re-validates before writing and **refuses to emit a runbook
-for a design the linter rejects** — so a successfully written `.loop/` doc is
-itself proof the design passed. A `REFUSED:` line means fix the design and re-run.
-
-**Fresh-reader pass (do this — the linter can't).** The linter now catches the
-*obvious* always-green no-ops (`true` / `echo done` / grep-your-own-log) and
-requires `success` + `expect:"pass"` + `passing_but_wrong`, but it still checks
-*structure*, not *meaning*: it cannot tell whether a real-looking check actually
-discriminates. Before returning, re-read the emitted design cold and confirm, for
-each stage: (a) the `check` is a command you could literally run that would FAIL on
-a broken implementation — and that it isn't a *subtler* hollow gate the denylist
-can't see (e.g. a test suite with zero assertions, a check whose target the agent
-also writes); (b) the `falsifiable_when` names a real broken state, not a
-restatement of the goal; (c) the **`passing_but_wrong`** entry is an *honest*,
-concrete false-pass (or a justified `"none"`), not hand-waving — if you can think
-of a passing-but-wrong impl it omits, the check is still too weak; (d) the failure
-branches are reachable from that check's failure modes; (e) the `maker_checker.scope`
-names a concrete adversarial target; (f) the `stop_conditions.success` state matches
-what the stage checks actually prove. If any fails, fix the design — a green linter
-on a hollow check is exactly the trap this pass exists to catch.
+### 4. PERSIST — render the runbook
+```
+node scripts/render_loop_doc.mjs <design.json>   # writes .loop/<slug>.loop.{md,json}
+```
+`render_loop_doc.mjs` re-validates first and **refuses to emit a runbook for a
+design the linter rejects** — a written `.loop/` doc is itself proof the design
+passed. A `REFUSED:` line → fix the design and re-run. Tell the user the two paths.
 
 ## Report
-
-Hand back: the loop-design JSON, the lint result (PASS), the self-scored rubric
-verdict, and residual risks.
+Hand back: the **decision log** (D0–D5), the loop-design JSON, the lint result
+(PASS), the fresh-reader verdict, a self-scored rubric
+(`loop-principle/templates/loop_quality_rubric.template.json`), and residual risks.
 
 ## Grounding (KB path resolution)
-
 The skill reads from the **loop-principle KB**. Resolve its path in this order:
 1. In this repo: `../../loop-principle` (relative to the skill dir).
-2. After deploy to `~/.claude` or `~/.agents`: the KB must be installed/pointed
-   to alongside — set `$LOOP_PRINCIPLE` or pass the absolute path. Do **not**
-   hardcode-fail; if the KB is absent, say so and degrade to the cited node ids
-   in `references/`. Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
+2. After deploy to `~/.claude` / `~/.agents`: set `$LOOP_PRINCIPLE` or pass the
+   absolute path. Do **not** hardcode-fail; if the KB is absent, say so and
+   degrade to the cited node ids in `references/`. Retrieval recipe:
+   `node <kb>/tools/query_kb.mjs "<topic>"`.
 
 ## Modules
 
 | File | When to load |
 |------|--------------|
-| `references/loop-principle-map.md` | The 9 steps + the **Decomposition** table → loop-principle node ids + docs + which templates/checklists to reuse, and the query_kb recipe. |
-| `references/loop-design-shape.md` | The exact canonical loop-design JSON keys the linter validates — both the **flat** and the **staged** (medium/large) shapes, plus the loop-docs persist contract. |
-| `scripts/lint_loop_design.mjs` | The deterministic verifier. Accepts flat **or** staged designs. CLI (`node ... <design.json>` / stdin) or `import { validate }`. |
-| `scripts/render_loop_doc.mjs` | Renders a linter-valid design into a runnable Markdown runbook and writes `.loop/<slug>.loop.{md,json}` (override dir with `--out`). Validates first; refuses to write an invalid design. |
+| `references/loop-selection.md` | **Phase 1 (SELECT)** — the D0–D5 decision procedure that derives the loop shape + decision log. |
+| `references/loop-design-shape.md` | **Phase 2 (FILL)** — the exact canonical loop-design JSON keys the linter validates (flat + staged shapes + the persist contract). |
+| `references/loop-principle-map.md` | KB grounding: each decision/field → loop-principle node ids + docs + which templates/checklists to reuse, and the query_kb recipe. |
+| `assets/fresh-reader-checklist.md` | **Phase 3 (VERIFY)** — the operational fresh-reader template (per-stage + design-level boxes the linter can't check). |
+| `scripts/lint_loop_design.mjs` | The deterministic verifier. Flat **or** staged. CLI or `import { validate }`. |
+| `scripts/render_loop_doc.mjs` | Renders a linter-valid design into a runnable runbook; validates first, refuses invalid. |
 | `assets/golden-loop-design.json` | A passing **flat** fixture (the atomic single-stage unit). |
-| `assets/golden-loop-design-medium.json` | A passing **staged** (medium-altitude) fixture — copy it as the starting point for a decomposed design. |
-| `evals/run_all.mjs` | Re-runnable adversarial battery (40 cases: 12 flat + 28 staged/renderer) over the linter + renderer; `node evals/run_all.mjs`. |
+| `assets/golden-loop-design-medium.json` | A passing **staged** fixture — copy as the starting point for a decomposed design. |
+| `evals/run_all.mjs` | Re-runnable adversarial battery over the linter + renderer; `node evals/run_all.mjs`. |
 
 ## Controls
 
 - **Design-only — persist, don't execute.** Writing the loop-design JSON + the
-  runbook to `.loop/` is producing the design *artifact* (like the pipeline
-  siblings writing their specs) — that is allowed. Never run the designed loop,
-  run the target's code, or modify the loop-principle KB.
-- **Emit STAGED.** The skill produces a `medium`/`large` staged design (a tree of
-  gated sub-loops), never a `small`/flat one. The flat shape stays valid only as
-  the atomic single-stage unit the linter still accepts for back-compat.
-- **Reject-on-no-check (per stage).** A design with no runnable feedback signal is
-  rejected; in a staged design the anchor holds for **every** stage (a stage with
-  no check FAILs the linter).
-- **Mandatory caps.** Every stage carries its own `stop_conditions.max_iterations`,
-  and the design carries an outer `stop_conditions.max_iterations` + a non-empty
-  `failure` list. The stage graph must be acyclic (an enterable, terminating loop).
-- **Self-verification gate.** Return a design only after the linter reports PASS.
+  runbook to `.loop/` is producing the design *artifact*. Never run the designed
+  loop, run the target's code, or modify the loop-principle KB.
+- **Run the selection procedure.** Don't pick a shape by vibes — derive it from
+  D0–D5 and emit the decision log. A design without a decision log is incomplete.
+- **Emit STAGED** unless D1 genuinely finds 0 seams. The flat shape stays valid
+  as the atomic single-stage unit (linter still accepts it).
+- **Reject-on-no-check (per stage).** A stage with no runnable feedback signal
+  FAILs the linter; the anchor holds for every stage.
+- **Mandatory caps.** Every stage + the outer loop carry a finite
+  `max_iterations`; the stage graph must be acyclic.
+- **Self-verification gate.** Return a design only after the linter PASSes and the
+  fresh-reader checklist is clean.
 - **Cite, don't assert.** Back design choices with loop-principle node ids.

@@ -141,6 +141,19 @@ export function renderMarkdown(design) {
   out.push(list(HARD_CONSTRAINTS));
   out.push("");
 
+  if (Array.isArray(design.selection_log) && design.selection_log.length > 0) {
+    out.push("## Why this shape (decision log)");
+    out.push("> The D0–D5 selection procedure that derived this loop's shape.");
+    design.selection_log.forEach((e) => {
+      if (e == null || typeof e !== "object") return;
+      const d = oneLine(e.decision);
+      const a = oneLine(e.answer);
+      const why = mdText(e.why);
+      out.push(`- **${d}** (${a})${why ? ` — ${why}` : ""}`);
+    });
+    out.push("");
+  }
+
   if (staged) {
     out.push("## Stages (run in dependency order; each stage is its own gated loop)");
     out.push(

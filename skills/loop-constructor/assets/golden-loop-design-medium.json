@@ -2,6 +2,14 @@
   "task": "Add rate limiting to the public API and prove it holds under load without breaking existing endpoints",
   "loop_altitude": "medium",
   "loop_altitude_rationale": "Multi-module change (middleware + load harness) touching a public surface, but reversible and single-agent — sequential gated stages, no parallel fan-out needed.",
+  "selection_log": [
+    { "decision": "D0", "answer": "loop", "why": "runnable checks exist (contract suite, ratelimit test, load harness exit code) — done is machine-decidable" },
+    { "decision": "D1", "answer": "staged (2 seams)", "why": "captured baseline is handed characterize->implement; a green 429 middleware is handed implement->load_verify; each seam is a stable checkable artifact" },
+    { "decision": "D2", "answer": "explore_narrow / plan_execute_verify / retry", "why": "characterize searches the existing contract; implement is risky middleware needing mid-flight correction; load_verify is a retryable assertion" },
+    { "decision": "D3", "answer": "on_the_loop", "why": "reversible dev-only change, checks discriminate well — human reviews at gates, not each iteration" },
+    { "decision": "D4", "answer": "medium", "why": "stages are strictly sequential (each depends on the prior); no independent fan-out work" },
+    { "decision": "D5", "answer": "caps + loopback routing", "why": "per-stage caps; load_verify loops back to implement, implement loops back to characterize; escalate on any public-API change" }
+  ],
   "stages": [
     {
       "id": "characterize",
