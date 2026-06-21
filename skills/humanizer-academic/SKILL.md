@@ -1,19 +1,22 @@
 ---
 name: humanizer-academic
 description: >-
-  Rewrite ACADEMIC / scholarly prose (English, Chinese, or mixed EN-in-ZH) to
-  remove AI-writing signals across three layers — lexical, structural, statistical
-  — while PRESERVING scholarly register and ADDING defined human texture (authorial
-  stance, source-grounded specificity, burstiness, controlled asymmetry), never
-  inventing facts. Use when a thesis, abstract, lit review, or policy report reads
-  templated / AI-generated and you want it human but still academic, or
-  "$humanizer-academic". Discriminate three false-triggers: (1) vs a CASUAL
-  humanizer — PRESERVE register, don't go chatty (route "humanize my tweet" away);
-  (2) vs POETRY / speech / fiction — these legitimately use parallelism/repetition,
-  so DOWN-WEIGHT structural rules, don't flatten; (3) DETECT vs REWRITE — the
-  bundled script only DETECTS (never humanizes); "just score this" returns the
-  detector map, no rewrite. Do NOT use for inventing evidence/citations/numbers,
-  non-academic casual text, or creative genres relying on heightened rhetoric.
+  Rewrite AI-generated SERIOUS NONFICTION (English, Chinese, or mixed EN-in-ZH)
+  to remove AI-writing signals while preserving register and never inventing
+  facts — in one of TWO modes: `academic` (严肃学术论文: thesis, abstract, lit
+  review, research/policy report) or `popsci` (科普严肃: serious popular-science
+  / science journalism, NOT clickbait). ABSTAIN-FIRST: if the text already reads
+  human, it returns it unchanged ("reads human; no rewrite needed") instead of
+  over-editing — the fix for false positives. Mode sets the register floor and
+  what even counts as an AI tell (a rhetorical question is craft in popsci, a
+  slip in a paper; a data triad / "significant" / numbered section is NORMAL in a
+  paper, not an AI tell). Use when AI-looking academic or serious popsci prose
+  should read human but stay credible, or "$humanizer-academic". Discriminate:
+  (1) vs a CASUAL humanizer — both modes PRESERVE seriousness, never go chatty;
+  (2) vs POETRY / fiction / speech — legitimately rhetorical, route away;
+  (3) DETECT vs REWRITE — the bundled script only DETECTS (diagnostic, never the
+  oracle); "just score this" returns the signal map, no rewrite. Do NOT use for
+  inventing evidence/citations/numbers, casual chit-chat, or creative genres.
 allowed-tools:
   - Read
   - Write
@@ -21,60 +24,66 @@ allowed-tools:
   - Grep
   - Glob
   - Bash
+  - Task
   - AskUserQuestion
 ---
 
-# Humanizer Academic
+# Humanizer (Academic + Popular-Science)
 
-Version: `2.0.1` (Claude Code rebuild — see CHANGELOG.md)
+Version: `3.0.0` (two modes + abstain-first — see CHANGELOG.md)
 
-You are a bilingual academic editor. Rewrite English, Chinese, and mixed-language
-academic text so it reads like careful human scholarship — not polished model
-average. The target is **not** "casual" or "lively". The target is credible,
-restrained, *specific*, *committed* academic prose.
+You rewrite AI-generated **serious nonfiction** so it reads like careful human
+writing — without lowering its register and without inventing a single fact. It
+works in **two modes**, because what reads as "AI" differs by genre:
 
-The spine of this skill is a single protocol: **SUBTRACT three layers of AI signal
-→ ADD defined human texture → keep register → verify.** Removing signals alone is
-not the job; a scrubbed-but-uniform draft still reads like a machine.
+| Mode | For | Register floor | A rhetorical question / "you" / vivid analogy is… |
+|------|-----|----------------|----------|
+| `academic` (严肃学术论文) | thesis, abstract, lit review, research/policy report | formal, restrained, hedged | a register **slip** — usually remove |
+| `popsci` (科普严肃) | serious science journalism / explainers (The Conversation, NASA, 中文维基科普) | clear, engaging, **credible** | legitimate **craft** — preserve |
 
-## Boundary: this skill detects with code, but rewrites with judgment
+The spine is one protocol: **TRIAGE (often abstain) → mode-aware SUBTRACT of real
+AI signals → ADD defined human texture → keep the mode's register → verify.**
 
-`scripts/detect_ai_signals.py` is a **measurement instrument only**. It returns a
-three-layer signal map (lexical hits, structural-pattern hits, burstiness/variance
-statistics). **It DETECTS; it never rewrites and is never described as a
-"humanizer".** Its output is a diagnostic dashboard, **not** the pass/fail oracle —
-a robotic rewrite can score zero lexical hits and still be bad. The rewrite is your
-behavioral work; quality is judged by the independent blind judge
-(`references/blind-judge-rubric.md`), not by the detector's own counts.
+## The first rule: do not over-edit good prose (the false-positive fix)
 
-## When to use / not use
+Modern AI and good humans write *similarly* on the surface. The old version of
+this skill flagged normal scholarship — every three-item list, every
+"significant", every numbered section — and churned prose that was already fine.
+**That is the failure mode to avoid.** So:
 
-**Use** for academic, scholarly, or professional prose: essays, thesis chapters,
-abstracts, literature reviews, research reports, policy/working papers — EN, ZH, or
-mixed — that sounds templated, over-smoothed, promotional, structurally
-mechanical, or visibly chatbot-written.
+> **Abstain-first.** If the text already reads like genuine human writing for its
+> mode, return it **unchanged** with one line — "reads human for `<mode>`; no
+> rewrite needed" — plus, optionally, 1–2 light-touch suggestions. Do **not**
+> rewrite. Only proceed when you can **name specific, removable AI signals** that
+> are actually present.
 
-**Do NOT use** for:
-- Casual/general humanizing (a tweet, a chatty blurb) — there is no academic
-  register to preserve; route it elsewhere.
-- Poetry, fiction dialogue, speeches, satire, or any genre that legitimately
-  relies on parallelism/repetition/heightened rhetoric (see preflight whitelist).
-- Inventing evidence, citations, quotations, datasets, numbers, or facts.
-- Pure detection with no rewrite — that is a one-step detector call (see Step 7).
+You decide this with judgment, not with the detector's counts. The detector is a
+diagnostic; you are the editor.
+
+## Boundary: the script DETECTS, it never humanizes
+
+`scripts/detect_ai_signals.py` is a **measurement instrument**. It returns a
+tiered, length-normalized signal map and a coarse `verdict`
+(`human_like | some_signals | ai_like`). It is honest about its limits: it
+reliably catches **slop** (clickbait, hype, emoji, templated connector-spam,
+chat residue) but it **cannot** separate clean modern AI from clean human prose —
+so its verdict is a hint, **not** the pass/fail oracle. The oracle is the
+independent blind judge (`references/blind-judge-rubric.md`) and your own
+mode-aware reading. Never describe the script as a "humanizer"; never use its
+counts as the success criterion.
 
 ## Hard constraints (never violate)
 
 1. **Zero net-new facts.** Every number, citation, quotation, named entity, and
    date in your output must trace to the input. Never manufacture specificity.
    (Fact invention = hard fail.)
-2. **Register floor.** Never lower formality below the source's academic register.
-   No slang, banter, jokes, fake typos, rhetorical-question flavor, or artificial
-   "imperfections".
+2. **Mode register floor.** `academic`: never drop below the source's scholarly
+   register (`references/academic-register.md`). `popsci`: stay credible and
+   serious — never add clickbait/hype/emoji (`references/popsci-register.md`).
 3. **Meaningful hedging stays.** Preserve epistemic hedges (may/appears/likely,
-   可能/或许/倾向于). Collapse only *stacked, empty* hedging. Never convert a real
-   hedge to false certainty.
-4. **Genuine structure stays.** Don't flatten section logic or transitions that do
-   real logical work.
+   可能/或许/倾向于). Collapse only *stacked, empty* hedging.
+4. **Genuine structure stays.** Don't flatten section logic or transitions that
+   do real logical work. Don't flatten popsci craft (questions, analogy, voice).
 5. **Detector is detect-only.** Never claim the script humanizes; never use its
    counts as the success criterion.
 
@@ -82,110 +91,139 @@ mechanical, or visibly chatbot-written.
 
 ## Protocol
 
-### Preflight (lock before you touch a word)
-1. **Detect language**: English / Chinese / mixed EN-in-ZH.
-2. **Detect section type**: abstract / intro / literature review / analysis /
-   discussion / conclusion / policy — register expectations differ
-   (`references/academic-register.md`, section-specific guidance).
-3. **Genre whitelist check**: if the text is poetry / speech / fiction dialogue /
-   rhetorical essay, **DOWN-WEIGHT structural rules** (triads, parallelism,
-   repetition are legitimate there) — do not flatten them. If the request is
-   *casual* (no academic register), stop and route away.
-4. **Lock hard constraints**: list the citations, quotations, dates, numbers,
-   technical terms, section logic, and claim strengths that must survive verbatim.
-5. *(Optional, diagnostic)* run the detector for a baseline signal map:
-   `python3 scripts/detect_ai_signals.py <draft>` (or `--summary`). This is for
-   before/after comparison only — it is **not** a gate.
+### Step 0 — Preflight (lock before you touch a word)
+1. **Language**: English / Chinese / mixed EN-in-ZH.
+2. **MODE**: `academic` vs `popsci`. Decide from the text: citations/abstract/
+   methods/统计记号/参考文献 → `academic`; second-person address, rhetorical
+   questions, analogies, an explainer voice, a publication like a magazine →
+   `popsci`. If genuinely ambiguous, **ask** (one question), or default to
+   `academic` (the stricter, safer floor). If the genre is poetry / fiction /
+   speech / a casual chat blurb, **stop and route away** — not this skill.
+3. **Lock hard constraints**: list every citation, quotation, date, number,
+   named entity, technical term, and section logic that must survive verbatim.
+4. *(Diagnostic, optional)* run the detector for a baseline signal map:
+   `python3 scripts/detect_ai_signals.py <draft> --mode <academic|popsci>`
+   (add `--summary` for the verdict + densities). This is **before/after
+   comparison only** — not a gate.
 
-### Step 1 — SUBTRACT lexical
-Remove inflated vocab, promotional adjectives, AI-vocab clusters, vague
-attribution, analytic padding, chat residue, and stacked/empty hedging.
-Load: `references/english-patterns.md` (EN), `references/chinese-patterns.md` (ZH).
-Treat **density and co-occurrence** as stronger evidence than any single keyword.
+### Step 1 — TRIAGE (the abstain gate)
+Read the text as an editor for its mode and decide:
+- **Reads human already** (no nameable AI signals; verdict typically
+  `human_like`/`some_signals`) → **ABSTAIN.** Return it unchanged; say so. Done.
+- **Has real, removable AI signals** you can name (list at least two concrete
+  ones, e.g. "every paragraph opens with Moreover/Furthermore", "5-listicle
+  shell with emoji", "uniform topic→3-supports→wrap paragraphs", "评论区式空泛升华")
+  → proceed to Step 2.
+- **Borderline** → prefer a **light touch**: fix the named signals only, change
+  nothing else.
 
-### Step 2 — SUBTRACT structural
-Reduce rule-of-three scaffolding, signpost/connector overload, mechanical
-paragraph shape (topic→3-supports→wrap), bold-label lists, report-shell
-meta-sentences ("this paper examines" / 本文拟……), and balanced negative
-parallelism (not just X but Y / 不是……而是……) used mechanically.
-Load: `references/structural-statistical-signals.md` §A. **Respect the genre
-whitelist from preflight.**
+Never rewrite a text you cannot justify rewriting. "It's AI-generated so it must
+be fixed" is not a justification — a clean AI draft can already read human.
 
-### Step 3 — FLATTEN statistical uniformity
-Raise burstiness: vary **sentence** length and **paragraph** length on purpose;
-break monotone clause structure; **de-cluster evenly-distributed hedging**
-(concentrate it on genuinely uncertain claims, commit elsewhere).
-Load: `references/structural-statistical-signals.md` §B. Diagnostic check: a good
-rewrite *raises* `sentence_cv` / `paragraph_cv` — because real emphasis structure
-was added, not noise.
+### Step 2 — SUBTRACT (mode-aware: remove only what is an AI tell IN THIS MODE)
+Remove the signals that matter **for the mode**. Load the mode pattern refs:
+`references/english-patterns.md`, `references/chinese-patterns.md` (lexical), and
+`references/structural-statistical-signals.md` (structural).
 
-### Step 4 — ADD human texture (without inventing)
-This is the half generic humanizers skip. Load: `references/human-texture.md`.
-- **Stance**: surface a committed claim with calibrated confidence (not a survey
-  of possibilities).
-- **Source-grounded specificity**: replace an abstract summary with the concrete
-  number / case / mechanism **already present in the source**. If the source has
-  no specific, keep it general — do **not** invent one.
-- **Burstiness**: deliberate sentence/paragraph length variance.
-- **Controlled asymmetry**: not every list is three; drop reflexive counter-
-  balance the source doesn't earn.
+**`academic` — remove:** inflated/promotional vocab used as filler, AI connector
+overload (Moreover/Furthermore/此外/与此同时 every paragraph), mechanical
+rule-of-three scaffolding, report-shell *over-density* ("本节将……" on every
+subsection), evenly-sprinkled hedging, balanced negative parallelism used
+mechanically, bold-label lists, chat residue.
+**`academic` — PRESERVE (these are NOT tells here):** discipline jargon including
+`significant`/`significantly`/`robust`/`comprehensive`/`enhance`/`landscape` in
+technical use; three-item **data** enumerations; numbered sections (2.1, 3.4); a
+**single** "This paper presents/examines…"; "These results suggest"; Chinese
+`对……进行……分析` / `研究表明` / `这说明` as genuine connectives. (See
+academic-register.md "do not strip".)
 
-### Step 5 — Re-check register
-Cross-check `references/academic-register.md`. Must stay formal and restrained;
-hedging that carries epistemic meaning preserved; nothing casual introduced in the
-name of "texture". Stance and hedging coexist — committed ≠ uncalibrated.
+**`popsci` — remove:** clickbait/hype ("mind-blowing", "you won't believe",
+"buckle up", 震惊体/涨知识/快收藏), emoji and exclamation spam, listicle shell
+("5 facts that…", **bold-numbered** headers as a structural crutch), fake "did
+you know" hooks, generic "the future is bright" wraps, AI connector overload,
+over-explaining the obvious.
+**`popsci` — PRESERVE (legitimate craft, removing it is a false positive):**
+rhetorical questions, second-person "you", vivid analogies/metaphors, a narrative
+hook, an occasional guiding triad, concrete everyday examples, a curious human
+voice. (See popsci-register.md.)
 
-### Step 6 — Verify
-- *(Diagnostic)* re-run the detector and read the **before/after delta**:
-  lexical_total ↓, structural_total ↓, `sentence_cv`/`paragraph_cv` ↑. Do **not**
-  treat "all counts == 0" as success.
-- **No-new-facts check**: scan the output against the locked constraint list — zero
-  net-new numbers / citations / quotations / named entities.
-- **Register-collapse check**: confirm formality did not drop.
-- **Idempotency**: a second pass over your own output should be near-no-op, not a
-  fresh round of edits (no oscillation).
+Treat **density and co-occurrence** as stronger evidence than any single word.
 
-### Step 7 — Detect-only mode (when the user asks not to rewrite)
-If the request is "just score / detect, don't rewrite", run
-`python3 scripts/detect_ai_signals.py <draft>` and return the signal map (or
-`--summary`). **Perform no rewrite.** State plainly that the script detects signals
-and does not humanize.
+### Step 3 — ADD human texture (without inventing)
+The half generic humanizers skip. Load `references/human-texture.md`.
+- **`academic`**: surface a committed claim with calibrated confidence; replace
+  an abstract summary with the concrete number/case/mechanism **already in the
+  source**; deliberate sentence/paragraph-length variance; controlled asymmetry
+  (not every list is three).
+- **`popsci`**: let one real analogy or concrete example (already implied by the
+  source) carry a point; vary rhythm (a short punchy sentence after a long one);
+  a genuine through-line instead of a listicle — but stay **serious**, never hype.
+- **Never invent** a number, case, study, or quote to add specificity. If the
+  source has none, keep it general.
+
+### Step 4 — Re-check register (mode floor)
+`academic` → cross-check `references/academic-register.md`: still formal,
+restrained, meaningful hedging intact, nothing casual added. `popsci` →
+cross-check `references/popsci-register.md`: still credible and serious, the
+voice/craft preserved, **no** clickbait/hype/emoji introduced, not stiffened into
+fake-academic.
+
+### Step 5 — Verify
+- **No-new-facts check**: scan output against the locked constraint list — zero
+  net-new numbers/citations/quotations/named entities. (Hard fail if any.)
+- **Register check**: `academic` formality not dropped; `popsci` not turned
+  clickbait and not over-stiffened.
+- **Idempotency**: a second pass over your own output is near-no-op (no
+  oscillation). If you'd keep editing forever, you over-edited — revert.
+- *(Diagnostic)* re-run the detector and read the **before/after delta** for the
+  same mode. Do **not** treat "all counts == 0" as success.
+- *(When asked to prove quality)* run the blind judge (`references/blind-judge-rubric.md`)
+  via a fresh subagent — the independent oracle. See `evals/`.
+
+### Step 6 — Detect-only mode (when the user says "just score / don't rewrite")
+Run `python3 scripts/detect_ai_signals.py <draft> --mode <mode>` and return the
+signal map (or `--summary`). **Perform no rewrite.** State plainly that the
+script detects signals and does not humanize.
 
 ## Output
-Default: the rewritten text only. Optional: a short 3–6 point change note if the
-user asks what changed or the rewrite is substantial. In detect-only mode: the
-detector's JSON signal map (and a plain-language reading of the deltas).
+Default: the rewritten text only. If you **abstained**, say so in one line and
+return the text unchanged (optionally 1–2 light suggestions). Optional 3–6 point
+change note if the rewrite was substantial or the user asks what changed. In
+detect-only mode: the detector's JSON map + a plain-language reading of deltas.
 
-## Metrics (how success is judged)
-- **independent_blind_judge_score** — a fresh evaluator scores residual AI-ness on
-  `references/blind-judge-rubric.md` **without seeing the removal rules** (primary
-  oracle; kills the closed-loop trap).
-- **register_preservation_score** — must NOT drop while AI-ness drops.
-- **fact_invention_rate** — net-new facts vs source = MUST be 0 (hard fail if >0).
-- **marginal_lift** — blind-judge(with-skill) − blind-judge(without-skill), same
-  source.
-- detector deltas (`burstiness_delta`, `structural_signal_delta`) — **diagnostic
-  dashboard only**, never the pass/fail oracle.
+## Metrics (how success is judged — real-data eval in `evals/`)
+- **false_positive_rate** — on the real **human** corpus (`evals/corpus/human/`),
+  the skill must ABSTAIN (near-no-op). This is the primary guard against
+  over-editing. Measured by `evals/calibrate.py` (detector) + the behavioral
+  no-op check (rewrite edit-distance ≈ 0 on human text).
+- **independent_blind_judge_lift** — on the real **AI** corpus
+  (`evals/corpus/ai/`), a fresh judge (blind to the rules) scores residual
+  AI-ness ↓ AND register preserved AND zero new facts, per mode.
+- **fact_invention_rate** — net-new facts vs source = MUST be 0 (hard fail).
+- detector deltas — **diagnostic dashboard only**, never the pass/fail oracle.
 
 ## Modules
 
 | File | Load when |
 |------|-----------|
-| `references/english-patterns.md` | Step 1, English lexical SUBTRACT. |
-| `references/chinese-patterns.md` | Step 1, Chinese lexical SUBTRACT. |
-| `references/structural-statistical-signals.md` | Steps 2–3, structural + statistical layers. |
-| `references/human-texture.md` | Step 4, the ADD target (stance / specificity / burstiness / asymmetry). |
-| `references/academic-register.md` | Preflight + Step 5, register-preservation guard. |
-| `references/blind-judge-rubric.md` | The independent quality oracle (and how to self-check a rewrite). |
+| `references/academic-register.md` | `academic` mode register floor + "do not strip" list. |
+| `references/popsci-register.md` | `popsci` mode register floor + legitimate-craft preserve list. |
+| `references/english-patterns.md` | English lexical SUBTRACT (Step 2). |
+| `references/chinese-patterns.md` | Chinese lexical SUBTRACT (Step 2). |
+| `references/structural-statistical-signals.md` | Structural + statistical layers (Step 2–3). |
+| `references/human-texture.md` | The ADD target (Step 3), mode-specific. |
+| `references/blind-judge-rubric.md` | The independent quality oracle (Step 5). |
 
 ## Scripts
 
 | File | Usage |
 |------|-------|
-| `scripts/detect_ai_signals.py` | `python3 scripts/detect_ai_signals.py [FILE]` (or stdin); `--summary` for per-layer totals + CV; `--language en\|zh\|auto`. Returns the three-layer signal map. **DETECTS only — never rewrites.** |
+| `scripts/detect_ai_signals.py` | `python3 scripts/detect_ai_signals.py [FILE] --mode academic\|popsci [--language en\|zh\|auto] [--summary]`. Tiered, length-normalized signal map + a coarse verdict. **DETECTS only — never rewrites; the verdict is a hint, not the oracle.** |
 
-## Tests
-A deterministic unit harness covers the detector math (it imports the core from
-`scripts/`, never reimplements it); behavioral rewrite cases + worked examples are
-judged with a blind-judge rubric. The eval suite is kept in the dev repo, not the
-shipped skill.
+## Tests / eval
+`evals/` holds a REAL corpus: human-written academic + serious-popsci excerpts
+(false-positive tests — the skill must abstain) and AI-generated academic +
+popsci pieces (true-positive tests — the rewrite must lift them, judged blind).
+`evals/calibrate.py` reports detector FP/slop-recall; `evals/run_detector_tests.py`
+pins the detector math; the behavioral rewrite+judge battery is the usefulness
+proof. See `evals/README.md`.

@@ -5,6 +5,10 @@
 > and again at the final re-check. The headline failure mode this guards is
 > **register collapse**: making academic prose casual/chatty in the name of
 > "humanizing".
+>
+> **Mode:** this is the floor for `academic` mode (serious scholarly papers).
+> Serious popular-science writing has its own, looser floor in **popsci-register.md**
+> — do not apply this file to popsci, and do not apply that file to academic prose.
 
 This skill is intentionally stricter than a general "humanizer." The goal is publishable or reviewable academic prose, not lively internet prose.
 
@@ -22,6 +26,43 @@ This skill is intentionally stricter than a general "humanizer." The goal is pub
 - technical terminology
 - justified hedging
 - section logic and argument order
+
+## These are NOT AI tells in academic writing — do not strip
+
+The detector and the general anti-AI denylist over-flag a set of features that are
+**load-bearing in real scholarship**. Working academics use these constantly;
+removing them damages the prose and often the meaning. Preserve them in `academic`
+mode unless they are genuinely empty padding.
+
+- **"significant" / "significantly"**, especially **"statistically significant"** —
+  a precise technical term reporting a test result, not hype. "The effect was
+  statistically significant (p < .01)" must stay. Only cut *non-technical* filler
+  uses ("a significant amount of attention").
+- **"robust" / "comprehensive" / "powerful"** in technical use — "robust standard
+  errors", "a robust estimator", "a comprehensive survey of the corpus", "a
+  powerful test / a more powerful design". These are field terms; keep them. Cut
+  only the vague brochure use ("a robust and comprehensive solution").
+- **Three-item DATA enumerations** — listing three variables, three conditions,
+  three datasets, or three measured quantities is reporting, not a "forced triad".
+  Preserve. (Down-weight the controlled-asymmetry rule for *data* lists; it targets
+  rhetorical triads, not enumerated facts.)
+- **Numbered sections / subsections** (2.1, 3.4, §4.2) — standard scholarly
+  navigation, not an AI template. Keep the numbering.
+- **A single "This paper presents / examines / argues…" in an abstract** — a normal
+  abstract convention. One such sentence is fine; only flag the *repeated*,
+  every-paragraph "This section will discuss…" scaffolding.
+- **"These results suggest" / "These findings indicate"** — calibrated inference
+  language that links evidence to claim. This is exactly the hedging the protocol
+  elsewhere tells you to preserve. Keep it.
+- **Chinese genuine logical connectives** — 对……进行……分析 / 研究表明 / 这说明 /
+  结果显示 / 由此可见, when they carry real logical work (introducing a method,
+  reporting a finding, drawing an inference). These are standard 学术汉语. Strip only
+  the *empty, repeated* frame use (e.g. every paragraph opening with 研究表明 to say
+  nothing new).
+
+> The point: real human academics write this way. A rewrite that scrubs "statistically
+> significant", renumbers away "3.4", or deletes every "研究表明" has lowered the
+> register and may have broken the claim — that is a regression, not a humanization.
 
 ## Prefer these transformations
 

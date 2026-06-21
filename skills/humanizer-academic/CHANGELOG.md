@@ -4,6 +4,49 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
+## 3.0.0 — Two modes + abstain-first (2026-06-21)
+
+**Breaking** (default rewrite aggressiveness changes). Reworks the skill around
+two complaints: too many false positives (over-editing good prose) and "not
+useful enough".
+
+### Added
+- **Two modes** — `academic` (严肃学术论文) and `popsci` (科普严肃, serious
+  popular science). Mode sets the register floor and what even counts as an AI
+  tell: a rhetorical question / second person / vivid analogy is *craft* in
+  popsci but a *slip* in a paper; a data triad / "significant" / numbered
+  section is *normal* in a paper, not an AI tell. New `references/popsci-register.md`;
+  `references/academic-register.md` gains a "do not strip" list.
+- **Abstain-first protocol** — if the text already reads human for its mode, the
+  skill returns it unchanged ("reads human; no rewrite needed"). It only rewrites
+  when it can NAME specific removable AI signals. This is the false-positive fix
+  at the protocol level.
+- **Real-data eval** (`evals/corpus/`): 27 real published HUMAN excerpts
+  (academic across 7 fields + serious popsci from The Conversation/NASA/Wikipedia,
+  EN+ZH) and 20 AI-generated pieces. `evals/calibrate.py` reports detector FP/slop
+  recall; the blind-judge workflow scores real rewrites (`evals/blind-judge-results.json`).
+
+### Changed
+- **Detector rewritten** (`scripts/detect_ai_signals.py`): repositioned as a
+  low-false-positive SLOP-finder + diagnostic, NOT an AI classifier — real-data
+  calibration showed modern serious AI and serious human prose overlap on every
+  regex/statistical feature, so the LLM blind judge is the real oracle.
+  - **Tiering**: `high_precision` (chat residue, hype, emoji, clickbait, uplift,
+    templated shells — count fully) vs `ambiguous` (connectives, mild inflation,
+    triads — a tell only at density).
+  - **Context guards**: "statistically significant (p<.05)" no longer flagged;
+    "powerful tool / robust standard errors / comprehensive review" no longer
+    flagged; a three-item DATA enumeration is not a "forced triad" (parallelism +
+    non-data required).
+  - **Length-normalized** per-1000-token densities + an explicit
+    `verdict`/`abstain_recommended`.
+  - `--mode academic|popsci` flag.
+
+### Results (real-data eval, 47 files)
+- **0/27** human texts over-edited or fabricated (the over-editing complaint, fixed).
+- **16/20** AI texts judged improved by the independent blind judge; **0** fabrication; **0** register breaks.
+- Detector: **0** strong false positives, **100%** slop recall; unit tests 115/115.
+
 ## 2.0.1 — Detector fixes (2026-06-04)
 
 Patch release. **Detect-only behavior only** — no change to default rewrite
