@@ -14,6 +14,20 @@ minimal scenario + an idea oracle + `not_strawman` + a critique derived independ
 **Every confirmed record (both modes) tags an `attack_scope` ∈ the declared `summary.in_scope`;
 out-of-scope discoveries go in the top-level `out_of_scope[]` (kept, not counted).**
 
+**Two ALTITUDES (v0.3.1) — `summary.attack_mode` (orthogonal to `target.type`).** A round is
+`debug`, `structural`, or `both`:
+- **debug pass** = the concrete behavioral bug-hunt below — find a running break (product) or a
+  flawed claim (idea). Records are `attack_kind:"debug"` and keep the v0.3.0 debug gate exactly.
+- **structural pass** = interrogate the project's **LOGIC/ARCHITECTURE** (coupling, logic-flow,
+  missing/leaky abstractions, inconsistent patterns, over-reach). Records are
+  `attack_kind:"structural"`: you may **SEE the structure** to critique it (no impl-withholding,
+  no `real_collaborator_at_seam`), but you MUST name a violated external principle/goal
+  (`critique_basis`), derive `expected` independently, and use a **structural oracle**
+  (`references/oracle-menu.md` §S).
+- **both** = run the **STRUCTURAL pass FIRST** (design problems often explain the behavioral ones),
+  THEN the debug pass. The structural-first ordering is a protocol discipline; the validator only
+  enforces that each record's `attack_kind` is permitted by `attack_mode`.
+
 ## The fresh-context independence mechanism (the entire value proposition)
 
 The attack round runs in a **fresh, isolated subagent** (spawn one — do not run
@@ -53,14 +67,23 @@ Ship worked examples for **function / CLI / HTTP / live-app**; runnable code
 adapters are a v0.2 follow-up. No observable baseline ⇒ emit
 `needs_judgment.needs_instrumentation`, never a guessed failure.
 
-## READ — recon + steady-state baseline
-1. Map the attack surface from **observable behavior, not source**: inputs,
-   states, transitions, trust boundaries, dependency seams. Assume-breach
-   altitude — attack post-entry feature behavior, not the auth wall.
-2. Derive intended behavior **independently** from the requirement; record it as
-   the attacker's own `expected` with its source.
-3. Measure a **steady-state baseline** (the normal observable output). No
-   baseline ⇒ `needs_instrumentation` → `needs_judgment`, never a guess.
+## READ — recon + steady-state baseline (context is a HARD GATE)
+0. **Context/scope gate (v0.3.1).** Do NOT attack until (a) scope is clear (`in_scope` declared and
+   specific) AND (b) context is sufficient. If not: ASK the user; if still thin, **SELF-RESEARCH the
+   project** to establish scope / attack surface / structure (the WHAT) and record where it came from
+   in `summary.context_sources`. **Self-research independence split:** for a **debug** pass you may
+   map the surface/requirement but still derive EXPECTATIONS from the requirement, NOT from reading
+   impl internals (don't re-contaminate debug expectations); for a **structural** pass reading the
+   structure is expected and fine.
+1. Map the attack surface. **debug:** from **observable behavior, not source** (inputs, states,
+   transitions, trust boundaries, dependency seams; assume-breach altitude — attack post-entry
+   feature behavior, not the auth wall). **structural:** from the **structure/logic itself** (module
+   graph, interfaces, layering, patterns).
+2. Derive intended behavior **independently** — debug: from the requirement; structural: from the
+   external design principle / stated goal (`critique_basis`). Record it as the attacker's own
+   `expected` with its source.
+3. Measure a **steady-state baseline** (debug: the normal observable output; structural: the current
+   structural shape). No baseline ⇒ `needs_instrumentation` → `needs_judgment`, never a guess.
 
 ## DESIGN — derive attacks, don't poke randomly
 **Round>1: reuse the inherited attack ledger FIRST** (the carry-forward — see
@@ -107,19 +130,30 @@ counted, NOT gated). Store the **shrunk** input / minimal scenario (never the ra
 discovery), pin randomness (`seed`/`temperature`/`env`), compute `regression_key` over
 **semantics** (so paraphrased variants of one bug collapse), dedup, roll up
 `ASR@n` + unique-finding count + severity histogram. **Tag each record's `attack_scope`
-(∈ `summary.in_scope`).** **Per mode:** product records carry `real_collaborator_at_seam`
-+ `independence_attestation.withheld ⊇ {implementation_source, tdd_suite}`; idea records
-carry `claim` + `not_strawman:true` + `independence_attestation.derived_expected_from` +
-`derived_independently:true` (and a mode-appropriate oracle). **Also emit on the summary**
-the attack-scope contract (`in_scope` ≥1 descriptors + `out_of_scope`, optional
-`context_digest`) and the round verdict (the loop branches on it): `round_verdict`
+(∈ `summary.in_scope`) AND its `attack_kind` (`debug`|`structural`, permitted by
+`summary.attack_mode`).** **Per kind/mode:** debug/product records carry
+`real_collaborator_at_seam` + `independence_attestation.withheld ⊇ {implementation_source,
+tdd_suite}`; debug/idea records carry `claim` + `not_strawman:true` +
+`independence_attestation.derived_expected_from` + `derived_independently:true`; structural
+records carry `critique_basis` + `derived_independently:true` (NO withheld/seam) — each with a
+kind-appropriate oracle. **Also emit on the summary** the attack-scope contract (`in_scope` ≥1
+descriptors + `out_of_scope`, optional `context_digest`), the v0.3.1 fields (`attack_mode` +
+`context_sources` ≥1 + `scope_change` + `depth` ≥1), and the round verdict (the loop branches on
+it): `round_verdict`
 (broke|clean|inconclusive) + `stop_reason` (plan_complete|budget_exhausted) +
 `tokens_used`/`max_tokens` + `carried_from_round`. `broke` ⟺ ≥1 confirmed record; `clean`
 requires `plan_complete`; `inconclusive` requires `budget_exhausted`. Validate with
 `node scripts/validate_attack_records.mjs <records>` then hand to the fresh-reader
 checklist.
 
-## REGRESSION (start of each new round)
-Re-run every prior record's repro by `regression_key`: now-passing →
-`status:"fixed"`; still-failing → stays `confirmed` and **blocks**. This is the
-differential/regression oracle applied across rounds.
+## REGRESSION → context-fill → DEEPEN (start of each new round) — v0.3.1
+A round>1 runs a FIXED sequence (the same carry-forward ledger as §c of loop-and-metrics, now ordered):
+1. **Regression FIRST.** Re-run every prior record's repro by `regression_key`: now-passing →
+   `status:"fixed"`; still-failing → stays `confirmed` and **blocks**. (The differential/regression
+   oracle applied across rounds.)
+2. **Use that resolution to FILL context.** What's fixed / still-broken is THIS round's freshest
+   context — feed it into DESIGN and record it in `summary.context_sources`.
+3. **Then go DEEPER.** Increment `summary.depth`; attack **within scope at greater depth** /
+   incremental new surface (`scope_change:"expanded"` when surface grows, `"stable"` otherwise —
+   never a wild jump). **NEVER restart from scratch.** Monotonic depth is a discipline; the validator
+   only checks `depth ≥ 1` and that `scope_change` is a valid enum.

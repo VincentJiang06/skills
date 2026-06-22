@@ -7,6 +7,32 @@ a break — and a guessed break is not a proven break. So the skill **actively e
 more context: when the bundle is thin or ambiguous, PROMPT the user for the missing
 specifics — ASK rather than guess.**
 
+## The MANDATORY context+scope gate (v0.3.1) — do not attack until it is satisfied
+
+Context+scope is a **HARD GATE**. The attacker MUST NOT attack until **(a) scope is clear**
+(`summary.in_scope` declared and specific) **AND (b) context is sufficient**. The order:
+
+1. **Use what the user gave.** Take the bundle (the checklist below).
+2. **If insufficient, ASK** — prompt for the missing specifics (the elicitation prompts).
+3. **If still thin, SELF-RESEARCH the project** to establish scope / attack surface / structure
+   (the WHAT) — read the repo, map the surface, infer the boundaries. This is how a thin "break
+   this" still becomes a sharp, scoped round instead of a guess.
+4. **Record where the context came from** in **`summary.context_sources`** (≥1 non-empty strings,
+   e.g. `"user-provided"`, `"self-researched: attack-surface map"`, `"self-researched: module
+   structure"`). The validator requires this on a user-supplied summary.
+
+**Self-research independence split (critical — do NOT re-contaminate debug expectations):**
+
+- **debug pass** — self-research may map the **surface / requirement** (the WHAT), but you must
+  still derive **EXPECTATIONS from the requirement, NOT from reading impl internals**. Reading the
+  implementation to decide what "correct" is re-inherits the builder's blind spot — the exact
+  false-green this skill exists to prevent. So: map the surface freely; derive `expected` only from
+  the requirement.
+- **structural pass** — **reading the structure IS the task** and is fine. You critique the
+  design/logic you can see, against an external principle/goal (`critique_basis`), deriving
+  `expected` (what good structure requires) independently from that principle — not from "whatever
+  the code currently does is fine."
+
 ## The context checklist (take ALL that apply)
 
 | Slot | What it is | Why it sharpens the attack |
@@ -49,7 +75,9 @@ independence:
 
 Ask the smallest set that unblocks a sharp attack; do not interrogate. Examples:
 
-- "Is the target a **running product** or an **idea/argument/plan**? (sets the mode)"
+- "Is the target a **running product** or an **idea/argument/plan**? (sets `target.type`)"
+- "Should I hunt **concrete behavioral bugs** (`debug`), interrogate the **logic/architecture**
+  (`structural`), or **both** — structural first, then debug? (sets `summary.attack_mode`)"
 - "What **exact claim / requirement** should I hold it to? (this is what I derive `expected` from)"
 - "What **counts as a real break** for you — what would you accept as a genuine defect?"
 - "What's **in scope** (e.g. UI rendering, page navigation) and explicitly **out of scope** (e.g. backend logic, the auth wall)?"
@@ -60,8 +88,14 @@ Ask the smallest set that unblocks a sharp attack; do not interrogate. Examples:
 The closing line to the user: **"The more precise this context, the sharper and better-scoped
 the attack — I'd rather ask than guess."**
 
-## The optional machine handle
+## The machine handles on the summary
 
-After intake you MAY record a one-line **`summary.context_digest`** — a short attestation of
-what context the round's attacks were grounded in (claim/requirement, scope, break-bar). It is
-**optional** (kept lean); when present the validator only type-checks it (non-empty string).
+- **`summary.context_sources`** (v0.3.1, **REQUIRED**, ≥1 non-empty strings) — where THIS round's
+  context came from (user-provided / self-researched: <what>). The validator enforces it on a
+  user-supplied summary; it is the auditable trace of the mandatory-context gate above.
+- **`summary.attack_mode`** (v0.3.1, REQUIRED, `debug`|`structural`|`both`), **`scope_change`**
+  (`initial`|`stable`|`expanded`|`narrowed`), **`depth`** (int ≥1) — the round altitude, scope
+  stability, and progressive-deepening level (see `references/attack-process.md`).
+- **`summary.context_digest`** (v0.3.0, OPTIONAL) — a one-line attestation of what context the
+  round's attacks were grounded in (claim/requirement, scope, break-bar). Kept lean; when present
+  the validator only type-checks it (non-empty string).

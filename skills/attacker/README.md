@@ -20,6 +20,13 @@
 
 - **丰富上下文摄入（鼓励多给）** —— Preflight 先收一份上下文包（目标+类型、主张/需求、约束、成功标准、何谓真正的破坏、范围内/外、历史轮次），并在上下文薄弱时**主动追问缺失的细节：上下文越精确，攻击越锋利、范围越准——问，而不是猜。** 见 `references/context-intake.md`。可选的单行 `summary.context_digest` 记录本轮攻击所依据的上下文。
 
+**v0.3.1 —— 五个相互呼应的新增（与 `target.type` 正交）：**
+- **攻击模式 `attack_mode`：`debug` | `structural` | `both`（攻击「高度」）** —— `debug`＝具体行为级找 bug（既有流程）；`structural`＝拷问项目的**逻辑/架构**（设计问题、耦合、逻辑流、缺失/泄漏的抽象、不一致的模式），更高一层；`both`＝**先 structural 再 debug**。每条记录带 `attack_kind`（`debug`|`structural`），必须被 `attack_mode` 允许（debug→只许 debug；structural→只许 structural；both→皆可），否则**拒绝**。
+- **按 `attack_kind` 细化独立性** —— `debug` 记录**沿用 v0.3.0 的 product|idea 防火墙不变**；`structural` 记录**允许看结构**（去掉屏蔽源码 + 真实接缝的要求），改为要求 **`critique_basis`**（被违反的外部设计原则/既定目标）+ `derived_independently:true` + `observed != expected` + 一个**结构 oracle**（idea oracles + `specified`）。防混淆：结构记录用产品行为 oracle（如 `metamorphic`）→**拒绝**；结构的放宽**不会泄漏进 debug**。
+- **上下文强制 + 自研补足（硬门）** —— 在范围清晰**且**上下文充分前**不得开始攻击**；不足则先问用户，再**自研项目**确定范围/攻击面/结构（the WHAT）。`summary.context_sources`（≥1 条非空串）记录上下文来源。自研的独立性切分：`debug` 可绘制攻击面但仍**从需求**而非实现内部推导期望；`structural` 读结构本就应当。
+- **范围稳定 / 增量扩展** —— `summary.scope_change`（`initial`|`stable`|`expanded`|`narrowed`）：每轮要么稳定、要么**增量**扩展，绝不大跳。
+- **渐进加深** —— `summary.depth`（整数 ≥1）：第 >1 轮先按 `regression_key` 回归 → 用回归结果**补足上下文** → 再**加深**（`depth` 自增），绝不从零重启。
+
 **为什么** —— 它要打击的缺陷是**假阳性测试套件**：一套绿色的 TDD 测试坐在一个坏掉的产品之上。根因是**相关性错误**——测试、mock、「期望值」夹具，乃至作者对「应该怎样」的表述，都出自与实现*同一个心智模型*，于是继承了同一处误解（Knight–Leveson：规格本身是最主要的共模通道）。唯一的解法是**工程化的独立性**：攻击者运行在一个从未见过实现、测试、作者表述的上下文里。**独立性就是全部价值所在。**
 
 **好在哪** ——

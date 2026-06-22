@@ -75,6 +75,21 @@ What is **NEVER** inherited (independence is preserved exactly as in round 1): t
 ledger is the attacker's own decorrelated memory, never a channel back to the builder's
 mental model.
 
+### The round>1 SEQUENCE: regression-first → context-fill → DEEPEN (v0.3.1)
+
+This is the SAME carry-forward ledger, now with an explicit ordered sequence each round>1 follows:
+
+1. **Regression FIRST** — re-run prior records' repros by `regression_key` (fixed vs still-broken).
+2. **Use that resolution to FILL context** — what's fixed / still-broken is the freshest context
+   for THIS round; record it in **`summary.context_sources`**.
+3. **Then go DEEPER** — increment **`summary.depth`** (int ≥1) and attack within scope at greater
+   depth / incremental new surface. **NEVER restart from scratch.**
+
+**Scope stability** is recorded in **`summary.scope_change`** (`initial`|`stable`|`expanded`|
+`narrowed`): each round stays stable OR expands **incrementally** — never a wild jump. The
+"is the expansion really incremental?" judgment is protocol/fresh-reader; the validator only checks
+the `scope_change` enum is valid and `depth ≥ 1` (monotonic depth across rounds is a discipline).
+
 ## (d) The dual hard budget + the honest caveat
 
 The attack effort is **HARD-BOUNDED** by a **dual budget** (no endless attack), measured
@@ -109,3 +124,11 @@ their mutual consistency — `broke ⟺ ≥1 confirmed record`, `clean ⟹ plan_
 `inconclusive ⟹ budget_exhausted`, `tokens_used <= max_tokens`, a `budget_exhausted`
 claim backed by a cap actually reached, and the `carried_from_round` carry-forward
 discipline.
+
+**v0.3.1 summary fields** (also required on a user-supplied summary, validated): `attack_mode`
+(debug|structural|both — gates every record's `attack_kind`), `context_sources` (≥1 non-empty
+strings), `scope_change` (initial|stable|expanded|narrowed), and `depth` (int ≥1). Per-record,
+`attack_kind` (structural|debug) must be permitted by `attack_mode`, and a **structural** record
+swaps the firewall (no withheld/seam) for `critique_basis` + `derived_independently:true` + a
+structural oracle — the **debug** gates (product|idea) are unchanged and the structural relaxations
+do not leak into them.

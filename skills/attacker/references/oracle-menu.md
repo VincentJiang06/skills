@@ -10,6 +10,13 @@ use the PRODUCT oracles (§1–§5 below); **idea** records use the IDEA oracles
 The validator REJECTS a product oracle on an idea record (and vice versa) as a mode/oracle
 mismatch.
 
+**Kind-conditional (v0.3.1).** A SECOND axis: `attack_kind`. **debug** records use the
+mode oracle above (product or idea). **structural** records use the **STRUCTURAL oracle set
+(§S)** — a product *behavioral* oracle (`implicit`/`differential`/`metamorphic`/
+`control_vs_experiment`) on a structural record is a mode/oracle mismatch and is REJECTED, so a
+debug bug can't masquerade as structural to dodge the withhold/seam gate while keeping its
+behavioral oracle.
+
 ---
 
 # Product oracles (`target.type: "product"`)
@@ -102,3 +109,35 @@ The oracle must attack the **actual steelmanned claim** (`not_strawman:true`), a
 must be **concrete** — a real counterexample / a named premise / a binding constraint, not a
 restatement of disagreement. A non-discriminating critique (`observed == expected`) is NOT a
 finding; route it to `needs_judgment`.
+
+---
+
+# §S. Structural oracles (`attack_kind: "structural"`) — critiquing LOGIC/ARCHITECTURE
+
+You are interrogating the project's **design/structure** (coupling, logic-flow, missing/leaky
+abstractions, inconsistent patterns, over-reach), at a **higher altitude** than a behavioral bug.
+You are allowed — required — to **SEE the structure** to critique it, so a structural record does
+NOT carry impl-withholding or `real_collaborator_at_seam`. The proof shape: a non-empty
+**`critique_basis`** (the EXTERNAL design principle OR the stated project goal the structure
+violates), `expected` = what good structure / the stated goal requires, `observed` = the structural
+problem (`observed != expected`), a reasoning chain (`repro.steps`) a fresh reader re-checks over a
+**minimal locus** (`repro.minimized_input` — the smallest module/interface that exhibits it),
+`repro.replayed_ok:true`, and `independence_attestation.derived_independently:true`.
+
+**The STRUCTURAL oracle set** (the validator's whitelist for a structural record): the idea oracles
+that fit design critique —
+- **`contradiction`** — two parts of the design make incompatible assumptions / cannot both hold.
+- **`unmet_assumption`** — a load-bearing design premise (an invariant the structure relies on) is
+  not actually upheld by the structure.
+- **`scope_violation`** — a module/abstraction reaches beyond its responsibility (coupling, a leaky
+  abstraction crossing a declared boundary) — the canonical structural break.
+- **`infeasibility`** — the design cannot meet a declared constraint (it won't scale / can't be
+  tested / can't evolve within the stated limits).
+- **`missing_case`** — the structure omits a case its own contract/goal obligates it to handle
+  (a coverage gap in the design, not the tests).
+— **plus `specified`** (an explicit architectural rule/goal states the required structure; compare
+against it, derived independently from the rule, never read off the current code).
+
+A **behavioral** product oracle on a structural record is REJECTED. **Anti-vacuity:** a vague
+"this could be cleaner" with no concrete violated principle/goal (`critique_basis` empty, or
+`observed == expected`) is NOT a finding → `needs_judgment`.

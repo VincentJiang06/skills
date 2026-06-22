@@ -47,6 +47,16 @@ const PRODUCT_ORACLE_ENUM = ["implicit", "differential", "metamorphic", "control
 const IDEA_ORACLE_ENUM = ["counterexample", "contradiction", "unmet_assumption", "scope_violation", "infeasibility", "missing_case"];
 const ORACLE_ENUM = [...PRODUCT_ORACLE_ENUM, ...IDEA_ORACLE_ENUM];
 const TARGET_TYPE_ENUM = ["product", "idea"];
+// v0.3.1: attack MODE (the round's altitude) is orthogonal to target.type, and attack_kind is its
+// per-record dual. STRUCTURAL records critique LOGIC/ARCHITECTURE: they may SEE the structure (no
+// impl-withholding / real-seam requirement) but must name an external principle/goal violated
+// (critique_basis) + derive independently + use a STRUCTURAL oracle. The structural oracle set is the
+// idea oracles that fit design critique PLUS specified; a structural record using a product behavioral
+// oracle (metamorphic/implicit/differential/control_vs_experiment) is a mode/oracle mismatch → REJECT.
+const ATTACK_MODE_ENUM = ["debug", "structural", "both"];
+const ATTACK_KIND_ENUM = ["structural", "debug"];
+const SCOPE_CHANGE_ENUM = ["initial", "stable", "expanded", "narrowed"];
+const STRUCTURAL_ORACLE_ENUM = ["contradiction", "unmet_assumption", "scope_violation", "infeasibility", "missing_case", "specified"];
 const SURFACE_ENUM = ["boundary", "unicode", "sequence", "concurrency", "resource", "integration", "time", "state"];
 const STATUS_ENUM = ["confirmed", "needs_judgment", "suspected", "fixed", "wont_fix"];
 const SEVERITY_ENUM = ["critical", "major", "minor"];
@@ -87,31 +97,55 @@ function deepEq(a, b) {
 // requirements MUST NOT leak into idea mode, and the idea relaxations MUST NOT leak into product mode.
 // `inScope` is the declared summary.in_scope descriptor set (or null when exempt — synthesized
 // fallback or no user summary); when non-null, the record's attack_scope must be an exact member.
-function validateConfirmedRecord(rec, i, errors, inScope) {
+// `attackMode` is the declared summary.attack_mode (or null when exempt/absent); when a valid mode
+// is supplied, the record's attack_kind must be PERMITTED by it (debug→only debug, structural→only
+// structural, both→either). v0.3.1.
+function validateConfirmedRecord(rec, i, errors, inScope, attackMode) {
   const at = `records[${i}](${(rec && rec.id) || "?"})`;
   const E = (m) => errors.push(`${at}: ${m}`);
 
-  // required scalar fields (mode-agnostic)
+  // required scalar fields (kind-agnostic)
   for (const f of ["id", "invariant", "non_tautology_check", "regression_key"]) {
     if (!nonEmptyStr(rec[f])) E(`missing/empty ${f}`);
   }
   if (!isObj(rec.target) || !nonEmptyStr(rec.target.name)) E("missing target.name");
 
-  // v0.3.0: target.type (the MODE) is required and selects which mode-conditional gate applies.
+  // v0.3.0: target.type (product|idea) selects the DEBUG-kind sub-gate.
   const mode = isObj(rec.target) ? rec.target.type : undefined;
   if (!TARGET_TYPE_ENUM.includes(mode))
     E(`target.type "${mode}" not in enum [${TARGET_TYPE_ENUM.join("|")}] (the mode is required so the validator applies the product|idea confirmed-record gate)`);
   const isIdea = mode === "idea";
 
-  // enums (mode-agnostic except oracle, which is mode-conditional below)
+  // v0.3.1: attack_kind (the per-record KIND, orthogonal to target.type) is required, enum-checked,
+  // and MUST be permitted by the round's summary.attack_mode. A debug finding mislabeled structural
+  // (to dodge the withhold/seam requirement) still has to satisfy the structural shape below, and a
+  // structural finding can't use a product behavioral oracle — so neither kind dodges the other's gate.
+  const kind = rec.attack_kind;
+  if (!ATTACK_KIND_ENUM.includes(kind))
+    E(`attack_kind "${kind}" not in enum [${ATTACK_KIND_ENUM.join("|")}] (every confirmed record must declare its kind so the validator applies the structural|debug gate)`);
+  if (ATTACK_KIND_ENUM.includes(kind) && ATTACK_MODE_ENUM.includes(attackMode)) {
+    const permitted = attackMode === "both" || attackMode === kind;
+    if (!permitted)
+      E(`attack_kind "${kind}" is not permitted by summary.attack_mode "${attackMode}" (mode 'debug' allows only debug records, 'structural' allows only structural, 'both' allows either)`);
+  }
+  const isStructural = kind === "structural";
+
+  // enums (kind-agnostic except oracle, which is kind/mode-conditional below)
   if (!SURFACE_ENUM.includes(rec.surface_class)) E(`surface_class "${rec.surface_class}" not in enum`);
   if (!STATUS_ENUM.includes(rec.status)) E(`status "${rec.status}" not in enum`);
   if (!isStr(rec.attack_class) || !ATTACK_CLASS_FAMILY.test(rec.attack_class)) E(`attack_class "${rec.attack_class}" not a known family`);
   if (!isObj(rec.severity) || !SEVERITY_ENUM.includes(rec.severity.level)) E("severity.level not in [critical|major|minor]");
 
-  // v0.3.0: oracle is MODE-CONDITIONAL. idea → an IDEA oracle; product → a PRODUCT oracle. A product
-  // oracle on an idea record (or vice versa) is a mode/oracle mismatch and is REJECTED.
-  if (isIdea) {
+  // ORACLE — kind-conditional (v0.3.1), then mode-conditional within DEBUG (v0.3.0).
+  // STRUCTURAL records use the STRUCTURAL oracle set (idea oracles that fit design critique + specified);
+  // a product behavioral oracle (metamorphic/implicit/differential/control_vs_experiment) on a structural
+  // record is a mode/oracle mismatch and is REJECTED — a debug bug can't hide as structural to dodge the
+  // withhold/seam gate while keeping its behavioral oracle. DEBUG records keep the v0.3.0 split exactly:
+  // idea → an IDEA oracle; product → a PRODUCT oracle (a cross-mode oracle is REJECTED).
+  if (isStructural) {
+    if (!STRUCTURAL_ORACLE_ENUM.includes(rec.oracle))
+      E(`oracle "${rec.oracle}" not in the STRUCTURAL oracle set [${STRUCTURAL_ORACLE_ENUM.join("|")}] (a structural critique uses a structural oracle; a product behavioral oracle on a structural record is a mode/oracle mismatch)`);
+  } else if (isIdea) {
     if (!IDEA_ORACLE_ENUM.includes(rec.oracle))
       E(`oracle "${rec.oracle}" not in the IDEA-mode enum [${IDEA_ORACLE_ENUM.join("|")}] (target.type 'idea' requires an idea oracle; a product oracle on an idea is a mode/oracle mismatch)`);
   } else if (mode === "product") {
@@ -176,9 +210,23 @@ function validateConfirmedRecord(rec, i, errors, inScope) {
     E(`attack_scope "${rec.attack_scope}" is not one of the declared summary.in_scope descriptors [${inScope.join(" | ")}] (the attack hit an undeclared domain; tag it within the declared scope or move the observation to out_of_scope[])`);
   }
 
-  // ---- MODE-CONDITIONAL requirements ----
-  if (isIdea) {
-    // IDEA mode: REQUIRE claim (the thesis attacked) + not_strawman===true + an idea oracle (above)
+  // ---- KIND-CONDITIONAL requirements (v0.3.1) ----
+  // STRUCTURAL kind: you MUST be allowed to see the structure to critique it, so this gate DROPS
+  // impl-withholding and real_collaborator_at_seam. Instead REQUIRE a non-empty critique_basis (the
+  // external design principle OR stated project goal violated) + derived_independently===true + a
+  // STRUCTURAL oracle (checked above) + observed!=expected (anti-vacuity, checked above). The
+  // structural relaxations apply ONLY here — they MUST NOT leak into the DEBUG gate.
+  if (isStructural) {
+    if (!nonEmptyStr(rec.critique_basis))
+      E("missing/empty critique_basis (a structural finding must name the external design principle OR stated project goal the structure violates; a vague 'this could be cleaner' is not a finding → needs_judgment)");
+    const ia = rec.independence_attestation;
+    if (!isObj(ia)) {
+      E("missing independence_attestation (a structural critique requires derived_independently)");
+    } else if (ia.derived_independently !== true) {
+      E("independence_attestation.derived_independently !== true (a structural critique must attest it was derived independently, decorrelated from the author's reasoning)");
+    }
+  } else if (isIdea) {
+    // DEBUG / IDEA (UNCHANGED from v0.3.0): claim + not_strawman===true + an idea oracle (above)
     // + independence_attestation.derived_expected_from + derived_independently===true. It does NOT
     // require withheld⊇{implementation_source,tdd_suite} and does NOT require real_collaborator_at_seam
     // (those are product-specific — their absence must not reject an idea record).
@@ -195,7 +243,7 @@ function validateConfirmedRecord(rec, i, errors, inScope) {
         E("independence_attestation.derived_independently !== true (an idea critique must be derived independently, not adopt the proposer's defense as settled)");
     }
   } else {
-    // PRODUCT mode (UNCHANGED from v0.2.1): real collaborator at the attacked seam (no mock
+    // DEBUG / PRODUCT (UNCHANGED from v0.2.1): real collaborator at the attacked seam (no mock
     // tautology) + withheld ⊇ {implementation_source, tdd_suite} + derived_expected_from.
     if (rec.real_collaborator_at_seam !== true)
       E("real_collaborator_at_seam !== true (a fully-mocked path at the attacked seam is zero-evidence tautology)");
@@ -241,6 +289,10 @@ export function validate(doc, opts = {}) {
     !synthesized && isObj(s) && Array.isArray(s.in_scope) && s.in_scope.every(nonEmptyStr) && s.in_scope.length >= 1
       ? s.in_scope
       : null;
+  // v0.3.1: the declared attack_mode every confirmed record's attack_kind must be permitted by (or
+  // null when exempt — synthesized fallback / no user summary / invalid mode). Same out-of-band stance.
+  const attackMode =
+    !synthesized && isObj(s) && ATTACK_MODE_ENUM.includes(s.attack_mode) ? s.attack_mode : null;
   if (isObj(s)) {
     if (typeof s.budget_n === "number" && typeof s.attempts_used === "number" && s.attempts_used > s.budget_n)
       errors.push(`summary: attempts_used (${s.attempts_used}) > budget_n (${s.budget_n}) — internally inconsistent ASR@n accounting`);
@@ -259,7 +311,7 @@ export function validate(doc, opts = {}) {
   records.forEach((rec, i) => {
     if (!isObj(rec)) { errors.push(`records[${i}] is not an object`); return; }
     const confirmed = rec.status === "confirmed" || rec.proven === true;
-    if (confirmed) validateConfirmedRecord(rec, i, errors, inScope);
+    if (confirmed) validateConfirmedRecord(rec, i, errors, inScope, attackMode);
   });
 
   // v0.3.0: the top-level out_of_scope[] bucket holds observations OUTSIDE the declared scope —
@@ -322,6 +374,25 @@ export function validate(doc, opts = {}) {
     // context_digest: OPTIONAL lean machine handle; ONLY type-checked when present (non-empty string).
     if (has(s, "context_digest") && !nonEmptyStr(s.context_digest))
       errors.push("summary.context_digest, when present, must be a non-empty string (a short attestation of the context the round's attacks were grounded in)");
+
+    // ---- v0.3.1: attack MODE + mandatory context + scope stability + progressive deepening ----
+    // attack_mode: REQUIRED, enum {debug,structural,both} — sets the round altitude and gates every
+    // confirmed record's attack_kind (enforced per-record above via attackMode).
+    if (!ATTACK_MODE_ENUM.includes(s.attack_mode))
+      errors.push(`summary.attack_mode "${s.attack_mode}" not in enum [${ATTACK_MODE_ENUM.join("|")}] (REQUIRED: the round's altitude — debug=behavioral bug-hunt, structural=logic/architecture, both=structural-first then debug — gating every record's attack_kind)`);
+    // context_sources: REQUIRED, array of >=1 non-empty strings — where this round's context came from
+    // (user-provided / self-researched). Context is a HARD gate; the attacker must not attack until
+    // scope is clear AND context is sufficient (self-researching to fill it if not).
+    if (!Array.isArray(s.context_sources) || s.context_sources.length < 1 || !s.context_sources.every(nonEmptyStr))
+      errors.push("summary.context_sources must be an array of >=1 non-empty strings (REQUIRED: where this round's context came from, e.g. 'user-provided' / 'self-researched: <what>'; the attacker must not attack until context is sufficient)");
+    // scope_change: REQUIRED, enum — scope stays stable OR expands incrementally (the 'really
+    // incremental?' judgment is protocol/fresh-reader; the validator only checks the enum).
+    if (!SCOPE_CHANGE_ENUM.includes(s.scope_change))
+      errors.push(`summary.scope_change "${s.scope_change}" not in enum [${SCOPE_CHANGE_ENUM.join("|")}] (REQUIRED: scope stability — each round stays stable or expands incrementally, never a wild jump)`);
+    // depth: REQUIRED, integer >= 1 — the progressive-deepening level (monotonic-across-rounds is a
+    // protocol discipline; the validator only checks depth >= 1).
+    if (!(typeof s.depth === "number" && Number.isInteger(s.depth) && s.depth >= 1))
+      errors.push(`summary.depth (${JSON.stringify(s.depth)}) must be an integer >= 1 (REQUIRED: the progressive-deepening level within a scope)`);
   }
 
   // ---- v0.2.0: round-verdict (loop STOP-CONDITION) + DUAL hard budget + carry-forward ledger ----

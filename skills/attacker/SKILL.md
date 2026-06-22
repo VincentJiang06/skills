@@ -33,18 +33,23 @@ common-mode channel). So the attacker runs from a context that never saw the
 impl, the tests, or the author's framing. **Independence is the entire value
 proposition — every other choice is downstream of protecting it.**
 
-## Preflight (CONTEXT → scope → mode → budget)
+## Preflight (CONTEXT-gate → scope → mode → MODE-altitude → budget)
 
-0. **CONTEXT (do this FIRST — load `references/context-intake.md`).** Take in a rich
-   context bundle: the **target** (product OR idea) + its **type**, the **claim /
+0. **CONTEXT — a HARD GATE (do this FIRST — load `references/context-intake.md`).** Take in a
+   rich context bundle: the **target** (product OR idea) + its **type**, the **claim /
    requirement**, **constraints**, **success criteria**, **what counts as a real break**,
-   the **in/out-of-scope** domains, and **prior rounds**. **ACTIVELY ENCOURAGE more
-   context: when the provided context is thin or ambiguous, PROMPT the user for the
-   missing specifics — the more precise the context, the sharper and better-scoped the
-   attack. ASK rather than guess.** This is independence-safe: in **product** mode you
-   still exclude impl/tests/author framing; in **idea** mode the idea + its justification
-   IS the input, but the attacker derives its critique **independently**. Optionally record
-   a one-line `summary.context_digest` attesting what the round's attacks were grounded in.
+   the **in/out-of-scope** domains, and **prior rounds**. **The attacker MUST NOT attack until
+   (a) SCOPE is clear (`in_scope` declared and specific) AND (b) CONTEXT is sufficient.** If
+   insufficient: first **ASK the user** (prompt for the missing specifics — the more precise
+   the context, the sharper the attack); if still thin, **SELF-RESEARCH the project** to
+   establish scope / attack surface / structure (the WHAT). Record where the round's context
+   came from in **`summary.context_sources`** (≥1 strings, e.g. `"user-provided"`,
+   `"self-researched: surface map"`). **Self-research is independence-safe:** for **debug** you
+   may map the surface/requirement but still derive EXPECTATIONS from the requirement, NOT from
+   reading impl internals (don't re-contaminate debug expectations); for **structural** reading
+   the structure is expected and fine. Product debug still excludes impl/tests/author framing;
+   idea takes the claim but critiques it **independently**. Optionally also record a one-line
+   `summary.context_digest`.
 1. **Scope (the ATTACK-SCOPE CONTRACT).** Declare WHICH domains/layers are attacked:
    - **`--scope <descriptor>…`** → `summary.in_scope` (≥1 RICH free-form descriptors, e.g.
      "UI rendering errors", "page navigation/logic transitions") — the only domains a
@@ -60,6 +65,21 @@ proposition — every other choice is downstream of protecting it.**
    + reasoning chain + minimal scenario + `not_strawman` + an idea oracle + a critique
    derived independently** — SAME loop/round-verdict/budget/carry-forward, only the oracle +
    proof shape change. The validator gates each record by its mode (see `references/oracle-menu.md`).
+2b. **Attack MODE — `summary.attack_mode` (`debug` | `structural` | `both`).** A SECOND, orthogonal
+   axis (the round's ALTITUDE), set per round and required on the summary:
+   - **`debug`** = a concrete behavioral bug-hunt (the existing flow). Records are `attack_kind:"debug"`.
+   - **`structural`** = interrogate the project's **LOGIC/ARCHITECTURE** — design problems, coupling,
+     logic-flow, missing/leaky abstractions, inconsistent patterns — higher altitude. Records are
+     `attack_kind:"structural"`: you MUST be allowed to **SEE the structure** to critique it, so
+     structural records DROP impl-withholding + `real_collaborator_at_seam` and instead REQUIRE a
+     **`critique_basis`** (the external design principle OR stated goal violated) + `observed≠expected`
+     + `derived_independently:true` + a **STRUCTURAL oracle** (`references/oracle-menu.md` §S).
+   - **`both`** = do **STRUCTURAL FIRST, then debug** (a protocol discipline; the validator only
+     enforces that each record's `attack_kind` is permitted by the mode: `debug`→only debug,
+     `structural`→only structural, `both`→either).
+2c. **Scope stability + depth.** Set **`summary.scope_change`** (`initial` | `stable` | `expanded` |
+   `narrowed`) — each round stays stable OR expands **incrementally** (never a wild jump) — and
+   **`summary.depth`** (int ≥ 1, the progressive-deepening level within the scope; see Regression).
 3. **Dual hard budget** (MANDATORY — the round is HARD-BOUNDED, no endless attack):
    - **`--budget N`** — attempts cap (rolled up as `ASR@n`).
    - **`--max-tokens T`** — per-round token-consumption cap (NOT wall-clock time).
@@ -115,31 +135,43 @@ Inside the subagent run **READ → DESIGN → EXECUTE → PROVE → RECORD**:
    cost/likelihood/prereq; attack cheapest-highest-impact first.
 3. **EXECUTE** — frame each as a falsifiable experiment scoped to the smallest
    unit; **blast-radius control** + staged escalation + abort/stop conditions;
-   **product:** attack **real seams (no mocks)** where the attack lands; **idea:** run
-   the reasoning over the **minimal scenario/case**. **Stop at whichever hard cap hits
-   first — `--budget N` (attempts) OR `--max-tokens T` (tokens)** — exhaust-budget mode
-   (report ALL breaks, not first-break).
+   **debug/product:** attack **real seams (no mocks)** where the attack lands; **idea:** run
+   the reasoning over the **minimal scenario/case**; **structural:** trace the structure/logic
+   itself (reading it is expected). In **`both`** mode do the **structural pass FIRST**, then
+   debug. **Stop at whichever hard cap hits first — `--budget N` (attempts) OR `--max-tokens T`
+   (tokens)** — exhaust-budget mode (report ALL breaks, not first-break).
 4. **PROVE** — pick from the **mode-appropriate** ranked **oracle menu**
    (`references/oracle-menu.md`): **product** oracles (implicit→differential→metamorphic→
-   control→specified) OR **idea** oracles (counterexample / contradiction /
-   unmet_assumption / scope_violation / infeasibility / missing_case). State which fired;
-   confirm `observed != expected` (idea: `expected`=what the claim predicts, `observed`=the
-   counter); shrink to a 1-minimal reproducer / minimal scenario; **re-run it** (a fresh
-   reader re-checks the reasoning) to confirm it still fails (`repro.replayed_ok`).
+   control→specified), **idea** oracles (counterexample / contradiction / unmet_assumption /
+   scope_violation / infeasibility / missing_case), or **structural** oracles (the idea oracles
+   that fit design critique + specified — §S). State which fired; confirm `observed != expected`
+   (idea: `expected`=what the claim predicts; structural: `expected`=what good structure / the
+   stated goal requires); shrink to a 1-minimal reproducer / minimal scenario; **re-run it** (a
+   fresh reader re-checks the reasoning) to confirm it still fails (`repro.replayed_ok`).
 5. **RECORD** — one record per **proven** defect → `records[]`; unprovable / vague →
    `needs_judgment[]`; out-of-scope discovery → `out_of_scope[]` (kept, not counted). Tag
-   each record's **`attack_scope`** (∈ `summary.in_scope`); compute `regression_key`,
+   each record's **`attack_scope`** (∈ `summary.in_scope`) and its **`attack_kind`**
+   (`debug` | `structural`, permitted by `summary.attack_mode`); compute `regression_key`,
    dedup, roll up `ASR@n` + unique-finding count + severity histogram **+ the round
    verdict** (`round_verdict` + `stop_reason` + `tokens_used`/`max_tokens` +
-   `carried_from_round`). Idea-mode records carry `claim` + `not_strawman` +
-   `independence_attestation.derived_independently`; product-mode records carry
-   `real_collaborator_at_seam` + `withheld ⊇ {implementation_source, tdd_suite}`.
+   `carried_from_round`) **+ the v0.3.1 fields** (`attack_mode` + `context_sources` +
+   `scope_change` + `depth`). **debug/idea** records carry `claim` + `not_strawman` +
+   `derived_independently`; **debug/product** records carry `real_collaborator_at_seam` +
+   `withheld ⊇ {implementation_source, tdd_suite}`; **structural** records carry
+   `critique_basis` + `derived_independently:true` (NO withheld/seam — you may see the structure).
 
-## Regression (start of each new round)
+## Regression → context-fill → DEEPEN (start of each new round)
 
-Re-run every prior record's repro by `regression_key`: now-passing →
-`status:"fixed"`; still-failing → stays `confirmed` and **blocks**. Then attack
-new surface.
+Round > 1 follows a fixed sequence (the same carry-forward ledger as v0.2.0, now with an
+explicit order):
+1. **Regression FIRST** — re-run every prior record's repro by `regression_key`: now-passing →
+   `status:"fixed"`; still-failing → stays `confirmed` and **blocks**.
+2. **Use that resolution to FILL context** — what's fixed / still-broken feeds THIS round's
+   context (record it in `summary.context_sources`).
+3. **Then go DEEPER** — increment `summary.depth`, attack **within scope at greater depth** /
+   incremental new surface (`scope_change:"expanded"` if surface grows). **NEVER restart from
+   scratch** (cold-restarting wastes tokens). Monotonic depth across rounds is a discipline; the
+   validator only checks `depth ≥ 1`.
 
 ## Verify (the round's gate — feedback_signal.check)
 
@@ -161,14 +193,21 @@ become the next round's fix list. **Attacker NEVER edits the target.**
 - **Never edit the target.** Output is a handoff document set only; a separate fix
   round repairs (detect-vs-remediate boundary).
 - **PROVE-OR-FLAG / REPRODUCIBLE-OR-DROP** — enforced by
-  `scripts/validate_attack_records.mjs` (the §5 gate), **mode-conditional** on
-  `target.type`: every confirmed record needs observed≠expected, a non-empty repro +
-  `minimized_input`, `repro.replayed_ok:true`, a **mode-appropriate** named oracle,
-  `non_tautology_check`, and a non-empty **`attack_scope` ∈ `summary.in_scope`**.
-  **product** additionally requires `real_collaborator_at_seam:true` + `withheld ⊇
-  {implementation_source, tdd_suite}`; **idea** additionally requires `claim` +
-  `not_strawman:true` + `independence_attestation.derived_independently:true` (and does
-  NOT require the product-only fields). Unprovable → `needs_judgment`.
+  `scripts/validate_attack_records.mjs` (the §5 gate), **conditional on `attack_kind` then
+  `target.type`**: every confirmed record needs observed≠expected, a non-empty repro +
+  `minimized_input`, `repro.replayed_ok:true`, a **kind-appropriate** named oracle,
+  `non_tautology_check`, a non-empty **`attack_scope` ∈ `summary.in_scope`**, and an
+  **`attack_kind`** the round's `summary.attack_mode` permits (debug→debug, structural→structural,
+  both→either — REJECT otherwise). **debug/product** additionally requires
+  `real_collaborator_at_seam:true` + `withheld ⊇ {implementation_source, tdd_suite}`;
+  **debug/idea** additionally requires `claim` + `not_strawman:true` + `derived_independently:true`;
+  **structural** additionally requires `critique_basis` + `derived_independently:true` + a
+  **structural oracle** (and DROPS withheld/seam — a product behavioral oracle on a structural
+  record is REJECTED). Unprovable / vague → `needs_judgment`.
+- **Mandatory context + self-research** — the attacker MUST NOT attack until scope is clear AND
+  context is sufficient; `summary.context_sources` (≥1) attests where the round's context came from
+  (user-provided / self-researched). `summary.attack_mode`, `scope_change`, and `depth` are required
+  on a user-supplied summary (validator-enforced).
 - **Attack-scope contract** — `summary.in_scope` (≥1 descriptors) + `out_of_scope`
   declare WHICH domains are attacked; a confirmed record whose `attack_scope` is empty or
   not in `in_scope` is REJECTED; out-of-scope observations live in the top-level
@@ -202,10 +241,10 @@ histogram, the must-be-zero false-negative / false-positive invariants), load
 
 | File | When to load |
 |------|--------------|
-| `references/context-intake.md` | CONTEXT (Preflight step 0) — the context checklist (target+type, claim/thesis, constraints, success criteria, what-counts-as-a-break, in/out-of-scope, prior rounds), WHY more context = sharper attacks, how it feeds DESIGN, and the elicitation prompts to use when context is thin. |
+| `references/context-intake.md` | CONTEXT (Preflight step 0, a HARD GATE) — the context checklist (target+type, claim/thesis, constraints, success criteria, what-counts-as-a-break, in/out-of-scope, prior rounds), the mandatory-context gate + the SELF-RESEARCH-to-fill discipline (debug-vs-structural independence split), WHY more context = sharper attacks, and the elicitation prompts when context is thin. |
 | `rules/loop-and-metrics.md` | Running attacker inside a loop-constructor loop (round alternation, maker–checker, regression by `regression_key`), or computing the round roll-up / metrics. |
 | `references/attack-process.md` | The round — full READ→DESIGN→EXECUTE→PROVE→RECORD procedure + the fresh-context mechanism + target-adapter contract. |
-| `references/oracle-menu.md` | PROVE — the mode-appropriate ranked oracle taxonomy: product (implicit→differential→metamorphic→control→specified) + idea (counterexample / contradiction / unmet_assumption / scope_violation / infeasibility / missing_case). |
+| `references/oracle-menu.md` | PROVE — the kind/mode-appropriate ranked oracle taxonomy: product (implicit→differential→metamorphic→control→specified), idea (counterexample / contradiction / unmet_assumption / scope_violation / infeasibility / missing_case), and the STRUCTURAL oracle set (§S — the idea oracles that fit design critique + specified). |
 | `assets/payload-library.json` | DESIGN — the §3 adversarial taxonomy as data (AFL values, unicode/CJK, business-logic catalog). |
 | `assets/fresh-reader-checklist.md` | Verify — the REQUIRED manual semantic gate (maker ≠ checker). |
 | `assets/attack-record.template.md` | Report — turn records into the next round's fix list. |

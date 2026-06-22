@@ -9,8 +9,8 @@
   "properties": {
     "summary": {
       "type": "object",
-      "description": "Round roll-up the LOOP branches on. v0.2.0: the round emits a machine-readable round_verdict (the loop's STOP-CONDITION — clean⇒STOP, broke⇒fix-then-re-attack, inconclusive⇒loop-owner-decides) plus stop_reason and the DUAL hard budget (attempts: budget_n/attempts_used; token-consumption: max_tokens/tokens_used). carried_from_round records the prior attack round whose ledger THIS round inherited (the carry-forward discipline so a later round never cold-restarts and re-derives the whole attack plan). v0.3.0: the ATTACK-SCOPE CONTRACT — in_scope (>=1 free-form descriptors) declares which domains/layers were attacked; out_of_scope (may be empty) declares the excluded domains; every confirmed record's attack_scope MUST be an exact member of in_scope (the validator enforces this on a user-supplied summary). Optional context_digest is a short attestation of the context the round's attacks were grounded in. These scope/context checks (like round-verdict) fire only on a user-supplied summary, never the CLI's synthesized records-only fallback.",
-      "required": ["round", "budget_n", "attempts_used", "asr_at_n", "unique_finding_count", "by_severity", "round_verdict", "stop_reason", "max_tokens", "tokens_used", "carried_from_round", "in_scope", "out_of_scope"],
+      "description": "Round roll-up the LOOP branches on. v0.2.0: the round emits a machine-readable round_verdict (the loop's STOP-CONDITION — clean⇒STOP, broke⇒fix-then-re-attack, inconclusive⇒loop-owner-decides) plus stop_reason and the DUAL hard budget (attempts: budget_n/attempts_used; token-consumption: max_tokens/tokens_used). carried_from_round records the prior attack round whose ledger THIS round inherited (the carry-forward discipline so a later round never cold-restarts and re-derives the whole attack plan). v0.3.0: the ATTACK-SCOPE CONTRACT — in_scope (>=1 free-form descriptors) declares which domains/layers were attacked; out_of_scope (may be empty) declares the excluded domains; every confirmed record's attack_scope MUST be an exact member of in_scope (the validator enforces this on a user-supplied summary). Optional context_digest is a short attestation of the context the round's attacks were grounded in. v0.3.1: attack_mode (debug|structural|both) sets the round's ALTITUDE — debug = concrete behavioral bug-hunt, structural = interrogate the project's LOGIC/ARCHITECTURE, both = structural-first then debug — and gates every record's attack_kind; context_sources (>=1 non-empty strings) attests where the round's context came from (user-provided / self-researched); scope_change (initial|stable|expanded|narrowed) records scope stability/incremental expansion; depth (int>=1) is the progressive-deepening level. These scope/context/mode checks (like round-verdict) fire only on a user-supplied summary, never the CLI's synthesized records-only fallback.",
+      "required": ["round", "budget_n", "attempts_used", "asr_at_n", "unique_finding_count", "by_severity", "round_verdict", "stop_reason", "max_tokens", "tokens_used", "carried_from_round", "in_scope", "out_of_scope", "attack_mode", "context_sources", "scope_change", "depth"],
       "additionalProperties": true,
       "properties": {
         "round": { "type": "integer", "minimum": 1 },
@@ -33,6 +33,27 @@
           "type": "string",
           "minLength": 1,
           "description": "v0.3.0 OPTIONAL lean machine handle: a short attestation of what context (claim/requirement, constraints, success criteria, what-counts-as-a-break, in/out-of-scope, prior rounds) the round's attacks were grounded in. When present the validator type-checks it (non-empty string); it is never required."
+        },
+        "attack_mode": {
+          "type": "string",
+          "enum": ["debug", "structural", "both"],
+          "description": "v0.3.1 the round's ALTITUDE (orthogonal to record.target.type). debug = a concrete behavioral bug-hunt (the v0.1–0.3.0 flow). structural = interrogate the project's LOGIC/ARCHITECTURE (design problems, coupling, logic-flow, missing/leaky abstractions, inconsistent patterns) — higher altitude. both = do STRUCTURAL FIRST, then debug (the structural-first ordering is a PROTOCOL discipline, not validator-enforced). Every confirmed record's attack_kind MUST be permitted by this mode (debug→only debug records; structural→only structural; both→either) — the validator enforces it."
+        },
+        "context_sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "v0.3.1 MANDATORY: where THIS round's context came from, as >=1 non-empty strings (e.g. 'user-provided', 'self-researched: attack surface map', 'self-researched: module structure'). The attacker MUST NOT attack until scope is clear AND context is sufficient; if insufficient it SELF-RESEARCHES the project (the WHAT) and records that here."
+        },
+        "scope_change": {
+          "type": "string",
+          "enum": ["initial", "stable", "expanded", "narrowed"],
+          "description": "v0.3.1 scope stability: each round stays stable in scope OR expands INCREMENTALLY (never a wild jump). initial = round 1's first declared scope; stable = unchanged from last round; expanded = incrementally added surface; narrowed = focused down. The 'is the expansion really incremental' judgment is protocol/fresh-reader; the validator only checks the enum is valid."
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "v0.3.1 progressive-deepening level within a scope (>=1). round>1 FIRST regression-checks prior records by regression_key, uses that resolution to FILL context, THEN goes DEEPER (depth increments) — never restart from scratch. Monotonic depth across rounds is a protocol discipline; the validator only checks depth >= 1."
         },
         "round_verdict": {
           "type": "string",
@@ -147,7 +168,7 @@
       "type": "object",
       "required": [
         "id", "round", "target", "attack_class", "surface_class", "oracle",
-        "attack_scope", "invariant", "repro", "baseline", "observed", "expected", "proven",
+        "attack_scope", "attack_kind", "invariant", "repro", "baseline", "observed", "expected", "proven",
         "non_tautology_check", "independence_attestation", "severity", "regression_key", "status"
       ],
       "additionalProperties": true,
@@ -187,6 +208,16 @@
           "type": "string",
           "minLength": 1,
           "description": "v0.3.0 attack-scope contract: which declared in_scope domain THIS attack targeted. The validator REQUIRES a non-empty value on every confirmed record AND (on a user-supplied summary) that it is an EXACT member of summary.in_scope; the semantic 'is this really that domain' judgment stays with the fresh-reader."
+        },
+        "attack_kind": {
+          "type": "string",
+          "enum": ["structural", "debug"],
+          "description": "v0.3.1 the KIND of this finding (orthogonal to target.type). debug = a concrete behavioral/logical bug (keeps the v0.3.0 product|idea debug gate: product → product oracle + real_collaborator_at_seam + withheld⊇{impl,tdd}; idea → claim + idea oracle + not_strawman). structural = a LOGIC/ARCHITECTURE design problem; it does NOT require impl-withholding or real_collaborator_at_seam (you must see the structure to critique it), but REQUIRES critique_basis + independence_attestation.derived_independently===true + observed!=expected + a STRUCTURAL oracle. The validator REQUIRES this on every confirmed record and REJECTS a kind not permitted by summary.attack_mode (debug→only debug; structural→only structural; both→either)."
+        },
+        "critique_basis": {
+          "type": "string",
+          "minLength": 1,
+          "description": "v0.3.1 STRUCTURAL records: the EXTERNAL design principle OR stated project goal the structure violates (e.g. 'single-responsibility', 'the stated goal that modules stay decoupled', 'consistent error-handling pattern'). REQUIRED + non-empty on a confirmed structural record (a vague 'this could be cleaner' with no concrete violated principle/goal is NOT a finding → needs_judgment). Not used by debug records."
         },
         "claim": {
           "type": "string",

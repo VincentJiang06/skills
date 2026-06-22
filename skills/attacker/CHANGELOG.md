@@ -2,6 +2,80 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.3.1] — 2026-06-23
+
+Five coherent additions raise attacker from "attack a declared domain of a product OR an idea"
+to "attack at a chosen ALTITUDE (behavior OR logic/architecture), grounded in MANDATORY context,
+deepening progressively round-over-round." RED-FIRST (suite 72/72 → **85/85**, exit 0).
+`validate()` stays **imported** (run_all.mjs:27), not inlined; importing any module runs no CLI;
+the release gate still PASSes (industrial); the v0.2.1 out-of-band exemption is preserved (in-band
+`__synthesized` still inert); v0.3.0 product|idea + scope still enforced. SKILL.md folded
+description **1019 ≤ 1024** (unchanged — no room; modes documented in the body).
+
+### Added — 1. Attack MODE: `debug` | `structural` | `both` (a NEW altitude axis, orthogonal to `target.type`)
+- **Schema:** `summary.attack_mode` ∈ `["debug","structural","both"]` (added to `summary.required`);
+  per-record `attack_kind` ∈ `["structural","debug"]` (added to the attack_record `required`).
+- **Semantics:** `debug` = the concrete behavioral bug-hunt (existing flow). `structural` =
+  interrogate the project's LOGIC/ARCHITECTURE (coupling, logic-flow, missing/leaky abstractions,
+  inconsistent patterns) — higher altitude. `both` = STRUCTURAL FIRST, then debug (a protocol
+  discipline, not validator-enforced).
+- **Validator:** every confirmed record's `attack_kind` must be PERMITTED by `summary.attack_mode`
+  (debug→only debug; structural→only structural; both→either) — a kind not permitted is REJECTED.
+
+### Added — 2. Independence refined per `attack_kind`
+- **debug records (UNCHANGED):** keep the EXACT v0.3.0 product|idea debug gate (product → product
+  oracle + `real_collaborator_at_seam:true` + `withheld ⊇ {implementation_source,tdd_suite}`; idea →
+  idea oracle + `claim` + `not_strawman` + `derived_independently`).
+- **structural records (NEW):** you must SEE the structure to critique it, so this gate DROPS
+  impl-withholding + `real_collaborator_at_seam` and instead REQUIRES a non-empty **`critique_basis`**
+  (new field: the external design principle OR stated goal violated) + `independence_attestation.
+  derived_independently:true` + `observed != expected` + a **STRUCTURAL oracle** (the idea oracles
+  `contradiction|unmet_assumption|scope_violation|infeasibility|missing_case` + `specified`).
+- **Mode-confusion guard:** a debug bug mislabeled `structural` still needs the structural shape
+  (critique_basis + derived_independently + structural oracle); a structural record using a product
+  behavioral oracle (`metamorphic`/`implicit`/`differential`/`control_vs_experiment`) is REJECTED. So
+  neither kind can dodge the other's gate. The structural relaxations do NOT leak into debug
+  (regression-guarded by C79 + the existing C57/C58).
+
+### Added — 3. Context MANDATORY + self-research fallback + scope-clear gate
+- **SKILL.md Preflight:** context+scope is a HARD GATE — do not attack until scope is clear AND
+  context is sufficient; if insufficient, ASK the user, then SELF-RESEARCH the project (the WHAT).
+  Independence rule for self-research: **debug** may map surface/requirement but still derives
+  EXPECTATIONS from the requirement (NOT impl internals); **structural** reading the structure is fine.
+- **Schema/validator:** `summary.context_sources` (array of ≥1 non-empty strings; added to
+  `summary.required`) — where the round's context came from. `references/context-intake.md` gains
+  the mandatory gate + the self-research discipline + the debug-vs-structural independence split.
+
+### Added — 4. Scope stability / incremental expansion
+- **Schema/validator:** `summary.scope_change` ∈ `["initial","stable","expanded","narrowed"]`
+  (REQUIRED, enum-checked) — each round stays stable OR expands INCREMENTALLY (never a wild jump).
+  The "is it really incremental" judgment is protocol/fresh-reader.
+
+### Added — 5. Progressive deepening (regression-first fills context, then go deeper)
+- **Schema/validator:** `summary.depth` (integer ≥ 1, REQUIRED). **Protocol** (SKILL.md +
+  `references/attack-process.md` + `rules/loop-and-metrics.md`): round>1 (a) regression-checks prior
+  records by `regression_key` FIRST, (b) uses that resolution to FILL context, (c) then goes DEEPER
+  (`depth` increments) — never restart from scratch. Tied to the existing carry-forward ledger.
+
+### Schema
+- `summary` gains `attack_mode` / `context_sources` / `scope_change` / `depth` (all in `required`);
+  `attack_record` gains `attack_kind` (in `required`) + `critique_basis` (structural records).
+  `additionalProperties` stays `true`; the per-record debug gate is byte-for-byte unchanged.
+
+### Testing
+- **RED-FIRST** eval cases **C67–C79** + fixture updates, captured FAILING in
+  `.skill-engineer/red/red.log` (**RED PHASE 9**) before the validator's v0.3.1 blocks: MODE/KIND
+  (C67 structural under mode debug → REJECT; C68 debug under mode structural → REJECT; C77 structural
+  under mode both → ACCEPT; C78 missing attack_kind → REJECT); STRUCTURAL (C69 missing critique_basis
+  → REJECT; C70 valid structural → ACCEPT; C71 product oracle on structural → REJECT; C76 missing
+  derived_independently → REJECT); SUMMARY (C72 missing attack_mode / C73 missing context_sources /
+  C74 missing scope_change / C75 depth<1 → REJECT); REGRESSION GUARD (C79 product-debug still requires
+  real_collaborator_at_seam — structural relaxations do NOT leak into debug). Existing user-supplied
+  fixtures (planted_bug / clean_control / summary_key_collision_valid / record_with_type_summary /
+  records_no_rollup / idea_valid / real_summary_line_bad_verdict) updated to carry the new summary
+  fields + `attack_kind` — fixtures updated, checks NOT weakened. Suite 72/72 → **85/85**, exit 0;
+  non-vacuity self-test stays green.
+
 ## [0.3.0] — 2026-06-22
 
 Three coherent features extend attacker from "attack a product, anywhere, with a budget"
