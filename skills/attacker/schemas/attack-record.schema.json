@@ -1,0 +1,196 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "attacker/attack-record",
+  "title": "Attacker round output (attack records + roll-up)",
+  "description": "Top-level document a single attack round emits. PROVE-OR-FLAG split: records[] are proven, reproducible breakages; needs_judgment[] are unresolved/unprovable items. summary rolls up ASR@n, unique-finding count, and a severity histogram. Modeled on low-visibility-fix/analyzer-output.schema.json + research-brief §4. JSONL FORM: the validator CLI reads .jsonl as one record per line; the OPTIONAL roll-up line is identified by POSITIVE evidence — it carries at least one roll-up key (by_severity | budget_n | asr_at_n | unique_finding_count) OR an explicit {\"type\":\"summary\",...} marker, AND carries NONE of the record-only fields (status, proven, repro, oracle, regression_key, attack_class, observed, expected, invariant, independence_attestation). Any line carrying ANY record-only field is a RECORD — even one with no/empty `id` (incl. the duplicate-id-key case where JSON.parse keeps a trailing \"\") and even one carrying type:\"summary\" — so it reaches the gate and a malformed/no-id record is REJECTED there, never silently reclassified and dropped. The roll-up must be parsed EXACTLY ONCE: more than one roll-up line is REJECTED. A record's own `summary` field never reclassifies or drops it. When NO roll-up line is supplied, the CLI synthesizes the fallback summary FROM the records (consistent by construction); by_severity reconciliation only fires against a user-supplied summary, whose by_severity must use ONLY the {critical,major,minor} keys (the validator rejects unknown keys).",
+  "type": "object",
+  "required": ["summary", "records", "needs_judgment"],
+  "additionalProperties": true,
+  "properties": {
+    "summary": {
+      "type": "object",
+      "required": ["round", "budget_n", "attempts_used", "asr_at_n", "unique_finding_count", "by_severity"],
+      "additionalProperties": true,
+      "properties": {
+        "round": { "type": "integer", "minimum": 1 },
+        "budget_n": { "type": "integer", "minimum": 1 },
+        "attempts_used": { "type": "integer", "minimum": 0 },
+        "asr_at_n": { "type": "number", "minimum": 0 },
+        "unique_finding_count": { "type": "integer", "minimum": 0 },
+        "by_severity": {
+          "type": "object",
+          "required": ["critical", "major", "minor"],
+          "additionalProperties": false,
+          "properties": {
+            "critical": { "type": "integer", "minimum": 0 },
+            "major": { "type": "integer", "minimum": 0 },
+            "minor": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/attack_record" }
+    },
+    "needs_judgment": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/needs_judgment_item" }
+    },
+    "target": { "type": "object" }
+  },
+  "definitions": {
+    "severity": {
+      "type": "object",
+      "required": ["level"],
+      "additionalProperties": false,
+      "properties": {
+        "level": { "type": "string", "enum": ["critical", "major", "minor"] },
+        "cvss_vector": { "type": ["string", "null"] },
+        "cwe": { "type": ["string", "null"] }
+      }
+    },
+    "independence_attestation": {
+      "type": "object",
+      "required": ["withheld", "derived_expected_from"],
+      "additionalProperties": false,
+      "properties": {
+        "withheld": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Context channels denied to the attacking subagent. A confirmed record MUST include 'implementation_source' and 'tdd_suite' (the validator enforces this) so the §1 firewall is auditable."
+        },
+        "derived_expected_from": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The requirement artifact the attacker derived 'expected' from, independently (e.g. REQ-checkout-12). NOT the impl or its tests."
+        }
+      }
+    },
+    "repro": {
+      "type": "object",
+      "required": ["minimized_input"],
+      "additionalProperties": true,
+      "properties": {
+        "command": { "type": "string", "description": "ONE runnable command preferred." },
+        "steps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "OR numbered steps from a KNOWN START STATE (exact element + value + timing)."
+        },
+        "minimized_input": {
+          "description": "The SHRUNK 1-minimal case — never the raw noisy discovery. Object/array/string/number all permitted; null/absent is rejected by the validator on confirmed records."
+        },
+        "seed": { "type": ["integer", "string", "null"] },
+        "temperature": { "type": ["number", "null"] },
+        "env": { "type": "object" },
+        "replayed_ok": {
+          "type": "boolean",
+          "description": "STRUCTURAL attestation that the recorded repro was re-run and STILL re-triggered the breakage (checklist entry 13). The validator REQUIRES true on confirmed records; the fresh-reader checklist owns the true semantic re-check."
+        },
+        "replays_passed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "For flaky/non-deterministic targets: how many of replays_total the repro re-triggered (Q4 ASR@n threshold)."
+        },
+        "replays_total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total replay attempts for a flaky target. proven requires replays_passed/replays_total >= the k/n threshold (default 1.0 for deterministic targets); below threshold routes to needs_judgment."
+        }
+      }
+    },
+    "attack_record": {
+      "type": "object",
+      "required": [
+        "id", "round", "target", "attack_class", "surface_class", "oracle",
+        "invariant", "repro", "baseline", "observed", "expected", "proven",
+        "non_tautology_check", "real_collaborator_at_seam",
+        "independence_attestation", "severity", "regression_key", "status"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "round": { "type": "integer", "minimum": 1 },
+        "target": {
+          "type": "object",
+          "required": ["name"],
+          "additionalProperties": true,
+          "properties": {
+            "name": { "type": "string", "minLength": 1, "description": "feature/function/endpoint under attack. CJK / emoji / zero-width permitted." },
+            "version": { "type": ["string", "null"] },
+            "model": { "type": ["string", "null"] },
+            "checkpoint": { "type": ["string", "null"] },
+            "system_prompt_hash": { "type": ["string", "null"] }
+          }
+        },
+        "attack_class": {
+          "type": "string",
+          "description": "Free-form sub-classed enum (e.g. business_logic.out_of_sequence). Top family must be one of the §3 taxonomy families.",
+          "pattern": "^(boundary|unicode|sequence|concurrency|resource|integration|time|state|business_logic|spoofing|tampering|repudiation|info_disclosure|dos|elevation)([.][a-z0-9_]+)*$"
+        },
+        "surface_class": {
+          "type": "string",
+          "enum": ["boundary", "unicode", "sequence", "concurrency", "resource", "integration", "time", "state"]
+        },
+        "oracle": {
+          "type": "string",
+          "enum": ["implicit", "differential", "metamorphic", "control_vs_experiment", "specified"]
+        },
+        "invariant": { "type": "string", "minLength": 1 },
+        "repro": { "$ref": "#/definitions/repro" },
+        "baseline": {
+          "type": "object",
+          "required": ["metric", "value"],
+          "additionalProperties": true,
+          "properties": {
+            "metric": { "type": "string", "minLength": 1 },
+            "value": {},
+            "observed_via": { "type": "string" }
+          }
+        },
+        "observed": { "description": "What the target ACTUALLY did, verbatim. Any JSON type." },
+        "expected": { "description": "Correct behavior derived INDEPENDENTLY from the requirement. Any JSON type." },
+        "proven": { "type": "boolean" },
+        "non_tautology_check": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Explicit proof the probe COULD have failed (real path, a correct impl would pass)."
+        },
+        "real_collaborator_at_seam": {
+          "type": "boolean",
+          "description": "STRUCTURAL attestation that the attacked seam used a REAL collaborator, not a mock (checklist entry 14). The validator REQUIRES true on confirmed records; a fully-mocked path is zero-evidence."
+        },
+        "independence_attestation": { "$ref": "#/definitions/independence_attestation" },
+        "evidence": { "type": "object" },
+        "severity": { "$ref": "#/definitions/severity" },
+        "priority": { "type": "string" },
+        "regression_key": { "type": "string", "minLength": 1 },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "needs_judgment", "suspected", "fixed", "wont_fix"]
+        }
+      }
+    },
+    "needs_judgment_item": {
+      "type": "object",
+      "required": ["id", "reason"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "reason": {
+          "type": "string",
+          "enum": [
+            "no_baseline", "needs_instrumentation", "below_replay_threshold",
+            "ambiguous_oracle", "unresolved_expected", "no_real_seam",
+            "anti_vacuity_correctly_rejected", "self_review_compromised", "other"
+          ]
+        },
+        "note": { "type": "string" },
+        "oracle": { "type": ["string", "null"] },
+        "observed": {},
+        "expected": {}
+      }
+    }
+  }
+}
