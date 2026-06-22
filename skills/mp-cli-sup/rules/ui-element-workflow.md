@@ -5,11 +5,18 @@ element, or debugging layout through runtime evidence.
 
 ## Principle
 
-`query`/`snapshot` first to mint a `uid`, then act by that uid (`tap`/`input`/`longpress`/
-`elementTrigger`/`elementScreenshot`). **In a session, a uid stays valid across separate CLI
-calls** — you can `vince-mp query .btn` in one call and `vince-mp tap button_0` in the next. A uid
-goes stale only after navigation (`nav`/`reLaunch`/`switchTab`) or a page mutation that replaces
-nodes; refresh by re-querying then. (Without a session — `--no-session` / a one-shot `run` — a uid
+`query`/`snapshot` first to mint a `uid`, then act by that uid. `tap`/`input` are shorthands;
+**long-press, `elementTrigger`, and `elementScreenshot` have no shorthand — invoke them via**
+`vince-mp step '{"type":"longpress","uid":"view_0"}'`. **In a session, a uid stays valid across
+separate CLI calls** — you can `vince-mp query .btn` in one call and `vince-mp tap button_0` in the
+next. A uid goes stale after navigation (`nav`/`reLaunch`/`switchTab`) or a node-replacing mutation,
+AND **`snapshot` resets the element map**: it re-numbers uids from `_0` and invalidates ALL
+previously-minted uids even with no navigation, whereas `query`/`query --all` APPEND (preserving
+earlier uids). So mint the uids you will act on with `query`, or run `snapshot` before minting
+action uids; re-query after a `snapshot`. Also: `tap`/`input`/`step` actions resolve when DevTools
+DISPATCHES the event, NOT when the page's async handler (`wx.request`→`setData`) finishes — settle
+with `vince-mp step '{"type":"wait","ms":300}'` (or wait on the expected post-state) before
+re-reading `data` to assert the effect; re-poll once if it still looks unchanged. (Without a session — `--no-session` / a one-shot `run` — a uid
 lives only inside that single process, the old model.)
 
 ## Workflow
@@ -50,7 +57,7 @@ supported by every renderer and yields `SNAPSHOT_ELEMENT_ENUMERATION_FAILED`.
 ## Anti-patterns
 
 - Do not guess a rectangle and crop manually when no uid geometry exists.
-- Do not reuse a uid after navigation/mutation without re-querying (it will be `STALE_OR_UNKNOWN_UID`).
+- Do not reuse a uid after navigation/mutation without re-querying (the CLI flags it, e.g. `STALE_OR_UNKNOWN_UID`).
 - Do not write captures outside `--workspace-root`.
 - Do not auto-launch/relaunch DevTools to get a screenshot unless the user allowed that side effect.
 

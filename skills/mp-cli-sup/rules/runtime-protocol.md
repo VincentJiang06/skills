@@ -1,4 +1,4 @@
-# runtime-protocol — safe, session-first vince-mp execution
+# runtime-protocol — safe, session-first execution
 
 Read this before running `vince-mp`, building workflow JSON, or reporting CLI failure evidence.
 
@@ -27,9 +27,9 @@ command/step/error schema is needed; otherwise keep this high-level protocol in 
    - non-invasive inspection of the current client → the session's default `attach`, or
      `smoke-existing --ws-endpoint` for a one-shot read;
    - opening/focusing a project → allowed only as the connect-time side effect of `session start`
-     ensuring the port, or an explicit `--connect '{"mode":"launch",...}'`.
-4. **UI work:** `query`/`snapshot` to mint a uid, then `tap`/`input`/`longpress`/`elementScreenshot`
-   by that uid. In a session a uid stays valid across separate CLI calls — refresh only after
+     ensuring the port, or an explicit, user-authorized `--connect '{"mode":"launch",...}'`.
+4. **UI work:** `query`/`snapshot` to mint a uid, then `tap`/`input` by that uid (long-press,
+   `elementTrigger`, and `elementScreenshot` have no shorthand — use `step '{"type":...,"uid":...}'`). In a session a uid stays valid across separate CLI calls — refresh only after
    navigation or page mutation. For one element's image use `shot`/`elementScreenshot` with an
    explicit output path under `--workspace-root`.
 5. **Diagnostics:** read route/pageStack/pageData before snapshot. Treat a Skyline snapshot
@@ -43,13 +43,16 @@ command/step/error schema is needed; otherwise keep this high-level protocol in 
 ## Hard rules
 
 - Use only the system `vince-mp` backend; no other automation backend/connector for new work.
-- Do not navigate, `reLaunch`, instrument media/network, or mock APIs when the user asked for
-  non-invasive inspection. (`session start` ensuring the port is the one allowed connect-time effect.)
+- Do not navigate, `reLaunch`, instrument media/network, mock APIs, or write state
+  (`setPageData`/`storage*`) when the user asked for non-invasive inspection. (`session start` ensuring the port is the one allowed connect-time effect.)
 - Do not infer the automation WebSocket from an unrelated DevTools URL parameter; let
   `session start` resolve/verify it, or pass a verified `--connect`.
 - Do not write outside `--workspace-root`.
 - Do not call unsafe `wx` methods unless the step explicitly sets `allowUnsafe:true`.
 - Camera work is metadata-only unless the user explicitly requests mock/take-photo behavior.
+- Storage writes/clears are explicit side effects; `storageClear` requires the literal `confirm:true`
+  field (else `STORAGE_CLEAR_REQUIRES_CONFIRMATION`): `vince-mp step '{"type":"storageClear","confirm":true}'`.
+  `storageSet`/`storageRemove` likewise go via `step` (no shorthand). Surface the data loss; never wipe silently.
 
 ## Output discipline
 
@@ -61,7 +64,10 @@ from planned next steps; include the exact command shape when a rerun is needed.
 ## Anti-patterns
 
 - Do not fall back to `launch`/`cli auto` against a port to "recover" an attach failure unless the
-  user allowed opening DevTools — first run `doctor` and read the error code.
+  user allowed opening DevTools — first read the error code from `session start`/`session status`
+  (`AUTOMATION_PORT_TIMEOUT` → enable DevTools 安全设置 → 服务端口; `AUTOMATOR_CONNECT_FAILED` → confirm
+  DevTools is open). `doctor` is a STATIC pre-flight (project resolves + cli binary + build freshness);
+  it does NOT test the live automation port, so it cannot diagnose an attach/port failure.
 - Do not hide side effects behind helper scripts; the CLI JSON must show the action and output path.
 - Do not retry Skyline element enumeration indefinitely — bounded timeouts, report partial evidence.
 - Do not treat a slow read as success: a real hang surfaces fast as `APP_NOT_RUNNING` (app not

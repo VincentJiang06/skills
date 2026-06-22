@@ -6,7 +6,7 @@ For Skyline snapshot, Canvas, Camera, or media-mock tasks.
 
 This skill only covers *debugging* a Skyline page through `vince-mp`. For renderer behavior — why
 `$$` enumeration hangs, what components/CSS are supported, scroll/route/worklet specifics — defer to
-the official WeChat Skyline skills and invoke the matching one:
+the official WeChat Skyline skills **if they are available in your environment**, invoking the matching one:
 
 - `skyline-overview` — architecture, migration, when a page is Skyline vs WebView.
 - `skyline-config` — `app.json`/page `renderer`, `rendererOptions`, `componentFramework`.
@@ -16,7 +16,8 @@ the official WeChat Skyline skills and invoke the matching one:
 - `skyline-wxss` — supported CSS properties and limitations.
 
 When a Skyline page misbehaves (layout, scroll, animation, route), read the relevant official skill
-for the renderer contract, then use `vince-mp` (pageData / snapshot / screenshot) to gather evidence.
+(if installed) for the renderer contract, then use `vince-mp` (pageData / snapshot / screenshot) to
+gather evidence.
 
 ## Skyline snapshot
 
@@ -34,12 +35,19 @@ DevTools/webview has no real Skyline camera preview, so the scan/decode path can
 camera. Drive it without hardware via the page's scan handler:
 
 ```bash
-vince-mp scan PKG-2026-0605 --type qrcode            # callPageMethod onScanCode {detail:{result,scanType}}
+vince-mp scan PKG-2026-0605 --type qrcode            # onScanCode({type:"scancode",detail:{result,scanType,type:scanType}})
 vince-mp scan 123 --method onDecodeResult            # custom handler name; add --raw for legacy {result,scanType}
 ```
 
-Then read the effect with `vince-mp data` (e.g. the new record / `latest`). This is the supported
-way to smoke a scanner; real-camera frames still require a device.
+**Preconditions:** be on the scanner page (`vince-mp page` to confirm the route) and know the handler
+name — default `onScanCode`; if the page binds e.g. `bindscancode="handleScan"`, pass
+`--method handleScan`. A wrong handler name or wrong current page returns a `callPageMethod` error or
+a silent no-op, not a scan.
+
+`scan` (callPageMethod) resolves on the handler's SYNCHRONOUS return, not its async
+`wx.request`→`setData` — settle (`wait`) or re-poll before reading. Then read the effect with
+`vince-mp data` (e.g. the new record / `latest`). This is the supported way to smoke a scanner;
+real-camera frames still require a device.
 
 ## Canvas / Camera / media (one-shot `media`, or via the session `step`)
 
@@ -51,11 +59,17 @@ vince-mp media --connect '<json>' --action canvas-sample --canvas-id main --json
 vince-mp media --connect '<json>' --action camera-probe --json          # metadata-only default
 vince-mp media --connect '<json>' --action camera-mock --fixture-image fixtures/camera.png --json
 vince-mp media --connect '<json>' --action restore --json
-# In a session, the same actions route via: vince-mp step '{"type":"mediaAction","action":"camera-probe"}'
+# In a session, the same actions route via `step` (note the `options` wrapper for the fixture):
+# vince-mp step '{"type":"mediaAction","action":"camera-probe"}'
+# vince-mp step '{"type":"mediaAction","action":"camera-mock","options":{"fixtureImage":"fixtures/camera.png"}}'
+# vince-mp step '{"type":"mediaAction","action":"restore"}'
 ```
 
 Prefer API-event evidence, snapshot temp path, and pixel checksum. If the runtime lacks
 `canvasToTempFilePath`/`canvasGetImageData`, report unsupported/partial evidence rather than retrying
-blindly. Camera mock is an explicit, reversible side effect — require a fixture/mock config and
+blindly. Map the failure code: `*_UNSUPPORTED` (`CANVAS_EXPORT_UNSUPPORTED`, `CANVAS_SAMPLE_UNSUPPORTED`,
+`CAMERA_UNSUPPORTED`, `CAMERA_TAKE_PHOTO_UNSUPPORTED`) = the runtime lacks that API → report unsupported,
+do not retry; `*_FAILED` = the call errored → capture the message as partial evidence;
+`UNSUPPORTED_MEDIA_ACTION` = unknown action name. Camera mock is an explicit, reversible side effect — require a fixture/mock config and
 `restore` after. Do not collect real photos/frames unless the user explicitly asks and the report
 states capture was enabled.

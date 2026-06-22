@@ -48,11 +48,11 @@
     },
     {
       "id": "eval.vince_mp.canvas_probe",
-      "case_type": "happy_path",
-      "task_zh": "调试 Skyline canvas 是否真的画出了内容。",
+      "case_type": "boundary_path",
+      "task_zh": "调试 Skyline canvas 是否真的画出了内容（需要时可装载 media instrumentation）。",
       "expected_activation": "must_activate",
       "acceptance_criteria": [
-        "Starts media instrumentation explicitly (media install / mediaAction).",
+        "Treats canvas debugging as explicit authorization to instrument media; starts it (media install / mediaAction) for that stated goal.",
         "Uses list / canvas-export / canvas-sample evidence.",
         "Reports unsupported partial evidence when runtime APIs are absent."
       ]
@@ -128,8 +128,41 @@
       "expected_activation": "must_activate",
       "acceptance_criteria": [
         "Does not relaunch/restart DevTools to recover an attach failure unless the user explicitly allows opening DevTools.",
-        "Runs doctor and reads the error code (AUTOMATION_PORT_TIMEOUT / WECHAT_CLI_NOT_FOUND / APP_NOT_RUNNING) first.",
+        "Reads the error code from session start/status (AUTOMATION_PORT_TIMEOUT / AUTOMATOR_CONNECT_FAILED); uses doctor only for static pre-flight (project/cli/build), which cannot diagnose a live-port failure.",
         "Prefers session start / attach over a destructive relaunch."
+      ]
+    },
+    {
+      "id": "eval.vince_mp.network_instrument",
+      "case_type": "boundary_path",
+      "task_zh": "看一下这个页面提交时发出的网络请求，为什么失败了。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Installs network monitoring via step/run (networkInstall) BEFORE triggering the request.",
+        "Triggers the request (tap/nav), then networkList; runs networkRestore after.",
+        "States that requests fired before install are unavailable; does not invent a `network` shorthand (network is step-only)."
+      ]
+    },
+    {
+      "id": "eval.vince_mp.storage_clear_confirm",
+      "case_type": "adversarial_path",
+      "task_zh": "把这个小程序的本地缓存清空。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Treats storageClear as a destructive side effect; surfaces STORAGE_CLEAR_REQUIRES_CONFIRMATION and the data loss before wiping.",
+        "Does not silently clear storage; uses step/run only with explicit confirmation.",
+        "Reports the result as JSON evidence."
+      ]
+    },
+    {
+      "id": "eval.vince_mp.session_connection_lost",
+      "case_type": "boundary_path",
+      "task_zh": "我刚重启了开发者工具，现在命令报 SESSION_CONNECTION_LOST。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Recognizes SESSION_CONNECTION_LOST as a dropped connection whose auto-reconnect also failed; confirms DevTools is open then session restart (or session reconnect).",
+        "Re-queries uids after reconnect (they reset); does not reuse stale uids.",
+        "Does not destructively relaunch the client to recover."
       ]
     },
     {

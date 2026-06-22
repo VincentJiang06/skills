@@ -30,16 +30,16 @@ idle-reaps itself. Every later command auto-starts a session if none is running.
 | Command | Step built | Notes |
 |---|---|---|
 | `page` / `stack` | currentPage / pageStack | route + page stack |
-| `data [path]` | pageData | default cap 200KB (no silent <6KB truncation); `--max-bytes` to override |
+| `data [path]` | pageData | 200KB cap for shorthand reads (not the generic ~20KB JSON truncation), reported via `truncated`; `--max-bytes` to override |
 | `sysinfo` | systemInfo | |
 | `query <sel> [--all] [--position]` | query | mints uid(s) like `view_0`; `--all` for multiple |
-| `snapshot [<sel>] [--position]` | snapshot | batched reads; pass a concrete selector (`*` is unsupported on some renderers) |
+| `snapshot [<sel>] [--position] [--max-elements n]` | snapshot | batched reads; concrete selector (`*` is unsupported on some renderers); `--max-elements` caps enumeration; **resets the uid map** (re-numbers uids — `query` appends) |
 | `tap <uid>` / `input <uid> <text>` | tap / input | uid from a prior query/snapshot; valid across calls in a session |
 | `eval '<js expr>'` | evaluate | wraps as `function(){ return (<expr>); }` |
-| `scan <code> [--type qrcode] [--method onScanCode] [--raw]` | callPageMethod | camera-less: fakes a `bindscancode` event via the page's scan handler; `--raw` sends legacy `{result,scanType}` |
-| `shot <output>` | screenshot | full-page PNG under `--workspace-root` |
+| `scan <code> [--type qrcode] [--method onScanCode] [--raw]` | callPageMethod | camera-less: calls the page's scan handler (default `onScanCode`) with a `{type:"scancode", detail:{result, scanType, type:scanType}}` event object; `--raw` sends the legacy `{result, scanType}` shape |
+| `shot <output>` | screenshot | full-page PNG under `--workspace-root` — the SESSION path (the standalone `screenshot`/`media` commands are one-shot and REQUIRE `--connect '<json>'`) |
 | `nav <url>` | navigateTo | navigation (invalidates uids) |
-| `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (capped 1000) |
+| `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (message + exception buffers each capped 1000); needs a session — `--no-session` → `INVALID_ARGUMENT` |
 | `step '<json>'` | any step | escape hatch: a step object, or an array → batch |
 
 ## Diagnose / cross-stack
@@ -58,11 +58,15 @@ vince-mp logs --request-id <id> | --user-id <id> | --code <n> [--route r] [--sin
 
 ```bash
 vince-mp smoke-existing --ws-endpoint ws://127.0.0.1:9420 [--probe-elements] --json
+# NOTE: --probe-elements snapshots with the universal `*` selector (no override flag), so on
+# Skyline pages expect SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT/FAILED — prefer a session + a
+# concrete `snapshot <selector>` there. --probe-elements is WebView-oriented.
 vince-mp run --stdin --json                       # batch; routes through the session
 vince-mp run --connect '<json>' --stdin --json    # one-shot with an explicit connection
 vince-mp screenshot --connect '<json>' --output <path> --json
 vince-mp media --connect '<json>' --action <install|list|canvas-export|canvas-sample|camera-probe|camera-mock|restore> --json
 vince-mp capabilities --json                       # full manifest: commands, shorthands, sessionOps, steps
+vince-mp help --json                               # command + flag reference
 ```
 
 ## Connection JSON
@@ -72,7 +76,10 @@ vince-mp capabilities --json                       # full manifest: commands, sh
 {"mode":"launch","projectPath":"/absolute/project","port":9420}
 ```
 
-`attach` must not include `projectPath`. `launch` includes `projectPath` and may open/focus DevTools.
+`attach` must not include `projectPath`, `launch`, or `reLaunch`. `launch` includes `projectPath` and may open/focus DevTools.
+`session start` always uses `attach` (it may spawn the headless `cli auto` automation server if the
+port is down — the one connect-time effect); the `launch` mode that opens/focuses a DevTools project
+is separate and human-gated.
 
 ## Workflow JSON (`run`)
 
@@ -120,3 +127,22 @@ All failures: `{"ok":false,"code":"ERROR_CODE","message":"...","details":{},"sug
 
 No implicit `launch`/`reLaunch` beyond `session start` ensuring the port; no implicit
 network/canvas/camera instrumentation; no implicit file writes; no implicit Camera frame/photo capture.
+
+## Read/act caps & step-only actions
+
+- **`console`** returns the FIRST `pageSize` entries (default 50, oldest-first) of the ≤1000 buffer.
+  For recent/all logs use `console --page-size 1000` or `step '{"type":"listConsole","pageIdx":N}'`.
+- **Output path parent must already exist.** `shot`/`elementScreenshot`/`screenshot` write only under
+  `--workspace-root`, AND the parent dir must pre-exist (the CLI does not `mkdir`) — else `PATH_NOT_FOUND`.
+- **Truncation.** `eval`/`sysinfo`/`scan` cap JSON at ~200KB and IGNORE `--max-bytes` (only `data`
+  honors it); on overflow the value becomes `{truncatedJsonPreview, truncated:true}` — narrow the
+  expression or read via `data <path>`.
+- **`nav` is `navigateTo` only.** For a tabBar page use `step '{"type":"switchTab","url":"..."}'`;
+  for a full reset `step '{"type":"reLaunch","url":"..."}'`.
+- **Step-only actions (no shorthand) — via `step '<json>'`:** `longpress`, `elementTrigger`,
+  `elementText/Value/Attribute/Property`, `setPageData` (data must be a plain object — it MUTATES page
+  state), `storageGet/Set/Remove/Clear` (Clear needs `confirm:true`), `appGlobalData`, `launchOptions`,
+  `mediaAction`, `network*`. Field shapes: `setPageData {"data":{...}}` ·
+  `storageSet {"key","value"}` / `storageGet|storageRemove {"key"}` ·
+  `elementTrigger {"uid","eventName","detail?"}` · `elementAttribute|elementProperty {"uid","name"}` ·
+  `longpress {"uid"}` · `mediaAction {"action","options?"}`.

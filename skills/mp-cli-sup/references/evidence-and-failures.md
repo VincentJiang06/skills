@@ -18,13 +18,20 @@ Backend-independent edge cases for live `vince-mp` debugging.
   running in the simulator. Almost always a build/startup error (e.g. "模拟器启动失败 … Cannot read
   property 'subPackages' of undefined" = a stale/broken build). Run `vince-mp doctor` and fix the
   build (`npm run build:devtools` for TS projects); do not retry blindly.
+- `session start` succeeding only means the automation port ATTACHED — run `vince-mp page`/`data`
+  next; a fast `APP_NOT_RUNNING` (~8s) then means DevTools is fine but the app isn't running.
+- If `session start` returns `SESSION_START_FAILED`, the background daemon's own attach failed —
+  read the underlying code from `details.logTail` (or `~/.vince-mp/sessions/<hash>.log`):
+  `AUTOMATOR_CONNECT_FAILED` (port live but attach refused → confirm DevTools is open) or
+  `APP_NOT_RUNNING`. `session status` only reports `running:false`, not the cause.
 
 ## Session lifetime and uids
 
 - One background daemon per workspace holds ONE connection; commands reuse it (near-instant) and the
   element map (uids) lives in the daemon, so **uids persist across separate CLI calls**.
 - A uid is stale only after navigation (`nav`/`reLaunch`/`switchTab`) or a node-replacing mutation —
-  re-query then. `STALE_OR_UNKNOWN_UID` means re-query.
+  re-query then. `STALE_OR_UNKNOWN_UID` means re-query. Note `snapshot` ALSO resets the uid map
+  (re-numbers from `_0`, invalidating prior uids) even with no navigation; `query`/`query --all` append.
 - A dead daemon's stale socket/meta is auto-detected and cleaned; the next command restarts a
   session. `session status` shows whether one is live; `STEP_TIMEOUT` means a single step exceeded
   the daemon backstop (unresponsive app/connection).
@@ -42,7 +49,7 @@ Backend-independent edge cases for live `vince-mp` debugging.
 
 ## Console and network
 
-- The session auto-captures console from start (buffered, capped at the most recent 1000) — `console`
+- The session auto-captures console from start (buffered; the message and exception buffers are EACH capped at the most recent 1000) — `console`
   lists it, `console --clear` resets it. It only has output since the session started.
 - WeChat automation re-delivers each `console.log` several times (5–8×); the CLI coalesces identical
   messages arriving back-to-back so one log = one entry. Distinct or time-separated logs are kept; to
@@ -50,6 +57,12 @@ Backend-independent edge cases for live `vince-mp` debugging.
 - Network monitoring is NOT auto-injected; `networkInstall` must precede the observed request, and any
   report must state that earlier requests are unavailable. Never claim console/network evidence from a
   prior non-CLI run as current.
+- Network recipe (there is **no** `network` shorthand — use `step`/`run`):
+  `vince-mp step '{"type":"networkInstall"}'` → trigger the request (tap/nav) →
+  `vince-mp step '{"type":"networkList"}'` → `vince-mp step '{"type":"networkRestore"}'`.
+  Requests fired before `networkInstall` are invisible. The `start` event is synchronous but
+  `success`/`fail` (with `statusCode`) arrive after the round-trip — settle (`wait`) or re-poll
+  `networkList` until a terminal phase before concluding the request failed.
 
 ## Doctor — "green tests but broken build"
 
@@ -61,6 +74,10 @@ can hide a non-compiling/stale build — trust `doctor` (tsc + freshness), not j
 ## Cross-stack (env / logs)
 
 - `env use <key>` switches the named backend (mockLan/caoliaoDevNet/caoliaoProdIm = mock/.net/.im).
+  `UNKNOWN_ENV` → run `vince-mp env list` for the valid keys.
 - `logs --request-id <id>` pulls the matching server error log (needs an admin token via
   `VINCE_MP_ADMIN_TOKEN` or `env token`). `--user-id` filters by account; `BACKEND_UNREACHABLE`
   means the env isn't deployed/reachable, `ADMIN_TOKEN_REQUIRED` means no token is set.
+- `logs` queries the CURRENTLY selected env (default `mockLan`): to pull a `.net` log, run
+  `vince-mp env use caoliaoDevNet` FIRST, then `vince-mp logs --request-id <id>`; confirm with
+  `vince-mp env current`.
