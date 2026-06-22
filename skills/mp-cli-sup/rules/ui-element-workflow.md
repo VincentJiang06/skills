@@ -50,7 +50,7 @@ supported by every renderer and yields `SNAPSHOT_ELEMENT_ENUMERATION_FAILED`.
 ## Anti-patterns
 
 - Do not guess a rectangle and crop manually when no uid geometry exists.
-- Do not reuse a uid after navigation/mutation without re-querying (it will be `STALE_OR_UNKNOWN_UID`).
+- Do not reuse a uid after navigation/mutation without re-querying (the CLI flags it, e.g. `STALE_OR_UNKNOWN_UID`).
 - Do not write captures outside `--workspace-root`.
 - Do not auto-launch/relaunch DevTools to get a screenshot unless the user allowed that side effect.
 

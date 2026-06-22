@@ -1,4 +1,4 @@
-# runtime-protocol — safe, session-first vince-mp execution
+# runtime-protocol — safe, session-first execution
 
 Read this before running `vince-mp`, building workflow JSON, or reporting CLI failure evidence.
 
@@ -27,7 +27,7 @@ command/step/error schema is needed; otherwise keep this high-level protocol in 
    - non-invasive inspection of the current client → the session's default `attach`, or
      `smoke-existing --ws-endpoint` for a one-shot read;
    - opening/focusing a project → allowed only as the connect-time side effect of `session start`
-     ensuring the port, or an explicit `--connect '{"mode":"launch",...}'`.
+     ensuring the port, or an explicit, user-authorized `--connect '{"mode":"launch",...}'`.
 4. **UI work:** `query`/`snapshot` to mint a uid, then `tap`/`input`/`longpress`/`elementScreenshot`
    by that uid. In a session a uid stays valid across separate CLI calls — refresh only after
    navigation or page mutation. For one element's image use `shot`/`elementScreenshot` with an

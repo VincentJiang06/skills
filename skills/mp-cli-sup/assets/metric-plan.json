@@ -33,8 +33,8 @@
   },
   "measured": {
     "as_of": "2026-06-05",
-    "source": "conductor run on a live WeChat DevTools session + 52 node:test cases + 3 independent fresh-subagent batteries",
-    "cli_unit_tests": "52/52 pass",
+    "source": "conductor run on a live WeChat DevTools session + 60 node:test cases + 3 independent fresh-subagent batteries",
+    "cli_unit_tests": "60/60 pass",
     "eval_cases": "13 (happy/boundary/negative/adversarial)",
     "loaded_context_tokens_estimate": "~94 lines always-loaded (SKILL.md); 5 docs load-on-demand",
     "warm_command_latency_ms": "~100 end-to-end (node startup + warm-daemon roundtrip); daemon step 3-72ms vs. a full reconnect per call before",

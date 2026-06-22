@@ -6,7 +6,7 @@ For Skyline snapshot, Canvas, Camera, or media-mock tasks.
 
 This skill only covers *debugging* a Skyline page through `vince-mp`. For renderer behavior — why
 `$$` enumeration hangs, what components/CSS are supported, scroll/route/worklet specifics — defer to
-the official WeChat Skyline skills and invoke the matching one:
+the official WeChat Skyline skills **if they are available in your environment**, invoking the matching one:
 
 - `skyline-overview` — architecture, migration, when a page is Skyline vs WebView.
 - `skyline-config` — `app.json`/page `renderer`, `rendererOptions`, `componentFramework`.
@@ -16,7 +16,8 @@ the official WeChat Skyline skills and invoke the matching one:
 - `skyline-wxss` — supported CSS properties and limitations.
 
 When a Skyline page misbehaves (layout, scroll, animation, route), read the relevant official skill
-for the renderer contract, then use `vince-mp` (pageData / snapshot / screenshot) to gather evidence.
+(if installed) for the renderer contract, then use `vince-mp` (pageData / snapshot / screenshot) to
+gather evidence.
 
 ## Skyline snapshot
 
@@ -34,7 +35,7 @@ DevTools/webview has no real Skyline camera preview, so the scan/decode path can
 camera. Drive it without hardware via the page's scan handler:
 
 ```bash
-vince-mp scan PKG-2026-0605 --type qrcode            # callPageMethod onScanCode {detail:{result,scanType}}
+vince-mp scan PKG-2026-0605 --type qrcode            # onScanCode({type:"scancode",detail:{result,scanType,type:scanType}})
 vince-mp scan 123 --method onDecodeResult            # custom handler name; add --raw for legacy {result,scanType}
 ```
 

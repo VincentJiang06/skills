@@ -30,13 +30,13 @@ idle-reaps itself. Every later command auto-starts a session if none is running.
 | Command | Step built | Notes |
 |---|---|---|
 | `page` / `stack` | currentPage / pageStack | route + page stack |
-| `data [path]` | pageData | default cap 200KB (no silent <6KB truncation); `--max-bytes` to override |
+| `data [path]` | pageData | 200KB cap for shorthand reads (not the generic ~20KB JSON truncation), reported via `truncated`; `--max-bytes` to override |
 | `sysinfo` | systemInfo | |
 | `query <sel> [--all] [--position]` | query | mints uid(s) like `view_0`; `--all` for multiple |
 | `snapshot [<sel>] [--position]` | snapshot | batched reads; pass a concrete selector (`*` is unsupported on some renderers) |
 | `tap <uid>` / `input <uid> <text>` | tap / input | uid from a prior query/snapshot; valid across calls in a session |
 | `eval '<js expr>'` | evaluate | wraps as `function(){ return (<expr>); }` |
-| `scan <code> [--type qrcode] [--method onScanCode] [--raw]` | callPageMethod | camera-less: fakes a `bindscancode` event via the page's scan handler; `--raw` sends legacy `{result,scanType}` |
+| `scan <code> [--type qrcode] [--method onScanCode] [--raw]` | callPageMethod | camera-less: calls the page's scan handler (default `onScanCode`) with a `{type:"scancode", detail:{result, scanType, type:scanType}}` event object; `--raw` sends the legacy `{result, scanType}` shape |
 | `shot <output>` | screenshot | full-page PNG under `--workspace-root` |
 | `nav <url>` | navigateTo | navigation (invalidates uids) |
 | `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (capped 1000) |
@@ -58,6 +58,9 @@ vince-mp logs --request-id <id> | --user-id <id> | --code <n> [--route r] [--sin
 
 ```bash
 vince-mp smoke-existing --ws-endpoint ws://127.0.0.1:9420 [--probe-elements] --json
+# NOTE: --probe-elements snapshots with the universal `*` selector (no override flag), so on
+# Skyline pages expect SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT/FAILED — prefer a session + a
+# concrete `snapshot <selector>` there. --probe-elements is WebView-oriented.
 vince-mp run --stdin --json                       # batch; routes through the session
 vince-mp run --connect '<json>' --stdin --json    # one-shot with an explicit connection
 vince-mp screenshot --connect '<json>' --output <path> --json

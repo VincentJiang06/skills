@@ -48,11 +48,11 @@
     },
     {
       "id": "eval.vince_mp.canvas_probe",
-      "case_type": "happy_path",
-      "task_zh": "调试 Skyline canvas 是否真的画出了内容。",
+      "case_type": "boundary_path",
+      "task_zh": "调试 Skyline canvas 是否真的画出了内容（需要时可装载 media instrumentation）。",
       "expected_activation": "must_activate",
       "acceptance_criteria": [
-        "Starts media instrumentation explicitly (media install / mediaAction).",
+        "Treats canvas debugging as explicit authorization to instrument media; starts it (media install / mediaAction) for that stated goal.",
         "Uses list / canvas-export / canvas-sample evidence.",
         "Reports unsupported partial evidence when runtime APIs are absent."
       ]

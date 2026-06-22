@@ -29,8 +29,9 @@ tap/input/longpress them by uid; take a single-element or full screenshot; drive
 diagnose "won't connect / 模拟器启动失败"; switch backend env and pull server error logs by
 `requestId`; probe Skyline Canvas/Camera or mock media.
 
-Do **not** use it for ordinary web-browser automation, generic frontend source edits, or Mini
-Program code review with no DevTools/runtime execution.
+Do **not** use it for ordinary web-browser automation, generic frontend source edits, Mini
+Program code review with no DevTools/runtime execution, or a Skyline→WebView renderer migration
+(that is `mp-groundline`).
 
 ## The session-first workflow (do this)
 
@@ -43,7 +44,7 @@ vince-mp data                   # read pageData — instant (reuses the session)
 vince-mp query .submit-btn      # mint a uid (e.g. "button_0")
 vince-mp tap button_0           # act by uid — the uid is STILL valid in this separate call
 vince-mp data                   # confirm the effect
-vince-mp scan PKG-2026-0605     # camera-less: callPageMethod onScanCode with a fake bindscancode event
+vince-mp scan PKG-2026-0605     # camera-less: onScanCode with a {type:"scancode",detail:{result,scanType,type}} event
 vince-mp console                # console buffered since session start
 vince-mp session stop           # when done (or it idle-reaps itself)
 ```
@@ -68,7 +69,8 @@ use a distinct port to debug two projects at once). The session is keyed per wor
 
 - Use the system `vince-mp` command as the only backend.
 - Prefer the **session**; reach for `--no-session`/`run --connect` only when a one-shot or an
-  explicit connection (e.g. `launch`) is required.
+  explicit connection is required. Opening/focusing DevTools via `launch` (beyond `session start`
+  ensuring the port) is a **human-gated** side effect — do it only with explicit user authorization.
 - Keep paths under `cwd`/`--workspace-root`; file outputs need an explicit `--output`/path arg.
 - Do **not** navigate, reLaunch, instrument media/network, or mock APIs unless that side effect
   is explicit in the request. `session start` ensuring the automation port (and possibly opening

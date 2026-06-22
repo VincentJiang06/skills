@@ -28,8 +28,8 @@ const CLI = process.env.VINCE_MP_CLI_BIN || "vince-mp";
 const SKILL_DIR = path.resolve(import.meta.dirname, "..");
 
 // ---------- small fs helpers ----------
-const exists = (dir, rel) => fs.existsSync(path.join(dir, rel));
-const read = (dir, rel) => fs.readFileSync(path.join(dir, rel), "utf8");
+const exists = (dir, rel) => { try { return fs.statSync(path.join(dir, rel)).isFile(); } catch { return false; } };
+const read = (dir, rel) => { try { return fs.readFileSync(path.join(dir, rel), "utf8"); } catch { return ""; } };
 const write = (dir, rel, s) => fs.writeFileSync(path.join(dir, rel), s);
 function parseJsonSafe(dir, rel) {
   try { return JSON.parse(read(dir, rel)); } catch { return null; }
@@ -181,12 +181,12 @@ const CHECKS = [
     title: "every `vince-mp <cmd>` documented in the skill exists in `capabilities` (no fabricated commands)",
     run(ctx) {
       const valid = validCommandTokens(ctx.caps);
-      const used = documentedInvocations(codeContexts(ctx.docText));
+      const used = documentedInvocations(ctx.docText);
       const bad = [...used].filter((t) => !valid.has(t));
       return { ok: bad.length === 0, msg: bad.length ? `documented but not in capabilities: ${bad.join(", ")}` : `${used.size} tokens, all real` };
     },
     mkPass() {},
-    mkFail(dir) { editText(dir, "SKILL.md", (s) => s + "\n\n`vince-mp teleport` does a thing.\n"); },
+    mkFail(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nTo reset everything, run vince-mp nukeall before debugging.\n"); },
   },
   {
     id: "workflow_steps_match_capabilities",
@@ -221,11 +221,58 @@ const CHECKS = [
     title: "every `capabilities.importantErrors` code is documented in the skill",
     run(ctx) {
       const codes = ctx.caps.importantErrors || [];
-      const missing = codes.filter((c) => !ctx.docText.includes(c));
-      return { ok: missing.length === 0, msg: missing.length ? `undocumented important errors: ${missing.join(", ")}` : `all ${codes.length} covered` };
+      const m = ctx.cliContract.match(/##\s*Error contract[\s\S]*?(?=\n##\s|$)/);
+      const section = m ? m[0] : "";
+      if (!section) return { ok: false, msg: "no '## Error contract' section in cli-contract.md" };
+      const missing = codes.filter((c) => !section.includes(c));
+      return { ok: missing.length === 0, msg: missing.length ? `important errors missing from the cli-contract error section: ${missing.join(", ")}` : `all ${codes.length} covered in the error contract` };
     },
     mkPass() {},
     mkFail(dir) { editText(dir, "references/cli-contract.md", (s) => s.replaceAll("CAMERA_MOCK_REQUIRES_FIXTURE", "REMOVED_CODE")); },
+  },
+  {
+    id: "contract_coverage_complete",
+    title: "every capabilities command + shorthand is documented somewhere in the skill (no real surface silently dropped)",
+    run(ctx) {
+      const need = [...(ctx.caps.commands || []), ...(ctx.caps.shorthands || [])];
+      const invoked = documentedInvocations(ctx.docText);
+      const documented = (t) => invoked.has(t) || ctx.docText.includes("`" + t + "`") || ctx.docText.includes("`" + t + " ") || ctx.docText.includes("`" + t + "<") || ctx.docText.includes("`" + t + " [");
+      const missing = need.filter((t) => !documented(t));
+      return { ok: missing.length === 0, msg: missing.length ? `CLI commands/shorthands not documented: ${missing.join(", ")}` : `all ${need.length} commands+shorthands documented` };
+    },
+    mkPass() {},
+    mkFail(dir) { for (const f of DOC_FILES) editText(dir, f, (s) => s.replaceAll("sysinfo", "REMOVEDsh")); },
+  },
+  {
+    id: "safety_contract_documented",
+    title: "the CLI safety contract (attach-forbidden fields + no-implicit side effects) is reflected in the docs with correct polarity",
+    run(ctx) {
+      const problems = [];
+      const forbidden = ctx.caps.connectionModes?.attach?.forbidden || [];
+      for (const f of forbidden) if (!ctx.docText.includes(f)) problems.push(`attach-forbidden field "${f}" not documented`);
+      if (forbidden.length && !/must not include/i.test(ctx.docText)) problems.push("attach 'must not include <field>' contract not stated");
+      const sd = ctx.caps.safeDefaults || {};
+      const implicitFalse = Object.entries(sd).filter(([k, v]) => k.startsWith("implicit") && v === false);
+      if (implicitFalse.length && !/no implicit/i.test(ctx.docText)) problems.push("safeDefaults 'no implicit ...' side-effect contract not stated");
+      return { ok: problems.length === 0, msg: problems.length ? problems.join("; ") : "attach-forbidden + no-implicit safety contract reflected" };
+    },
+    mkPass() {},
+    mkFail(dir) { for (const f of DOC_FILES) editText(dir, f, (s) => s.replace(/must not include/i, "may freely include")); },
+  },
+  {
+    id: "design_record_eval_ids_match",
+    title: "skill-design-record eval_case_ids match the eval-cases.json case ids exactly",
+    run(ctx) {
+      const rec = parseJsonSafe(ctx.dir, "assets/skill-design-record.json");
+      const ids = new Set((ctx.evalCases?.cases || []).map((c) => c.id));
+      const recIds = new Set(rec?.test_assets?.eval_case_ids || []);
+      const missingInRec = [...ids].filter((i) => !recIds.has(i));
+      const extraInRec = [...recIds].filter((i) => !ids.has(i));
+      const ok = missingInRec.length === 0 && extraInRec.length === 0 && ids.size > 0;
+      return { ok, msg: ok ? `${ids.size} eval ids match the design record` : `record-missing: [${missingInRec.join(",")}] record-extra: [${extraInRec.join(",")}]` };
+    },
+    mkPass() {},
+    mkFail(dir) { editJson(dir, "assets/skill-design-record.json", (j) => { j.test_assets.eval_case_ids = (j.test_assets.eval_case_ids || []).slice(0, 2); }); },
   },
   {
     id: "cli_compat_pin_current",
@@ -291,15 +338,15 @@ function runAll(targetDir, caps) {
   return CHECKS.map((c) => { const r = c.run(ctx); return { id: c.id, title: c.title, ok: !!r.ok, msg: r.msg }; });
 }
 
-function selfTest(caps) {
+function selfTest(caps, baseDir) {
   const results = [];
   for (const c of CHECKS) {
     let passOk = null, failOk = null, err = null;
     try {
-      const a = freshCopy(SKILL_DIR);
+      const a = freshCopy(baseDir);
       try { (c.mkPass || (() => {}))(a.dst, caps); passOk = c.run(buildCtx(a.dst, caps)).ok; }
       finally { fs.rmSync(a.tmp, { recursive: true, force: true }); }
-      const b = freshCopy(SKILL_DIR);
+      const b = freshCopy(baseDir);
       try { c.mkFail(b.dst, caps); failOk = c.run(buildCtx(b.dst, caps)).ok; }
       finally { fs.rmSync(b.tmp, { recursive: true, force: true }); }
     } catch (e) { err = e.message; }
@@ -314,18 +361,22 @@ const argv = process.argv.slice(2);
 const wantJson = argv.includes("--json");
 const wantSelfTest = argv.includes("--self-test");
 const ti = argv.indexOf("--target");
+if (ti >= 0 && !argv[ti + 1]) { console.error("FAIL: --target requires a directory argument"); process.exit(2); }
 const targetDir = ti >= 0 ? path.resolve(argv[ti + 1]) : SKILL_DIR;
 
 const capRes = loadCapabilities();
 if (!capRes.ok) {
-  console.error(`FAIL: cannot ground against the vince-mp CLI — ${capRes.error}`);
-  console.error("(the harness fails closed: a contract check with no contract is not a check)");
+  if (wantJson) console.log(JSON.stringify({ ok: false, error: `cannot ground against the vince-mp CLI — ${capRes.error}` }));
+  else {
+    console.error(`FAIL: cannot ground against the vince-mp CLI — ${capRes.error}`);
+    console.error("(the harness fails closed: a contract check with no contract is not a check)");
+  }
   process.exit(2);
 }
 const caps = capRes.caps;
 
 if (wantSelfTest) {
-  const results = selfTest(caps);
+  const results = selfTest(caps, targetDir);
   const broken = results.filter((r) => !r.discriminates);
   if (wantJson) console.log(JSON.stringify({ mode: "self-test", results }, null, 2));
   else {

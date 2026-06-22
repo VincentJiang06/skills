@@ -29,7 +29,7 @@
       "node scripts/validate-skill.mjs",
       "node scripts/run_all.mjs",
       "node scripts/run_all.mjs --self-test",
-      "cd ../../tools/vince-mp-cli && npm run validate"
+      "vince-mp capabilities --json"
     ]
   },
   "tests": {

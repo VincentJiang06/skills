@@ -9,7 +9,7 @@
   "problem_statement_en": "Let agents debug a WeChat Mini Program runtime through the local JSON CLI reliably and with low latency: one-command connect (auto-resolve miniprogramRoot + automation port), a persistent session reusing one connection so repeat commands are near-instant and element uids persist across calls — eliminating the per-call reconnect lag and avoiding mixed-backend side effects.",
   "trigger": {
     "must_activate_on": ["start a mp session / connect to DevTools", "inspect pageData / route / console", "query then tap/input an element by uid", "camera-less scan smoke", "project doctor (tsc + .js freshness)", "switch backend env / pull server error log by requestId", "Skyline Canvas or Camera debugging", "won't-connect / 模拟器启动失败 diagnosis"],
-    "must_not_activate_on": ["generic browser automation", "source-only Mini Program refactors without runtime", "non-WeChat connector workflows"],
+    "must_not_activate_on": ["generic browser automation", "source-only Mini Program refactors without runtime", "non-WeChat connector workflows", "Skyline→WebView renderer migration (use mp-groundline)"],
     "adjacent_confusions": ["launch-to-recover-attach-failure (prefer doctor + attach)", "DevTools URL autoPort confusion", "APP_NOT_RUNNING mistaken for a hang"],
     "manual_activation_phrases": ["$mp-cli-sup", "debug WeChat DevTools", "连上小程序"]
   },
@@ -39,8 +39,11 @@
       "eval.vince_mp.session_read_act",
       "eval.vince_mp.doctor_health",
       "eval.vince_mp.camera_less_scan",
+      "eval.vince_mp.element_screenshot",
+      "eval.vince_mp.canvas_probe",
       "eval.vince_mp.requestid_logs",
       "eval.vince_mp.non_invasive_smoke",
+      "eval.vince_mp.skyline_snapshot_timeout",
       "eval.vince_mp.app_not_running",
       "eval.vince_mp.path_escape",
       "eval.vince_mp.camera_mock_explicit",
