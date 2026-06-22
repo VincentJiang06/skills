@@ -2,6 +2,7 @@ import { parseArgs } from "node:util";
 
 import { commandEnv, commandLogs } from "./backend.js";
 import { commandCapabilities, commandDoctor, commandMedia, commandRun, commandScreenshot, commandSmokeExisting } from "./commands.js";
+import { getCapabilities } from "./capabilities.js";
 import { CliError, isCliError, toErrorResponse } from "./errors.js";
 import { writeJson } from "./json.js";
 import { commandSession, commandSessionDaemon } from "./session-commands.js";
@@ -103,17 +104,18 @@ function parseCommandArgs(command, argv) {
 export async function dispatch(argv) {
   const [command, ...rest] = argv;
   if (!command || command === "help" || command === "--help" || command === "-h") {
+    const caps = getCapabilities();
     return {
       ok: true,
       command: "help",
-      commands: ["capabilities", "doctor", "session", "run", "smoke-existing", "screenshot", "media"],
-      session: "session start|status|stop|restart — one persistent connection; repeat commands are instant and uids persist.",
-      shorthands: ["page", "stack", "data", "sysinfo", "query", "snapshot", "tap", "input", "eval", "scan", "console", "shot", "nav", "step"],
+      commands: caps.commands,
+      session: "session start|status|stop|restart|reconnect — one persistent connection; repeat commands are instant and uids persist.",
+      shorthands: caps.shorthands,
       examples: [
         "vince-mp session start                 # connect once (auto-resolves project + automation port)",
         "vince-mp data                          # read pageData (instant; reuses the session)",
         "vince-mp query .submit-btn             # mint a uid, then: vince-mp tap <uid>",
-        "vince-mp scan PKG-123                  # camera-less: callPageMethod onScanCode with bindscancode event",
+        "vince-mp scan PKG-123                  # camera-less: callPageMethod onScanCode with a scancode event",
       ],
       note: "All commands return JSON. Shorthands auto-start a session; pass --no-session for a one-shot connect.",
     };
