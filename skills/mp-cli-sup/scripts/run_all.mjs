@@ -98,7 +98,12 @@ function documentedInvocations(text) {
 // factoryreset"), so that form is an accepted limit (maker/checker). Plain and bold fabrications
 // (`vince-mp call force-reset`, `**vince-mp** **wipeall**`) ARE caught.
 function normalizeForScan(text) {
-  return text.replace(/[*_]+/g, " ");
+  return text
+    .replace(/[*_]+/g, " ")
+    // a backtick/tilde between the BARE binary and its token (run vince-mp `factoryreset`) is an
+    // invocation, not the undecidable `vince-mp` <noun> form — neutralize it. The negative lookbehind
+    // keeps the backticked-binary noun phrase ("the `vince-mp` JSON CLI") intact (accepted limit 2).
+    .replace(/(?<!`)\bvince-mp\s+[`~]+/gi, (m) => m.replace(/[`~]+/g, " "));
 }
 // lines that are part of a markdown table (structured doc), used by coverage so an
 // incidental backtick in prose ("`scan` your disk") does not count as documentation.
@@ -194,6 +199,7 @@ const CHECKS = [
     mkFail(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nTo reset everything, run vince-mp nukeall before debugging.\n"); },
     mkFail2(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nDanger: run **vince-mp** **wipeall** to factory-reset the device.\n"); },
     mkFail3(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nFor a full reset use _vince-mp_ _eraseall_ on the device.\n"); },
+    mkFail4(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nIf wedged, run vince-mp `hardreset` now.\n"); },
   },
   {
     id: "no_step_as_shorthand",
@@ -398,7 +404,7 @@ function selfTest(caps, baseDir) {
   const results = [];
   for (const c of CHECKS) {
     let passOk = null, err = null;
-    const seeds = [c.mkFail, c.mkFail2, c.mkFail3].filter(Boolean); // every seed (incl. subtle near-misses) must be caught
+    const seeds = Object.keys(c).filter((k) => k === "mkFail" || /^mkFail\d+$/.test(k)).sort().map((k) => c[k]); // every mkFail* seed (incl. subtle near-misses) must be caught
     const failOks = [];
     try {
       const a = freshCopy(baseDir);

@@ -49,8 +49,9 @@ vince-mp console                # console buffered since session start
 vince-mp session stop           # when done (or it idle-reaps itself)
 ```
 
-`tap`/`input` resolve when DevTools DISPATCHES the event, not when the page's async handler
-(`wx.request`→`setData`) completes — `wait` or re-poll `data` before asserting an effect.
+**Any trigger whose handler does async work** (`tap`/`input`/`scan`/`step`) resolves when DevTools
+DISPATCHES the call, NOT when the async work (`wx.request`→`setData`) finishes — `wait` or re-poll
+before reading the effect, whether the read is `data`, `networkList`, or `mediaList`.
 
 Every command returns JSON and accepts `--workspace-root <dir>` and `--port <n>` (default 9420;
 `--port` only selects the automation port when a NEW session is first spawned for a workspace).

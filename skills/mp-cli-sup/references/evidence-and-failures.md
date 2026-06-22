@@ -60,7 +60,9 @@ Backend-independent edge cases for live `vince-mp` debugging.
 - Network recipe (there is **no** `network` shorthand — use `step`/`run`):
   `vince-mp step '{"type":"networkInstall"}'` → trigger the request (tap/nav) →
   `vince-mp step '{"type":"networkList"}'` → `vince-mp step '{"type":"networkRestore"}'`.
-  Requests fired before `networkInstall` are invisible.
+  Requests fired before `networkInstall` are invisible. The `start` event is synchronous but
+  `success`/`fail` (with `statusCode`) arrive after the round-trip — settle (`wait`) or re-poll
+  `networkList` until a terminal phase before concluding the request failed.
 
 ## Doctor — "green tests but broken build"
 

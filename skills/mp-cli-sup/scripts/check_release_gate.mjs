@@ -10,7 +10,7 @@
  *   3. every author-declared release_gate.evidence entry is a non-empty string that is NOT
  *      trivially always-green (`true`, `:`, `... || true`, `echo ...`) and exits 0.
  *
- * RED on the untouched skill (passed:false today); GREEN only once the upgrade is real.
+ * Was RED on the untouched skill (passed:false); GREEN once the upgrade is real (passed:true + evidence).
  * Exit 0 iff the gate is genuinely met.
  */
 import fs from "node:fs";

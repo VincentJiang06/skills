@@ -142,4 +142,7 @@ network/canvas/camera instrumentation; no implicit file writes; no implicit Came
 - **Step-only actions (no shorthand) — via `step '<json>'`:** `longpress`, `elementTrigger`,
   `elementText/Value/Attribute/Property`, `setPageData` (data must be a plain object — it MUTATES page
   state), `storageGet/Set/Remove/Clear` (Clear needs `confirm:true`), `appGlobalData`, `launchOptions`,
-  `mediaAction`, `network*`.
+  `mediaAction`, `network*`. Field shapes: `setPageData {"data":{...}}` ·
+  `storageSet {"key","value"}` / `storageGet|storageRemove {"key"}` ·
+  `elementTrigger {"uid","eventName","detail?"}` · `elementAttribute|elementProperty {"uid","name"}` ·
+  `longpress {"uid"}` · `mediaAction {"action","options?"}`.

@@ -44,8 +44,10 @@ name — default `onScanCode`; if the page binds e.g. `bindscancode="handleScan"
 `--method handleScan`. A wrong handler name or wrong current page returns a `callPageMethod` error or
 a silent no-op, not a scan.
 
-Then read the effect with `vince-mp data` (e.g. the new record / `latest`). This is the supported
-way to smoke a scanner; real-camera frames still require a device.
+`scan` (callPageMethod) resolves on the handler's SYNCHRONOUS return, not its async
+`wx.request`→`setData` — settle (`wait`) or re-poll before reading. Then read the effect with
+`vince-mp data` (e.g. the new record / `latest`). This is the supported way to smoke a scanner;
+real-camera frames still require a device.
 
 ## Canvas / Camera / media (one-shot `media`, or via the session `step`)
 
