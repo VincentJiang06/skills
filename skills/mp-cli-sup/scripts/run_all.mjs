@@ -92,12 +92,13 @@ function documentedInvocations(text) {
   while ((m = re.exec(text))) set.add(m[1].toLowerCase());
   return set;
 }
-// normalize so a fabricated command survives formatting: strip bold/italic markers
-// (**vince-mp** **wipeall**) and the backticks around the bare binary token (`vince-mp`
-// factoryreset). Legit noun phrases that then surface ("vince-mp JSON CLI") are filtered by
-// the per-check IGNORE set, not here.
+// normalize so a fabricated command survives bold/italic formatting (**vince-mp** **wipeall**).
+// We do NOT strip the backticks around the bare binary: the `vince-mp` <word> form is undecidable
+// (a noun phrase "the `vince-mp` JSON CLI" is indistinguishable from a fabricated "`vince-mp`
+// factoryreset"), so that form is an accepted limit (maker/checker). Plain and bold fabrications
+// (`vince-mp call force-reset`, `**vince-mp** **wipeall**`) ARE caught.
 function normalizeForScan(text) {
-  return text.replace(/`vince-mp`/g, "vince-mp").replace(/\*+/g, " ");
+  return text.replace(/\*+/g, " ");
 }
 // lines that are part of a markdown table (structured doc), used by coverage so an
 // incidental backtick in prose ("`scan` your disk") does not count as documentation.
@@ -185,17 +186,13 @@ const CHECKS = [
     title: "every `vince-mp <cmd>` documented in the skill exists in `capabilities` (no fabricated commands)",
     run(ctx) {
       const valid = validCommandTokens(ctx.caps);
-      // prose nouns that legitimately follow the backticked binary ("the `vince-mp` JSON CLI") —
-      // not command claims, so they are not flagged once the binary's backticks are stripped.
-      const IGNORE = new Set(["cli", "json", "backend", "binary", "call", "command", "debugging", "or", "the", "a", "is"]);
       const used = documentedInvocations(normalizeForScan(ctx.docText));
-      const bad = [...used].filter((t) => !valid.has(t) && !IGNORE.has(t));
+      const bad = [...used].filter((t) => !valid.has(t));
       return { ok: bad.length === 0, msg: bad.length ? `documented but not in capabilities: ${bad.join(", ")}` : `${used.size} tokens, all real` };
     },
     mkPass() {},
     mkFail(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nTo reset everything, run vince-mp nukeall before debugging.\n"); },
     mkFail2(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nDanger: run **vince-mp** **wipeall** to factory-reset the device.\n"); },
-    mkFail3(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nIf the simulator is wedged, the `vince-mp` factoryreset subcommand wipes local state.\n"); },
   },
   {
     id: "no_step_as_shorthand",

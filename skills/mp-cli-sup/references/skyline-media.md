@@ -57,7 +57,10 @@ vince-mp media --connect '<json>' --action canvas-sample --canvas-id main --json
 vince-mp media --connect '<json>' --action camera-probe --json          # metadata-only default
 vince-mp media --connect '<json>' --action camera-mock --fixture-image fixtures/camera.png --json
 vince-mp media --connect '<json>' --action restore --json
-# In a session, the same actions route via: vince-mp step '{"type":"mediaAction","action":"camera-probe"}'
+# In a session, the same actions route via `step` (note the `options` wrapper for the fixture):
+# vince-mp step '{"type":"mediaAction","action":"camera-probe"}'
+# vince-mp step '{"type":"mediaAction","action":"camera-mock","options":{"fixtureImage":"fixtures/camera.png"}}'
+# vince-mp step '{"type":"mediaAction","action":"restore"}'
 ```
 
 Prefer API-event evidence, snapshot temp path, and pixel checksum. If the runtime lacks

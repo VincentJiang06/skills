@@ -53,7 +53,9 @@ vince-mp session stop           # when done (or it idle-reaps itself)
 (`wx.request`→`setData`) completes — `wait` or re-poll `data` before asserting an effect.
 
 Every command returns JSON and accepts `--workspace-root <dir>` and `--port <n>` (default 9420;
-use a distinct port to debug two projects at once). The session is keyed per workspace.
+`--port` only selects the automation port when a NEW session is first spawned for a workspace).
+The session is keyed per **workspace-root**, NOT per port — to debug two projects at once give each
+its own `--workspace-root`; `--port` alone will reuse the live session and not switch targets.
 
 ## Command map (load `references/cli-contract.md` for exact schema)
 

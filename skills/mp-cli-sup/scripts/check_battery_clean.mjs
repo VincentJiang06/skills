@@ -77,7 +77,8 @@ if (confirmed.length > 0) {
   try { passSet = new Set(JSON.parse(r.stdout).results.filter((x) => x.ok).map((x) => x.id)); } catch { passSet = new Set(); }
 }
 for (const d of confirmed) {
-  const id = typeof d === "string" ? d : d.id;
+  const id = typeof d === "string" ? d : (d && d.id);
+  if (!id) { fail.push(`a confirmed_defects entry is null/invalid`); continue; }
   const reg = regById.get(id);
   if (!reg) { fail.push(`confirmed defect "${id}" has no regression entry`); continue; }
   if (!reg.note || !String(reg.note).trim()) { fail.push(`regression for "${id}" lacks a note`); continue; }

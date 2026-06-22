@@ -50,8 +50,9 @@ command/step/error schema is needed; otherwise keep this high-level protocol in 
 - Do not write outside `--workspace-root`.
 - Do not call unsafe `wx` methods unless the step explicitly sets `allowUnsafe:true`.
 - Camera work is metadata-only unless the user explicitly requests mock/take-photo behavior.
-- Storage writes/clears are explicit side effects; `storageClear` requires confirmation
-  (`STORAGE_CLEAR_REQUIRES_CONFIRMATION`) — surface the data loss, never wipe silently.
+- Storage writes/clears are explicit side effects; `storageClear` requires the literal `confirm:true`
+  field (else `STORAGE_CLEAR_REQUIRES_CONFIRMATION`): `vince-mp step '{"type":"storageClear","confirm":true}'`.
+  `storageSet`/`storageRemove` likewise go via `step` (no shorthand). Surface the data loss; never wipe silently.
 
 ## Output discipline
 
