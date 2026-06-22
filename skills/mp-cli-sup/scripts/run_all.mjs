@@ -167,7 +167,7 @@ const CHECKS = [
       return { ok: missing.length === 0, msg: missing.length ? `SKILL.md does not reference: ${missing.join(", ")}` : "ok" };
     },
     mkPass() {},
-    mkFail(dir) { editText(dir, "SKILL.md", (s) => s.replace(/^name:\s*mp-cli-sup\s*$/m, "name: wrong-name")); },
+    mkFail(dir) { editText(dir, "SKILL.md", (s) => s.replace(/^name:.*$/m, "name: wrong-name")); },
   },
   {
     id: "assets_identify_skill",
