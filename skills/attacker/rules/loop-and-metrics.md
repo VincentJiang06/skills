@@ -40,6 +40,12 @@ A → B → C → attack ─┬─ round_verdict:clean         → STOP (done / 
   Nothing was found, but the surface was NOT exhausted — the loop owner decides whether to
   stop (qualified) or grant more budget. It is NOT a clean/converged pass.
 
+**The verdict semantics carry over to IDEA mode unchanged** (same loop / round-verdict /
+budget / carry-forward — only the oracle + proof shape differ): idea-mode **`broke`** = a
+proven flaw in the idea was found (≥1 confirmed idea record); **`clean`** = the idea could not
+be broken within budget (robust-so-far, **NOT** "proven true" — exactly the honest caveat
+below); **`inconclusive`** = a budget cap hit with no flaw found.
+
 ## (b) Exhaust-budget stop mode (report all breaks, not first-break)
 
 A round runs in **exhaust-budget mode**: it does NOT stop on the first proven break.

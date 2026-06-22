@@ -1,19 +1,19 @@
 ---
 name: attacker
 description: >
-  Attack a product/feature's ACTUAL observable behavior; record ONLY proven,
-  reproducible breakages as attack records. Runs in a FRESH subagent given only the
-  requirement + observable behavior — never the impl source, TDD suite, or author
-  framing (those re-inherit the builder's blind spot → green-suite/broken-product
-  false positive). Each record carries an auditable independence_attestation; a
-  deterministic validator + non-vacuity self-test gate it. Pairs with loop-constructor
-  (attack → fix → re-attack). Use-when: "attack this feature / try to break it",
-  "red-team this product", "find what the tests miss", "$attacker", or a
-  loop-constructor attack-round node. Do-NOT: (1) write/maintain unit tests / "add a
-  failing test first" — that is vince-tdd (attacker DISTRUSTS it, attacks the running
-  product); (2) fix the bugs — a separate fix round repairs; never edits the target;
-  (3) design the loop — loop-constructor owns that; (4) debug a live MP runtime/pageData
-  with no break-it framing — that is mp-cli-sup.
+  Attack a product's ACTUAL observable behavior, OR red-team an idea/argument/plan
+  (debate con-side); record ONLY proven, reproducible breakages as attack records. A
+  FRESH, TDD-independent subagent attacks within a declared ATTACK SCOPE
+  (--scope/--out-of-scope). Product mode sees only the requirement + observable
+  behavior, never the impl/TDD suite/author framing (re-inheriting the builder's blind
+  spot → false green); idea mode takes the claim but critiques it independently. Each
+  record carries an auditable independence_attestation, gated by a deterministic
+  validator. Pairs with loop-constructor (attack→fix→re-attack). Use-when: "attack/break
+  this feature", "red-team this product", "red-team an idea/argument/plan", "$attacker".
+  Do-NOT: (1) unit tests / "add a failing test first" — vince-tdd (attacker DISTRUSTS
+  it, attacks the running product); (2) fix bugs — a fix round repairs, never edits the
+  target; (3) design the loop — loop-constructor; (4) debug a live MP runtime with no
+  break-it framing — mp-cli-sup.
 ---
 
 # attacker
@@ -33,23 +33,48 @@ common-mode channel). So the attacker runs from a context that never saw the
 impl, the tests, or the author's framing. **Independence is the entire value
 proposition — every other choice is downstream of protecting it.**
 
-## Preflight (scope-first)
+## Preflight (CONTEXT → scope → mode → budget)
 
-1. Resolve scope: **`--target <module/feature>`**, **`--round N`**, and the
-   MANDATORY **dual hard budget** (the round is HARD-BOUNDED — no endless attack):
+0. **CONTEXT (do this FIRST — load `references/context-intake.md`).** Take in a rich
+   context bundle: the **target** (product OR idea) + its **type**, the **claim /
+   requirement**, **constraints**, **success criteria**, **what counts as a real break**,
+   the **in/out-of-scope** domains, and **prior rounds**. **ACTIVELY ENCOURAGE more
+   context: when the provided context is thin or ambiguous, PROMPT the user for the
+   missing specifics — the more precise the context, the sharper and better-scoped the
+   attack. ASK rather than guess.** This is independence-safe: in **product** mode you
+   still exclude impl/tests/author framing; in **idea** mode the idea + its justification
+   IS the input, but the attacker derives its critique **independently**. Optionally record
+   a one-line `summary.context_digest` attesting what the round's attacks were grounded in.
+1. **Scope (the ATTACK-SCOPE CONTRACT).** Declare WHICH domains/layers are attacked:
+   - **`--scope <descriptor>…`** → `summary.in_scope` (≥1 RICH free-form descriptors, e.g.
+     "UI rendering errors", "page navigation/logic transitions") — the only domains a
+     finding may target. Every confirmed record tags its **`attack_scope`** (one of these).
+   - **`--out-of-scope <descriptor>…`** → `summary.out_of_scope` (may be empty) — declared
+     exclusions. An observation found OUTSIDE scope goes in the **top-level `out_of_scope[]`**
+     bucket: **kept, but NOT counted as a finding and NOT gated**. ("Attack the UI" → hits
+     UI rendering + page navigation, NOT backend logic.)
+   - Also resolve **`--target <module/feature|idea>`** and **`--round N`**.
+2. **Mode — `target.type` (`product` | `idea`).** **product** = a running feature
+   (the v0.1–0.2 path: product oracles + the impl/TDD firewall + a real seam). **idea** =
+   an argument/design/plan (debate con-side): the proof shape is **claim + observed≠expected
+   + reasoning chain + minimal scenario + `not_strawman` + an idea oracle + a critique
+   derived independently** — SAME loop/round-verdict/budget/carry-forward, only the oracle +
+   proof shape change. The validator gates each record by its mode (see `references/oracle-menu.md`).
+3. **Dual hard budget** (MANDATORY — the round is HARD-BOUNDED, no endless attack):
    - **`--budget N`** — attempts cap (rolled up as `ASR@n`).
    - **`--max-tokens T`** — per-round token-consumption cap (NOT wall-clock time).
    The round stops at **whichever cap hits first**, in **exhaust-budget mode** (one
    round reports ALL proven breaks for a batch fix — NOT stop-on-first). Never
    default to unbounded crawling — a run is cheap and re-runnable per feature.
-2. Locate/create the **target project's** `.loop/` for `attack-records.jsonl` +
+4. Locate/create the **target project's** `.loop/` for `attack-records.jsonl` +
    the battery ledger (project-local, NOT under the skill dir).
-3. **Round 1 → cold start** (`carried_from_round:null`). **Round>1 → CARRY-FORWARD:**
+5. **Round 1 → cold start** (`carried_from_round:null`). **Round>1 → CARRY-FORWARD:**
    load this skill's OWN prior attack ledger from `<project>/.loop/` (surface map +
    attempted-attacks + confirmed/fixed records by `regression_key`) and re-derive only
    **NEW** surface — do NOT re-plan from scratch (re-deriving the whole attack plan each
    round is token waste). Record which prior round you inherited as `carried_from_round`.
-   Still **NOT** loaded: impl source / TDD suite / author framing (independence preserved).
+   Still **NOT** loaded (product mode): impl source / TDD suite / author framing
+   (independence preserved).
 
 ## Round verdict (the loop's STOP-CONDITION)
 
@@ -90,16 +115,25 @@ Inside the subagent run **READ → DESIGN → EXECUTE → PROVE → RECORD**:
    cost/likelihood/prereq; attack cheapest-highest-impact first.
 3. **EXECUTE** — frame each as a falsifiable experiment scoped to the smallest
    unit; **blast-radius control** + staged escalation + abort/stop conditions;
-   attack **real seams (no mocks)** where the attack lands. **Stop at whichever
-   hard cap hits first — `--budget N` (attempts) OR `--max-tokens T` (tokens)** —
-   exhaust-budget mode (report ALL breaks, not first-break).
-4. **PROVE** — pick from the ranked **oracle menu** (`references/oracle-menu.md`);
-   state which oracle fired; confirm `observed != expected` vs baseline/control;
-   shrink to a 1-minimal reproducer; **re-run it** to confirm it still fails.
-5. **RECORD** — one record per **proven** defect → `records[]`; unprovable →
-   `needs_judgment[]`; compute `regression_key`, dedup, roll up `ASR@n` +
-   unique-finding count + severity histogram **+ the round verdict** (`round_verdict`
-   + `stop_reason` + `tokens_used`/`max_tokens` + `carried_from_round`).
+   **product:** attack **real seams (no mocks)** where the attack lands; **idea:** run
+   the reasoning over the **minimal scenario/case**. **Stop at whichever hard cap hits
+   first — `--budget N` (attempts) OR `--max-tokens T` (tokens)** — exhaust-budget mode
+   (report ALL breaks, not first-break).
+4. **PROVE** — pick from the **mode-appropriate** ranked **oracle menu**
+   (`references/oracle-menu.md`): **product** oracles (implicit→differential→metamorphic→
+   control→specified) OR **idea** oracles (counterexample / contradiction /
+   unmet_assumption / scope_violation / infeasibility / missing_case). State which fired;
+   confirm `observed != expected` (idea: `expected`=what the claim predicts, `observed`=the
+   counter); shrink to a 1-minimal reproducer / minimal scenario; **re-run it** (a fresh
+   reader re-checks the reasoning) to confirm it still fails (`repro.replayed_ok`).
+5. **RECORD** — one record per **proven** defect → `records[]`; unprovable / vague →
+   `needs_judgment[]`; out-of-scope discovery → `out_of_scope[]` (kept, not counted). Tag
+   each record's **`attack_scope`** (∈ `summary.in_scope`); compute `regression_key`,
+   dedup, roll up `ASR@n` + unique-finding count + severity histogram **+ the round
+   verdict** (`round_verdict` + `stop_reason` + `tokens_used`/`max_tokens` +
+   `carried_from_round`). Idea-mode records carry `claim` + `not_strawman` +
+   `independence_attestation.derived_independently`; product-mode records carry
+   `real_collaborator_at_seam` + `withheld ⊇ {implementation_source, tdd_suite}`.
 
 ## Regression (start of each new round)
 
@@ -127,12 +161,21 @@ become the next round's fix list. **Attacker NEVER edits the target.**
 - **Never edit the target.** Output is a handoff document set only; a separate fix
   round repairs (detect-vs-remediate boundary).
 - **PROVE-OR-FLAG / REPRODUCIBLE-OR-DROP** — enforced by
-  `scripts/validate_attack_records.mjs` (the §5 gate): a confirmed record must
-  have observed≠expected, a non-empty repro + `minimized_input`, a named oracle,
-  `non_tautology_check`, `real_collaborator_at_seam:true`, `repro.replayed_ok:true`,
-  and `withheld ⊇ {implementation_source, tdd_suite}`. Unprovable → `needs_judgment`.
+  `scripts/validate_attack_records.mjs` (the §5 gate), **mode-conditional** on
+  `target.type`: every confirmed record needs observed≠expected, a non-empty repro +
+  `minimized_input`, `repro.replayed_ok:true`, a **mode-appropriate** named oracle,
+  `non_tautology_check`, and a non-empty **`attack_scope` ∈ `summary.in_scope`**.
+  **product** additionally requires `real_collaborator_at_seam:true` + `withheld ⊇
+  {implementation_source, tdd_suite}`; **idea** additionally requires `claim` +
+  `not_strawman:true` + `independence_attestation.derived_independently:true` (and does
+  NOT require the product-only fields). Unprovable → `needs_judgment`.
+- **Attack-scope contract** — `summary.in_scope` (≥1 descriptors) + `out_of_scope`
+  declare WHICH domains are attacked; a confirmed record whose `attack_scope` is empty or
+  not in `in_scope` is REJECTED; out-of-scope observations live in the top-level
+  `out_of_scope[]` (kept, never counted as findings).
 - **Anti-vacuity** — a correctly-rejected malformed input the contract never
-  promised to handle is NOT a finding (validator rejects it in `records[]`).
+  promised to handle (product), or a vague "I disagree" with no concrete counter
+  (idea), is NOT a finding (validator rejects it in `records[]`).
 - **Blast-radius / budget / abort** — smallest-unit scope, declared per record,
   staged escalation, `--budget` cap (rolled up as `ASR@n`), abort conditions.
 - **Non-vacuity self-test** — `evals/run_all.mjs` runs a planted-bug fixture the
@@ -159,9 +202,10 @@ histogram, the must-be-zero false-negative / false-positive invariants), load
 
 | File | When to load |
 |------|--------------|
+| `references/context-intake.md` | CONTEXT (Preflight step 0) — the context checklist (target+type, claim/thesis, constraints, success criteria, what-counts-as-a-break, in/out-of-scope, prior rounds), WHY more context = sharper attacks, how it feeds DESIGN, and the elicitation prompts to use when context is thin. |
 | `rules/loop-and-metrics.md` | Running attacker inside a loop-constructor loop (round alternation, maker–checker, regression by `regression_key`), or computing the round roll-up / metrics. |
 | `references/attack-process.md` | The round — full READ→DESIGN→EXECUTE→PROVE→RECORD procedure + the fresh-context mechanism + target-adapter contract. |
-| `references/oracle-menu.md` | PROVE — the ranked oracle taxonomy (implicit→differential→metamorphic→control→specified). |
+| `references/oracle-menu.md` | PROVE — the mode-appropriate ranked oracle taxonomy: product (implicit→differential→metamorphic→control→specified) + idea (counterexample / contradiction / unmet_assumption / scope_violation / infeasibility / missing_case). |
 | `assets/payload-library.json` | DESIGN — the §3 adversarial taxonomy as data (AFL values, unicode/CJK, business-logic catalog). |
 | `assets/fresh-reader-checklist.md` | Verify — the REQUIRED manual semantic gate (maker ≠ checker). |
 | `assets/attack-record.template.md` | Report — turn records into the next round's fix list. |

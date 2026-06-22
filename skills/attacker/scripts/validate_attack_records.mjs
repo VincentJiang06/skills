@@ -40,7 +40,13 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { realpathSync } from "node:fs";
 
-const ORACLE_ENUM = ["implicit", "differential", "metamorphic", "control_vs_experiment", "specified"];
+// v0.3.0: oracles are mode-conditional. PRODUCT oracles attack a running target's behavior;
+// IDEA oracles attack an argument/design/plan. The union is the schema-permissive enum; the
+// validator enforces the MODE-APPROPRIATE subset per record.target.type (product|idea).
+const PRODUCT_ORACLE_ENUM = ["implicit", "differential", "metamorphic", "control_vs_experiment", "specified"];
+const IDEA_ORACLE_ENUM = ["counterexample", "contradiction", "unmet_assumption", "scope_violation", "infeasibility", "missing_case"];
+const ORACLE_ENUM = [...PRODUCT_ORACLE_ENUM, ...IDEA_ORACLE_ENUM];
+const TARGET_TYPE_ENUM = ["product", "idea"];
 const SURFACE_ENUM = ["boundary", "unicode", "sequence", "concurrency", "resource", "integration", "time", "state"];
 const STATUS_ENUM = ["confirmed", "needs_judgment", "suspected", "fixed", "wont_fix"];
 const SEVERITY_ENUM = ["critical", "major", "minor"];
@@ -72,24 +78,51 @@ function deepEq(a, b) {
   return false;
 }
 
-function validateConfirmedRecord(rec, i, errors) {
+// v0.3.0: the confirmed-record gate is MODE-CONDITIONAL on rec.target.type (product|idea). The
+// MODE-AGNOSTIC core (id/invariant/non_tautology_check/regression_key, surface/status/attack_class/
+// severity enums, repro command|steps + minimized_input + replayed_ok + k/n bounds, observed!=expected,
+// the attack-scope tag, anti-vacuity) applies to BOTH. The product-specific firewall
+// (real_collaborator_at_seam + withheld⊇{implementation_source,tdd_suite}) applies ONLY to product;
+// idea mode swaps in claim + not_strawman + derived_independently and an IDEA oracle. The product
+// requirements MUST NOT leak into idea mode, and the idea relaxations MUST NOT leak into product mode.
+// `inScope` is the declared summary.in_scope descriptor set (or null when exempt — synthesized
+// fallback or no user summary); when non-null, the record's attack_scope must be an exact member.
+function validateConfirmedRecord(rec, i, errors, inScope) {
   const at = `records[${i}](${(rec && rec.id) || "?"})`;
   const E = (m) => errors.push(`${at}: ${m}`);
 
-  // required scalar fields
+  // required scalar fields (mode-agnostic)
   for (const f of ["id", "invariant", "non_tautology_check", "regression_key"]) {
     if (!nonEmptyStr(rec[f])) E(`missing/empty ${f}`);
   }
   if (!isObj(rec.target) || !nonEmptyStr(rec.target.name)) E("missing target.name");
 
-  // enums
-  if (!ORACLE_ENUM.includes(rec.oracle)) E(`oracle "${rec.oracle}" not in enum [${ORACLE_ENUM.join("|")}]`);
+  // v0.3.0: target.type (the MODE) is required and selects which mode-conditional gate applies.
+  const mode = isObj(rec.target) ? rec.target.type : undefined;
+  if (!TARGET_TYPE_ENUM.includes(mode))
+    E(`target.type "${mode}" not in enum [${TARGET_TYPE_ENUM.join("|")}] (the mode is required so the validator applies the product|idea confirmed-record gate)`);
+  const isIdea = mode === "idea";
+
+  // enums (mode-agnostic except oracle, which is mode-conditional below)
   if (!SURFACE_ENUM.includes(rec.surface_class)) E(`surface_class "${rec.surface_class}" not in enum`);
   if (!STATUS_ENUM.includes(rec.status)) E(`status "${rec.status}" not in enum`);
   if (!isStr(rec.attack_class) || !ATTACK_CLASS_FAMILY.test(rec.attack_class)) E(`attack_class "${rec.attack_class}" not a known family`);
   if (!isObj(rec.severity) || !SEVERITY_ENUM.includes(rec.severity.level)) E("severity.level not in [critical|major|minor]");
 
-  // repro: command OR steps, plus minimized_input
+  // v0.3.0: oracle is MODE-CONDITIONAL. idea → an IDEA oracle; product → a PRODUCT oracle. A product
+  // oracle on an idea record (or vice versa) is a mode/oracle mismatch and is REJECTED.
+  if (isIdea) {
+    if (!IDEA_ORACLE_ENUM.includes(rec.oracle))
+      E(`oracle "${rec.oracle}" not in the IDEA-mode enum [${IDEA_ORACLE_ENUM.join("|")}] (target.type 'idea' requires an idea oracle; a product oracle on an idea is a mode/oracle mismatch)`);
+  } else if (mode === "product") {
+    if (!PRODUCT_ORACLE_ENUM.includes(rec.oracle))
+      E(`oracle "${rec.oracle}" not in the PRODUCT-mode enum [${PRODUCT_ORACLE_ENUM.join("|")}] (target.type 'product' requires a product oracle; an idea oracle on a product is a mode/oracle mismatch)`);
+  }
+
+  // repro: command OR steps, plus minimized_input + replayed_ok + k/n bounds (mode-agnostic).
+  // For an idea, `steps` is the reasoning chain a fresh reader re-checks, `minimized_input` is the
+  // minimal scenario/case, and `replayed_ok:true` means a fresh reader re-ran the reasoning and the
+  // flaw still holds — the SAME structural attestation, applied to the proof shape of the mode.
   const repro = rec.repro;
   if (!isObj(repro)) {
     E("missing repro");
@@ -100,7 +133,7 @@ function validateConfirmedRecord(rec, i, errors) {
     // minimized_input must be present and non-null (object/array/string/number ok)
     if (!has(repro, "minimized_input") || repro.minimized_input === null || repro.minimized_input === undefined)
       E("missing minimized_input (un-shrunk discovery is not a proven minimal repro)");
-    // checklist 13: proven requires the repro to re-fire
+    // checklist 13: proven requires the repro to re-fire (idea: a fresh reader re-ran the reasoning)
     if (repro.replayed_ok !== true) E("repro.replayed_ok !== true (proven requires the recorded repro to re-trigger on replay)");
     // Q4: flaky target k/n threshold. A flaky finding OPTS IN by carrying replays_total/passed.
     // The denominator MUST be a positive integer and the numerator an integer in [0, total];
@@ -125,24 +158,55 @@ function validateConfirmedRecord(rec, i, errors) {
     }
   }
 
-  // observed != expected
+  // observed != expected (mode-agnostic anti-vacuity: for an idea, expected = what the idea claims/
+  // predicts, observed = the counter outcome — a vague "I disagree" with observed==expected is NOT
+  // a proven flaw and is REJECTED here, exactly as for a product).
   if (!has(rec, "observed")) E("missing observed");
   if (!has(rec, "expected")) E("missing expected");
   if (has(rec, "observed") && has(rec, "expected") && deepEq(rec.observed, rec.expected))
     E("observed == expected (a 'proven' break must demonstrate observed != expected)");
 
-  // checklist 14: real collaborator at the attacked seam (no mock tautology)
-  if (rec.real_collaborator_at_seam !== true)
-    E("real_collaborator_at_seam !== true (a fully-mocked path at the attacked seam is zero-evidence tautology)");
+  // v0.3.0 ATTACK-SCOPE TAG (mode-agnostic): every confirmed record MUST carry a non-empty
+  // attack_scope AND (when an in_scope set is declared) it must be an EXACT member of that set. The
+  // semantic "is this attack really UI not backend" judgment stays with the fresh-reader; the
+  // validator only checks the declared tag is present and in the declared set.
+  if (!nonEmptyStr(rec.attack_scope)) {
+    E("missing/empty attack_scope (every confirmed record must tag which declared in_scope domain it targeted)");
+  } else if (Array.isArray(inScope) && !inScope.includes(rec.attack_scope)) {
+    E(`attack_scope "${rec.attack_scope}" is not one of the declared summary.in_scope descriptors [${inScope.join(" | ")}] (the attack hit an undeclared domain; tag it within the declared scope or move the observation to out_of_scope[])`);
+  }
 
-  // independence attestation: withheld must include BOTH impl source + tdd suite
-  const ia = rec.independence_attestation;
-  if (!isObj(ia) || !Array.isArray(ia.withheld)) {
-    E("missing independence_attestation.withheld[]");
+  // ---- MODE-CONDITIONAL requirements ----
+  if (isIdea) {
+    // IDEA mode: REQUIRE claim (the thesis attacked) + not_strawman===true + an idea oracle (above)
+    // + independence_attestation.derived_expected_from + derived_independently===true. It does NOT
+    // require withheld⊇{implementation_source,tdd_suite} and does NOT require real_collaborator_at_seam
+    // (those are product-specific — their absence must not reject an idea record).
+    if (!nonEmptyStr(rec.claim)) E("missing/empty claim (an idea-mode finding must state the thesis it attacks)");
+    if (rec.not_strawman !== true)
+      E("not_strawman !== true (an idea critique must attest it attacks the actual steelmanned claim, not a misread)");
+    const ia = rec.independence_attestation;
+    if (!isObj(ia)) {
+      E("missing independence_attestation (idea mode requires derived_expected_from + derived_independently)");
+    } else {
+      if (!nonEmptyStr(ia.derived_expected_from))
+        E("missing independence_attestation.derived_expected_from (the claim/source the counter was derived from)");
+      if (ia.derived_independently !== true)
+        E("independence_attestation.derived_independently !== true (an idea critique must be derived independently, not adopt the proposer's defense as settled)");
+    }
   } else {
-    if (!ia.withheld.includes("implementation_source")) E("independence_attestation.withheld omits 'implementation_source'");
-    if (!ia.withheld.includes("tdd_suite")) E("independence_attestation.withheld omits 'tdd_suite'");
-    if (!nonEmptyStr(ia.derived_expected_from)) E("missing independence_attestation.derived_expected_from");
+    // PRODUCT mode (UNCHANGED from v0.2.1): real collaborator at the attacked seam (no mock
+    // tautology) + withheld ⊇ {implementation_source, tdd_suite} + derived_expected_from.
+    if (rec.real_collaborator_at_seam !== true)
+      E("real_collaborator_at_seam !== true (a fully-mocked path at the attacked seam is zero-evidence tautology)");
+    const ia = rec.independence_attestation;
+    if (!isObj(ia) || !Array.isArray(ia.withheld)) {
+      E("missing independence_attestation.withheld[]");
+    } else {
+      if (!ia.withheld.includes("implementation_source")) E("independence_attestation.withheld omits 'implementation_source'");
+      if (!ia.withheld.includes("tdd_suite")) E("independence_attestation.withheld omits 'tdd_suite'");
+      if (!nonEmptyStr(ia.derived_expected_from)) E("missing independence_attestation.derived_expected_from");
+    }
   }
 
   // anti-vacuity: a record describing a "correctly rejected" input the contract never promised
@@ -167,6 +231,16 @@ export function validate(doc, opts = {}) {
 
   // roll-up consistency
   const s = doc.summary;
+
+  // v0.3.0 ATTACK-SCOPE CONTRACT: the declared in_scope descriptor set every confirmed record's
+  // attack_scope must match. It is enforced ONLY against a USER-SUPPLIED summary — the CLI's
+  // synthesized records-only fallback (opts.summarySynthesized) has no declared scope, so scope-tag
+  // enforcement is EXEMPT there, same out-of-band stance as the round-verdict gate.
+  const synthesized = opts.summarySynthesized === true;
+  const inScope =
+    !synthesized && isObj(s) && Array.isArray(s.in_scope) && s.in_scope.every(nonEmptyStr) && s.in_scope.length >= 1
+      ? s.in_scope
+      : null;
   if (isObj(s)) {
     if (typeof s.budget_n === "number" && typeof s.attempts_used === "number" && s.attempts_used > s.budget_n)
       errors.push(`summary: attempts_used (${s.attempts_used}) > budget_n (${s.budget_n}) — internally inconsistent ASR@n accounting`);
@@ -181,12 +255,25 @@ export function validate(doc, opts = {}) {
     }
   }
 
-  // confirmed records get the full gate
+  // confirmed records get the full mode-conditional gate (with the declared in_scope set, if any)
   records.forEach((rec, i) => {
     if (!isObj(rec)) { errors.push(`records[${i}] is not an object`); return; }
     const confirmed = rec.status === "confirmed" || rec.proven === true;
-    if (confirmed) validateConfirmedRecord(rec, i, errors);
+    if (confirmed) validateConfirmedRecord(rec, i, errors, inScope);
   });
+
+  // v0.3.0: the top-level out_of_scope[] bucket holds observations OUTSIDE the declared scope —
+  // KEPT (not lost) but NOT counted as findings and NOT subject to the confirmed-record gate. Shape
+  // only: it must be an array if present, and each item an object (no proof/scope-tag requirements).
+  if (has(doc, "out_of_scope")) {
+    if (!Array.isArray(doc.out_of_scope)) {
+      errors.push("out_of_scope must be an array (observations outside the declared scope; kept but not counted as findings)");
+    } else {
+      doc.out_of_scope.forEach((o, i) => {
+        if (!isObj(o)) errors.push(`out_of_scope[${i}] is not an object`);
+      });
+    }
+  }
 
   // dedup by regression_key → unique finding count + deduped severity histogram (one severity
   // per unique regression_key, first occurrence wins) so by_severity reconciles with
@@ -221,6 +308,22 @@ export function validate(doc, opts = {}) {
     }
   }
 
+  // ---- v0.3.0: attack-scope contract + rich-context handle on the SUMMARY roll-up ----
+  // Same OUT-OF-BAND exemption as the round-verdict gate: fire ONLY on a user-supplied summary (the
+  // CLI's synthesized records-only fallback has no declared scope/context and is exempt).
+  if (isObj(s) && !synthesized) {
+    // in_scope: required, an array of >=1 non-empty descriptor strings (RICH free-form descriptors,
+    // not a fixed enum) — the declared domain set the attack targeted.
+    if (!Array.isArray(s.in_scope) || s.in_scope.length < 1 || !s.in_scope.every(nonEmptyStr))
+      errors.push("summary.in_scope must be an array of >=1 non-empty descriptor strings (the declared attack-scope domain set every confirmed record's attack_scope must match)");
+    // out_of_scope: required array (MAY be empty) — the declared excluded domains.
+    if (!Array.isArray(s.out_of_scope) || !s.out_of_scope.every(nonEmptyStr))
+      errors.push("summary.out_of_scope must be an array of descriptor strings (may be empty) declaring the excluded domains");
+    // context_digest: OPTIONAL lean machine handle; ONLY type-checked when present (non-empty string).
+    if (has(s, "context_digest") && !nonEmptyStr(s.context_digest))
+      errors.push("summary.context_digest, when present, must be a non-empty string (a short attestation of the context the round's attacks were grounded in)");
+  }
+
   // ---- v0.2.0: round-verdict (loop STOP-CONDITION) + DUAL hard budget + carry-forward ledger ----
   // These fire ONLY against a USER-SUPPLIED summary (a round the attacker actually emitted). The
   // exemption is OUT-OF-BAND: a round-verdict-exempt summary is signalled by opts.summarySynthesized,
@@ -230,7 +333,7 @@ export function validate(doc, opts = {}) {
   // never reconcile/enforce against a stub the CLI built from records — but it can no longer be
   // forged from input. The new fields are REQUIRED on a user-supplied summary; the loop branches on
   // round_verdict.
-  validateRoundVerdict(s, stats.confirmed_record_count, errors, opts.summarySynthesized === true);
+  validateRoundVerdict(s, stats.confirmed_record_count, errors, synthesized);
 
   return { ok: errors.length === 0, errors, stats };
 }

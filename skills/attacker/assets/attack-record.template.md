@@ -10,34 +10,48 @@
 | metric | value |
 |---|---|
 | round | {{ROUND}} |
+| mode (target.type) | {{product \| idea}} |
+| in_scope | {{IN_SCOPE}} |
+| out_of_scope | {{OUT_OF_SCOPE}} |
+| context_digest (optional) | {{CONTEXT_DIGEST}} |
 | budget_n | {{BUDGET_N}} |
 | attempts_used | {{ATTEMPTS_USED}} |
 | ASR@n (attempts_used / budget_n) | {{ASR_AT_N}} |
 | unique findings (regression_key dedup) | {{UNIQUE_FINDING_COUNT}} |
 | severity | critical {{CRITICAL}} · major {{MAJOR}} · minor {{MINOR}} |
 | needs_judgment items | {{NEEDS_JUDGMENT_COUNT}} |
+| out_of_scope observations (kept, NOT counted) | {{OUT_OF_SCOPE_COUNT}} |
 
 ## Proven breaks (fix these) — `records[]`
 
 For each confirmed record:
 
-### {{ID}} — {{SEVERITY_LEVEL}} / {{PRIORITY}} — {{TARGET_NAME}}
+### {{ID}} — {{SEVERITY_LEVEL}} / {{PRIORITY}} — {{TARGET_NAME}} ({{product \| idea}})
+- **attack_scope:** {{ATTACK_SCOPE}} (∈ in_scope)
 - **attack_class:** {{ATTACK_CLASS}} (surface: {{SURFACE_CLASS}})
-- **invariant violated:** {{INVARIANT}}
-- **oracle:** {{ORACLE}}
+- **invariant violated / claim attacked:** {{INVARIANT}} {{| claim: {{CLAIM}} (idea)}}
+- **oracle:** {{ORACLE}} (product OR idea oracle, per mode)
 - **baseline:** {{BASELINE_METRIC}} = {{BASELINE_VALUE}}
 - **observed:** {{OBSERVED}}
 - **expected:** {{EXPECTED}} (derived from {{DERIVED_EXPECTED_FROM}})
-- **repro:** `{{REPRO_COMMAND}}` OR steps:
+- **repro:** `{{REPRO_COMMAND}}` OR steps / reasoning chain (idea):
   1. {{STEP_1}}
-- **minimized input:** `{{MINIMIZED_INPUT}}` (seed {{SEED}})
+- **minimized input / scenario:** `{{MINIMIZED_INPUT}}` (seed {{SEED}})
 - **regression_key:** `{{REGRESSION_KEY}}` (re-run next round to confirm the fix)
 - **non-tautology:** {{NON_TAUTOLOGY_CHECK}}
+- **independence:** product → withheld {{WITHHELD}} + real seam; idea → not_strawman + derived_independently
 
 ## Unresolved — `needs_judgment[]` (NOT counted as confirmed breaks)
 
 ### {{NJ_ID}} — {{NJ_REASON}}
 {{NJ_NOTE}}
+
+## Out of scope — `out_of_scope[]` (kept, NOT counted as findings, NOT gated)
+
+Observations found OUTSIDE the declared `in_scope`. Preserved so nothing is lost; not part of
+the fix list.
+
+### {{OOS_ID}} — {{OOS_NOTE}}
 
 ## Regression status (from prior rounds)
 

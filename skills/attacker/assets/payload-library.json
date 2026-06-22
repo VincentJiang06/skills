@@ -55,5 +55,17 @@
     "dos": "hang / crash / exhaust",
     "elevation": "do what the current state/role forbids"
   },
+  "idea_attack_catalog": {
+    "_about": "v0.3.0 IDEA mode (target.type 'idea'): the reasoning-attack families DESIGN draws from when red-teaming an argument/design/plan (debate con-side). The unifying move is still spec-inversion: invert the claim into its violations. Maps to the idea oracles in references/oracle-menu.md (§I1–§I6).",
+    "counterexample": "one concrete case inside the claim's own domain where the claimed outcome does NOT hold (a single real case falls a universal 'every X' claim)",
+    "contradiction": "the claim's premises (or two stated commitments) cannot both hold — self-defeating",
+    "unmet_assumption": "a load-bearing premise the conclusion depends on is false / unsupported in the stated context",
+    "scope_violation": "the claim over-reaches its evidence/domain — supported only in a narrower scope than asserted (over-generalization)",
+    "infeasibility": "sound in principle but impossible / too costly within the declared constraints (resources, time, dependencies, physics)",
+    "missing_case": "an unhandled case the claim/plan was obligated to cover (by its own scope or success criteria) but does not — a coverage gap",
+    "ambiguity_equivocation": "a key term shifts meaning between premises, so the conclusion only 'follows' by trading on the slippage",
+    "false_dichotomy_or_hidden_alternative": "the argument assumes only the options it lists; exhibit a real third option it ignored"
+  },
+  "idea_anti_vacuity_rule": "A vague 'I disagree' with no concrete counter (no counterexample / named premise / binding constraint) is NOT a finding. The critique must attack the actual steelmanned claim (not_strawman) and demonstrate observed != expected (the counter outcome != what the claim predicts).",
   "anti_vacuity_rule": "A malformed input the contract NEVER promised to handle, correctly rejected, is NOT a finding. The oracle violation must be a property the feature actually promised."
 }

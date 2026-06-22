@@ -9,8 +9,8 @@
   "properties": {
     "summary": {
       "type": "object",
-      "description": "Round roll-up the LOOP branches on. v0.2.0: the round emits a machine-readable round_verdict (the loop's STOP-CONDITION — clean⇒STOP, broke⇒fix-then-re-attack, inconclusive⇒loop-owner-decides) plus stop_reason and the DUAL hard budget (attempts: budget_n/attempts_used; token-consumption: max_tokens/tokens_used). carried_from_round records the prior attack round whose ledger THIS round inherited (the carry-forward discipline so a later round never cold-restarts and re-derives the whole attack plan).",
-      "required": ["round", "budget_n", "attempts_used", "asr_at_n", "unique_finding_count", "by_severity", "round_verdict", "stop_reason", "max_tokens", "tokens_used", "carried_from_round"],
+      "description": "Round roll-up the LOOP branches on. v0.2.0: the round emits a machine-readable round_verdict (the loop's STOP-CONDITION — clean⇒STOP, broke⇒fix-then-re-attack, inconclusive⇒loop-owner-decides) plus stop_reason and the DUAL hard budget (attempts: budget_n/attempts_used; token-consumption: max_tokens/tokens_used). carried_from_round records the prior attack round whose ledger THIS round inherited (the carry-forward discipline so a later round never cold-restarts and re-derives the whole attack plan). v0.3.0: the ATTACK-SCOPE CONTRACT — in_scope (>=1 free-form descriptors) declares which domains/layers were attacked; out_of_scope (may be empty) declares the excluded domains; every confirmed record's attack_scope MUST be an exact member of in_scope (the validator enforces this on a user-supplied summary). Optional context_digest is a short attestation of the context the round's attacks were grounded in. These scope/context checks (like round-verdict) fire only on a user-supplied summary, never the CLI's synthesized records-only fallback.",
+      "required": ["round", "budget_n", "attempts_used", "asr_at_n", "unique_finding_count", "by_severity", "round_verdict", "stop_reason", "max_tokens", "tokens_used", "carried_from_round", "in_scope", "out_of_scope"],
       "additionalProperties": true,
       "properties": {
         "round": { "type": "integer", "minimum": 1 },
@@ -18,6 +18,22 @@
         "attempts_used": { "type": "integer", "minimum": 0 },
         "asr_at_n": { "type": "number", "minimum": 0 },
         "unique_finding_count": { "type": "integer", "minimum": 0 },
+        "in_scope": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "v0.3.0 attack-scope contract: the declared domains/layers this round attacked, as >=1 RICH free-form descriptor strings (NOT a fixed enum), e.g. 'UI rendering errors', 'page navigation/logic transitions', 'logical soundness of the pricing argument'. Every confirmed record's attack_scope MUST be an exact member of this set (the validator enforces it on a user-supplied summary)."
+        },
+        "out_of_scope": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "v0.3.0: the declared EXCLUDED domains/layers (may be empty). Free-form descriptors, like in_scope. Observations the attacker found OUTSIDE the declared scope go in the TOP-LEVEL out_of_scope[] bucket (kept, not counted), not here — this is the scope declaration."
+        },
+        "context_digest": {
+          "type": "string",
+          "minLength": 1,
+          "description": "v0.3.0 OPTIONAL lean machine handle: a short attestation of what context (claim/requirement, constraints, success criteria, what-counts-as-a-break, in/out-of-scope, prior rounds) the round's attacks were grounded in. When present the validator type-checks it (non-empty string); it is never required."
+        },
         "round_verdict": {
           "type": "string",
           "enum": ["broke", "clean", "inconclusive"],
@@ -54,6 +70,11 @@
       "type": "array",
       "items": { "$ref": "#/definitions/needs_judgment_item" }
     },
+    "out_of_scope": {
+      "type": "array",
+      "description": "v0.3.0: observations the attacker found that are OUTSIDE the declared summary scope — KEPT (not lost) but NOT counted as findings and NOT subject to the confirmed-record gate (unlike records[]). Each item is an object (free-form; no proof/scope-tag requirements). This is how out-of-scope discoveries are preserved without polluting the finding count.",
+      "items": { "type": "object" }
+    },
     "target": { "type": "object" }
   },
   "definitions": {
@@ -69,18 +90,23 @@
     },
     "independence_attestation": {
       "type": "object",
-      "required": ["withheld", "derived_expected_from"],
-      "additionalProperties": false,
+      "required": ["derived_expected_from"],
+      "additionalProperties": true,
+      "description": "PRODUCT mode: withheld MUST include 'implementation_source' + 'tdd_suite' (the validator enforces it) so the §1 firewall is auditable, and real_collaborator_at_seam is required on the record. IDEA mode: withheld is NOT required (the idea + its justification IS the input); instead derived_independently MUST be true (the critique was derived independently, not by adopting the proposer's defense as settled). derived_expected_from is required in BOTH modes (the source the counter/expected was derived from). The mode-conditional logic lives in the validator; the schema is permissive.",
       "properties": {
         "withheld": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Context channels denied to the attacking subagent. A confirmed record MUST include 'implementation_source' and 'tdd_suite' (the validator enforces this) so the §1 firewall is auditable."
+          "description": "Context channels denied to the attacking subagent. In PRODUCT mode a confirmed record MUST include 'implementation_source' and 'tdd_suite' (the validator enforces this). In IDEA mode it is optional (the idea + its justification is the input)."
         },
         "derived_expected_from": {
           "type": "string",
           "minLength": 1,
-          "description": "The requirement artifact the attacker derived 'expected' from, independently (e.g. REQ-checkout-12). NOT the impl or its tests."
+          "description": "The artifact 'expected' was derived from, independently. PRODUCT: the requirement (e.g. REQ-checkout-12), NOT the impl or its tests. IDEA: the claim/source the counter was derived from (e.g. the proposal's thesis)."
+        },
+        "derived_independently": {
+          "type": "boolean",
+          "description": "v0.3.0 IDEA mode: STRUCTURAL attestation the critique was derived INDEPENDENTLY (did not adopt the proposer's defense/rebuttal as settled). The validator REQUIRES true on a confirmed idea-mode record."
         }
       }
     },
@@ -121,9 +147,8 @@
       "type": "object",
       "required": [
         "id", "round", "target", "attack_class", "surface_class", "oracle",
-        "invariant", "repro", "baseline", "observed", "expected", "proven",
-        "non_tautology_check", "real_collaborator_at_seam",
-        "independence_attestation", "severity", "regression_key", "status"
+        "attack_scope", "invariant", "repro", "baseline", "observed", "expected", "proven",
+        "non_tautology_check", "independence_attestation", "severity", "regression_key", "status"
       ],
       "additionalProperties": true,
       "properties": {
@@ -131,10 +156,13 @@
         "round": { "type": "integer", "minimum": 1 },
         "target": {
           "type": "object",
-          "required": ["name"],
+          "required": ["type", "name"],
           "additionalProperties": true,
+          "description": "v0.3.0: type selects the MODE. 'product' = a running feature/function/endpoint (the v0.1–0.2 behavior). 'idea' = an argument/design/plan/thesis (debate con-side); statement holds the idea text and the product-only fields (version/model/checkpoint/system_prompt_hash) are optional/null.",
           "properties": {
-            "name": { "type": "string", "minLength": 1, "description": "feature/function/endpoint under attack. CJK / emoji / zero-width permitted." },
+            "type": { "type": "string", "enum": ["product", "idea"], "description": "The attack MODE. product → product oracles + the impl/tdd-withholding firewall + real_collaborator_at_seam. idea → idea oracles + claim/not_strawman/derived_independently; product-only fields not required." },
+            "name": { "type": "string", "minLength": 1, "description": "feature/function/endpoint (product) or the idea's short name (idea) under attack. CJK / emoji / zero-width permitted." },
+            "statement": { "type": ["string", "null"], "description": "v0.3.0 IDEA mode: the idea/thesis text being attacked (optional)." },
             "version": { "type": ["string", "null"] },
             "model": { "type": ["string", "null"] },
             "checkpoint": { "type": ["string", "null"] },
@@ -152,7 +180,22 @@
         },
         "oracle": {
           "type": "string",
-          "enum": ["implicit", "differential", "metamorphic", "control_vs_experiment", "specified"]
+          "description": "v0.3.0: mode-conditional. PRODUCT oracles (implicit|differential|metamorphic|control_vs_experiment|specified) attack a running target; IDEA oracles (counterexample|contradiction|unmet_assumption|scope_violation|infeasibility|missing_case) attack an argument/design. The union is listed here; the validator enforces the MODE-APPROPRIATE subset per target.type (a product oracle on an idea, or vice versa, is REJECTED).",
+          "enum": ["implicit", "differential", "metamorphic", "control_vs_experiment", "specified", "counterexample", "contradiction", "unmet_assumption", "scope_violation", "infeasibility", "missing_case"]
+        },
+        "attack_scope": {
+          "type": "string",
+          "minLength": 1,
+          "description": "v0.3.0 attack-scope contract: which declared in_scope domain THIS attack targeted. The validator REQUIRES a non-empty value on every confirmed record AND (on a user-supplied summary) that it is an EXACT member of summary.in_scope; the semantic 'is this really that domain' judgment stays with the fresh-reader."
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1,
+          "description": "v0.3.0 IDEA mode: the steelmanned thesis the record attacks. REQUIRED on a confirmed idea-mode record (the validator enforces it). For an idea, observed != expected means expected = what the claim predicts, observed = the counter outcome."
+        },
+        "not_strawman": {
+          "type": "boolean",
+          "description": "v0.3.0 IDEA mode: STRUCTURAL attestation the critique attacks the ACTUAL steelmanned claim, not a misread. The validator REQUIRES true on a confirmed idea-mode record."
         },
         "invariant": { "type": "string", "minLength": 1 },
         "repro": { "$ref": "#/definitions/repro" },

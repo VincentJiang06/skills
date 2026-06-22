@@ -5,6 +5,15 @@ Synthesized from the pentest kill-chain (skeleton), fuzzing/PBT (input derivatio
 + oracle + shrinking), and chaos engineering (baseline-anchored, scoped,
 reproducible experiments). The unifying move is **invert the spec**.
 
+**Two modes (v0.3.0), one procedure.** `target.type:"product"` attacks a running system
+(the description below); `target.type:"idea"` red-teams an argument/design/plan (debate
+con-side) — SAME READ→DESIGN→EXECUTE→PROVE→RECORD, SAME loop / round-verdict / budget /
+carry-forward; only the oracle + proof shape change (idea: `claim` + a reasoning chain over a
+minimal scenario + an idea oracle + `not_strawman` + a critique derived independently). See
+`references/oracle-menu.md` (§I1–§I6) and `references/context-intake.md` (Preflight step 0).
+**Every confirmed record (both modes) tags an `attack_scope` ∈ the declared `summary.in_scope`;
+out-of-scope discoveries go in the top-level `out_of_scope[]` (kept, not counted).**
+
 ## The fresh-context independence mechanism (the entire value proposition)
 
 The attack round runs in a **fresh, isolated subagent** (spawn one — do not run
@@ -93,14 +102,20 @@ targets, replay k/n and record `replays_passed`/`replays_total`.
 
 ## RECORD — emit machine-checkable records
 One record per **proven** defect → `records[]`; unprovable/ambiguous →
-`needs_judgment[]`. Store the **shrunk** input (never the raw discovery), pin
-randomness (`seed`/`temperature`/`env`), compute `regression_key` over
+`needs_judgment[]`; **out-of-scope discovery → top-level `out_of_scope[]`** (kept, NOT
+counted, NOT gated). Store the **shrunk** input / minimal scenario (never the raw
+discovery), pin randomness (`seed`/`temperature`/`env`), compute `regression_key` over
 **semantics** (so paraphrased variants of one bug collapse), dedup, roll up
-`ASR@n` + unique-finding count + severity histogram. **Also emit the round verdict
-on the summary** (the loop branches on it): `round_verdict` (broke|clean|inconclusive)
-+ `stop_reason` (plan_complete|budget_exhausted) + `tokens_used`/`max_tokens` +
-`carried_from_round`. `broke` ⟺ ≥1 confirmed record; `clean` requires
-`plan_complete`; `inconclusive` requires `budget_exhausted`. Validate with
+`ASR@n` + unique-finding count + severity histogram. **Tag each record's `attack_scope`
+(∈ `summary.in_scope`).** **Per mode:** product records carry `real_collaborator_at_seam`
++ `independence_attestation.withheld ⊇ {implementation_source, tdd_suite}`; idea records
+carry `claim` + `not_strawman:true` + `independence_attestation.derived_expected_from` +
+`derived_independently:true` (and a mode-appropriate oracle). **Also emit on the summary**
+the attack-scope contract (`in_scope` ≥1 descriptors + `out_of_scope`, optional
+`context_digest`) and the round verdict (the loop branches on it): `round_verdict`
+(broke|clean|inconclusive) + `stop_reason` (plan_complete|budget_exhausted) +
+`tokens_used`/`max_tokens` + `carried_from_round`. `broke` ⟺ ≥1 confirmed record; `clean`
+requires `plan_complete`; `inconclusive` requires `budget_exhausted`. Validate with
 `node scripts/validate_attack_records.mjs <records>` then hand to the fresh-reader
 checklist.
 

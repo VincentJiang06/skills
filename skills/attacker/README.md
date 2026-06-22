@@ -1,10 +1,24 @@
 # attacker
 
-> 在一个全新的、与 TDD 解耦的 subagent 中攻击产品的*真实可观测行为*，只记录被证明、可复现的破坏。
+> 在一个全新的、与 TDD 解耦的 subagent 中攻击产品的*真实可观测行为*——或对一个想法/论点/方案做红队（辩论反方）——在一个声明的攻击范围内，只记录被证明、可复现的破坏。
 
 [English](README.en.md) · **简体中文**
 
-**做什么** —— 针对一个功能/产品的*可观测行为*（而非源码）发起对抗式攻击，把成功的攻击（已证明、可复现、`observed != expected`）写成机器可校验的「攻击记录」，交给下一轮去修。输出是一份**交接文档集**，**绝不修改目标本身**。
+**做什么** —— 针对一个功能/产品的*可观测行为*（而非源码），或一个*想法/论点/设计/方案*，发起对抗式攻击，把成功的攻击（已证明、可复现、`observed != expected`）写成机器可校验的「攻击记录」，交给下一轮去修。输出是一份**交接文档集**，**绝不修改目标本身**。
+
+**v0.3.0 —— 三个相互呼应的特性：**
+- **攻击范围契约** —— 声明*攻击哪个领域/层*。`--scope` → `summary.in_scope`（≥1 条丰富的自由描述符，如「UI 渲染错误」「页面导航/逻辑跳转」）；`--out-of-scope` → `summary.out_of_scope`。每条已确认记录都标注它的 `attack_scope`（须 ∈ `in_scope`）；范围之外的发现进入顶层 `out_of_scope[]`（**保留**，但**不计入发现数**）。于是「攻击 UI」命中 UI 渲染 + 页面导航，而**不**碰后端逻辑。
+- **product | idea 两种模式**（`target.type`）—— 循环 / 轮裁决 / 预算 / 结转**完全一致**，只有 oracle 与证明形态不同：
+
+  | | **product** | **idea**（辩论反方） |
+  |---|---|---|
+  | 目标 | 运行中的功能/函数/接口 | 论点/设计/方案/命题（`target.statement`） |
+  | Oracle | implicit / differential / metamorphic / control_vs_experiment / specified | counterexample / contradiction / unmet_assumption / scope_violation / infeasibility / missing_case |
+  | 证明 | repro + minimized_input + replayed_ok；相对基线 `observed != expected` | `claim` + 推理链 + 最小情景 + replayed_ok；`observed`（反例结果）!= `expected`（论点的预测） |
+  | 独立性防火墙 | 屏蔽实现源码 / TDD 套件 / 作者表述；真实接缝（无 mock） | 拿到论点 + 其论证，但**独立**推导批判（`derived_independently`）+ 攻击 steelman 后的论点（`not_strawman`） |
+  | `broke` / `clean` / `inconclusive` | 已证明破坏 / 预算内未破（≠ 已证明正确）/ 预算耗尽未发现 | 已证明缺陷 / 预算内未破（≠ 已证明为真）/ 预算耗尽未发现 |
+
+- **丰富上下文摄入（鼓励多给）** —— Preflight 先收一份上下文包（目标+类型、主张/需求、约束、成功标准、何谓真正的破坏、范围内/外、历史轮次），并在上下文薄弱时**主动追问缺失的细节：上下文越精确，攻击越锋利、范围越准——问，而不是猜。** 见 `references/context-intake.md`。可选的单行 `summary.context_digest` 记录本轮攻击所依据的上下文。
 
 **为什么** —— 它要打击的缺陷是**假阳性测试套件**：一套绿色的 TDD 测试坐在一个坏掉的产品之上。根因是**相关性错误**——测试、mock、「期望值」夹具，乃至作者对「应该怎样」的表述，都出自与实现*同一个心智模型*，于是继承了同一处误解（Knight–Leveson：规格本身是最主要的共模通道）。唯一的解法是**工程化的独立性**：攻击者运行在一个从未见过实现、测试、作者表述的上下文里。**独立性就是全部价值所在。**
 
@@ -14,7 +28,7 @@
 - **确定性校验器 + 非空自检**：`scripts/validate_attack_records.mjs` 强制结构与可复现性形状；`evals/run_all.mjs` 跑一个**植入 bug**（必须被抓到）和一个**干净对照**（必须零误报）的反作弊门。
 - **可枚举的攻击面**：`assets/payload-library.json` 把边界值（AFL interesting values）、Unicode/中文、业务逻辑滥用目录等列为数据，覆盖可见、缺口可见。
 
-**什么时候用** —— 「attack this feature / try to break it」·「red-team this product」·「find what the tests miss」·「$attacker」；或作为 loop-constructor 设计的循环里的「攻击轮」节点。
+**什么时候用** —— 「attack this feature / try to break it」·「red-team this product」·「red-team this idea/argument/plan（辩论反方）」·「find what the tests miss」·「$attacker」；或作为 loop-constructor 设计的循环里的「攻击轮」节点。
 
 **不适用（须路由走）** ——
 1. 写/维护项目自己的单元测试、「先写一个失败测试」→ **vince-tdd**（attacker *不信任*那套测试，它攻击运行中的产品）；

@@ -2,6 +2,87 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.3.0] — 2026-06-22
+
+Three coherent features extend attacker from "attack a product, anywhere, with a budget"
+to "attack a declared DOMAIN of a product OR an idea, grounded in rich context." RED-FIRST
+(suite 53/53 → **72/72**, exit 0). `validate()` stays **imported** (run_all.mjs:27), not
+inlined; importing any module runs no CLI; the release gate still PASSes (industrial); the
+v0.2.1 out-of-band round-verdict exemption is preserved (in-band `__synthesized` still inert).
+
+### Added — A. ATTACK-SCOPE CONTRACT (constrain WHICH domain/layer is attacked)
+- **Summary roll-up:** `in_scope` (array of ≥1 non-empty RICH free-form descriptors, e.g.
+  "UI rendering errors", "page navigation/logic transitions" — NOT a fixed enum) +
+  `out_of_scope` (descriptor array, may be empty), both added to summary `required`. Flags:
+  `--scope` / `--out-of-scope`.
+- **Per record:** `attack_scope` (non-empty string — which `in_scope` domain this attack
+  targeted), added to the attack_record `required`.
+- **New doc-level bucket:** top-level `out_of_scope[]` — observations found OUTSIDE the
+  declared scope: KEPT (not lost) but NOT counted as findings and NOT subject to the
+  confirmed-record gate.
+- **Validator enforcement:** every confirmed record MUST carry a non-empty `attack_scope`
+  AND (on a user-supplied summary) it must be an EXACT match against `summary.in_scope`;
+  missing/empty or not-in-set → REJECT. The semantic "is this attack really UI not backend"
+  judgment stays with the fresh-reader. The synthesized fallback summary
+  (`opts.summarySynthesized`) is EXEMPT from scope-tag membership enforcement, same out-of-band
+  stance as round-verdict.
+
+### Added — B. TARGET TYPE: `product` | `idea` (debate con-side)
+- **Schema:** `target.type` enum `["product","idea"]` (required on every record's `target`);
+  optional `target.statement` (idea text); product-only fields (version/model/checkpoint/
+  system_prompt_hash) optional/null in idea mode.
+- **Oracle enum extended** with the idea-mode oracles: `counterexample`, `contradiction`,
+  `unmet_assumption`, `scope_violation`, `infeasibility`, `missing_case` (kept the product
+  oracles `implicit|differential|metamorphic|control_vs_experiment|specified`).
+  `references/oracle-menu.md` gains the idea-mode oracle ladder (§I1–§I6).
+- **Validator — MODE-CONDITIONAL gate** (branches on `record.target.type`):
+  - **product (UNCHANGED):** repro.command|steps + minimized_input + replayed_ok + a PRODUCT
+    oracle + `real_collaborator_at_seam===true` + `non_tautology_check` + `withheld ⊇
+    {implementation_source, tdd_suite}` + observed≠expected.
+  - **idea (new):** `claim` + observed≠expected (expected = what the claim predicts, observed =
+    the counter) + `repro.steps` (the reasoning chain) + `repro.minimized_input` (the minimal
+    scenario) + `repro.replayed_ok===true` (a fresh reader re-ran the reasoning) + an IDEA
+    oracle + `not_strawman===true` + `independence_attestation.derived_expected_from` +
+    `derived_independently===true`. Idea mode does NOT require `withheld ⊇ {impl,tdd}` nor
+    `real_collaborator_at_seam` (product-specific). Anti-vacuity still applies (a vague
+    "I disagree" with observed==expected is NOT a finding).
+  - regression_key dedup, severity, status, round-verdict, scope-tag, budget consistency apply
+    to BOTH modes. The product gate is byte-for-byte unchanged; idea relaxations do NOT leak
+    into product mode (regression-guarded by C57/C58).
+- **round_verdict semantics carry over to idea mode:** `broke` = a proven flaw found; `clean`
+  = couldn't break within budget (robust-so-far, NOT "proven true"); `inconclusive` = budget
+  hit, no flaw found.
+
+### Added — C. RICH CONTEXT INTAKE
+- **SKILL.md Preflight step 0 (CONTEXT, before scope/mode/budget):** take a rich context
+  bundle (target+type, claim/requirement, constraints, success criteria, what-counts-as-a-break,
+  in/out-of-scope, prior rounds) and **ACTIVELY ENCOURAGE more — when context is thin/ambiguous,
+  PROMPT the user for the missing specifics: the more precise the context, the sharper and
+  better-scoped the attack; ask rather than guess.** Independence-safe (product still excludes
+  impl/tests/framing; idea takes the claim + justification but critiques independently).
+- **New `references/context-intake.md`:** the context checklist + WHY more context = sharper
+  attacks + how it feeds DESIGN + the elicitation prompts to use when context is thin.
+  Referenced from the SKILL.md Modules table.
+- **Optional `summary.context_digest`** (string): NOT required (kept lean); when present the
+  validator type-checks it (non-empty string).
+
+### Testing
+- **RED-FIRST** eval cases **C48–C66** + fixtures, captured FAILING in
+  `.skill-engineer/red/red.log` (**RED PHASE 8**, 61/71) before the validator's v0.3.0
+  blocks: SCOPE (C48 attack_scope ∉ in_scope → REJECT; C49 empty attack_scope → REJECT; C50
+  ∈ in_scope → ACCEPT; C51 out_of_scope[] item accepted, not counted; C65 missing in_scope →
+  REJECT); IDEA (C52 valid idea record → ACCEPT; C53 missing not_strawman → REJECT; C54
+  missing replayed_ok → REJECT; C55 product oracle on an idea → REJECT; C56 missing
+  derived_independently → REJECT; C59 idea WITHOUT withheld/seam → still ACCEPT; C60 vague
+  "I disagree" → REJECT; C66 idea end-to-end via CLI → ACCEPT); MODE (C61 missing target.type
+  → REJECT); CONTEXT (C62 non-string context_digest → REJECT; C63 absent → OK; C64 valid
+  string → OK); REGRESSION GUARD (C57/C58 product mode still requires real_collaborator_at_seam
+  / withheld⊇{impl,tdd}). Existing fixtures (planted_bug / clean_control / records_no_rollup /
+  summary_key_collision_valid / record_with_type_summary) updated with `target.type:"product"`,
+  `attack_scope`, and summary `in_scope`/`out_of_scope` — fixtures updated, checks NOT weakened.
+  Suite 53/53 → **72/72**, exit 0; non-vacuity self-test stays green; SKILL.md folded
+  description **1019 ≤ 1024** (adds an idea/debate trigger + the scope flags).
+
 ## [0.2.1] — 2026-06-22
 
 An independent battery found a **P0**: the v0.2.0 round-verdict gate's exemption was
