@@ -67,7 +67,7 @@ its own `--workspace-root`; `--port` alone will reuse the live session and not s
   `shot <output>`, `nav <url>`, `step '<json>'` (any supported workflow step — see `references/cli-contract.md`), `run --stdin` (batch).
 - **Diagnose / cross-stack:** `doctor [--skip-typecheck]`, `env list|use <key>|current|token <t>`,
   `logs --request-id <id> | --user-id <id> | --code <n>`.
-- **One-shot / special:** add `--no-session` to any shorthand for a single connect-and-exit;
+- **One-shot / special:** add `--no-session` to any shorthand (except `console`, whose buffer lives in the session daemon) for a single connect-and-exit;
   `smoke-existing --ws-endpoint <ws>` (attach-only non-invasive); `screenshot`, `media`,
   `capabilities`, `help`.
 

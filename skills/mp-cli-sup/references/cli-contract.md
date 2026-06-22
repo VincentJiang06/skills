@@ -39,7 +39,7 @@ idle-reaps itself. Every later command auto-starts a session if none is running.
 | `scan <code> [--type qrcode] [--method onScanCode] [--raw]` | callPageMethod | camera-less: calls the page's scan handler (default `onScanCode`) with a `{type:"scancode", detail:{result, scanType, type:scanType}}` event object; `--raw` sends the legacy `{result, scanType}` shape |
 | `shot <output>` | screenshot | full-page PNG under `--workspace-root` — the SESSION path (the standalone `screenshot`/`media` commands are one-shot and REQUIRE `--connect '<json>'`) |
 | `nav <url>` | navigateTo | navigation (invalidates uids) |
-| `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (message + exception buffers each capped 1000) |
+| `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (message + exception buffers each capped 1000); needs a session — `--no-session` → `INVALID_ARGUMENT` |
 | `step '<json>'` | any step | escape hatch: a step object, or an array → batch |
 
 ## Diagnose / cross-stack
