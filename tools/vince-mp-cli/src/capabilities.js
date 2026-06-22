@@ -69,6 +69,7 @@ export function getCapabilities() {
     ],
     shorthands: ["page", "stack", "data", "sysinfo", "query", "snapshot", "tap", "input", "eval", "scan", "console", "shot", "nav", "step"],
     sessionOps: ["ping", "status", "step", "batch", "shutdown"],
+    sessionCommands: ["start", "status", "stop", "restart", "reconnect"],
     workflowSteps: WORKFLOW_STEPS,
     connectionModes: {
       attach: {
@@ -99,6 +100,8 @@ export function getCapabilities() {
       "UNSAFE_WX_METHOD",
       "STORAGE_CLEAR_REQUIRES_CONFIRMATION",
       "CAMERA_MOCK_REQUIRES_FIXTURE",
+      "APP_NOT_RUNNING",
+      "AUTOMATION_PORT_TIMEOUT",
     ],
   };
 }
