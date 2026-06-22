@@ -62,6 +62,9 @@ vince-mp media --connect '<json>' --action restore --json
 
 Prefer API-event evidence, snapshot temp path, and pixel checksum. If the runtime lacks
 `canvasToTempFilePath`/`canvasGetImageData`, report unsupported/partial evidence rather than retrying
-blindly. Camera mock is an explicit, reversible side effect — require a fixture/mock config and
+blindly. Map the failure code: `*_UNSUPPORTED` (`CANVAS_EXPORT_UNSUPPORTED`, `CANVAS_SAMPLE_UNSUPPORTED`,
+`CAMERA_UNSUPPORTED`, `CAMERA_TAKE_PHOTO_UNSUPPORTED`) = the runtime lacks that API → report unsupported,
+do not retry; `*_FAILED` = the call errored → capture the message as partial evidence;
+`UNSUPPORTED_MEDIA_ACTION` = unknown action name. Camera mock is an explicit, reversible side effect — require a fixture/mock config and
 `restore` after. Do not collect real photos/frames unless the user explicitly asks and the report
 states capture was enabled.

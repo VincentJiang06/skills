@@ -24,7 +24,7 @@ near-instant and element `uid`s persist across separate CLI calls.
 
 Use this skill to: connect to / start a session against WeChat DevTools; inspect runtime state
 (route, pageStack, pageData, storage, systemInfo, console); query/snapshot elements and then
-tap/input/longpress them by uid; take a single-element or full screenshot; drive a camera-less
+tap/input them by uid (long-press via `step`); take a single-element or full screenshot; drive a camera-less
 `scan`; run a real project `doctor` (tsc + `.ts/.js` freshness + selected backend domain + LAN IP);
 diagnose "won't connect / 模拟器启动失败"; switch backend env and pull server error logs by
 `requestId`; probe Skyline Canvas/Camera or mock media.

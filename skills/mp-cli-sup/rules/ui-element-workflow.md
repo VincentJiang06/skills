@@ -5,11 +5,15 @@ element, or debugging layout through runtime evidence.
 
 ## Principle
 
-`query`/`snapshot` first to mint a `uid`, then act by that uid (`tap`/`input`/`longpress`/
-`elementTrigger`/`elementScreenshot`). **In a session, a uid stays valid across separate CLI
-calls** — you can `vince-mp query .btn` in one call and `vince-mp tap button_0` in the next. A uid
-goes stale only after navigation (`nav`/`reLaunch`/`switchTab`) or a page mutation that replaces
-nodes; refresh by re-querying then. (Without a session — `--no-session` / a one-shot `run` — a uid
+`query`/`snapshot` first to mint a `uid`, then act by that uid. `tap`/`input` are shorthands;
+**long-press, `elementTrigger`, and `elementScreenshot` have no shorthand — invoke them via**
+`vince-mp step '{"type":"longpress","uid":"view_0"}'`. **In a session, a uid stays valid across
+separate CLI calls** — you can `vince-mp query .btn` in one call and `vince-mp tap button_0` in the
+next. A uid goes stale after navigation (`nav`/`reLaunch`/`switchTab`) or a node-replacing mutation,
+AND **`snapshot` resets the element map**: it re-numbers uids from `_0` and invalidates ALL
+previously-minted uids even with no navigation, whereas `query`/`query --all` APPEND (preserving
+earlier uids). So mint the uids you will act on with `query`, or run `snapshot` before minting
+action uids; re-query after a `snapshot`. (Without a session — `--no-session` / a one-shot `run` — a uid
 lives only inside that single process, the old model.)
 
 ## Workflow

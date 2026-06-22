@@ -48,6 +48,9 @@
       "eval.vince_mp.path_escape",
       "eval.vince_mp.camera_mock_explicit",
       "eval.vince_mp.avoid_launch_recovery",
+      "eval.vince_mp.network_instrument",
+      "eval.vince_mp.storage_clear_confirm",
+      "eval.vince_mp.session_connection_lost",
       "eval.vince_mp.negative_source_edit"
     ],
     "fixture_paths": [],

@@ -28,8 +28,8 @@ command/step/error schema is needed; otherwise keep this high-level protocol in 
      `smoke-existing --ws-endpoint` for a one-shot read;
    - opening/focusing a project → allowed only as the connect-time side effect of `session start`
      ensuring the port, or an explicit, user-authorized `--connect '{"mode":"launch",...}'`.
-4. **UI work:** `query`/`snapshot` to mint a uid, then `tap`/`input`/`longpress`/`elementScreenshot`
-   by that uid. In a session a uid stays valid across separate CLI calls — refresh only after
+4. **UI work:** `query`/`snapshot` to mint a uid, then `tap`/`input` by that uid (long-press,
+   `elementTrigger`, and `elementScreenshot` have no shorthand — use `step '{"type":...,"uid":...}'`). In a session a uid stays valid across separate CLI calls — refresh only after
    navigation or page mutation. For one element's image use `shot`/`elementScreenshot` with an
    explicit output path under `--workspace-root`.
 5. **Diagnostics:** read route/pageStack/pageData before snapshot. Treat a Skyline snapshot
@@ -50,6 +50,8 @@ command/step/error schema is needed; otherwise keep this high-level protocol in 
 - Do not write outside `--workspace-root`.
 - Do not call unsafe `wx` methods unless the step explicitly sets `allowUnsafe:true`.
 - Camera work is metadata-only unless the user explicitly requests mock/take-photo behavior.
+- Storage writes/clears are explicit side effects; `storageClear` requires confirmation
+  (`STORAGE_CLEAR_REQUIRES_CONFIRMATION`) — surface the data loss, never wipe silently.
 
 ## Output discipline
 

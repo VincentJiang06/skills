@@ -44,11 +44,12 @@ const rounds = ledger.rounds;
 const fail = [];
 
 // 1. round shape + cross-round distinctness (anti rubber-stamp / copy-paste)
+const ctxKey = (c) => String(c).replace(/[​-‍﻿­]/g, "").trim().toLowerCase();
 const seen = new Set();
 rounds.forEach((r, i) => {
   if (typeof r.context !== "string" || !r.context.trim()) fail.push(`round ${i}: missing non-empty "context"`);
-  else if (seen.has(r.context.trim().toLowerCase())) fail.push(`round ${i}: duplicate context "${r.context}" (rounds must be independent)`);
-  else seen.add(r.context.trim().toLowerCase());
+  else if (seen.has(ctxKey(r.context))) fail.push(`round ${i}: duplicate context "${r.context}" (rounds must be independent)`);
+  else seen.add(ctxKey(r.context));
   if (typeof r.lens !== "string" || !r.lens.trim()) fail.push(`round ${i}: missing non-empty "lens"`);
   if (!Array.isArray(r.attempted_breaks) || r.attempted_breaks.length === 0) fail.push(`round ${i}: missing non-empty "attempted_breaks[]"`);
   if (typeof r.clean !== "boolean") fail.push(`round ${i}: missing boolean "clean"`);

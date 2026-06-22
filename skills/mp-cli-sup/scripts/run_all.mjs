@@ -92,16 +92,18 @@ function documentedInvocations(text) {
   while ((m = re.exec(text))) set.add(m[1].toLowerCase());
   return set;
 }
-// strip markdown bold/italic markers (NOT backticks) so a fabricated command split across
-// emphasis spans — **vince-mp** **wipeall** — reads as the command a human sees, WITHOUT
-// exposing an inline-code noun phrase like `vince-mp` JSON CLI (the backtick still blocks that).
+// normalize so a fabricated command survives formatting: strip bold/italic markers
+// (**vince-mp** **wipeall**) and the backticks around the bare binary token (`vince-mp`
+// factoryreset). Legit noun phrases that then surface ("vince-mp JSON CLI") are filtered by
+// the per-check IGNORE set, not here.
 function normalizeForScan(text) {
-  return text.replace(/\*+/g, " ");
+  return text.replace(/`vince-mp`/g, "vince-mp").replace(/\*+/g, " ");
 }
 // lines that are part of a markdown table (structured doc), used by coverage so an
 // incidental backtick in prose ("`scan` your disk") does not count as documentation.
 function tableLines(text) {
-  return text.split("\n").filter((l) => l.includes("|"));
+  // a real markdown table row has at least two pipes; a prose sentence with a stray "|" does not
+  return text.split("\n").filter((l) => (l.match(/\|/g) || []).length >= 2);
 }
 function validCommandTokens(caps) {
   return new Set([...(caps.commands || []), ...(caps.shorthands || [])]);
@@ -183,13 +185,30 @@ const CHECKS = [
     title: "every `vince-mp <cmd>` documented in the skill exists in `capabilities` (no fabricated commands)",
     run(ctx) {
       const valid = validCommandTokens(ctx.caps);
+      // prose nouns that legitimately follow the backticked binary ("the `vince-mp` JSON CLI") —
+      // not command claims, so they are not flagged once the binary's backticks are stripped.
+      const IGNORE = new Set(["cli", "json", "backend", "binary", "call", "command", "debugging", "or", "the", "a", "is"]);
       const used = documentedInvocations(normalizeForScan(ctx.docText));
-      const bad = [...used].filter((t) => !valid.has(t));
+      const bad = [...used].filter((t) => !valid.has(t) && !IGNORE.has(t));
       return { ok: bad.length === 0, msg: bad.length ? `documented but not in capabilities: ${bad.join(", ")}` : `${used.size} tokens, all real` };
     },
     mkPass() {},
     mkFail(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nTo reset everything, run vince-mp nukeall before debugging.\n"); },
     mkFail2(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nDanger: run **vince-mp** **wipeall** to factory-reset the device.\n"); },
+    mkFail3(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nIf the simulator is wedged, the `vince-mp` factoryreset subcommand wipes local state.\n"); },
+  },
+  {
+    id: "no_step_as_shorthand",
+    title: "no `vince-mp <token>` invocation uses a workflow-step that is not a real command/shorthand (those need step/run)",
+    run(ctx) {
+      const valid = new Set([...(ctx.caps.commands || []), ...(ctx.caps.shorthands || [])].map((x) => x.toLowerCase()));
+      const steps = new Set((ctx.caps.workflowSteps || []).map((x) => x.toLowerCase()));
+      const invoked = documentedInvocations(normalizeForScan(ctx.docText));
+      const bad = [...invoked].filter((t) => !valid.has(t) && steps.has(t));
+      return { ok: bad.length === 0, msg: bad.length ? `presented as a bare command but is step-only (use step/run): ${bad.join(", ")}` : "no step presented as a shorthand" };
+    },
+    mkPass() {},
+    mkFail(dir) { editText(dir, "rules/ui-element-workflow.md", (s) => s + "\n\nLong-press: `vince-mp longpress view_0`.\n"); },
   },
   {
     id: "workflow_steps_match_capabilities",
@@ -268,25 +287,28 @@ const CHECKS = [
         problems.push("attach 'must not include projectPath' contract not stated");
       for (const f of forbidden) {
         if (!t.includes(f)) problems.push(`attach-forbidden field "${f}" not mentioned`);
-        // reject the inverted (dangerous) polarity bound to the field
-        if (new RegExp("attach[\\s\\S]{0,140}(should|must|may freely|can|freely)\\s+include[\\s\\S]{0,60}" + f, "i").test(t))
+        // reject the inverted (dangerous) polarity bound to the field — any positive-permission
+        // verb (not just "include"), so "attach accepts projectPath freely" is caught.
+        if (new RegExp("attach[\\s\\S]{0,140}(accepts?|allows?|supports?|permits?|takes?|may include|can include|should include|freely includes?|may freely include)[\\s\\S]{0,40}" + f, "i").test(t))
           problems.push(`attach documented as ALLOWED to include "${f}" (inverted polarity)`);
       }
       const sd = ctx.caps.safeDefaults || {};
       if (Object.entries(sd).some(([k, v]) => k.startsWith("implicit") && v === false)) {
         if (!/no implicit/i.test(t)) problems.push("safeDefaults 'no implicit ...' contract not stated");
-        if (/(performs|enables|allows|will perform)\s+implicit/i.test(t)) problems.push("docs claim the CLI PERFORMS implicit side effects (inverted polarity)");
+        // both word orders: "performs implicit" AND "implicitly performs/enables/..."
+        if (/(performs|enables|allows|will perform|auto-enables)\s+implicit|implicitly\s+(performs|enables|allows|does|injects|launches)/i.test(t)) problems.push("docs claim the CLI PERFORMS implicit side effects (inverted polarity)");
       }
       return { ok: problems.length === 0, msg: problems.length ? problems.join("; ") : "attach-forbidden + no-implicit safety contract reflected (polarity ok)" };
     },
     mkPass() {},
     mkFail(dir) { for (const f of DOC_FILES) editText(dir, f, (s) => s.replace(/must not include/i, "may freely include")); },
     mkFail2(dir) {
-      // subtle: invert the real attach + safe-defaults contract while leaving a DECOY "must not
-      // include" so a naive presence check passes; the bound/polarity check must still fail.
+      // subtle: invert the real attach + safe-defaults contract using EVASIVE phrasings (a verb
+      // other than "include"; "implicitly performs" word order) while leaving a DECOY "must not
+      // include" so a naive presence check passes; the polarity check must still fail.
       editText(dir, "references/cli-contract.md", (s) => s
-        .replace(/`attach` must not include `projectPath`\./, "`attach` may freely include `projectPath`, `launch`, and `reLaunch`. (Note: the `--json` flag must not include trailing spaces.)")
-        .replace(/No implicit `launch`/, "The CLI performs implicit `launch`"));
+        .replace(/`attach` must not include `projectPath`\./, "`attach` accepts `projectPath`, `launch`, and `reLaunch` freely. (Reminder: the endpoint must not include trailing spaces.)")
+        .replace(/No implicit `launch`/, "The CLI implicitly performs `launch`"));
     },
   },
   {
@@ -372,7 +394,7 @@ function selfTest(caps, baseDir) {
   const results = [];
   for (const c of CHECKS) {
     let passOk = null, err = null;
-    const seeds = [c.mkFail, c.mkFail2].filter(Boolean); // every seed (incl. the subtle near-miss) must be caught
+    const seeds = [c.mkFail, c.mkFail2, c.mkFail3].filter(Boolean); // every seed (incl. subtle near-misses) must be caught
     const failOks = [];
     try {
       const a = freshCopy(baseDir);

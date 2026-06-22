@@ -24,7 +24,8 @@ Backend-independent edge cases for live `vince-mp` debugging.
 - One background daemon per workspace holds ONE connection; commands reuse it (near-instant) and the
   element map (uids) lives in the daemon, so **uids persist across separate CLI calls**.
 - A uid is stale only after navigation (`nav`/`reLaunch`/`switchTab`) or a node-replacing mutation —
-  re-query then. `STALE_OR_UNKNOWN_UID` means re-query.
+  re-query then. `STALE_OR_UNKNOWN_UID` means re-query. Note `snapshot` ALSO resets the uid map
+  (re-numbers from `_0`, invalidating prior uids) even with no navigation; `query`/`query --all` append.
 - A dead daemon's stale socket/meta is auto-detected and cleaned; the next command restarts a
   session. `session status` shows whether one is live; `STEP_TIMEOUT` means a single step exceeded
   the daemon backstop (unresponsive app/connection).
@@ -65,6 +66,7 @@ can hide a non-compiling/stale build — trust `doctor` (tsc + freshness), not j
 ## Cross-stack (env / logs)
 
 - `env use <key>` switches the named backend (mockLan/caoliaoDevNet/caoliaoProdIm = mock/.net/.im).
+  `UNKNOWN_ENV` → run `vince-mp env list` for the valid keys.
 - `logs --request-id <id>` pulls the matching server error log (needs an admin token via
   `VINCE_MP_ADMIN_TOKEN` or `env token`). `--user-id` filters by account; `BACKEND_UNREACHABLE`
   means the env isn't deployed/reachable, `ADMIN_TOKEN_REQUIRED` means no token is set.

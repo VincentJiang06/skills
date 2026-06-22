@@ -33,13 +33,13 @@ idle-reaps itself. Every later command auto-starts a session if none is running.
 | `data [path]` | pageData | 200KB cap for shorthand reads (not the generic ~20KB JSON truncation), reported via `truncated`; `--max-bytes` to override |
 | `sysinfo` | systemInfo | |
 | `query <sel> [--all] [--position]` | query | mints uid(s) like `view_0`; `--all` for multiple |
-| `snapshot [<sel>] [--position] [--max-elements n]` | snapshot | batched reads; pass a concrete selector (`*` is unsupported on some renderers); `--max-elements` caps enumeration |
+| `snapshot [<sel>] [--position] [--max-elements n]` | snapshot | batched reads; concrete selector (`*` is unsupported on some renderers); `--max-elements` caps enumeration; **resets the uid map** (re-numbers uids — `query` appends) |
 | `tap <uid>` / `input <uid> <text>` | tap / input | uid from a prior query/snapshot; valid across calls in a session |
 | `eval '<js expr>'` | evaluate | wraps as `function(){ return (<expr>); }` |
 | `scan <code> [--type qrcode] [--method onScanCode] [--raw]` | callPageMethod | camera-less: calls the page's scan handler (default `onScanCode`) with a `{type:"scancode", detail:{result, scanType, type:scanType}}` event object; `--raw` sends the legacy `{result, scanType}` shape |
 | `shot <output>` | screenshot | full-page PNG under `--workspace-root` — the SESSION path (the standalone `screenshot`/`media` commands are one-shot and REQUIRE `--connect '<json>'`) |
 | `nav <url>` | navigateTo | navigation (invalidates uids) |
-| `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (capped 1000) |
+| `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (message + exception buffers each capped 1000) |
 | `step '<json>'` | any step | escape hatch: a step object, or an array → batch |
 
 ## Diagnose / cross-stack

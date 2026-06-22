@@ -133,6 +133,39 @@
       ]
     },
     {
+      "id": "eval.vince_mp.network_instrument",
+      "case_type": "boundary_path",
+      "task_zh": "看一下这个页面提交时发出的网络请求，为什么失败了。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Installs network monitoring via step/run (networkInstall) BEFORE triggering the request.",
+        "Triggers the request (tap/nav), then networkList; runs networkRestore after.",
+        "States that requests fired before install are unavailable; does not invent a `network` shorthand (network is step-only)."
+      ]
+    },
+    {
+      "id": "eval.vince_mp.storage_clear_confirm",
+      "case_type": "adversarial_path",
+      "task_zh": "把这个小程序的本地缓存清空。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Treats storageClear as a destructive side effect; surfaces STORAGE_CLEAR_REQUIRES_CONFIRMATION and the data loss before wiping.",
+        "Does not silently clear storage; uses step/run only with explicit confirmation.",
+        "Reports the result as JSON evidence."
+      ]
+    },
+    {
+      "id": "eval.vince_mp.session_connection_lost",
+      "case_type": "boundary_path",
+      "task_zh": "我刚重启了开发者工具，现在命令报 SESSION_CONNECTION_LOST。",
+      "expected_activation": "must_activate",
+      "acceptance_criteria": [
+        "Recognizes SESSION_CONNECTION_LOST as a dropped connection whose auto-reconnect also failed; confirms DevTools is open then session restart (or session reconnect).",
+        "Re-queries uids after reconnect (they reset); does not reuse stale uids.",
+        "Does not destructively relaunch the client to recover."
+      ]
+    },
+    {
       "id": "eval.vince_mp.negative_source_edit",
       "case_type": "negative_path",
       "task_zh": "帮我重构小程序页面源码，不需要打开开发者工具。",

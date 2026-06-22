@@ -25,7 +25,7 @@ function readManifest() {
   try { return JSON.parse(fs.readFileSync(path.join(SKILL_DIR, "assets/release-manifest.json"), "utf8")); }
   catch { return null; }
 }
-const GREEN_PROGRAMS = new Set(["true", ":", "echo", "printf", "test", "[", "cat", "yes", "command", "eval"]);
+const GREEN_PROGRAMS = new Set(["true", ":", "echo", "printf", "test", "[", "cat", "yes", "command", "eval", "env", "sleep"]);
 // evidence must be a SIMPLE command (program + args) — no shell composition/redirection/
 // substitution. Running without a shell means `|| exit 0`, `| cat`, `( true )`, `; true`,
 // `&& true` cannot launder a failing command into a green one.
@@ -63,7 +63,7 @@ for (const cmd of evidence) {
   if (typeof cmd !== "string" || !cmd.trim()) { fail.push(`evidence entry is not a non-empty string: ${JSON.stringify(cmd)}`); continue; }
   if (REQUIRED.includes(cmd.trim())) { ok.push(`evidence ok (run as required): ${cmd}`); continue; }
   if (!isSimpleCommand(cmd)) { fail.push(`evidence must be a simple command (no shell | & ; < > $ () backtick): ${cmd}`); continue; }
-  if (GREEN_PROGRAMS.has(cmd.trim().split(/\s+/)[0])) { fail.push(`evidence program can never fail (rejected): ${cmd}`); continue; }
+  if (GREEN_PROGRAMS.has(path.basename(cmd.trim().split(/\s+/)[0]))) { fail.push(`evidence program can never fail (rejected): ${cmd}`); continue; }
   if (runSimple(cmd)) ok.push(`evidence ok: ${cmd}`);
   else fail.push(`evidence FAILED: ${cmd}`);
 }
