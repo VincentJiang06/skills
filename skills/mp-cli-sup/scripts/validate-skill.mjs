@@ -46,8 +46,8 @@ if (fs.existsSync(path.join(root, "SKILL.md"))) {
     errors.push("SKILL.md missing YAML frontmatter");
   } else {
     const frontmatter = match[1];
-    if (!/^name:\s*mp-cli-sup$/m.test(frontmatter)) {
-      errors.push("SKILL.md frontmatter name must be mp-cli-sup");
+    if (!/^name:\s*(?:vince-)?mp-cli-sup$/m.test(frontmatter)) {
+      errors.push("SKILL.md frontmatter name must be mp-cli-sup (or the vince-mp-cli-sup install name)");
     }
     const descriptionMatch = frontmatter.match(/^description:\s*(?:>\s*\n([\s\S]*)|(.+))$/m);
     const descriptionText = descriptionMatch

@@ -158,7 +158,7 @@ const CHECKS = [
     run(ctx) {
       const fm = ctx.skillMd.match(/^---\n([\s\S]*?)\n---\n/);
       if (!fm) return { ok: false, msg: "no YAML frontmatter" };
-      if (!/^name:\s*mp-cli-sup\s*$/m.test(fm[1])) return { ok: false, msg: "name is not mp-cli-sup" };
+      if (!/^name:\s*(?:vince-)?mp-cli-sup\s*$/m.test(fm[1])) return { ok: false, msg: "name is not mp-cli-sup / vince-mp-cli-sup" };
       const dm = fm[1].match(/^description:\s*(?:>\s*\n([\s\S]*)|(.+))$/m);
       const desc = dm ? (dm[1] || dm[2] || "").replace(/\s+/g, " ").trim() : "";
       if (desc.length < 80) return { ok: false, msg: `description too short (${desc.length})` };
