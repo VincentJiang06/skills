@@ -1,0 +1,174 @@
+{
+  "task": "Continuously upgrade the mp-cli-sup skill (WeChat Mini Program live-runtime debugging via the vince-mp CLI) to industrial grade: first build the deterministic eval harness it is missing (grounded in `vince-mp capabilities --json`), drive it to a real release gate, then harden it with an independent adversarial battery until N consecutive rounds are clean.",
+  "loop_altitude": "large",
+  "loop_altitude_rationale": "Reversible, dev-only, single-repo change (no prod, no live traffic) — so not high-blast. Elected large rather than medium because although the three stages are strictly sequential, the hardening stage is an independent-skeptic FAN-OUT (multiple fresh-context attackers in parallel git worktrees against a shared defect ledger), which needs large-altitude orchestration primitives to run honestly. Medium would under-equip stage 3.",
+  "selection_log": [
+    {
+      "decision": "D0",
+      "answer": "loop",
+      "why": "Done is machine-decidable: `node skills/mp-cli-sup/scripts/validate-skill.mjs` exists today, and the missing anchors (a deterministic harness `scripts/run_all.mjs` grounded in `vince-mp capabilities --json`, a release-gate checker, a battery-ledger checker) are BUILDABLE — so per D0 the first stage builds and FREEZES all three checkers (each proven red-when-not-done) before any edit, then later stages gate on them. The harness is NEW, so its anti-weakening guard is `run_all --self-test` (a gutted harness fails its own mutation self-test), not a re-run of a non-existent baseline harness. Final done = validator green + harness green + release-manifest passed:true with evidence commands exiting 0 + >=3 consecutive clean battery rounds."
+    },
+    {
+      "decision": "D1",
+      "answer": "staged (2 seams)",
+      "why": "Spine = characterize/instrument -> upgrade -> harden. Seam 1: a captured baseline git tag + a discriminating harness (built before the skill is edited, so it is not co-evolved to pass) is handed to the upgrade stage. Seam 2: a green skill (validator + harness + release gate all pass) is handed to the independent battery. Each handoff is a stable, checkable artifact the upstream produces and the downstream consumes unchanged; the stages edit disjoint surfaces (stage1 authors the scripts/ checkers + harness, stage2 edits SKILL/references/assets, stage3 only appends regression cases + ledger)."
+    },
+    {
+      "decision": "D2",
+      "answer": "explore_narrow / plan_execute_verify / review",
+      "why": "baseline_and_harness must DISCOVER the skill's real contract by diffing its docs against `vince-mp capabilities --json` (explore_narrow) and prove the harness non-vacuous via per-class mutation self-tests; upgrade_to_release_gate is risky, ambiguous editing of a public skill surface needing mid-flight correction (plan_execute_verify); adversarial_harden IS a correctness judgment over the artifact (review), run as a loop-until-dry fan-out. NOTE (execution): the harness found real baseline drift on day one (SKILL.md '46 step types' vs 45 in capabilities; stale 0.1.0 version/compat pins) — so driving run_all GREEN is genuinely Stage 2 work, confirming the stage split."
+    },
+    {
+      "decision": "D3",
+      "answer": "on_the_loop",
+      "why": "blast=low (dev-only, reversible via git/worktree), reversibility=high, feedback=strong for stages 1-2 (deterministic capabilities-grounded harness + a release-gate checker that EXECUTES each evidence command rather than trusting the manifest boolean) but WEAKER for stage 3 (a lazy battery can rubber-stamp). The weakest check forces a guard, not a human-per-iteration: stage 3's gate is machine (consecutive-clean counter + every prior defect now a green regression case) PLUS a mandatory maker/checker that audits attack quality. Reversible + dev-only => human reviews at the gates, agent iterates autonomously."
+    },
+    {
+      "decision": "D4",
+      "answer": "large",
+      "why": "Strict cross-stage test = sequential (each stage depends_on the prior, no two independent stages run at once) which alone would be medium. Elected large because the dominant structure of the hardening stage is intra-stage multi-agent fan-out (N fresh-context skeptics in parallel worktrees, distinct attack lenses, shared defect ledger) — the repo's proven 3-consecutive-clean battery — and that needs large-altitude orchestration primitives. Honest: the altitude is driven by intra-stage fan-out, not cross-stage independence."
+    },
+    {
+      "decision": "D5",
+      "answer": "per-stage caps + upstream loopback routing; outer budget 6; risk guards on reward-hacking/vacuous-eval/error-amplification/context-drift/scope-creep",
+      "why": "stage1 escalate (no upstream; a broken untouched baseline is an environment problem); stage2 loops back to baseline_and_harness (a missing assertion means strengthen the harness); stage3 loops back to upgrade_to_release_gate (each confirmed defect is a fix). Chain baseline<-upgrade<-harden is acyclic with an enterable root; every loopback targets a depends_on ancestor."
+    }
+  ],
+  "stages": [
+    {
+      "id": "baseline_and_harness",
+      "definition_of_done": {
+        "goal": "Before any edit to the skill, build and FREEZE the deterministic check toolkit and prove each gate gates. validate-skill exits 0. The new harness scripts/run_all.mjs is NON-VACUOUS: `run_all.mjs --self-test` copies the real skill, seeds one defect of each checked class (a bogus documented command, a missing required file, a corrupted frontmatter name, a wrong step-count claim, a stale version pin) and exits 0 only if the suite CATCHES every seeded defect (a vacuous suite fails self-test). The new scripts/check_release_gate.mjs exits non-zero now (release-manifest is passed:false today). scripts/check_battery_clean.mjs --consecutive 3 exits non-zero now (zero rounds today). The pre-change state is captured as git tag mp-cli-sup-baseline. Driving run_all itself GREEN on the skill (fixing the drift it finds) is Stage 2's job.",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "explore_narrow",
+      "feedback_signal": {
+        "check": "node skills/mp-cli-sup/scripts/validate-skill.mjs && node skills/mp-cli-sup/scripts/run_all.mjs --self-test && ! node skills/mp-cli-sup/scripts/check_release_gate.mjs && ! node skills/mp-cli-sup/scripts/check_battery_clean.mjs --consecutive 3 && git rev-parse -q --verify refs/tags/mp-cli-sup-baseline",
+        "expect": "pass",
+        "falsifiable_when": "the harness is vacuous — `run_all --self-test` exits non-zero because the suite FAILED to catch one of the seeded defects (e.g. it never checks documented commands against `vince-mp capabilities`); or check_release_gate exits 0 while the manifest still says passed:false; or check_battery_clean exits 0 with zero recorded rounds; or validate-skill regresses; or the baseline tag is missing.",
+        "passing_but_wrong": "a checker with zero real assertions that always exits 0 (the closed-loop 'count what I delete' trap) -> ruled out: --self-test seeds one defect per checked class into a copy of the real skill and requires the suite to flag EACH, so a vacuous suite fails self-test; and check_release_gate/check_battery_clean are invoked in their must-be-red baseline state. Residual: --self-test proves the suite catches the seeded mutation CLASSES; novel defect classes outside those mutations are exactly what stage 3's independent battery exists to find."
+      },
+      "stop_conditions": {
+        "failure": [
+          "validate-skill cannot be made green on the untouched skill (environment/contract broken, not our change)",
+          "the `vince-mp` CLI is unavailable so the harness cannot ground against `capabilities` (cannot build a non-vacuous contract check)"
+        ],
+        "max_iterations": 4,
+        "on_failure": {
+          "action": "escalate"
+        }
+      },
+      "depends_on": []
+    },
+    {
+      "id": "upgrade_to_release_gate",
+      "definition_of_done": {
+        "goal": "The skill is upgraded so scripts/run_all.mjs is GREEN (every documented command/shorthand/step/error-code is consistent with `vince-mp capabilities --json`, internal cross-references resolve, version/compat pins are current) and `node skills/mp-cli-sup/scripts/check_release_gate.mjs` exits 0, where that checker (a) requires release-manifest.json release_gate.passed===true, (b) EXECUTES every cited evidence command and requires each to exit 0 (it does not trust the boolean), and (c) requires `run_all.mjs --self-test` to still pass so a weakened/gutted harness cannot close the gate; AND validate-skill is still green.",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "node skills/mp-cli-sup/scripts/validate-skill.mjs && node skills/mp-cli-sup/scripts/run_all.mjs && node skills/mp-cli-sup/scripts/check_release_gate.mjs",
+        "expect": "pass",
+        "falsifiable_when": "any cited evidence command exits non-zero, or release-manifest still says passed:false, or run_all is red (a documented command/step/error-code drifted from capabilities, or a cross-reference broke), or run_all --self-test fails (the harness was weakened) -> check_release_gate exits non-zero.",
+        "passing_but_wrong": "the agent flips release-manifest passed:true (or guts evals/) without the work actually passing -> ruled out: check_release_gate EXECUTES each evidence command (exit-code, not the boolean) AND requires run_all --self-test to still pass, so a flipped flag or a gutted harness fails it. Residual honest limit: the checker cannot prove an evidence command is itself meaningful (a contrived always-0 command) -> that is exactly what the maker/checker and stage 3 audit."
+      },
+      "stop_conditions": {
+        "failure": [
+          "3 consecutive same-type failures with no progress on the gate",
+          "the upgrade requires a behavior only verifiable on a live WeChat DevTools device the loop cannot reach",
+          "closing the gate would require weakening the stage-1 harness"
+        ],
+        "max_iterations": 8,
+        "on_failure": {
+          "action": "loopback",
+          "to": "baseline_and_harness"
+        }
+      },
+      "depends_on": [
+        "baseline_and_harness"
+      ]
+    },
+    {
+      "id": "adversarial_harden",
+      "definition_of_done": {
+        "goal": "`node skills/mp-cli-sup/scripts/check_battery_clean.mjs --consecutive 3` exits 0 — the defect ledger (.loop/run-state.md) records >=3 CONSECUTIVE independent fresh-context battery rounds each finding 0 confirmed defects, AND every defect confirmed in any earlier round is now a green regression case inside scripts/run_all.mjs; with validate-skill + run_all.mjs + check_release_gate all still green.",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "review",
+      "feedback_signal": {
+        "check": "node skills/mp-cli-sup/scripts/run_all.mjs && node skills/mp-cli-sup/scripts/check_release_gate.mjs && node skills/mp-cli-sup/scripts/check_battery_clean.mjs --consecutive 3",
+        "expect": "pass",
+        "falsifiable_when": "the consecutive-clean counter in the ledger is < 3, or any regression case derived from a previously-confirmed defect is missing or red, or a battery round logged a confirmed defect that was never turned into a green regression case -> check_battery_clean exits non-zero.",
+        "passing_but_wrong": "a rubber-stamp battery that never actually attacks reaches 3 'clean' rounds trivially -> the machine counter alone CANNOT prove an attack was real (honest limit). Mitigation, not a machine claim: the gate additionally requires each ledger round to record concrete attempted breaks + a fresh context + a distinct attack lens, and the maker/checker AUDITS attack quality and rejects rounds that rubber-stamp; counter resets to 0 if a later round finds a confirmed defect (loop-until-dry, not first-3-pass)."
+      },
+      "stop_conditions": {
+        "failure": [
+          "the consecutive-clean target cannot be reached within the cap (new confirmed defects keep surfacing — the skill is not yet stable)",
+          "a confirmed defect can only be fixed by changing the skill's scope or the backing vince-mp-cli tool's public contract"
+        ],
+        "max_iterations": 12,
+        "on_failure": {
+          "action": "loopback",
+          "to": "upgrade_to_release_gate"
+        }
+      },
+      "depends_on": [
+        "upgrade_to_release_gate"
+      ]
+    }
+  ],
+  "human_placement": "on_the_loop",
+  "maker_checker": {
+    "separate_checker": true,
+    "scope": "A fresh-context reviewer sees the diff + the per-stage checks + the .loop/run-state.md battery ledger. It flags only: (a) any weakening of scripts/run_all.mjs or validate-skill vs the mp-cli-sup-baseline tag (deleted/loosened assertions, a self-test that no longer seeds a class); (b) a release-manifest flipped to passed:true whose evidence commands do not genuinely pass, or a contrived always-0 evidence command; (c) battery rounds that rubber-stamp — not fresh-context, no concrete attempted breaks, or a repeated attack lens. It audits attack QUALITY and harness integrity — the things the machine counter cannot."
+  },
+  "harness_primitives": [
+    "git tag mp-cli-sup-baseline captured before any edit (the rollback ref + the diff ref the maker/checker uses to spot a weakened harness)",
+    "deterministic harness skills/mp-cli-sup/scripts/run_all.mjs grounded in `vince-mp capabilities --json`, with a `--self-test` that seeds one defect per checked class into a copy of the real skill and proves the suite catches each (non-vacuity)",
+    "scripts/check_release_gate.mjs (built + frozen in stage 1, proven RED on the passed:false baseline) that EXECUTES each manifest evidence command by exit code AND requires run_all --self-test to still pass (a gutted harness cannot close the gate)",
+    "scripts/check_battery_clean.mjs (built + frozen in stage 1, proven RED at zero rounds) that reads the ledger and asserts >=N consecutive 0-confirmed-defect rounds + every prior defect now a green regression case",
+    "git worktree isolation so parallel stage-3 skeptics attack without shared-write conflict",
+    "external scratch ledger .loop/run-state.md holding current stage, the defect ledger, and the consecutive-clean counter across context resets"
+  ],
+  "stop_conditions": {
+    "success": "validate-skill, scripts/run_all.mjs, and check_release_gate all pass on mp-cli-sup; release-manifest.json is passed:true with every cited evidence command exiting 0; and >=3 consecutive independent adversarial battery rounds report 0 confirmed defects with every previously-confirmed defect now a green regression case in run_all.mjs.",
+    "failure": [
+      "any stage exhausts its max_iterations without passing its gate",
+      "the upgrade requires a capability only verifiable on a live WeChat DevTools device / network the loop cannot reach",
+      "stage 2 is forced to redesign the stage-1 harness more than twice (instability — the baseline is not trustworthy)"
+    ],
+    "escalate": [
+      "a live WeChat DevTools device or running Mini Program is required to verify a behavior the deterministic harness cannot reach",
+      "a change to the backing vince-mp-cli tool's public CLI contract becomes necessary (e.g. `help --json` omits env/logs)",
+      "the skill's scope must change (overlap/disambiguation with mp-groundline) — a human product decision"
+    ],
+    "max_iterations": 6
+  },
+  "risk_guards": [
+    {
+      "risk": "reward hacking / test overfitting — the agent flips release-manifest passed:true or weakens evals/ to close the gate",
+      "mitigation": "check_release_gate EXECUTES each evidence command (exit-code, not boolean) and requires run_all --self-test to still pass; the maker/checker diffs evals/ + validate-skill against the mp-cli-sup-baseline tag to catch any weakening."
+    },
+    {
+      "risk": "vacuous / closed-loop eval — the harness becomes the agent's own success metric (the 'count what I delete' trap that bit the humanizer + mp skills before)",
+      "mitigation": "the harness is grounded in the EXTERNAL `vince-mp capabilities --json` contract (not self-referential) and ships a per-class mutation --self-test that MUST catch each seeded defect; final success is ALSO judged by the independent stage-3 battery, never by the agent-authored harness alone."
+    },
+    {
+      "risk": "error amplification — a wrong stage-1 baseline poisons every downstream gate",
+      "mitigation": "the baseline is captured as an immutable git tag before any edit; downstream failures that implicate the baseline loop BACK to stage 1 to re-derive rather than head-banging in place; >2 such redesigns is a declared failure branch."
+    },
+    {
+      "risk": "context drift / token blowup on a long continuous loop",
+      "mitigation": "external .loop/run-state.md ledger survives resets; per-stage caps + outer budget 6; each stage-3 battery round runs in a fresh context."
+    },
+    {
+      "risk": "scope creep / collateral breakage — editing mp-cli-sup breaks its disambiguation from mp-groundline or relies on unshipped vince-mp CLI behavior",
+      "mitigation": "validate-skill stays green; edits scoped to skills/mp-cli-sup; the harness asserts documented behavior against `vince-mp capabilities`, and `cd tools/vince-mp-cli && npm run validate` (60/60) is wired as a release-gate evidence command so the skill can't document CLI behavior the tool doesn't ship."
+    },
+    {
+      "risk": "premature over-delegation — fanning out skeptics before the skill is even gate-green wastes budget and amplifies noise",
+      "mitigation": "stage 3's fan-out is gated on stage 2's release gate being green (depends_on); no battery rounds run against a skill that has not yet passed its own checks."
+    }
+  ]
+}

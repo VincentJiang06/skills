@@ -1,0 +1,244 @@
+{
+  "skill": "mp-cli-sup",
+  "gate": "stage-3 adversarial_harden — >=3 consecutive clean fresh-context rounds",
+  "new_checks": ["contract_coverage_complete", "safety_contract_documented", "design_record_eval_ids_match", "documented_commands_real", "important_errors_covered", "no_step_as_shorthand"],
+  "rounds": [
+    {
+      "round": 1,
+      "context": "battery-r1-4skeptics-2026-06-22",
+      "lens": "fan-out: harness-gaming + doc-vs-CLI-drift + skill-correctness + script-robustness",
+      "attempted_breaks": [
+        "make run_all green while the skill is wrong (coverage gaps, pass-while-wrong, self-test gaming)",
+        "close the release gate dishonestly (always-green evidence, flipped boolean, gutted harness)",
+        "diff every documented command/flag/default/error-code/step against capabilities + help + tool source",
+        "find internal contradictions + eval-case/asset incoherence + trigger-boundary overlap",
+        "crash the 3 scripts / force wrong exit codes via edge inputs"
+      ],
+      "clean": false,
+      "confirmed_defects": [
+        "harness_coverage_one_directional", "safety_contract_unasserted", "design_record_eval_ids_stale",
+        "prose_command_fabrication_uncaught", "important_errors_substring_loose", "scan_payload_shape_wrong",
+        "data_cap_wording_6kb", "probe_elements_star_undocumented", "metric_plan_stale_test_count",
+        "skyline_skills_hard_invoke", "launch_human_gate_ambiguity", "trigger_overlap_mp_groundline",
+        "canvas_probe_eval_safety_inconsistency", "stale_uid_code_overpromise", "release_gate_evidence_gameable",
+        "battery_consecutive_zero_false_green", "run_all_target_missing_crash", "battery_ledger_missing_crash",
+        "run_all_eisdir_crash", "run_all_json_cli_down", "release_gate_evidence_validation",
+        "stale_evals_path_messages", "release_gate_evidence_portability", "battery_rubber_stamp_rounds"
+      ]
+    },
+    {
+      "round": 2,
+      "context": "battery-r2-3skeptics-2026-06-22",
+      "lens": "fan-out: attack-the-new-harness-code + residual-drift-and-regressions + end-to-end-usability",
+      "attempted_breaks": [
+        "pass-while-wrong on the 3 new + 2 changed checks (polarity, incidental-prose, markdown-split fabrication)",
+        "bypass check_release_gate alwaysGreen (|| exit 0, | cat, ( true ), [ 1 ], cat /dev/null) incl. laundering a failing command",
+        "bypass check_battery_clean (unrelated-green-check lock, whitespace-distinct contexts, fabricated kind)",
+        "re-verify all 8 round-1 fixes against source + find remaining doc-vs-CLI drift",
+        "walk every workflow end-to-end as an agent: where would it fail a real task?"
+      ],
+      "clean": false,
+      "confirmed_defects": [
+        "safety_contract_polarity_proxy", "coverage_incidental_prose_proxy", "documented_commands_markdown_gap",
+        "release_gate_alwaysgreen_bypass", "battery_unrelated_check_lock", "battery_whitespace_distinct_context",
+        "selftest_seeds_only_total_absence", "doctor_cannot_diagnose_attach", "scan_handler_precondition",
+        "network_no_recipe", "screenshot_media_oneshot_trap", "session_start_vs_launch_conflation",
+        "description_overtrigger_logs", "console_cap_per_bucket", "snapshot_maxelements_undocumented"
+      ]
+    },
+    {
+      "round": 3,
+      "context": "battery-r3-3skeptics-2026-06-22",
+      "lens": "fan-out: attack-the-twice-hardened-harness + correctness-usability-reverify + completeness-critic",
+      "attempted_breaks": [
+        "pass-while-wrong on the rebuilt meaning-checks (polarity word-order/verb, stray-pipe coverage, backticked-binary fabrication)",
+        "bypass the hardened gate/battery checkers (denylist gaps, zero-width contexts, unrelated new-check lock)",
+        "re-verify all round-2 fixes against source + find new contradictions",
+        "completeness: what real capability / failure-mode / eval is still missing for an agent"
+      ],
+      "clean": false,
+      "confirmed_defects": [
+        "safety_polarity_evasions", "coverage_stray_pipe", "documented_commands_backticked_binary",
+        "longpress_taught_as_shorthand", "snapshot_resets_uid_map_undocumented", "console_cap_cell_singular",
+        "unknown_env_recovery_missing", "storage_clear_safety_undertaught", "media_error_code_table_missing",
+        "metric_plan_omits_harness", "release_gate_denylist_incomplete", "battery_zerowidth_context",
+        "network_eval_missing", "storage_eval_missing", "session_lost_eval_missing"
+      ]
+    },
+    {
+      "round": 4,
+      "context": "battery-r4-3skeptics-2026-06-22",
+      "lens": "fan-out: deep-source-vs-doc-drift + harness-structural-integrity + agent-task-simulation",
+      "attempted_breaks": [
+        "exhaustive function-by-function source diff of every doc claim (came back essentially clean)",
+        "find a NEW structural gaming class (not a phrasing variant) in the 14 checks + 3 checkers",
+        "trace 6 realistic agent tasks end-to-end and find where the skill makes an agent fail"
+      ],
+      "clean": false,
+      "confirmed_defects": [
+        "safety_check_only_projectpath", "tap_data_race_stale_state", "attach_failure_code_in_logtail",
+        "wont_connect_app_not_running_xref", "env_use_before_logs_flow", "battery_run_all_null_element_crash",
+        "metric_plan_eval_count_stale"
+      ]
+    },
+    {
+      "round": 5,
+      "context": "battery-r5-3skeptics-2026-06-22",
+      "lens": "fan-out: harness-new-class (told the accepted limits) + agent-simulation-edge-cases + final-consistency-drift",
+      "attempted_breaks": [
+        "find a NEW structural harness hole beyond the documented accepted-limits",
+        "trace 8 edge-case agent workflows (multi-element, storage, camera-mock, two-projects, doctor-subdir, eval/data-path)",
+        "final consistency + drift sweep across 4 rounds of edits (returned a full clean bill)"
+      ],
+      "clean": false,
+      "confirmed_defects": [
+        "documented_commands_ignore_leak", "battery_null_confirmed_defect_crash",
+        "port_does_not_multiplex_projects", "storage_confirm_field_undocumented", "camera_mock_options_wrapper"
+      ]
+    },
+    {
+      "round": 6,
+      "context": "battery-r6-3skeptics-2026-06-22",
+      "lens": "fan-out: harness-new-class-final + agent-simulation-combinations + round5-regression-drift",
+      "attempted_breaks": [
+        "find a NEW structural harness hole beyond the 5 accepted limits",
+        "trace combination/less-trodden agent tasks (console paging, screenshot dir, eval truncation, nav tabbar, setPageData)",
+        "verify round-5 edits broke nothing + final drift sweep"
+      ],
+      "clean": false,
+      "confirmed_defects": [
+        "underscore_emphasis_fabrication", "console_return_window_undocumented", "screenshot_output_parent_dir",
+        "eval_truncation_maxbytes_ignored", "nav_tabbar_switchtab", "setpagedata_globaldata_guidance",
+        "changelog_selftest_count_stale", "metricplan_lines_estimate_stale"
+      ]
+    },
+    {
+      "round": 7,
+      "context": "battery-r7-2skeptics-2026-06-22",
+      "lens": "leaner confirmation: harness-new-class + agent-simulation (accepted-limits + fixed-list disclosed)",
+      "attempted_breaks": [
+        "find a NEW structural harness hole beyond the 5 accepted limits (the skeptic validated its own proposed fix)",
+        "trace remaining realistic agent tasks for any uncovered failure path"
+      ],
+      "clean": false,
+      "confirmed_defects": [
+        "unbackticked_binary_backticked_arg", "network_recipe_async_settle", "scan_recipe_async_settle",
+        "step_only_field_schemas", "stale_release_gate_comment"
+      ]
+    },
+    {
+      "round": 8,
+      "context": "battery-r8-2skeptics-2026-06-22",
+      "lens": "final convergence: harness-structural (declared CONVERGED — no new defect) + agent-sim/consistency/drift",
+      "attempted_breaks": [
+        "gut every check + neuter seeds (self-test honesty); release-gate/battery bypass; full doc<->CLI surface incl READMEs — ALL HELD",
+        "trace every documented task + re-read all docs for contradiction + asset coherence (clean except 1 doc item)"
+      ],
+      "clean": false,
+      "confirmed_defects": ["console_nosession_carveout"]
+    }
+  ],
+  "regressions": [
+    { "defect_id": "harness_coverage_one_directional", "kind": "check", "added_check": "contract_coverage_complete", "note": "checks were documented->real only; new check asserts every caps command+shorthand is documented." },
+    { "defect_id": "safety_contract_unasserted", "kind": "check", "added_check": "safety_contract_documented", "note": "attach-forbidden + no-implicit safe-defaults were unasserted; new check added." },
+    { "defect_id": "design_record_eval_ids_stale", "kind": "check", "added_check": "design_record_eval_ids_match", "note": "design-record listed 10 eval ids vs 13; new check asserts parity; data synced." },
+    { "defect_id": "prose_command_fabrication_uncaught", "kind": "check", "added_check": "documented_commands_real", "note": "broadened from code-spans to all text after fixing the 'vince-mp execution' prose FP." },
+    { "defect_id": "important_errors_substring_loose", "kind": "check", "added_check": "important_errors_covered", "note": "scoped from whole-doc to the cli-contract '## Error contract' section." },
+    { "defect_id": "scan_payload_shape_wrong", "kind": "doc-fix", "note": "corrected to {type:'scancode',detail:{result,scanType,type:scanType}} + dropped 'bindscancode' in SKILL/cli-contract/skyline-media." },
+    { "defect_id": "data_cap_wording_6kb", "kind": "doc-fix", "note": "200KB shorthand cap vs generic ~20KB JSON truncation." },
+    { "defect_id": "probe_elements_star_undocumented", "kind": "doc-fix", "note": "--probe-elements uses '*' with no override; NOTE added." },
+    { "defect_id": "metric_plan_stale_test_count", "kind": "doc-fix", "note": "52/52 -> 60/60." },
+    { "defect_id": "skyline_skills_hard_invoke", "kind": "doc-fix", "note": "softened to 'if available'." },
+    { "defect_id": "launch_human_gate_ambiguity", "kind": "doc-fix", "note": "launch clarified human-gated (explicit user authorization)." },
+    { "defect_id": "trigger_overlap_mp_groundline", "kind": "doc-fix", "note": "added Skyline->WebView migration to do-not list." },
+    { "defect_id": "canvas_probe_eval_safety_inconsistency", "kind": "doc-fix", "note": "reclassified boundary_path + task authorizes instrumentation." },
+    { "defect_id": "stale_uid_code_overpromise", "kind": "doc-fix", "note": "softened 'it will be X' to 'the CLI flags it, e.g. X'." },
+    { "defect_id": "release_gate_evidence_gameable", "kind": "script-fix", "note": "runs required core itself + rejects always-green evidence." },
+    { "defect_id": "battery_consecutive_zero_false_green", "kind": "script-fix", "note": "--consecutive positive-integer guard." },
+    { "defect_id": "run_all_target_missing_crash", "kind": "script-fix", "note": "--target value guard." },
+    { "defect_id": "battery_ledger_missing_crash", "kind": "script-fix", "note": "--ledger value guard." },
+    { "defect_id": "run_all_eisdir_crash", "kind": "script-fix", "note": "tolerant read() + exists() isFile()." },
+    { "defect_id": "run_all_json_cli_down", "kind": "script-fix", "note": "--json emits {ok:false,error} on CLI-down." },
+    { "defect_id": "release_gate_evidence_validation", "kind": "script-fix", "note": "non-string/empty evidence now fails the gate." },
+    { "defect_id": "stale_evals_path_messages", "kind": "script-fix", "note": "evals/ -> scripts/ in messages." },
+    { "defect_id": "release_gate_evidence_portability", "kind": "script-fix", "note": "portable 'vince-mp capabilities --json' instead of ../../tools path." },
+    { "defect_id": "battery_rubber_stamp_rounds", "kind": "script-fix", "note": "round schema + cross-round distinct context + documented regressions." },
+
+    { "defect_id": "safety_contract_polarity_proxy", "kind": "check", "added_check": "safety_contract_documented", "note": "rebuilt: bind negation to the field + REJECT inverted polarity ('attach may include projectPath' / 'performs implicit'); subtle self-test seeds a decoy 'must not include' + inverted contract." },
+    { "defect_id": "coverage_incidental_prose_proxy", "kind": "check", "added_check": "contract_coverage_complete", "note": "rebuilt: require command-position (a `vince-mp <t>` invocation or a backticked token in a markdown table row), not an incidental backtick in prose; subtle self-test seeds a prose-only mention." },
+    { "defect_id": "documented_commands_markdown_gap", "kind": "check", "added_check": "documented_commands_real", "note": "strip * emphasis (keep backticks so noun phrases stay blocked) + [a-z0-9] first char; subtle self-test seeds a bold-split '**vince-mp** **wipeall**' fabrication." },
+    { "defect_id": "release_gate_alwaysgreen_bypass", "kind": "script-fix", "note": "evidence must be a SIMPLE command run without a shell (kills `|| exit 0`, `| cat`, `( true )`) + green-program denylist (true/:/echo/test/[/cat); verified by spot-check." },
+    { "defect_id": "battery_unrelated_check_lock", "kind": "script-fix", "note": "kind:check added_check must be in ledger.new_checks (a hardening-introduced check), so a defect can't be 'locked' by an unrelated pre-existing green check; verified by dishonest-ledger spot-check." },
+    { "defect_id": "battery_whitespace_distinct_context", "kind": "script-fix", "note": "context dedup on trim().toLowerCase(); verified by dishonest-ledger spot-check." },
+    { "defect_id": "selftest_seeds_only_total_absence", "kind": "script-fix", "note": "KEYSTONE: self-test now requires catching EVERY seed incl. a subtle near-miss per content check, so a proxy/string-presence check no longer self-tests green." },
+    { "defect_id": "doctor_cannot_diagnose_attach", "kind": "doc-fix", "note": "runtime-protocol + avoid_launch_recovery eval reworded: read the code from session start/status; doctor is a static pre-flight that can't test the live port." },
+    { "defect_id": "scan_handler_precondition", "kind": "doc-fix", "note": "skyline-media: scan needs the scanner page current + the right handler name (--method); wrong name/page is a no-op." },
+    { "defect_id": "network_no_recipe", "kind": "doc-fix", "note": "evidence-and-failures: networkInstall -> trigger -> networkList -> networkRestore recipe; no `network` shorthand." },
+    { "defect_id": "screenshot_media_oneshot_trap", "kind": "doc-fix", "note": "cli-contract shot row: session full-screenshot path vs one-shot screenshot/media requiring --connect." },
+    { "defect_id": "session_start_vs_launch_conflation", "kind": "doc-fix", "note": "cli-contract: session start always attaches (may spawn headless cli auto); launch mode is separate + human-gated." },
+    { "defect_id": "description_overtrigger_logs", "kind": "doc-fix", "note": "scoped the logs trigger to 'this Mini Program's backend error log'." },
+    { "defect_id": "console_cap_per_bucket", "kind": "doc-fix", "note": "console cap is per-bucket (message + exception each 1000)." },
+    { "defect_id": "snapshot_maxelements_undocumented", "kind": "doc-fix", "note": "added --max-elements to the snapshot shorthand row." },
+
+    { "defect_id": "safety_polarity_evasions", "kind": "check", "added_check": "safety_contract_documented", "note": "broadened inverted-polarity: any positive-permission verb (accepts/allows/supports/...) not just 'include', + 'implicitly performs' word order; subtle seed uses both evasions." },
+    { "defect_id": "coverage_stray_pipe", "kind": "check", "added_check": "contract_coverage_complete", "note": "table detection now requires a real row (>=2 pipes); a prose sentence with a stray '|' no longer grants coverage credit." },
+    { "defect_id": "documented_commands_backticked_binary", "kind": "accepted-limit", "note": "R3 tried to catch the `vince-mp` <word> backticked-binary fabrication via an IGNORE-set hack; R5 proved that leaks (IGNORE nouns like call/command escape in command position), so it was REVERTED. The `vince-mp` <word> form is undecidable (noun phrase vs fabrication) -> accepted limit content_check_nl_undecidability; plain/bold fabrications ARE still caught." },
+    { "defect_id": "longpress_taught_as_shorthand", "kind": "check", "added_check": "no_step_as_shorthand", "note": "new check flags any `vince-mp <token>` where token is a workflow-step but not a real command/shorthand; docs reworded to show longpress/elementTrigger/elementScreenshot via step." },
+    { "defect_id": "snapshot_resets_uid_map_undocumented", "kind": "doc-fix", "note": "documented that snapshot clears+renumbers the uid map (query appends) in ui-element-workflow + cli-contract + evidence-and-failures (source: snapshot.js:141 clear vs :95 append)." },
+    { "defect_id": "console_cap_cell_singular", "kind": "doc-fix", "note": "cli-contract console cell now says message+exception buffers each capped 1000." },
+    { "defect_id": "unknown_env_recovery_missing", "kind": "doc-fix", "note": "added UNKNOWN_ENV -> `vince-mp env list` recovery." },
+    { "defect_id": "storage_clear_safety_undertaught", "kind": "doc-fix", "note": "added storage-mutation hard rule + STORAGE_CLEAR_REQUIRES_CONFIRMATION." },
+    { "defect_id": "media_error_code_table_missing", "kind": "doc-fix", "note": "added *_UNSUPPORTED vs *_FAILED mapping in skyline-media." },
+    { "defect_id": "metric_plan_omits_harness", "kind": "doc-fix", "note": "metric-plan now references run_all harness + notes 60/60 is a snapshot." },
+    { "defect_id": "release_gate_denylist_incomplete", "kind": "script-fix", "note": "green-program denylist matches basename (/usr/bin/true) + adds env/sleep." },
+    { "defect_id": "battery_zerowidth_context", "kind": "script-fix", "note": "context dedup strips zero-width/format chars before compare; verified by a zero-width-ledger spot-check." },
+    { "defect_id": "network_eval_missing", "kind": "doc-fix", "note": "added eval.vince_mp.network_instrument (boundary) + synced design-record ids." },
+    { "defect_id": "storage_eval_missing", "kind": "doc-fix", "note": "added eval.vince_mp.storage_clear_confirm (adversarial) + synced design-record ids." },
+    { "defect_id": "session_lost_eval_missing", "kind": "doc-fix", "note": "added eval.vince_mp.session_connection_lost (boundary) + synced design-record ids." },
+
+    { "defect_id": "safety_check_only_projectpath", "kind": "check", "added_check": "safety_contract_documented", "note": "the must-not-include positive contract was enforced only for projectPath; now captures the must-not-include CLAUSE (to its period) and requires EVERY attach.forbidden field in it; doc lists all three; seed mkFail3 drops launch/reLaunch." },
+    { "defect_id": "tap_data_race_stale_state", "kind": "doc-fix", "note": "tap/input resolve on event dispatch, not handler completion; SKILL + ui-element now say to wait/poll data before asserting an effect (source: Element.tap awaits dispatch only)." },
+    { "defect_id": "attach_failure_code_in_logtail", "kind": "doc-fix", "note": "SESSION_START_FAILED -> read details.logTail / session log for the underlying AUTOMATOR_CONNECT_FAILED/APP_NOT_RUNNING (the daemon attaches out-of-process)." },
+    { "defect_id": "wont_connect_app_not_running_xref", "kind": "doc-fix", "note": "session start succeeding = port attached; run page/data next — a fast APP_NOT_RUNNING means the app isn't running." },
+    { "defect_id": "env_use_before_logs_flow", "kind": "doc-fix", "note": "logs uses the currently-selected env (default mockLan); documented `env use <key>` FIRST then `logs`, confirm with `env current`." },
+    { "defect_id": "battery_run_all_null_element_crash", "kind": "script-fix", "note": "null elements in rounds[]/cases[] now produce a clean FAIL, not a stack trace." },
+    { "defect_id": "metric_plan_eval_count_stale", "kind": "doc-fix", "note": "metric-plan eval_cases 13 -> 16." },
+
+    { "defect_id": "documented_commands_ignore_leak", "kind": "check", "added_check": "documented_commands_real", "note": "the R3 IGNORE-set whitelisted nouns (call/command/...) in ALL positions, so `vince-mp call force-reset` (fabricated, plain) escaped. Reverted the binary-backtick strip + IGNORE: plain/bold fabrications are caught again (verified `vince-mp call` -> FAIL); backticked-binary form is an accepted limit." },
+    { "defect_id": "battery_null_confirmed_defect_crash", "kind": "script-fix", "note": "a null entry in confirmed_defects[] now yields a clean FAIL, not a stack trace." },
+    { "defect_id": "port_does_not_multiplex_projects", "kind": "doc-fix", "note": "SKILL said 'distinct port to debug two projects' but sessions are keyed per workspace-root (port ignored once a session is live); corrected to use a distinct --workspace-root (source: client.js sessionPaths hashes workspace only)." },
+    { "defect_id": "storage_confirm_field_undocumented", "kind": "doc-fix", "note": "documented the literal confirm:true field + step recipe for storageClear/Set/Remove (no shorthand)." },
+    { "defect_id": "camera_mock_options_wrapper", "kind": "doc-fix", "note": "skyline-media session form now shows the options:{fixtureImage} wrapper + restore for camera-mock." },
+
+    { "defect_id": "underscore_emphasis_fabrication", "kind": "check", "added_check": "documented_commands_real", "note": "normalizeForScan stripped * but not _, so `_vince-mp_ _factoryreset_` escaped; now strips [*_]; mkFail3 seeds the underscore form (verified caught, no new FP)." },
+    { "defect_id": "console_return_window_undocumented", "kind": "doc-fix", "note": "documented console returns the first pageSize (default 50, oldest-first) of the 1000 buffer; use --page-size or step listConsole pageIdx." },
+    { "defect_id": "screenshot_output_parent_dir", "kind": "doc-fix", "note": "documented that the output parent dir must pre-exist (no mkdir) for shot/elementScreenshot/screenshot." },
+    { "defect_id": "eval_truncation_maxbytes_ignored", "kind": "doc-fix", "note": "documented eval/sysinfo/scan cap at ~200KB and ignore --max-bytes (only data honors it)." },
+    { "defect_id": "nav_tabbar_switchtab", "kind": "doc-fix", "note": "documented nav=navigateTo-only; tabBar pages need step switchTab; reLaunch for a full reset." },
+    { "defect_id": "setpagedata_globaldata_guidance", "kind": "doc-fix", "note": "added a step-only-actions list (setPageData mutates + plain-object, appGlobalData, launchOptions, etc.) + setPageData/storage in the non-invasive side-effect rule." },
+    { "defect_id": "changelog_selftest_count_stale", "kind": "doc-fix", "note": "CHANGELOG self-test count 10/10 -> reworded (suite grew to 14)." },
+    { "defect_id": "metricplan_lines_estimate_stale", "kind": "doc-fix", "note": "metric-plan loaded-context ~94 -> ~110 lines." },
+
+    { "defect_id": "unbackticked_binary_backticked_arg", "kind": "check", "added_check": "documented_commands_real", "note": "the 'vince-mp <backticked-arg>' form (bare binary + backticked ARG, decidable and distinct from the backticked-BINARY accepted-limit) escaped; normalizeForScan now neutralizes a backtick/tilde between the bare binary and its token (negative lookbehind preserves the noun-phrase limit); mkFail4 seeds it (verified caught; noun phrase still passes); self-test now collects mkFail* generically." },
+    { "defect_id": "network_recipe_async_settle", "kind": "doc-fix", "note": "network recipe: start is synchronous, success/fail arrive after the round-trip — settle/re-poll networkList before concluding; generalized the tap/input settle rule to any trigger + data/networkList/mediaList reads." },
+    { "defect_id": "scan_recipe_async_settle", "kind": "doc-fix", "note": "scan recipe: callPageMethod resolves on the handler's sync return, not its async wx.request->setData — settle before reading data." },
+    { "defect_id": "step_only_field_schemas", "kind": "doc-fix", "note": "added field shapes for step-only actions (setPageData/storageSet/elementTrigger/elementAttribute|Property/longpress/mediaAction)." },
+    { "defect_id": "stale_release_gate_comment", "kind": "script-fix", "note": "check_release_gate header comment updated (manifest is now passed:true)." },
+
+    { "defect_id": "console_nosession_carveout", "kind": "doc-fix", "note": "SKILL said --no-session works on 'any shorthand' but console rejects it (buffer lives in the session daemon -> INVALID_ARGUMENT); carved console out in SKILL + cli-contract." }
+  ],
+  "accepted_limits": [
+    { "id": "content_check_nl_undecidability", "note": "the content regex-checks (safety polarity, command-position, fabrication) cannot verify EVERY natural-language phrasing; a novel paraphrase is the SAME documented limit (covered by the multi-seed self-test for known classes + the maker/checker), not a new defect." },
+    { "id": "battery_new_checks_author_declared", "note": "check_battery_clean requires kind:check regressions to name a ledger.new_checks id, but new_checks is author-declared; whether a check is genuinely RELATED to a defect is the maker/checker's job (undecidable mechanically)." },
+    { "id": "release_gate_evidence_custom_always_green", "note": "a custom simple command that ignores args and exits 0 could be listed as extra evidence, but the REQUIRED core (validate-skill + run_all + run_all --self-test) always runs, so it cannot mask a real failure or close the gate on a broken skill." },
+    { "id": "coverage_is_presence_not_correctness", "note": "contract_coverage_complete proves a command/shorthand is documented in a command position, not that the surrounding prose is correct — prose correctness is the maker/checker's job." }
+  ],
+  "escalations": [
+    { "id": "E1_codes_advertised_not_emitted", "target": "tools/vince-mp-cli", "note": "STALE_OR_UNKNOWN_UID and STORAGE_CLEAR_REQUIRES_CONFIRMATION appear only in capabilities.js with no runtime emit site." },
+    { "id": "E2_help_omits_env_logs", "target": "tools/vince-mp-cli", "note": "help --json lists 7 commands; capabilities lists 10 (env, logs missing from help)." },
+    { "id": "E3_app_not_running_not_important", "target": "tools/vince-mp-cli", "note": "APP_NOT_RUNNING is emitted but absent from capabilities.importantErrors." },
+    { "id": "E4_help_string_bindscancode", "target": "tools/vince-mp-cli", "note": "cli.js help text says 'bindscancode event'; should be a scancode-shaped event." },
+    { "id": "E5_session_subcommands_unexposed", "target": "tools/vince-mp-cli", "note": "session start/stop/restart/reconnect/status not in capabilities/help, so a harness check can't ground them (verified correct in source)." },
+    { "id": "E6_nul_byte_in_workflow_js", "target": "tools/vince-mp-cli", "note": "src/workflow.js has a NUL byte ~line 114 that makes plain grep treat the file as binary; runtime-harmless but a tooling landmine." }
+  ]
+}
