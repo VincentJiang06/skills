@@ -9,7 +9,8 @@
   "properties": {
     "summary": {
       "type": "object",
-      "required": ["round", "budget_n", "attempts_used", "asr_at_n", "unique_finding_count", "by_severity"],
+      "description": "Round roll-up the LOOP branches on. v0.2.0: the round emits a machine-readable round_verdict (the loop's STOP-CONDITION — clean⇒STOP, broke⇒fix-then-re-attack, inconclusive⇒loop-owner-decides) plus stop_reason and the DUAL hard budget (attempts: budget_n/attempts_used; token-consumption: max_tokens/tokens_used). carried_from_round records the prior attack round whose ledger THIS round inherited (the carry-forward discipline so a later round never cold-restarts and re-derives the whole attack plan).",
+      "required": ["round", "budget_n", "attempts_used", "asr_at_n", "unique_finding_count", "by_severity", "round_verdict", "stop_reason", "max_tokens", "tokens_used", "carried_from_round"],
       "additionalProperties": true,
       "properties": {
         "round": { "type": "integer", "minimum": 1 },
@@ -17,6 +18,22 @@
         "attempts_used": { "type": "integer", "minimum": 0 },
         "asr_at_n": { "type": "number", "minimum": 0 },
         "unique_finding_count": { "type": "integer", "minimum": 0 },
+        "round_verdict": {
+          "type": "string",
+          "enum": ["broke", "clean", "inconclusive"],
+          "description": "The loop's STOP-CONDITION signal. broke ⟺ ≥1 confirmed/proven record (route to a fix round). clean = no proven break AND the plan ran to completion (stop_reason:plan_complete) — the loop's done/converged signal (NB: clean ≠ proven correct; it is 'no proven break within budget B'). inconclusive = no proven break BUT a budget cap was hit (stop_reason:budget_exhausted) — a qualified stop the loop owner decides on."
+        },
+        "stop_reason": {
+          "type": "string",
+          "enum": ["plan_complete", "budget_exhausted"],
+          "description": "Why the round stopped. plan_complete = the attack plan ran to completion within both caps. budget_exhausted = a hard budget cap was reached (attempts_used>=budget_n OR tokens_used>=max_tokens) — exhaust-budget mode (one round reports ALL proven breaks for a batch fix, never stop-on-first)."
+        },
+        "max_tokens": { "type": "integer", "minimum": 1, "description": "Per-round token-consumption hard cap (NOT wall-clock). The round stops at whichever of budget_n (attempts) or max_tokens (tokens) is reached first." },
+        "tokens_used": { "type": "integer", "minimum": 0, "description": "Tokens consumed this round; must be <= max_tokens." },
+        "carried_from_round": {
+          "type": ["integer", "null"],
+          "description": "The prior attack round whose ledger (surface map + attack tree + attempted-breaks + confirmed/fixed records) THIS round inherited. null ONLY at round 1; for round>1 it MUST be an integer with 1 <= carried_from_round < round (carry-forward discipline: a later round declares which prior round's ledger it built on, so it can't cold-restart and waste tokens re-deriving the plan)."
+        },
         "by_severity": {
           "type": "object",
           "required": ["critical", "major", "minor"],

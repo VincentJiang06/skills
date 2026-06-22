@@ -24,12 +24,18 @@
 
 最尖锐的边界是对 **vince-tdd**：同一个词（test/break），相反的姿态——TDD *生长*构建者的规格套件；attacker 从一个去相关的上下文*攻击*运行中的产品。
 
-**它所在的循环** ——
+**它所在的循环（attacker 是循环的「停机条件」）** —— 循环跑 `A→B→C→attack`，每轮攻击发出机器可读的 `round_verdict`，循环据此分支：
 ```
+A→B→C→attack ─┬─ round_verdict:clean        → 停机（已收敛 / done）—— clean ≠ 已证明正确，只是「预算 B 内未证伪」
+              ├─ round_verdict:broke        → 修复轮 → 重新攻击
+              └─ round_verdict:inconclusive → 由循环负责人裁决（预算耗尽但未发现，受限停机）
+
 第 N 轮    attacker  → 读/设计/执行/证明/记录 → attack-records.jsonl（已证明的破坏）
 第 N+1 轮  fixer     → 修复这些破坏（单独的技能/agent）
 第 N+2 轮  attacker  → 按 regression_key 回归 + 攻击新表面
 ```
+- **硬性双预算（绝不无尽攻击）**：`--budget N`（尝试次数）+ `--max-tokens T`（token 消耗，**非**墙钟时间），**先到先停**；穷尽预算模式——一轮报告**全部**已证明破坏供批量修复，而非首破即停。
+- **结转攻击台账（省 token）**：第 >1 轮**继承自己上一轮的攻击台账**（攻击面图 + 攻击树 + 已尝试攻击 + 按 `regression_key` 的已确认/已修复记录），只对**新表面**重新推导，绝不从零重排整套攻击计划（那是 token 浪费）；以 `carried_from_round` 记录所继承的轮次。**永不继承**实现源码 / TDD 套件 / 作者表述（独立性照旧保持）。
 
 **安装** —— `cp -R skills/attacker ~/.claude/skills/`（部署后按 SKILL.md 的 `name` 生效）。攻击记录与对抗战役台账存放在**目标项目**的 `.loop/` 下（项目本地）。
 

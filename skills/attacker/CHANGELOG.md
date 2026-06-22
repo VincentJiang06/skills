@@ -2,6 +2,128 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.2.1] — 2026-06-22
+
+An independent battery found a **P0**: the v0.2.0 round-verdict gate's exemption was
+controlled by a **forgeable IN-BAND field**, so a caller could smuggle a false `clean`
+verdict past the gate while a confirmed critical break existed. v0.2.1 moves the
+exemption signal **out-of-band**, red-first (suite 48/48 → **53/53**, exit 0).
+
+### Fixed
+- **Round-verdict exemption moved OUT-OF-BAND; the in-band `__synthesized` field is no
+  longer trusted (closes a forgeable `clean`-verdict bypass).** `validateRoundVerdict`
+  skipped the v0.2.0 round-verdict consistency checks (and the new-required-field checks)
+  when `summary.__synthesized === true`. That field was *meant* to mark the CLI's OWN
+  synthesized records-only fallback summary (legitimately exempt, like `by_severity`
+  reconciliation). But `__synthesized` was a **plain user-controllable field in the
+  document** — there was no separation between "the CLI synthesized this stub" and "the
+  user typed this field." So a forged `__synthesized:true` on a **user-supplied** summary
+  smuggled a false `clean` (or a summary missing the v0.2.0 required fields) past the gate
+  — **green-but-wrong on the documented `.json`/`.jsonl` path**. On a `.jsonl` with a
+  confirmed **critical** break + a forged synthesized-clean roll-up line, the validator
+  returned `ok:true` / `confirmed_record_count:1` → the loop reads `clean` and **silently
+  abandons a proven critical defect**. The fix makes the exemption a property of **who
+  called `validate`, never a field in the data**:
+  - **`validate(doc, opts = {})`** with `opts.summarySynthesized` (default `false`). The
+    round-verdict checks are exempt **only** when `opts.summarySynthesized === true` — never
+    based on anything inside `doc`. (`validate()` stays **imported**, not inlined; existing
+    1-arg callers keep working.)
+  - The validator **no longer reads `summary.__synthesized`** at all; an in-band
+    `__synthesized` has **zero effect** on whether the checks run.
+  - **CLI ingestion:** sets `summarySynthesized = true` **only** when the CLI itself
+    synthesizes a fallback summary because the input supplied **no** summary line, and calls
+    `validate(doc, { summarySynthesized })`. On every path where a summary is **present** in
+    the input (a `.json` whole-doc, or a `.jsonl` summary line) `summarySynthesized` stays
+    `false`, so the round-verdict + required-field checks **always** run. The synthesized
+    stub no longer writes an `__synthesized` field.
+  - **Net invariant:** a user-supplied summary is **always** fully gated (round-verdict
+    consistency + required v0.2.0 fields); **only** the CLI's internally-synthesized
+    records-only fallback is exempt, and that exemption can **no longer be forged** from
+    input. Record validation continues to run in **all** cases.
+
+### Testing
+- New **red-first** eval cases **C43–C47** + fixtures: (C43) `.json` forging
+  `__synthesized:true` + `clean` verdict + a confirmed record → REJECT; (C44) `.json` forge
+  + summary missing the v0.2.0 required fields → REJECT; (C45) `.jsonl` confirmed **critical**
+  break + a forged synthesized-clean roll-up line → REJECT **and** `confirmed_record_count`
+  stays 1 (the critical defect is not abandoned); (C46) a legitimate records-only `.jsonl`
+  with **no** summary line → still ACCEPT (the real synthesized-fallback path, now via the
+  out-of-band flag); (C47) a real `.jsonl` summary line **without** the forge but with a bad
+  verdict → still REJECT. C43–C45 were captured **FAILING** in `.skill-engineer/red/red.log`
+  (**RED PHASE 7**, 50/53) before the fix; C46/C47 guarded the exempt and always-gated paths.
+  Harness: 48/48 → **53/53**, exit 0; the non-vacuity self-test stays green; the release gate
+  still PASSes (industrial); importing any module triggers no CLI; SKILL.md description
+  unchanged (1015 ≤ 1024). (`__synthesized` was never user-documented, so no SKILL.md change.)
+
+## [0.2.0] — 2026-06-22
+
+Loop-integration refinement: attacker becomes the loop's machine-readable
+**STOP-CONDITION** and the attack effort is made **HARD-BOUNDED** with an inheritable
+attack ledger. Built RED-FIRST (suite 37/37 → **48/48**, exit 0); the 7 new validator
+invariants were captured FAILING in `.skill-engineer/red/red.log` (**RED PHASE 6**,
+38/48) before implementation.
+
+### Added
+- **Round verdict — the loop's STOP-CONDITION.** A loop runs `A→B→C→attack`; each attack
+  round now emits a machine-readable **`round_verdict`** (`broke` | `clean` | `inconclusive`)
+  + **`stop_reason`** (`plan_complete` | `budget_exhausted`) on the summary roll-up the loop
+  branches on: **`clean` ⇒ STOP** (done/converged), **`broke` ⇒ fix-round then re-attack**,
+  **`inconclusive` ⇒ loop-owner-decides** (a budget cap hit with nothing found — a qualified
+  stop, NOT proven correct). Honest caveat documented: `clean` ≠ proven correct; it is "no
+  proven break within budget B."
+- **Dual hard budget (attempts + token-consumption).** The round is hard-bounded by
+  `--budget N` (attempts, `budget_n`/`attempts_used`) **plus** `--max-tokens T` (per-round
+  token consumption, `max_tokens`/`tokens_used`) — **NOT wall-clock time** — stopping at
+  whichever cap hits first, in **exhaust-budget mode** (one round reports ALL proven breaks
+  for a batch fix, never stop-on-first).
+- **Carry-forward attack ledger (`carried_from_round`).** A round>1 INHERITS its own prior
+  attack ledger (surface map + attack tree + attempted-breaks + confirmed/fixed records by
+  `regression_key`) and re-derives only NEW surface — it does NOT re-plan from scratch (token
+  waste). `carried_from_round` declares which strictly-prior round it built on (null only at
+  round 1). What is NEVER inherited: impl source / TDD suite / author framing (independence
+  preserved exactly as round 1).
+
+### Schema
+- Extended the `summary` roll-up (`schemas/attack-record.schema.json`): added `round_verdict`,
+  `stop_reason`, `max_tokens` (int ≥ 1), `tokens_used` (int ≥ 0), and `carried_from_round`
+  (`integer | null`) — all added to `summary.required` (the per-record schema is unchanged;
+  `additionalProperties` stays `true`).
+
+### Validator (7 new consistency invariants — STRUCTURE/consistency, the validator's job)
+Added to `scripts/validate_attack_records.mjs` (all prior checks intact; `validate()` stays
+IMPORTED, not inlined). On a **user-supplied** summary (the `.jsonl` synthesized fallback is
+EXEMPT, exactly as `by_severity` reconciliation is):
+  1. `round_verdict === "broke"` ⟺ ≥1 confirmed/proven record (both directions: broke with
+     empty records → reject; clean/inconclusive with a confirmed record → reject).
+  2. `clean` ⟹ no confirmed records AND `stop_reason === "plan_complete"`.
+  3. `inconclusive` ⟹ no confirmed records AND `stop_reason === "budget_exhausted"`.
+  4. `tokens_used <= max_tokens` (the dual of `attempts_used <= budget_n`).
+  5. `stop_reason === "budget_exhausted"` ⟹ a cap actually reached (`attempts_used >= budget_n`
+     OR `tokens_used >= max_tokens`).
+  6. `stop_reason === "plan_complete"` ⟹ caps not exceeded.
+  7. `carried_from_round`: null at round 1; an integer `1 <= carried_from_round < round` at
+     round > 1 (the carry-forward discipline — a later round can't cold-restart).
+The new summary fields are required (and enum-checked) on a user-supplied summary.
+
+### Testing
+- New red-first eval cases **C34–C42** + updated fixtures (planted_bug / clean_control /
+  summary_key_collision_valid carry sane v0.2.0 fields; the synthesized `.jsonl` fallback is
+  tagged `__synthesized` and exempt so records-only `.jsonl` keeps validating). Covers:
+  broke⟺records (both directions), clean-requires-plan_complete, inconclusive-requires-
+  budget_exhausted, tokens_used>max_tokens, budget_exhausted-with-both-caps-under,
+  carried_from_round null-at-round1 / required-&-strictly-prior at round>1, a missing
+  required field, and a valid v0.2.0 happy-path doc. Harness: 37/37 → **48/48**, exit 0;
+  the non-vacuity self-test stays green; importing any module triggers no CLI.
+
+### Docs
+- `SKILL.md` (Preflight budget knobs + carry-forward + a new "Round verdict" section, thin
+  orchestrator kept, description ≤ 1024), `rules/loop-and-metrics.md` (the A→B→C→attack
+  stop-condition pattern as `feedback_signal.check`, exhaust-budget mode, the carry-forward
+  ledger inherited-vs-never-inherited list, the dual budget + the `clean ≠ proven correct`
+  caveat), `references/attack-process.md` (DESIGN reuses the inherited ledger; EXECUTE stops
+  on the dual budget; RECORD emits the verdict fields), bilingual `README.md` / `README.en.md`
+  (loop diagram shows clean→STOP, dual budget, carry-forward).
+
 ## [0.1.4] — 2026-06-22
 
 A **decisive independent battery** found a P0 release-gate bypass: the gate's recursion

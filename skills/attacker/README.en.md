@@ -24,12 +24,18 @@
 
 The sharpest boundary is vs **vince-tdd**: same word (test/break), opposite stance — TDD *grows* the builder's spec suite; attacker *attacks* the running product from a decorrelated context.
 
-**The loop it lives in** —
+**The loop it lives in (attacker is the loop's STOP-CONDITION)** — a loop runs `A→B→C→attack`; each attack round emits a machine-readable `round_verdict` the loop branches on:
 ```
+A→B→C→attack ─┬─ round_verdict:clean        → STOP (converged / done) — clean ≠ proven correct, only "no proven break within budget B"
+              ├─ round_verdict:broke        → fix round → re-attack
+              └─ round_verdict:inconclusive → loop-owner-decides (budget hit, nothing found — a qualified stop)
+
 round N    attacker  → READ/DESIGN/EXECUTE/PROVE/RECORD → attack-records.jsonl (proven breaks)
 round N+1  fixer     → repairs the proven breaks (separate skill/agent)
 round N+2  attacker  → regression by regression_key + new surface
 ```
+- **Dual hard budget (never an endless attack)** — `--budget N` (attempts) + `--max-tokens T` (token consumption, **not** wall-clock), stop at whichever hits first; exhaust-budget mode reports **all** proven breaks in one round for a batch fix, not first-break.
+- **Carry-forward attack ledger (saves tokens)** — a round>1 **inherits its own prior attack ledger** (surface map + attack tree + attempted-breaks + confirmed/fixed records by `regression_key`) and re-derives only **new** surface, never re-planning from scratch; it records the inherited round as `carried_from_round`. **Never inherited**: impl source / TDD suite / author framing (independence preserved).
 
 **Install** — `cp -R skills/attacker ~/.claude/skills/` (deploys by the SKILL.md `name`). Attack records + the battery ledger live under the **target project's** `.loop/` (project-local).
 

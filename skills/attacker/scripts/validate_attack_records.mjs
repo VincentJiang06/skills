@@ -152,7 +152,7 @@ function validateConfirmedRecord(rec, i, errors) {
     E("anti_vacuity: a correctly-rejected malformed input the contract never promised to handle is NOT a finding (must not appear in records[])");
 }
 
-export function validate(doc) {
+export function validate(doc, opts = {}) {
   const errors = [];
 
   if (!isObj(doc)) return { ok: false, errors: ["top-level document is not an object"], stats: { unique_finding_count: 0, needs_judgment_count: 0 } };
@@ -221,7 +221,92 @@ export function validate(doc) {
     }
   }
 
+  // ---- v0.2.0: round-verdict (loop STOP-CONDITION) + DUAL hard budget + carry-forward ledger ----
+  // These fire ONLY against a USER-SUPPLIED summary (a round the attacker actually emitted). The
+  // exemption is OUT-OF-BAND: a round-verdict-exempt summary is signalled by opts.summarySynthesized,
+  // a property of WHO called validate (the CLI, when IT synthesizes a records-only fallback) — NEVER
+  // by any field inside `doc`. An in-band summary.__synthesized is IGNORED (it is user-controllable
+  // and was a forgeable bypass; see v0.2.1). Same exemption stance as by_severity reconciliation:
+  // never reconcile/enforce against a stub the CLI built from records — but it can no longer be
+  // forged from input. The new fields are REQUIRED on a user-supplied summary; the loop branches on
+  // round_verdict.
+  validateRoundVerdict(s, stats.confirmed_record_count, errors, opts.summarySynthesized === true);
+
   return { ok: errors.length === 0, errors, stats };
+}
+
+// v0.2.0 summary-consistency checks. `confirmedCount` is the number of confirmed/proven records[].
+// `synthesized` is an OUT-OF-BAND flag (v0.2.1): true ONLY when the CLI itself synthesized a
+// records-only fallback summary (input supplied NO summary line). When true these checks are
+// skipped (same exemption stance as by_severity reconciliation). It is a property of WHO called
+// validate, NEVER a field in the data — an in-band summary.__synthesized is IGNORED here and has
+// zero effect on whether the checks run (it was a forgeable bypass; the round-verdict gate must
+// always fire on a user-supplied summary, .json or a .jsonl summary line).
+function validateRoundVerdict(s, confirmedCount, errors, synthesized) {
+  if (!isObj(s)) return;            // top-level "missing summary object" already reported
+  if (synthesized === true) return; // OUT-OF-BAND synthesized fallback is exempt (records-only .jsonl)
+
+  const E = (m) => errors.push(`summary: ${m}`);
+  const VERDICT_ENUM = ["broke", "clean", "inconclusive"];
+  const STOP_ENUM = ["plan_complete", "budget_exhausted"];
+  const isInt = (v) => typeof v === "number" && Number.isInteger(v);
+
+  // --- required v0.2.0 fields on a user-supplied summary (enums in range) ---
+  if (!VERDICT_ENUM.includes(s.round_verdict))
+    E(`round_verdict "${s.round_verdict}" not in enum [${VERDICT_ENUM.join("|")}] (the loop's stop-condition signal is required)`);
+  if (!STOP_ENUM.includes(s.stop_reason))
+    E(`stop_reason "${s.stop_reason}" not in enum [${STOP_ENUM.join("|")}]`);
+  if (!(isInt(s.max_tokens) && s.max_tokens >= 1))
+    E(`max_tokens (${JSON.stringify(s.max_tokens)}) must be an integer >= 1 (the per-round token-consumption hard cap)`);
+  if (!(isInt(s.tokens_used) && s.tokens_used >= 0))
+    E(`tokens_used (${JSON.stringify(s.tokens_used)}) must be an integer >= 0`);
+  if (!(s.carried_from_round === null || isInt(s.carried_from_round)))
+    E(`carried_from_round (${JSON.stringify(s.carried_from_round)}) must be an integer or null`);
+
+  const verdict = s.round_verdict;
+  const stop = s.stop_reason;
+  const hasConfirmed = confirmedCount > 0;
+
+  // (1) broke ⟺ ≥1 confirmed/proven record (both directions).
+  if (verdict === "broke" && !hasConfirmed)
+    E("round_verdict 'broke' but records[] has NO confirmed/proven record (broke ⟺ ≥1 confirmed record; an unbacked broke signal)");
+  if ((verdict === "clean" || verdict === "inconclusive") && hasConfirmed)
+    E(`round_verdict '${verdict}' but records[] HAS a confirmed/proven record (broke ⟺ ≥1 confirmed record; a confirmed record forces 'broke')`);
+
+  // (2) clean ⟹ no confirmed AND stop_reason == plan_complete.
+  if (verdict === "clean" && stop !== "plan_complete")
+    E(`round_verdict 'clean' requires stop_reason 'plan_complete' (got '${stop}'); a budget-hit no-find round is 'inconclusive', not 'clean'`);
+
+  // (3) inconclusive ⟹ no confirmed AND stop_reason == budget_exhausted.
+  if (verdict === "inconclusive" && stop !== "budget_exhausted")
+    E(`round_verdict 'inconclusive' requires stop_reason 'budget_exhausted' (got '${stop}'); nothing found with the plan complete is 'clean', not 'inconclusive'`);
+
+  // (4) tokens_used <= max_tokens (the dual of attempts_used <= budget_n).
+  if (isInt(s.tokens_used) && isInt(s.max_tokens) && s.tokens_used > s.max_tokens)
+    E(`tokens_used (${s.tokens_used}) > max_tokens (${s.max_tokens}) — the token-consumption hard cap was exceeded`);
+
+  // (5)/(6) stop_reason must be BACKED by the caps.
+  const attemptsCapHit = isInt(s.attempts_used) && isInt(s.budget_n) && s.attempts_used >= s.budget_n;
+  const tokenCapHit = isInt(s.tokens_used) && isInt(s.max_tokens) && s.tokens_used >= s.max_tokens;
+  if (stop === "budget_exhausted" && !(attemptsCapHit || tokenCapHit))
+    E(`stop_reason 'budget_exhausted' but NEITHER cap was reached (attempts_used ${s.attempts_used} < budget_n ${s.budget_n} AND tokens_used ${s.tokens_used} < max_tokens ${s.max_tokens}) — a budget claim must be backed by a cap actually reached`);
+  if (stop === "plan_complete") {
+    if (isInt(s.attempts_used) && isInt(s.budget_n) && s.attempts_used > s.budget_n)
+      E(`stop_reason 'plan_complete' but attempts_used (${s.attempts_used}) > budget_n (${s.budget_n}) — a completed plan cannot have exceeded the attempt cap`);
+    if (isInt(s.tokens_used) && isInt(s.max_tokens) && s.tokens_used > s.max_tokens)
+      E(`stop_reason 'plan_complete' but tokens_used (${s.tokens_used}) > max_tokens (${s.max_tokens}) — a completed plan cannot have exceeded the token cap`);
+  }
+
+  // (7) carried_from_round carry-forward discipline.
+  if (isInt(s.round)) {
+    if (s.round === 1) {
+      if (s.carried_from_round !== null)
+        E(`carried_from_round must be null at round 1 (a cold start has no prior ledger to inherit), got ${JSON.stringify(s.carried_from_round)}`);
+    } else if (s.round > 1) {
+      if (!(isInt(s.carried_from_round) && s.carried_from_round >= 1 && s.carried_from_round < s.round))
+        E(`carried_from_round (${JSON.stringify(s.carried_from_round)}) must be an integer with 1 <= carried_from_round < round (${s.round}) — a later round MUST declare which strictly-prior round's ledger it inherited (carry-forward discipline; cold-restarting wastes tokens)`);
+    }
+  }
 }
 
 export default validate;
@@ -281,7 +366,12 @@ if (isMain) {
 
   // Read + parse defensively: malformed/truncated/empty JSON, a bad .jsonl line, or a
   // missing path must produce a graceful "ERR <msg>" + exit 2, never a raw stack trace.
+  // `summarySynthesized` is the OUT-OF-BAND round-verdict exemption signal (v0.2.1): set true ONLY
+  // when the CLI itself synthesizes a records-only fallback summary (the input had NO summary line).
+  // It is passed to validate() as opts, NEVER written into the doc — so it cannot be forged from
+  // input. Any in-band summary.__synthesized in user data has zero effect on gating.
   let doc;
+  let summarySynthesized = false;
   try {
     const raw = fs.readFileSync(file, "utf8");
     if (file.endsWith(".jsonl")) {
@@ -307,7 +397,15 @@ if (isMain) {
       let summary = summaryLine;
       if (!summary) {
         const roll = computeRollup(recs);
+        // SYNTHESIZED fallback (no user-supplied roll-up line). The CLI built this stub itself, so it
+        // signals the exemption OUT-OF-BAND via summarySynthesized=true below (NOT an in-band field):
+        // validate() then exempts it from the v0.2.0 summary-consistency + new-required-field checks
+        // (exactly as by_severity reconciliation is already a no-op against a synthesized summary).
+        // A records-only .jsonl keeps validating, and the loop's stop-condition fields are only
+        // meaningful on a round the attacker actually emitted, never on a synthesized stub. No
+        // __synthesized field is written: an in-band marker is forgeable and has zero effect (v0.2.1).
         summary = { round: 1, budget_n: 1, attempts_used: 0, asr_at_n: 0, unique_finding_count: roll.unique_finding_count, by_severity: roll.by_severity };
+        summarySynthesized = true;
       }
       doc = { summary, records: recs, needs_judgment: [] };
     } else {
@@ -319,7 +417,10 @@ if (isMain) {
     process.exit(2);
   }
 
-  const res = validate(doc);
+  // OUT-OF-BAND exemption: summarySynthesized is true ONLY for the CLI's own records-only fallback
+  // (input had no summary line). A .json whole-doc or a .jsonl summary line is a USER-SUPPLIED
+  // summary → summarySynthesized stays false → the round-verdict + required-field checks ALWAYS run.
+  const res = validate(doc, { summarySynthesized });
   for (const e of res.errors) console.error("ERR  " + e);
   console.log(JSON.stringify({ ok: res.ok, stats: res.stats }, null, 2));
   process.exit(res.ok ? 0 : 1);

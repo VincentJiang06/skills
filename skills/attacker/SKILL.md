@@ -35,12 +35,33 @@ proposition — every other choice is downstream of protecting it.**
 
 ## Preflight (scope-first)
 
-1. Resolve scope: **`--target <module/feature>`**, **`--round N`**, **`--budget N`**.
-   Never default to unbounded crawling — a run is cheap and re-runnable per feature.
+1. Resolve scope: **`--target <module/feature>`**, **`--round N`**, and the
+   MANDATORY **dual hard budget** (the round is HARD-BOUNDED — no endless attack):
+   - **`--budget N`** — attempts cap (rolled up as `ASR@n`).
+   - **`--max-tokens T`** — per-round token-consumption cap (NOT wall-clock time).
+   The round stops at **whichever cap hits first**, in **exhaust-budget mode** (one
+   round reports ALL proven breaks for a batch fix — NOT stop-on-first). Never
+   default to unbounded crawling — a run is cheap and re-runnable per feature.
 2. Locate/create the **target project's** `.loop/` for `attack-records.jsonl` +
    the battery ledger (project-local, NOT under the skill dir).
-3. Round 1 → fresh start. Else load this skill's OWN prior `attack-records.jsonl`
-   (for regression + surface memory) but **NOT** impl / tests / framing.
+3. **Round 1 → cold start** (`carried_from_round:null`). **Round>1 → CARRY-FORWARD:**
+   load this skill's OWN prior attack ledger from `<project>/.loop/` (surface map +
+   attempted-attacks + confirmed/fixed records by `regression_key`) and re-derive only
+   **NEW** surface — do NOT re-plan from scratch (re-deriving the whole attack plan each
+   round is token waste). Record which prior round you inherited as `carried_from_round`.
+   Still **NOT** loaded: impl source / TDD suite / author framing (independence preserved).
+
+## Round verdict (the loop's STOP-CONDITION)
+
+Each round emits a machine-readable **`round_verdict`** (`broke` | `clean` |
+`inconclusive`) + **`stop_reason`** (`plan_complete` | `budget_exhausted`) on the
+summary the LOOP branches on:
+- **`clean`** (no proven break, plan ran to completion) → the loop's **done/converged**
+  signal → **STOP**. Honest caveat: `clean` ≠ proven correct; it is "no proven break
+  within budget B."
+- **`broke`** (≥1 proven break) → route to a **fix round**, then **re-attack**.
+- **`inconclusive`** (a budget cap hit, nothing found — NOT proven correct) → a
+  **qualified stop the loop owner decides on**.
 
 ## The attack round — spawn a FRESH subagent (load references/attack-process.md)
 
@@ -62,19 +83,23 @@ Inside the subagent run **READ → DESIGN → EXECUTE → PROVE → RECORD**:
    derive intended behavior independently from the requirement; measure a
    steady-state **baseline**. No baseline ⇒ `needs_instrumentation` →
    `needs_judgment`, never a guess.
-2. **DESIGN** — derive attacks via spec-inversion + STRIDE breadth + the
-   business-logic abuse catalog from `assets/payload-library.json`; build a small
-   attack tree tagged cost/likelihood/prereq; attack cheapest-highest-impact
-   first; **stop on `--budget`**.
+2. **DESIGN** — **reuse the inherited ledger first** (round>1): skip/deprioritize
+   already-tried low-yield attacks, spend fresh budget on NEW surface + unconfirmed
+   leads. Then derive attacks via spec-inversion + STRIDE breadth + the business-logic
+   abuse catalog from `assets/payload-library.json`; build a small attack tree tagged
+   cost/likelihood/prereq; attack cheapest-highest-impact first.
 3. **EXECUTE** — frame each as a falsifiable experiment scoped to the smallest
    unit; **blast-radius control** + staged escalation + abort/stop conditions;
-   attack **real seams (no mocks)** where the attack lands.
+   attack **real seams (no mocks)** where the attack lands. **Stop at whichever
+   hard cap hits first — `--budget N` (attempts) OR `--max-tokens T` (tokens)** —
+   exhaust-budget mode (report ALL breaks, not first-break).
 4. **PROVE** — pick from the ranked **oracle menu** (`references/oracle-menu.md`);
    state which oracle fired; confirm `observed != expected` vs baseline/control;
    shrink to a 1-minimal reproducer; **re-run it** to confirm it still fails.
 5. **RECORD** — one record per **proven** defect → `records[]`; unprovable →
    `needs_judgment[]`; compute `regression_key`, dedup, roll up `ASR@n` +
-   unique-finding count + severity histogram.
+   unique-finding count + severity histogram **+ the round verdict** (`round_verdict`
+   + `stop_reason` + `tokens_used`/`max_tokens` + `carried_from_round`).
 
 ## Regression (start of each new round)
 
@@ -118,12 +143,17 @@ become the next round's fix list. **Attacker NEVER edits the target.**
 ## Loop integration + metrics
 
 attacker is a **sub-loop NODE**, not the loop owner: loop-constructor designs the
-loop and emits the `.loop/` runbook, **maker–checker is mandatory**, and rounds
-alternate attacker → fixer → fresh attacker (regression by `regression_key`, then
-new surface). Round success = validator green AND fresh-checker re-confirmed AND
-non-vacuity self-test green. For the full round-alternation diagram and the metric
-definitions (`ASR@n`, severity histogram, the must-be-zero false-negative /
-false-positive invariants), load `rules/loop-and-metrics.md`.
+loop and emits the `.loop/` runbook, **maker–checker is mandatory**, and attacker is
+the loop's **`feedback_signal.check`** / **STOP-CONDITION**: `A→B→C→attack`; a `clean`
+attack pass is the loop's *converged* signal (STOP), `broke` routes to a fix round then
+re-attack, `inconclusive` (budget hit, nothing found) is a qualified stop the loop owner
+decides. Rounds alternate attacker → fixer → fresh attacker (regression by
+`regression_key`, then new surface, **carrying forward the prior attack ledger** so the
+plan is never re-derived from scratch). Round success = validator green AND fresh-checker
+re-confirmed AND non-vacuity self-test green. For the full round-alternation diagram, the
+dual budget, the carry-forward ledger, and the metric definitions (`ASR@n`, severity
+histogram, the must-be-zero false-negative / false-positive invariants), load
+`rules/loop-and-metrics.md`.
 
 ## Modules
 
