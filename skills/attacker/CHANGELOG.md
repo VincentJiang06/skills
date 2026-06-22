@@ -2,6 +2,22 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.3.2] — 2026-06-23
+
+Small, **loose** soft-limits on context + speed (deliberately rough ceilings, not hard gates —
+so context/cost don't balloon). Protocol-level (the bounds govern the attacking subagent's
+runtime behavior, which the record validator can't measure), so no schema/validator change.
+
+### Added
+- **Loose budget defaults** — if unset, `--budget ≈ 12` attempts and `--max-tokens ≈ 60k` per
+  round, so a run is always bounded even when the caller doesn't specify.
+- **Context soft-cap `--max-context T` (≈ 30k default)** — a rough ceiling on CONTEXT intake +
+  self-research: stay scope-relevant, don't slurp the whole repo. Loose by design.
+- **Speed: early-exit** — attack cheapest-highest-impact first; you MAY stop once the declared
+  scope is adequately covered within budget (don't burn the full budget if the scope is covered).
+
+(Validator/eval suite unchanged — harness still 85/85.)
+
 ## [0.3.1] — 2026-06-23
 
 Five coherent additions raise attacker from "attack a declared domain of a product OR an idea"

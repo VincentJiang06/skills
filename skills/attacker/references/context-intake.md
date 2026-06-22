@@ -16,7 +16,10 @@ Context+scope is a **HARD GATE**. The attacker MUST NOT attack until **(a) scope
 2. **If insufficient, ASK** — prompt for the missing specifics (the elicitation prompts).
 3. **If still thin, SELF-RESEARCH the project** to establish scope / attack surface / structure
    (the WHAT) — read the repo, map the surface, infer the boundaries. This is how a thin "break
-   this" still becomes a sharp, scoped round instead of a guess.
+   this" still becomes a sharp, scoped round instead of a guess. **Keep it bounded (v0.3.2, soft):**
+   self-research stays **scope-relevant** and within the loose **`--max-context` (≈ 30k default)**
+   ceiling — read what the declared scope needs, do NOT slurp the whole repo (a rough ceiling so
+   context/cost don't balloon, not a hard gate).
 4. **Record where the context came from** in **`summary.context_sources`** (≥1 non-empty strings,
    e.g. `"user-provided"`, `"self-researched: attack-surface map"`, `"self-researched: module
    structure"`). The validator requires this on a user-supplied summary.

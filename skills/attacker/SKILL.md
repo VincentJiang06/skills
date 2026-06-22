@@ -81,10 +81,15 @@ proposition — every other choice is downstream of protecting it.**
    `narrowed`) — each round stays stable OR expands **incrementally** (never a wild jump) — and
    **`summary.depth`** (int ≥ 1, the progressive-deepening level within the scope; see Regression).
 3. **Dual hard budget** (MANDATORY — the round is HARD-BOUNDED, no endless attack):
-   - **`--budget N`** — attempts cap (rolled up as `ASR@n`).
-   - **`--max-tokens T`** — per-round token-consumption cap (NOT wall-clock time).
+   - **`--budget N`** — attempts cap (rolled up as `ASR@n`). **Default ≈ 12** if unset.
+   - **`--max-tokens T`** — per-round token-consumption cap (NOT wall-clock time). **Default ≈ 60k** if unset.
+   - **`--max-context T`** *(v0.3.2, soft)* — a **loose** cap (**≈ 30k** default) on CONTEXT intake +
+     self-research: stay **scope-relevant**, do NOT slurp the whole repo. Loose by design — a rough
+     ceiling so context/cost don't balloon, not a hard gate.
    The round stops at **whichever cap hits first**, in **exhaust-budget mode** (one
-   round reports ALL proven breaks for a batch fix — NOT stop-on-first). Never
+   round reports ALL proven breaks for a batch fix — NOT stop-on-first). **Speed (v0.3.2):** attack
+   cheapest-highest-impact first, and you MAY **early-exit** once the declared scope is adequately
+   covered within budget — don't burn the full budget if the scope is already covered. Never
    default to unbounded crawling — a run is cheap and re-runnable per feature.
 4. Locate/create the **target project's** `.loop/` for `attack-records.jsonl` +
    the battery ledger (project-local, NOT under the skill dir).

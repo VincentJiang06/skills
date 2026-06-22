@@ -56,6 +56,7 @@ round N+1  fixer     → repairs the proven breaks (separate skill/agent)
 round N+2  attacker  → regression by regression_key + new surface
 ```
 - **Dual hard budget (never an endless attack)** — `--budget N` (attempts) + `--max-tokens T` (token consumption, **not** wall-clock), stop at whichever hits first; exhaust-budget mode reports **all** proven breaks in one round for a batch fix, not first-break.
+- **v0.3.2 loose soft-limits (context + speed)** — defaults if unset: `--budget≈12`, `--max-tokens≈60k`; `--max-context≈30k` (soft) bounds context intake / self-research — read only what the **declared scope** needs, don't slurp the whole repo; **speed** — attack cheapest-highest-impact first and **early-exit** once the scope is covered within budget. Rough ceilings to prevent context/cost bloat, not hard gates.
 - **Carry-forward attack ledger (saves tokens)** — a round>1 **inherits its own prior attack ledger** (surface map + attack tree + attempted-breaks + confirmed/fixed records by `regression_key`) and re-derives only **new** surface, never re-planning from scratch; it records the inherited round as `carried_from_round`. **Never inherited**: impl source / TDD suite / author framing (independence preserved).
 
 **Install** — `cp -R skills/attacker ~/.claude/skills/` (deploys by the SKILL.md `name`). Attack records + the battery ledger live under the **target project's** `.loop/` (project-local).
