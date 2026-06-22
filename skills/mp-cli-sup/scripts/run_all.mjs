@@ -213,8 +213,8 @@ const CHECKS = [
       const wrong = claims.filter((n) => n !== real);
       return { ok: wrong.length === 0, msg: wrong.length ? `claims ${wrong.join(",")} but capabilities has ${real} steps` : `claim matches ${real}` };
     },
-    mkPass(dir, caps) { editText(dir, "SKILL.md", (s) => s.replace(/(\d+)(\s+step types)/, `${(caps.workflowSteps || []).length}$2`)); },
-    mkFail(dir) { editText(dir, "SKILL.md", (s) => s.replace(/(\d+)(\s+step types)/, "999$2")); },
+    mkPass(dir, caps) { editText(dir, "SKILL.md", (s) => s.replace(/\d+\s+step types/g, "").trimEnd() + `\n\n(There are ${(caps.workflowSteps || []).length} step types.)\n`); },
+    mkFail(dir) { editText(dir, "SKILL.md", (s) => s.replace(/\d+\s+step types/g, "").trimEnd() + "\n\n(There are 999 step types.)\n"); },
   },
   {
     id: "important_errors_covered",

@@ -4,12 +4,12 @@
   "skill": {
     "id": "skill.mp-cli-sup",
     "name": "mp-cli-sup",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "owner": "Vince",
     "source_uri": "skills/mp-cli-sup",
     "artifact_uri": "skills/mp-cli-sup",
     "checksum": "",
-    "compatibility": ["Codex skill folder", "system npm package vince-mp-cli@0.1.0"]
+    "compatibility": ["Codex skill folder", "system npm package vince-mp-cli@0.2.0"]
   },
   "change": {
     "change_type": "major",
@@ -17,14 +17,20 @@
     "summary_en": "Locks the skill to the local JSON CLI backend and attach-only safety rules.",
     "breaking_change": true,
     "public_behavior_contract_changed": true,
-    "changelog_path": ""
+    "changelog_path": "CHANGELOG.md"
   },
   "release_gate": {
     "checklist_id": "checklist.skill_release_gate",
-    "passed": false,
+    "passed": true,
     "failed_check_ids": [],
     "waived_check_ids": [],
-    "evidence_paths": ["scripts/validate-skill.mjs", "system command: vince-mp help --json"]
+    "evidence_paths": ["scripts/validate-skill.mjs", "scripts/run_all.mjs", "system command: vince-mp capabilities --json"],
+    "evidence": [
+      "node scripts/validate-skill.mjs",
+      "node scripts/run_all.mjs",
+      "node scripts/run_all.mjs --self-test",
+      "cd ../../tools/vince-mp-cli && npm run validate"
+    ]
   },
   "tests": {
     "eval_suite_id": "assets/eval-cases.json",

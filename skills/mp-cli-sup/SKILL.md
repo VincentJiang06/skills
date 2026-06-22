@@ -57,7 +57,7 @@ use a distinct port to debug two projects at once). The session is keyed per wor
 - **Read (instant):** `page`, `stack`, `data [path]`, `sysinfo`, `query <sel> [--all]`,
   `snapshot <sel>`, `console [--clear]`, `eval '<expr>'`.
 - **Act (uids persist):** `tap <uid>`, `input <uid> <text>`, `scan <code> [--type t] [--method m] [--raw]`,
-  `shot <output>`, `nav <url>`, `step '<json>'` (any of the 46 step types), `run --stdin` (batch).
+  `shot <output>`, `nav <url>`, `step '<json>'` (any supported workflow step — see `references/cli-contract.md`), `run --stdin` (batch).
 - **Diagnose / cross-stack:** `doctor [--skip-typecheck]`, `env list|use <key>|current|token <t>`,
   `logs --request-id <id> | --user-id <id> | --code <n>`.
 - **One-shot / special:** add `--no-session` to any shorthand for a single connect-and-exit;
@@ -92,3 +92,9 @@ use a distinct port to debug two projects at once). The session is keyed per wor
 - `references/cli-contract.md` — exact command surface, session ops, shorthands, connection/workflow JSON, step list, error codes.
 - `references/skyline-media.md` — Skyline snapshot protocol + Canvas/Camera/media instrumentation & mocks.
 - `references/evidence-and-failures.md` — connect/session edge cases, uid lifetime, console/network caveats, failure codes.
+
+## Verifying the skill
+
+- `node scripts/validate-skill.mjs` — structural validation (files, frontmatter, `vince-mp help --json`).
+- `node scripts/run_all.mjs` — deterministic contract check: every documented command / shorthand / workflow step / error code / version pin is verified against the live `vince-mp capabilities --json`, so the docs can't silently drift from the CLI. `--self-test` proves each check discriminates.
+- `node scripts/check_release_gate.mjs` — closes the release gate only on real evidence (executes each cited command by exit code; requires the harness self-test to still pass).
