@@ -47,8 +47,8 @@ const fail = [];
 const seen = new Set();
 rounds.forEach((r, i) => {
   if (typeof r.context !== "string" || !r.context.trim()) fail.push(`round ${i}: missing non-empty "context"`);
-  else if (seen.has(r.context)) fail.push(`round ${i}: duplicate context "${r.context}" (rounds must be independent)`);
-  else seen.add(r.context);
+  else if (seen.has(r.context.trim().toLowerCase())) fail.push(`round ${i}: duplicate context "${r.context}" (rounds must be independent)`);
+  else seen.add(r.context.trim().toLowerCase());
   if (typeof r.lens !== "string" || !r.lens.trim()) fail.push(`round ${i}: missing non-empty "lens"`);
   if (!Array.isArray(r.attempted_breaks) || r.attempted_breaks.length === 0) fail.push(`round ${i}: missing non-empty "attempted_breaks[]"`);
   if (typeof r.clean !== "boolean") fail.push(`round ${i}: missing boolean "clean"`);
@@ -68,6 +68,7 @@ else fail.push(`only ${consec} trailing consecutive clean rounds (need ${NEED});
 // 3. every confirmed defect locked by a documented regression
 const confirmed = rounds.flatMap((r) => (Array.isArray(r.confirmed_defects) ? r.confirmed_defects : []));
 const regById = new Map((Array.isArray(ledger.regressions) ? ledger.regressions : []).map((x) => [x.defect_id, x]));
+const newChecks = new Set(Array.isArray(ledger.new_checks) ? ledger.new_checks : []);
 let passSet = null;
 if (confirmed.length > 0) {
   const r = spawnSync(process.execPath, ["scripts/run_all.mjs", "--json"], { cwd: SKILL_DIR, encoding: "utf8" });
@@ -80,12 +81,14 @@ for (const d of confirmed) {
   if (!reg.note || !String(reg.note).trim()) { fail.push(`regression for "${id}" lacks a note`); continue; }
   if (reg.kind === "check") {
     if (!reg.added_check) fail.push(`regression for "${id}" is kind:check but names no added_check`);
+    else if (newChecks.size === 0) fail.push(`ledger.new_checks must list the hardening-introduced checks for kind:check regressions to be verifiable`);
+    else if (!newChecks.has(reg.added_check)) fail.push(`regression for "${id}" names "${reg.added_check}", not a hardening-introduced check (ledger.new_checks) — a pre-existing unrelated check cannot lock a defect`);
     else if (!passSet.has(reg.added_check)) fail.push(`regression check "${reg.added_check}" for "${id}" is not green in run_all`);
     else console.log(`PASS regression locked (check): ${id} -> ${reg.added_check}`);
   } else if (typeof reg.kind === "string" && reg.kind.trim()) {
-    // non-run_all-lockable fix (doc-fix / script-fix), verified by spot-check + re-battery;
-    // the maker/checker audits that a machine check wasn't feasible-but-skipped here.
-    console.log(`PASS regression noted (${reg.kind}, verified): ${id}`);
+    // non-run_all-lockable fix (doc-fix / script-fix), spot-check-verified; the maker/checker
+    // audits that a machine check wasn't feasible-but-skipped, and that the fix is real.
+    console.log(`PASS regression noted (${reg.kind}, maker-checker-audited): ${id}`);
   } else {
     fail.push(`regression for "${id}" needs kind:"check" (run_all-locked) or a descriptive kind + note`);
   }

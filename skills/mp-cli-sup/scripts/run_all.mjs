@@ -87,19 +87,21 @@ function buildCtx(dir, caps) {
 // `vince-mp <command>` are skipped because "<" is not [a-z]).
 function documentedInvocations(text) {
   const set = new Set();
-  const re = /vince-mp\s+([a-z][a-z0-9-]*)/gi;
+  const re = /vince-mp\s+([a-z0-9][a-z0-9-]*)/gi;
   let m;
   while ((m = re.exec(text))) set.add(m[1].toLowerCase());
   return set;
 }
-// only the code-span / fenced-block parts of a doc, so a prose heading like
-// "session-first vince-mp execution" is NOT mistaken for a `vince-mp execution`
-// command. Real CLI invocations in the skill always live in `code` / ```fences```.
-function codeContexts(text) {
-  const parts = [];
-  for (const m of text.matchAll(/```[\s\S]*?```/g)) parts.push(m[0]);
-  for (const m of text.matchAll(/`[^`\n]+`/g)) parts.push(m[0]);
-  return parts.join("\n");
+// strip markdown bold/italic markers (NOT backticks) so a fabricated command split across
+// emphasis spans — **vince-mp** **wipeall** — reads as the command a human sees, WITHOUT
+// exposing an inline-code noun phrase like `vince-mp` JSON CLI (the backtick still blocks that).
+function normalizeForScan(text) {
+  return text.replace(/\*+/g, " ");
+}
+// lines that are part of a markdown table (structured doc), used by coverage so an
+// incidental backtick in prose ("`scan` your disk") does not count as documentation.
+function tableLines(text) {
+  return text.split("\n").filter((l) => l.includes("|"));
 }
 function validCommandTokens(caps) {
   return new Set([...(caps.commands || []), ...(caps.shorthands || [])]);
@@ -181,12 +183,13 @@ const CHECKS = [
     title: "every `vince-mp <cmd>` documented in the skill exists in `capabilities` (no fabricated commands)",
     run(ctx) {
       const valid = validCommandTokens(ctx.caps);
-      const used = documentedInvocations(ctx.docText);
+      const used = documentedInvocations(normalizeForScan(ctx.docText));
       const bad = [...used].filter((t) => !valid.has(t));
       return { ok: bad.length === 0, msg: bad.length ? `documented but not in capabilities: ${bad.join(", ")}` : `${used.size} tokens, all real` };
     },
     mkPass() {},
     mkFail(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nTo reset everything, run vince-mp nukeall before debugging.\n"); },
+    mkFail2(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nDanger: run **vince-mp** **wipeall** to factory-reset the device.\n"); },
   },
   {
     id: "workflow_steps_match_capabilities",
@@ -236,28 +239,55 @@ const CHECKS = [
     run(ctx) {
       const need = [...(ctx.caps.commands || []), ...(ctx.caps.shorthands || [])];
       const invoked = documentedInvocations(ctx.docText);
-      const documented = (t) => invoked.has(t) || ctx.docText.includes("`" + t + "`") || ctx.docText.includes("`" + t + " ") || ctx.docText.includes("`" + t + "<") || ctx.docText.includes("`" + t + " [");
+      const tlines = tableLines(ctx.docText);
+      // documented = appears in COMMAND POSITION: a `vince-mp <t>` invocation, or a backticked
+      // token inside a markdown table row. An incidental `t` in prose does NOT count.
+      const inTable = (t) => tlines.some((l) => l.includes("`" + t + "`") || l.includes("`" + t + " "));
+      const documented = (t) => invoked.has(t) || inTable(t);
       const missing = need.filter((t) => !documented(t));
-      return { ok: missing.length === 0, msg: missing.length ? `CLI commands/shorthands not documented: ${missing.join(", ")}` : `all ${need.length} commands+shorthands documented` };
+      return { ok: missing.length === 0, msg: missing.length ? `CLI commands/shorthands not documented in a command position: ${missing.join(", ")}` : `all ${need.length} commands+shorthands documented` };
     },
     mkPass() {},
     mkFail(dir) { for (const f of DOC_FILES) editText(dir, f, (s) => s.replaceAll("sysinfo", "REMOVEDsh")); },
+    mkFail2(dir) {
+      // subtle: strip sysinfo's command-position docs (table row + any invocation) but leave a
+      // prose mention — proves an incidental backtick in prose is not counted as coverage.
+      for (const f of DOC_FILES) editText(dir, f, (s) => s.split("\n").filter((l) => !(l.includes("|") && l.includes("`sysinfo`"))).join("\n").replaceAll("vince-mp sysinfo", "the systemInfo reader"));
+      editText(dir, "SKILL.md", (s) => s + "\n\nYou can also read `sysinfo` for device details.\n");
+    },
   },
   {
     id: "safety_contract_documented",
     title: "the CLI safety contract (attach-forbidden fields + no-implicit side effects) is reflected in the docs with correct polarity",
     run(ctx) {
       const problems = [];
+      const t = ctx.docText;
       const forbidden = ctx.caps.connectionModes?.attach?.forbidden || [];
-      for (const f of forbidden) if (!ctx.docText.includes(f)) problems.push(`attach-forbidden field "${f}" not documented`);
-      if (forbidden.length && !/must not include/i.test(ctx.docText)) problems.push("attach 'must not include <field>' contract not stated");
+      // the key contract must be stated, bound to the field (a decoy "must not include" elsewhere won't satisfy it)
+      if (forbidden.includes("projectPath") && !/attach[\s\S]{0,140}(must not|never|cannot|do not|not)\s+include[\s\S]{0,60}projectPath/i.test(t))
+        problems.push("attach 'must not include projectPath' contract not stated");
+      for (const f of forbidden) {
+        if (!t.includes(f)) problems.push(`attach-forbidden field "${f}" not mentioned`);
+        // reject the inverted (dangerous) polarity bound to the field
+        if (new RegExp("attach[\\s\\S]{0,140}(should|must|may freely|can|freely)\\s+include[\\s\\S]{0,60}" + f, "i").test(t))
+          problems.push(`attach documented as ALLOWED to include "${f}" (inverted polarity)`);
+      }
       const sd = ctx.caps.safeDefaults || {};
-      const implicitFalse = Object.entries(sd).filter(([k, v]) => k.startsWith("implicit") && v === false);
-      if (implicitFalse.length && !/no implicit/i.test(ctx.docText)) problems.push("safeDefaults 'no implicit ...' side-effect contract not stated");
-      return { ok: problems.length === 0, msg: problems.length ? problems.join("; ") : "attach-forbidden + no-implicit safety contract reflected" };
+      if (Object.entries(sd).some(([k, v]) => k.startsWith("implicit") && v === false)) {
+        if (!/no implicit/i.test(t)) problems.push("safeDefaults 'no implicit ...' contract not stated");
+        if (/(performs|enables|allows|will perform)\s+implicit/i.test(t)) problems.push("docs claim the CLI PERFORMS implicit side effects (inverted polarity)");
+      }
+      return { ok: problems.length === 0, msg: problems.length ? problems.join("; ") : "attach-forbidden + no-implicit safety contract reflected (polarity ok)" };
     },
     mkPass() {},
     mkFail(dir) { for (const f of DOC_FILES) editText(dir, f, (s) => s.replace(/must not include/i, "may freely include")); },
+    mkFail2(dir) {
+      // subtle: invert the real attach + safe-defaults contract while leaving a DECOY "must not
+      // include" so a naive presence check passes; the bound/polarity check must still fail.
+      editText(dir, "references/cli-contract.md", (s) => s
+        .replace(/`attach` must not include `projectPath`\./, "`attach` may freely include `projectPath`, `launch`, and `reLaunch`. (Note: the `--json` flag must not include trailing spaces.)")
+        .replace(/No implicit `launch`/, "The CLI performs implicit `launch`"));
+    },
   },
   {
     id: "design_record_eval_ids_match",
@@ -341,17 +371,21 @@ function runAll(targetDir, caps) {
 function selfTest(caps, baseDir) {
   const results = [];
   for (const c of CHECKS) {
-    let passOk = null, failOk = null, err = null;
+    let passOk = null, err = null;
+    const seeds = [c.mkFail, c.mkFail2].filter(Boolean); // every seed (incl. the subtle near-miss) must be caught
+    const failOks = [];
     try {
       const a = freshCopy(baseDir);
       try { (c.mkPass || (() => {}))(a.dst, caps); passOk = c.run(buildCtx(a.dst, caps)).ok; }
       finally { fs.rmSync(a.tmp, { recursive: true, force: true }); }
-      const b = freshCopy(baseDir);
-      try { c.mkFail(b.dst, caps); failOk = c.run(buildCtx(b.dst, caps)).ok; }
-      finally { fs.rmSync(b.tmp, { recursive: true, force: true }); }
+      for (const seed of seeds) {
+        const b = freshCopy(baseDir);
+        try { seed(b.dst, caps); failOks.push(c.run(buildCtx(b.dst, caps)).ok); }
+        finally { fs.rmSync(b.tmp, { recursive: true, force: true }); }
+      }
     } catch (e) { err = e.message; }
-    const discriminates = err === null && passOk === true && failOk === false;
-    results.push({ id: c.id, discriminates, passOk, failOk, err });
+    const discriminates = err === null && passOk === true && seeds.length > 0 && failOks.every((ok) => ok === false);
+    results.push({ id: c.id, discriminates, passOk, seeds: seeds.length, caught: failOks.filter((ok) => ok === false).length, err });
   }
   return results;
 }
@@ -382,7 +416,7 @@ if (wantSelfTest) {
   else {
     for (const r of results) {
       console.log(`${r.discriminates ? "DISCRIMINATES" : "VACUOUS      "} ${r.id}` +
-        (r.discriminates ? "" : `  (pass=${r.passOk} fail=${r.failOk}${r.err ? " err=" + r.err : ""})`));
+        (r.discriminates ? `  (${r.seeds} seeds)` : `  (pass=${r.passOk} caught=${r.caught}/${r.seeds}${r.err ? " err=" + r.err : ""})`));
     }
     console.log(`\nself-test: ${results.length - broken.length}/${results.length} checks proven to discriminate (pass-clean + fail-on-seeded-defect)`);
   }

@@ -61,7 +61,10 @@ from planned next steps; include the exact command shape when a rerun is needed.
 ## Anti-patterns
 
 - Do not fall back to `launch`/`cli auto` against a port to "recover" an attach failure unless the
-  user allowed opening DevTools — first run `doctor` and read the error code.
+  user allowed opening DevTools — first read the error code from `session start`/`session status`
+  (`AUTOMATION_PORT_TIMEOUT` → enable DevTools 安全设置 → 服务端口; `AUTOMATOR_CONNECT_FAILED` → confirm
+  DevTools is open). `doctor` is a STATIC pre-flight (project resolves + cli binary + build freshness);
+  it does NOT test the live automation port, so it cannot diagnose an attach/port failure.
 - Do not hide side effects behind helper scripts; the CLI JSON must show the action and output path.
 - Do not retry Skyline element enumeration indefinitely — bounded timeouts, report partial evidence.
 - Do not treat a slow read as success: a real hang surfaces fast as `APP_NOT_RUNNING` (app not

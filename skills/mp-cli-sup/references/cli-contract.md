@@ -33,11 +33,11 @@ idle-reaps itself. Every later command auto-starts a session if none is running.
 | `data [path]` | pageData | 200KB cap for shorthand reads (not the generic ~20KB JSON truncation), reported via `truncated`; `--max-bytes` to override |
 | `sysinfo` | systemInfo | |
 | `query <sel> [--all] [--position]` | query | mints uid(s) like `view_0`; `--all` for multiple |
-| `snapshot [<sel>] [--position]` | snapshot | batched reads; pass a concrete selector (`*` is unsupported on some renderers) |
+| `snapshot [<sel>] [--position] [--max-elements n]` | snapshot | batched reads; pass a concrete selector (`*` is unsupported on some renderers); `--max-elements` caps enumeration |
 | `tap <uid>` / `input <uid> <text>` | tap / input | uid from a prior query/snapshot; valid across calls in a session |
 | `eval '<js expr>'` | evaluate | wraps as `function(){ return (<expr>); }` |
 | `scan <code> [--type qrcode] [--method onScanCode] [--raw]` | callPageMethod | camera-less: calls the page's scan handler (default `onScanCode`) with a `{type:"scancode", detail:{result, scanType, type:scanType}}` event object; `--raw` sends the legacy `{result, scanType}` shape |
-| `shot <output>` | screenshot | full-page PNG under `--workspace-root` |
+| `shot <output>` | screenshot | full-page PNG under `--workspace-root` — the SESSION path (the standalone `screenshot`/`media` commands are one-shot and REQUIRE `--connect '<json>'`) |
 | `nav <url>` | navigateTo | navigation (invalidates uids) |
 | `console [--clear] [--type log]` | listConsole/clearConsole | buffered since session start (capped 1000) |
 | `step '<json>'` | any step | escape hatch: a step object, or an array → batch |
@@ -66,6 +66,7 @@ vince-mp run --connect '<json>' --stdin --json    # one-shot with an explicit co
 vince-mp screenshot --connect '<json>' --output <path> --json
 vince-mp media --connect '<json>' --action <install|list|canvas-export|canvas-sample|camera-probe|camera-mock|restore> --json
 vince-mp capabilities --json                       # full manifest: commands, shorthands, sessionOps, steps
+vince-mp help --json                               # command + flag reference
 ```
 
 ## Connection JSON
@@ -76,6 +77,9 @@ vince-mp capabilities --json                       # full manifest: commands, sh
 ```
 
 `attach` must not include `projectPath`. `launch` includes `projectPath` and may open/focus DevTools.
+`session start` always uses `attach` (it may spawn the headless `cli auto` automation server if the
+port is down — the one connect-time effect); the `launch` mode that opens/focuses a DevTools project
+is separate and human-gated.
 
 ## Workflow JSON (`run`)
 

@@ -9,7 +9,7 @@ description: >
   and client to backend error-log correlation by requestId. Use when the user says "debug
   WeChat DevTools", "连上小程序 / start a mp session", "inspect pageData", "query an element then
   tap it", "camera-less scan smoke", "why won't the simulator connect", "check tsc/.js freshness",
-  "switch backend env", or "pull the server error log for this requestId". Do NOT use for generic
+  "switch backend env", or "pull this Mini Program's backend error log by requestId". Do NOT use for generic
   browser automation, source-only Mini Program edits without runtime, or non-WeChat connector work.
 ---
 

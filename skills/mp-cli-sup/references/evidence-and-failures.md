@@ -42,7 +42,7 @@ Backend-independent edge cases for live `vince-mp` debugging.
 
 ## Console and network
 
-- The session auto-captures console from start (buffered, capped at the most recent 1000) — `console`
+- The session auto-captures console from start (buffered; the message and exception buffers are EACH capped at the most recent 1000) — `console`
   lists it, `console --clear` resets it. It only has output since the session started.
 - WeChat automation re-delivers each `console.log` several times (5–8×); the CLI coalesces identical
   messages arriving back-to-back so one log = one entry. Distinct or time-separated logs are kept; to
@@ -50,6 +50,10 @@ Backend-independent edge cases for live `vince-mp` debugging.
 - Network monitoring is NOT auto-injected; `networkInstall` must precede the observed request, and any
   report must state that earlier requests are unavailable. Never claim console/network evidence from a
   prior non-CLI run as current.
+- Network recipe (there is **no** `network` shorthand — use `step`/`run`):
+  `vince-mp step '{"type":"networkInstall"}'` → trigger the request (tap/nav) →
+  `vince-mp step '{"type":"networkList"}'` → `vince-mp step '{"type":"networkRestore"}'`.
+  Requests fired before `networkInstall` are invisible.
 
 ## Doctor — "green tests but broken build"
 

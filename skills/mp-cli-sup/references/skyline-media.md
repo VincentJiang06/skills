@@ -39,6 +39,11 @@ vince-mp scan PKG-2026-0605 --type qrcode            # onScanCode({type:"scancod
 vince-mp scan 123 --method onDecodeResult            # custom handler name; add --raw for legacy {result,scanType}
 ```
 
+**Preconditions:** be on the scanner page (`vince-mp page` to confirm the route) and know the handler
+name — default `onScanCode`; if the page binds e.g. `bindscancode="handleScan"`, pass
+`--method handleScan`. A wrong handler name or wrong current page returns a `callPageMethod` error or
+a silent no-op, not a scan.
+
 Then read the effect with `vince-mp data` (e.g. the new record / `latest`). This is the supported
 way to smoke a scanner; real-camera frames still require a device.
 

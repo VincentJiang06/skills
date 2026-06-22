@@ -25,13 +25,16 @@ function readManifest() {
   try { return JSON.parse(fs.readFileSync(path.join(SKILL_DIR, "assets/release-manifest.json"), "utf8")); }
   catch { return null; }
 }
-function runCmd(cmd) {
-  return spawnSync(cmd, { shell: true, cwd: SKILL_DIR, encoding: "utf8" }).status === 0;
+const GREEN_PROGRAMS = new Set(["true", ":", "echo", "printf", "test", "[", "cat", "yes", "command", "eval"]);
+// evidence must be a SIMPLE command (program + args) — no shell composition/redirection/
+// substitution. Running without a shell means `|| exit 0`, `| cat`, `( true )`, `; true`,
+// `&& true` cannot launder a failing command into a green one.
+function isSimpleCommand(cmd) {
+  return cmd.trim().length > 0 && !/[|&;<>`$()]|\n/.test(cmd);
 }
-// reject evidence that can never fail (would close the gate for free)
-function alwaysGreen(cmd) {
-  const c = cmd.trim();
-  return /^(true|:)$/.test(c) || /(\|\||;|&&)\s*(true|:)\s*$/.test(c) || /^echo(\s|$)/.test(c);
+function runSimple(cmd) {
+  const parts = cmd.trim().split(/\s+/);
+  return spawnSync(parts[0], parts.slice(1), { cwd: SKILL_DIR, encoding: "utf8" }).status === 0;
 }
 
 const manifest = readManifest();
@@ -49,7 +52,7 @@ const REQUIRED = [
   "node scripts/run_all.mjs --self-test",
 ];
 for (const cmd of REQUIRED) {
-  if (runCmd(cmd)) ok.push(`required ok: ${cmd}`);
+  if (runSimple(cmd)) ok.push(`required ok: ${cmd}`);
   else fail.push(`required FAILED: ${cmd}` + (cmd.includes("--self-test") ? " — harness weakened/gutted; cannot close the gate" : ""));
 }
 
@@ -59,8 +62,9 @@ if (evidence.length === 0) fail.push("release_gate.evidence must be a non-empty 
 for (const cmd of evidence) {
   if (typeof cmd !== "string" || !cmd.trim()) { fail.push(`evidence entry is not a non-empty string: ${JSON.stringify(cmd)}`); continue; }
   if (REQUIRED.includes(cmd.trim())) { ok.push(`evidence ok (run as required): ${cmd}`); continue; }
-  if (alwaysGreen(cmd)) { fail.push(`evidence entry can never fail (rejected): ${cmd}`); continue; }
-  if (runCmd(cmd)) ok.push(`evidence ok: ${cmd}`);
+  if (!isSimpleCommand(cmd)) { fail.push(`evidence must be a simple command (no shell | & ; < > $ () backtick): ${cmd}`); continue; }
+  if (GREEN_PROGRAMS.has(cmd.trim().split(/\s+/)[0])) { fail.push(`evidence program can never fail (rejected): ${cmd}`); continue; }
+  if (runSimple(cmd)) ok.push(`evidence ok: ${cmd}`);
   else fail.push(`evidence FAILED: ${cmd}`);
 }
 

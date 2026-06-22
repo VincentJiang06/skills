@@ -128,7 +128,7 @@
       "expected_activation": "must_activate",
       "acceptance_criteria": [
         "Does not relaunch/restart DevTools to recover an attach failure unless the user explicitly allows opening DevTools.",
-        "Runs doctor and reads the error code (AUTOMATION_PORT_TIMEOUT / WECHAT_CLI_NOT_FOUND / APP_NOT_RUNNING) first.",
+        "Reads the error code from session start/status (AUTOMATION_PORT_TIMEOUT / AUTOMATOR_CONNECT_FAILED); uses doctor only for static pre-flight (project/cli/build), which cannot diagnose a live-port failure.",
         "Prefers session start / attach over a destructive relaunch."
       ]
     },
