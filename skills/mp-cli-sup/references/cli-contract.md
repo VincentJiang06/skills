@@ -76,7 +76,7 @@ vince-mp help --json                               # command + flag reference
 {"mode":"launch","projectPath":"/absolute/project","port":9420}
 ```
 
-`attach` must not include `projectPath`. `launch` includes `projectPath` and may open/focus DevTools.
+`attach` must not include `projectPath`, `launch`, or `reLaunch`. `launch` includes `projectPath` and may open/focus DevTools.
 `session start` always uses `attach` (it may spawn the headless `cli auto` automation server if the
 port is down — the one connect-time effect); the `launch` mode that opens/focuses a DevTools project
 is separate and human-gated.

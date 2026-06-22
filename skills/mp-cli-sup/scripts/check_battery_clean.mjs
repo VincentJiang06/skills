@@ -47,6 +47,7 @@ const fail = [];
 const ctxKey = (c) => String(c).replace(/[​-‍﻿­]/g, "").trim().toLowerCase();
 const seen = new Set();
 rounds.forEach((r, i) => {
+  if (!r || typeof r !== "object") { fail.push(`round ${i}: not an object`); return; }
   if (typeof r.context !== "string" || !r.context.trim()) fail.push(`round ${i}: missing non-empty "context"`);
   else if (seen.has(ctxKey(r.context))) fail.push(`round ${i}: duplicate context "${r.context}" (rounds must be independent)`);
   else seen.add(ctxKey(r.context));
@@ -60,14 +61,14 @@ rounds.forEach((r, i) => {
 let consec = 0;
 for (let i = rounds.length - 1; i >= 0; i--) {
   const r = rounds[i];
-  if (r.clean === true && Array.isArray(r.confirmed_defects) && r.confirmed_defects.length === 0) consec++;
+  if (r && r.clean === true && Array.isArray(r.confirmed_defects) && r.confirmed_defects.length === 0) consec++;
   else break;
 }
 if (consec >= NEED) console.log(`PASS consecutive clean rounds: ${consec} >= ${NEED}`);
 else fail.push(`only ${consec} trailing consecutive clean rounds (need ${NEED}); total rounds=${rounds.length}`);
 
 // 3. every confirmed defect locked by a documented regression
-const confirmed = rounds.flatMap((r) => (Array.isArray(r.confirmed_defects) ? r.confirmed_defects : []));
+const confirmed = rounds.flatMap((r) => (r && Array.isArray(r.confirmed_defects) ? r.confirmed_defects : []));
 const regById = new Map((Array.isArray(ledger.regressions) ? ledger.regressions : []).map((x) => [x.defect_id, x]));
 const newChecks = new Set(Array.isArray(ledger.new_checks) ? ledger.new_checks : []);
 let passSet = null;

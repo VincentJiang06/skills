@@ -18,6 +18,12 @@ Backend-independent edge cases for live `vince-mp` debugging.
   running in the simulator. Almost always a build/startup error (e.g. "模拟器启动失败 … Cannot read
   property 'subPackages' of undefined" = a stale/broken build). Run `vince-mp doctor` and fix the
   build (`npm run build:devtools` for TS projects); do not retry blindly.
+- `session start` succeeding only means the automation port ATTACHED — run `vince-mp page`/`data`
+  next; a fast `APP_NOT_RUNNING` (~8s) then means DevTools is fine but the app isn't running.
+- If `session start` returns `SESSION_START_FAILED`, the background daemon's own attach failed —
+  read the underlying code from `details.logTail` (or `~/.vince-mp/sessions/<hash>.log`):
+  `AUTOMATOR_CONNECT_FAILED` (port live but attach refused → confirm DevTools is open) or
+  `APP_NOT_RUNNING`. `session status` only reports `running:false`, not the cause.
 
 ## Session lifetime and uids
 
@@ -70,3 +76,6 @@ can hide a non-compiling/stale build — trust `doctor` (tsc + freshness), not j
 - `logs --request-id <id>` pulls the matching server error log (needs an admin token via
   `VINCE_MP_ADMIN_TOKEN` or `env token`). `--user-id` filters by account; `BACKEND_UNREACHABLE`
   means the env isn't deployed/reachable, `ADMIN_TOKEN_REQUIRED` means no token is set.
+- `logs` queries the CURRENTLY selected env (default `mockLan`): to pull a `.net` log, run
+  `vince-mp env use caoliaoDevNet` FIRST, then `vince-mp logs --request-id <id>`; confirm with
+  `vince-mp env current`.

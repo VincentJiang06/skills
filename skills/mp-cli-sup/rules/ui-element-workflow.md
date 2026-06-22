@@ -13,7 +13,10 @@ next. A uid goes stale after navigation (`nav`/`reLaunch`/`switchTab`) or a node
 AND **`snapshot` resets the element map**: it re-numbers uids from `_0` and invalidates ALL
 previously-minted uids even with no navigation, whereas `query`/`query --all` APPEND (preserving
 earlier uids). So mint the uids you will act on with `query`, or run `snapshot` before minting
-action uids; re-query after a `snapshot`. (Without a session — `--no-session` / a one-shot `run` — a uid
+action uids; re-query after a `snapshot`. Also: `tap`/`input`/`step` actions resolve when DevTools
+DISPATCHES the event, NOT when the page's async handler (`wx.request`→`setData`) finishes — settle
+with `vince-mp step '{"type":"wait","ms":300}'` (or wait on the expected post-state) before
+re-reading `data` to assert the effect; re-poll once if it still looks unchanged. (Without a session — `--no-session` / a one-shot `run` — a uid
 lives only inside that single process, the old model.)
 
 ## Workflow

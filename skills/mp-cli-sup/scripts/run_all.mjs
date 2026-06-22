@@ -283,12 +283,12 @@ const CHECKS = [
       const t = ctx.docText;
       const forbidden = ctx.caps.connectionModes?.attach?.forbidden || [];
       // the key contract must be stated, bound to the field (a decoy "must not include" elsewhere won't satisfy it)
-      if (forbidden.includes("projectPath") && !/attach[\s\S]{0,140}(must not|never|cannot|do not|not)\s+include[\s\S]{0,60}projectPath/i.test(t))
-        problems.push("attach 'must not include projectPath' contract not stated");
+      // the must-not-include clause near "attach" must list EVERY forbidden field; capture the
+      // clause up to its period so a field named in a SEPARATE sentence does not count as covered.
+      const negMatch = t.match(/attach[\s\S]{0,140}(?:must not|never|cannot|do not|not)\s+include([^.]*)/i);
+      const negClause = negMatch ? negMatch[1] : "";
       for (const f of forbidden) {
-        if (!t.includes(f)) problems.push(`attach-forbidden field "${f}" not mentioned`);
-        // reject the inverted (dangerous) polarity bound to the field — any positive-permission
-        // verb (not just "include"), so "attach accepts projectPath freely" is caught.
+        if (!negClause.includes(f)) problems.push(`attach 'must not include ${f}' contract not stated`);
         if (new RegExp("attach[\\s\\S]{0,140}(accepts?|allows?|supports?|permits?|takes?|may include|can include|should include|freely includes?|may freely include)[\\s\\S]{0,40}" + f, "i").test(t))
           problems.push(`attach documented as ALLOWED to include "${f}" (inverted polarity)`);
       }
@@ -307,8 +307,13 @@ const CHECKS = [
       // other than "include"; "implicitly performs" word order) while leaving a DECOY "must not
       // include" so a naive presence check passes; the polarity check must still fail.
       editText(dir, "references/cli-contract.md", (s) => s
-        .replace(/`attach` must not include `projectPath`\./, "`attach` accepts `projectPath`, `launch`, and `reLaunch` freely. (Reminder: the endpoint must not include trailing spaces.)")
+        .replace(/`attach` must not include `projectPath`, `launch`, or `reLaunch`\./, "`attach` accepts `projectPath`, `launch`, and `reLaunch` freely. (Reminder: the endpoint must not include trailing spaces.)")
         .replace(/No implicit `launch`/, "The CLI implicitly performs `launch`"));
+    },
+    mkFail3(dir) {
+      // subtle: keep the projectPath contract but silently drop launch/reLaunch (per-field coverage)
+      editText(dir, "references/cli-contract.md", (s) => s
+        .replace(/`attach` must not include `projectPath`, `launch`, or `reLaunch`\./, "`attach` must not include `projectPath`. With `attach` you may also pass `launch` and `reLaunch` steps."));
     },
   },
   {
@@ -316,7 +321,7 @@ const CHECKS = [
     title: "skill-design-record eval_case_ids match the eval-cases.json case ids exactly",
     run(ctx) {
       const rec = parseJsonSafe(ctx.dir, "assets/skill-design-record.json");
-      const ids = new Set((ctx.evalCases?.cases || []).map((c) => c.id));
+      const ids = new Set((ctx.evalCases?.cases || []).filter((c) => c && typeof c === "object").map((c) => c.id));
       const recIds = new Set(rec?.test_assets?.eval_case_ids || []);
       const missingInRec = [...ids].filter((i) => !recIds.has(i));
       const extraInRec = [...recIds].filter((i) => !ids.has(i));
@@ -359,6 +364,7 @@ const CHECKS = [
     run(ctx) {
       const ec = ctx.evalCases;
       if (!ec || !Array.isArray(ec.cases)) return { ok: false, msg: "eval-cases.json missing cases[]" };
+      if (ec.cases.some((c) => !c || typeof c !== "object")) return { ok: false, msg: "eval-cases has null/non-object case entries" };
       if (ec.cases.length < 4) return { ok: false, msg: `only ${ec.cases.length} cases (<4)` };
       const types = new Set(ec.cases.map((c) => c.case_type));
       const needType = ["happy_path", "boundary_path", "negative_path", "adversarial_path"].filter((t) => !types.has(t));

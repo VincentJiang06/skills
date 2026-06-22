@@ -49,6 +49,9 @@ vince-mp console                # console buffered since session start
 vince-mp session stop           # when done (or it idle-reaps itself)
 ```
 
+`tap`/`input` resolve when DevTools DISPATCHES the event, not when the page's async handler
+(`wx.request`→`setData`) completes — `wait` or re-poll `data` before asserting an effect.
+
 Every command returns JSON and accepts `--workspace-root <dir>` and `--port <n>` (default 9420;
 use a distinct port to debug two projects at once). The session is keyed per workspace.
 
