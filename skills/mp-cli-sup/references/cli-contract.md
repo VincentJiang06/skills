@@ -127,3 +127,19 @@ All failures: `{"ok":false,"code":"ERROR_CODE","message":"...","details":{},"sug
 
 No implicit `launch`/`reLaunch` beyond `session start` ensuring the port; no implicit
 network/canvas/camera instrumentation; no implicit file writes; no implicit Camera frame/photo capture.
+
+## Read/act caps & step-only actions
+
+- **`console`** returns the FIRST `pageSize` entries (default 50, oldest-first) of the ≤1000 buffer.
+  For recent/all logs use `console --page-size 1000` or `step '{"type":"listConsole","pageIdx":N}'`.
+- **Output path parent must already exist.** `shot`/`elementScreenshot`/`screenshot` write only under
+  `--workspace-root`, AND the parent dir must pre-exist (the CLI does not `mkdir`) — else `PATH_NOT_FOUND`.
+- **Truncation.** `eval`/`sysinfo`/`scan` cap JSON at ~200KB and IGNORE `--max-bytes` (only `data`
+  honors it); on overflow the value becomes `{truncatedJsonPreview, truncated:true}` — narrow the
+  expression or read via `data <path>`.
+- **`nav` is `navigateTo` only.** For a tabBar page use `step '{"type":"switchTab","url":"..."}'`;
+  for a full reset `step '{"type":"reLaunch","url":"..."}'`.
+- **Step-only actions (no shorthand) — via `step '<json>'`:** `longpress`, `elementTrigger`,
+  `elementText/Value/Attribute/Property`, `setPageData` (data must be a plain object — it MUTATES page
+  state), `storageGet/Set/Remove/Clear` (Clear needs `confirm:true`), `appGlobalData`, `launchOptions`,
+  `mediaAction`, `network*`.

@@ -12,7 +12,7 @@ deterministic verification the skill was missing.
   important error code, plus version & compatibility pins) against the live
   `vince-mp capabilities --json`, so the docs cannot silently drift from the
   installed CLI. `--self-test` seeds one defect per check class into a copy of
-  the skill and proves every check discriminates (10/10).
+  the skill and proves every check discriminates (the suite has since grown to 14 checks).
 - `scripts/check_release_gate.mjs` — closes the release gate only on real
   evidence: it executes each command in `release_gate.evidence` by exit code
   (it does not trust the `passed` boolean) and requires the harness self-test to

@@ -43,8 +43,8 @@ command/step/error schema is needed; otherwise keep this high-level protocol in 
 ## Hard rules
 
 - Use only the system `vince-mp` backend; no other automation backend/connector for new work.
-- Do not navigate, `reLaunch`, instrument media/network, or mock APIs when the user asked for
-  non-invasive inspection. (`session start` ensuring the port is the one allowed connect-time effect.)
+- Do not navigate, `reLaunch`, instrument media/network, mock APIs, or write state
+  (`setPageData`/`storage*`) when the user asked for non-invasive inspection. (`session start` ensuring the port is the one allowed connect-time effect.)
 - Do not infer the automation WebSocket from an unrelated DevTools URL parameter; let
   `session start` resolve/verify it, or pass a verified `--connect`.
 - Do not write outside `--workspace-root`.

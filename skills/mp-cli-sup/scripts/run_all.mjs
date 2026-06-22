@@ -98,7 +98,7 @@ function documentedInvocations(text) {
 // factoryreset"), so that form is an accepted limit (maker/checker). Plain and bold fabrications
 // (`vince-mp call force-reset`, `**vince-mp** **wipeall**`) ARE caught.
 function normalizeForScan(text) {
-  return text.replace(/\*+/g, " ");
+  return text.replace(/[*_]+/g, " ");
 }
 // lines that are part of a markdown table (structured doc), used by coverage so an
 // incidental backtick in prose ("`scan` your disk") does not count as documentation.
@@ -193,6 +193,7 @@ const CHECKS = [
     mkPass() {},
     mkFail(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nTo reset everything, run vince-mp nukeall before debugging.\n"); },
     mkFail2(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nDanger: run **vince-mp** **wipeall** to factory-reset the device.\n"); },
+    mkFail3(dir) { editText(dir, "SKILL.md", (s) => s + "\n\nFor a full reset use _vince-mp_ _eraseall_ on the device.\n"); },
   },
   {
     id: "no_step_as_shorthand",
