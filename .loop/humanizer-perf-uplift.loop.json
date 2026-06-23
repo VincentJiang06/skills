@@ -1,0 +1,258 @@
+{
+  "task": "Dramatically improve the humanizer-academic skill's HUMANIZATION QUALITY / 完成度 for BOTH modes — academic (论文) and especially popsci (科普, the under-tested second mode) — measured by a per-mode blind-judge completeness rubric, while holding its two hard wins (0/27 over-editing on human prose, 0 fabrication). First HARDEN THE TEST SET so per-mode completeness is actually measurable (the popsci track + exemplars are missing today), then drive the upgrade conductor-driven (guidance->engineer->zipper->conductor) gated by an independent vince-attacker held-out battery.",
+  "loop_altitude": "medium",
+  "loop_altitude_rationale": "Sequential gated stages over a single skill's text/refs/detector + its eval; fully reversible (git) and single-agent-orchestrated (the conductor + attacker fan out subagents INSIDE their stages). No two design-level stages run independently, so medium, not large.",
+  "selection_log": [
+    {
+      "decision": "D0",
+      "answer": "loop",
+      "why": "per-mode quality is machine-decidable once the eval is hardened: deterministic harness (run_detector_tests 115/115, calibrate 0-FP, run_behavioral_checks) + a per-mode blind-judge that emits academic.completeness_mean / popsci.completeness_mean / over_edited / fabricated as JSON; the anchor is a compare.mjs predicate over baseline-vs-candidate per-mode JSON"
+    },
+    {
+      "decision": "D1",
+      "answer": "staged (5 seams)",
+      "why": "frozen improved-eval -> pinned baseline.json -> handoff-spec.json -> improved-skill+candidate.json -> clean held-out battery -> compressed+industrial; each seam is a stable, separately-checkable artifact. Eval-hardening is its OWN first stage because the test set must be improved AND FROZEN before the skill is touched (else changing the ruler and the thing measured together is un-attributable)."
+    },
+    {
+      "decision": "D2",
+      "answer": "plan_execute_verify / retry / plan_execute_verify / plan_execute_verify / review / plan_execute_verify",
+      "why": "harden_eval+diagnose+improve+ship are deliberate edits needing mid-flight correction; baseline is a mechanical capture (retry); attack is an adversarial quality judgment (review)"
+    },
+    {
+      "decision": "D3",
+      "answer": "on_the_loop",
+      "why": "reversible dev-only edits; per-mode quality alone is a noisy LLM-judge signal, but the COMPOSITE (per-mode completeness + FP-hold + fabrication-hard-gate + held-out attacker + maker-checker) discriminates — human reviews at the eval-freeze, baseline-accept and ship gates"
+    },
+    {
+      "decision": "D4",
+      "answer": "medium",
+      "why": "stages are strictly sequential (each depends on the prior); the only fan-out is the conductor's + attacker's internal subagents — a stage-internal harness detail, not independent design-level parallelism"
+    },
+    {
+      "decision": "D5",
+      "answer": "caps + loopback routing",
+      "why": "per-stage caps; improve loops back to diagnose (spec wrong), attack loops back to improve (fix->re-attack), ship loops back to improve (compression regressed the gain); escalate when the FP<->recall/quality frontier is hit"
+    },
+    {
+      "decision": "D6",
+      "answer": "completeness_first",
+      "why": "the per-mode blind-judge eval is SLOW, COSTLY (subagent rewrites + judgments over the corpus) and NOISY, so run it RARELY on a near-complete artifact -> few long thorough passes; tuned to low per-stage caps (<=4), deliberate patterns, and THOROUGH checks (full harness + per-mode blind-judge, never a smoke). The OUTER cap is 5 to match the owner's forecast of ~5 loops (the conductor's own internal cap is a fixed 3)."
+    }
+  ],
+  "stages": [
+    {
+      "id": "harden_eval",
+      "definition_of_done": {
+        "goal": "the test set is improved so per-mode 完成度 is measurable and FROZEN: references/blind-judge-rubric.md gains a PER-MODE structure (academic track + popsci track, each with a completeness/完成度 dimension + mode-fit register dimension + pass thresholds) AND >=1 popsci worked exemplar exists under evals/worked/ AND paired discrimination fixtures (good+bad x academic+popsci) exist; eval_selftest.mjs proves the rubric is non-vacuous (a good-popsci-with-craft fixture PASSES the popsci track, a clickbait-popsci fixture FAILS it; same for academic)",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "node .loop/humanizer-perf/eval_selftest.mjs",
+        "expect": "pass",
+        "falsifiable_when": "the rubric lacks a popsci track or a completeness dimension, OR no popsci worked exemplar exists, OR a paired good/bad fixture is missing, OR the planted good-popsci fixture does not pass the popsci track while the clickbait fixture does (the rubric can't discriminate per mode) — eval_selftest exits non-zero",
+        "passing_but_wrong": "the popsci track is just a copy of the academic track, so it would PENALIZE legitimate popsci craft (rhetorical questions, 'you', analogy) as register slips — ruled out: eval_selftest runs a good-popsci-WITH-craft fixture through the popsci track and REQUIRES it to PASS (an academic-copy track fails that fixture because dim2 would flag the craft), and runs a stiff-academic-ified popsci through and requires it to score LOW on popsci completeness"
+      },
+      "stop_conditions": {
+        "failure": [
+          "a per-mode rubric that discriminates both modes cannot be built in 4 passes (the modes are not separable by the chosen dimensions — escalate for a redesign)"
+        ],
+        "max_iterations": 4,
+        "on_failure": {
+          "action": "escalate"
+        }
+      },
+      "depends_on": []
+    },
+    {
+      "id": "baseline",
+      "definition_of_done": {
+        "goal": "on a tree where the skill's BEHAVIOR files (SKILL.md, references except the rubric, scripts) are unedited, the deterministic harness passes AND the per-mode blind-judge baseline is captured to .loop/humanizer-perf/baseline.json (academic.completeness_mean, popsci.completeness_mean, per-mode non_lifted_ids, human.over_edited, fabricated) against the FROZEN improved eval, as an immutable reference",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "retry",
+      "feedback_signal": {
+        "check": "[ -z \"$(git status --porcelain -- skills/humanizer-academic ':(exclude)skills/humanizer-academic/evals' ':(exclude)skills/humanizer-academic/references/blind-judge-rubric.md')\" ] && (cd skills/humanizer-academic && python3 evals/run_detector_tests.py && python3 evals/calibrate.py && python3 evals/run_behavioral_checks.py) && node -e \"const b=require('./.loop/humanizer-perf/baseline.json'); if(typeof b.academic.completeness_mean!=='number'||typeof b.popsci.completeness_mean!=='number'||b.human.over_edited==null) process.exit(1)\"",
+        "expect": "pass",
+        "falsifiable_when": "the deterministic harness exits non-zero on the untouched skill, OR a behavior file (SKILL.md/scripts/non-rubric reference) was already edited (the clean-tree predicate, scoped to exclude the eval+rubric that harden_eval legitimately changed, finds a change), OR baseline.json lacks per-mode completeness means",
+        "passing_but_wrong": "baseline.json is copied from the old academic-only blind-judge-results.json (no popsci track) so the popsci baseline is fabricated/degenerate — ruled out: baseline must be produced by THIS run's per-mode judge over the corpus against the FROZEN rubric, and the fresh-reader confirms popsci.completeness_mean came from real popsci rewrites (n matches the popsci AI corpus)"
+      },
+      "stop_conditions": {
+        "failure": [
+          "the deterministic harness cannot be made green on the behavior-unedited skill (environment broken, not our change)"
+        ],
+        "max_iterations": 2,
+        "on_failure": {
+          "action": "escalate"
+        }
+      },
+      "depends_on": [
+        "harden_eval"
+      ]
+    },
+    {
+      "id": "diagnose",
+      "definition_of_done": {
+        "goal": "vince-skill-guidance (via the conductor) re-audits the humanizer against baseline.json and writes a handoff-spec.json that names >=1 CONCRETE, per-mode improvement target tied to a specific baseline miss (a per-mode non_lifted_ids id OR a named completeness gap, with POPSCI explicitly covered) and each with an acceptance check — without proposing anything that lowers the abstain-first FP guard",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "node -e \"const s=require('./skills/humanizer-academic/.skill-guidance/handoff-spec.json'); const b=require('./.loop/humanizer-perf/baseline.json'); if(!s.overall_readiness||!s.intent) process.exit(1); const blob=JSON.stringify(s.recommended_design||s).toLowerCase(); const levers=['texture','stance','specific','completeness','long-form','longform','arc','voice','analog']; const hits=levers.filter(k=>blob.includes(k)).length; const ids=[].concat(b.academic.non_lifted_ids||[],b.popsci.non_lifted_ids||[]); const tied=hits>=2||ids.some(id=>blob.includes(String(id).toLowerCase())); const popsci=blob.includes('popsci')||blob.includes('科普'); const fpSafe=!/(lower|drop|relax|disable)[^.]{0,30}(abstain|threshold|false.positive)/.test(blob); process.exit(tied&&popsci&&fpSafe?0:1)\"",
+        "expect": "pass",
+        "falsifiable_when": "the handoff-spec is missing/unparseable, OR names no improvement target tied to any baseline miss, OR does not address popsci at all, OR proposes lowering the abstain-first threshold (an FP-regressing 'improvement')",
+        "passing_but_wrong": "the spec name-drops a baseline id + 'popsci' but its recommended change is untestable ('make popsci read more human') — ruled out only by (a) the maker-checker reading the spec for a concrete acceptance check per target and (b) the improve stage FAILING to move the per-mode metric, which loops back here. Honest limit: the diagnose check is STRUCTURAL; genuineness is proven downstream."
+      },
+      "stop_conditions": {
+        "failure": [
+          "guidance cannot produce a per-mode, baseline-tied, FP-safe, testable spec after 2 audits (the gap is not diagnosable from the corpus — needs new corpus or human insight)"
+        ],
+        "max_iterations": 2,
+        "on_failure": {
+          "action": "escalate"
+        }
+      },
+      "depends_on": [
+        "baseline"
+      ]
+    },
+    {
+      "id": "improve",
+      "definition_of_done": {
+        "goal": "vince-skill-engineer (via the conductor) implements the handoff-spec (edits SKILL.md/references/detector + extends evals RED->GREEN); the deterministic harness stays green AND the per-mode blind-judge re-run writes candidate.json with popsci.completeness_mean >= baseline + MARGIN, academic.completeness_mean NOT regressed, human.over_edited == 0, fabricated == 0, and NO per-piece completeness regression",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "(cd skills/humanizer-academic && python3 evals/run_detector_tests.py && python3 evals/calibrate.py && python3 evals/run_behavioral_checks.py) && node .loop/humanizer-perf/compare.mjs --baseline .loop/humanizer-perf/baseline.json --candidate .loop/humanizer-perf/candidate.json --margin 0.5",
+        "expect": "pass",
+        "falsifiable_when": "the deterministic harness goes red, OR popsci.completeness_mean does not rise by >= MARGIN, OR academic.completeness_mean regresses, OR human.over_edited rises above 0/27 (over-editing returned), OR any fabrication appears, OR any piece's completeness regressed (compare.mjs exits non-zero on any of these)",
+        "passing_but_wrong": "popsci 'completeness' rises because the skill now AGGRESSIVELY rewrites popsci (incl. clean pieces) — the per-mode number goes up but it would over-edit fresh human text. The in-corpus FP check (calibrate + behavioral no-op on the 27) catches in-corpus over-editing, BUT OVERFIT to these exact corpus pieces is NOT caught here — that is what stage attack (held-out) exists to catch. Documented, not pretended-closed."
+      },
+      "stop_conditions": {
+        "failure": [
+          "3 consecutive builds fail to move per-mode completeness without regressing a guard",
+          "the spec's targets prove unbuildable -> loop back to diagnose"
+        ],
+        "max_iterations": 4,
+        "on_failure": {
+          "action": "loopback",
+          "to": "diagnose"
+        }
+      },
+      "depends_on": [
+        "diagnose"
+      ]
+    },
+    {
+      "id": "attack",
+      "definition_of_done": {
+        "goal": "the PERFORMANCE/held-out attacker gate (distinct from the conductor's skill-construction battery in ship): a fresh vince-attacker round (product mode; scope = humanizer observable behavior on HELD-OUT inputs for BOTH modes, NOT in evals/corpus/) comes back round_verdict=clean over >=2 consecutive unique-context rounds: no proven over-edit on fresh human prose, no proven fabrication, no proven popsci-craft destruction (over-academic-ifying good popsci), and no rewrite made WORSE than baseline — validated by the attacker's deterministic validator",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "review",
+      "feedback_signal": {
+        "check": "node ~/.claude/skills/vince-attacker/scripts/validate_attack_records.mjs .loop/attack-records.jsonl && node ~/.claude/skills/vince-attacker/scripts/check_battery_clean.mjs .loop/humanizer-attack-battery.json --need 2",
+        "expect": "pass",
+        "falsifiable_when": "the attacker proves >=1 reproducible breakage on held-out inputs — a fresh human paragraph the improved skill over-edits, a rewrite that invents a number/citation, a good popsci piece it stiffens into fake-academic (craft destroyed), or any rewrite made worse — so validate_attack_records records a confirmed finding and check_battery_clean is non-zero",
+        "passing_but_wrong": "the attacker attacks only the SAME corpus pieces the skill was tuned on, so it cannot see the overfit — ruled out: scope MANDATES held-out inputs for both modes (attested in summary.context_sources) and --need 2 requires unique context per round. Honest limit: 'clean' = no proven break within budget, NOT proven-correct — asymptotic."
+      },
+      "stop_conditions": {
+        "failure": [
+          "the attacker proves a breakage that improve cannot fix without regressing per-mode quality (a genuine quality<->FP conflict surfaced)"
+        ],
+        "max_iterations": 3,
+        "on_failure": {
+          "action": "loopback",
+          "to": "improve"
+        }
+      },
+      "depends_on": [
+        "improve"
+      ]
+    },
+    {
+      "id": "ship",
+      "definition_of_done": {
+        "goal": "vince-skill-zipper compresses losslessly (diff_lossless reports 0 LOST) AND vince-skill-conductor final-acceptance writes effective_verdict=industrial (min(re-audit, attacker)); AND the per-mode blind-judge RE-RUN against the COMPRESSED skill writes shipped.json that still holds the gain (popsci.completeness_mean >= candidate, academic not regressed, over_edited == 0, fabricated == 0)",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "python3 skills/skill-zipper/scripts/diff_lossless.py .loop/humanizer-perf/pre-zip skills/humanizer-academic | grep -qE \"lost:[[:space:]]+0 lines\" && node -e \"const c=require('./skills/humanizer-academic/.skill-conductor/conductor-log.json'); if(c.quality.effective_verdict!=='industrial') process.exit(1)\" && node .loop/humanizer-perf/compare.mjs --baseline .loop/humanizer-perf/candidate.json --candidate .loop/humanizer-perf/shipped.json --margin 0",
+        "expect": "pass",
+        "falsifiable_when": "the lossless diff (pre-zip snapshot vs compressed dir) reports a non-zero LOST count, OR conductor effective_verdict is below industrial, OR the post-compression per-mode re-run shows any mode's completeness dropped below candidate / FP rose / fabrication appeared",
+        "passing_but_wrong": "the ship eval re-uses cached rewrites from BEFORE compression so it stays green by accident — ruled out: shipped.json must be produced by re-running the rewrite agent against the COMPRESSED SKILL.md (fresh, no cache); and the conductor's min-fold means a clean re-audit can never lift a demoted battery verdict"
+      },
+      "stop_conditions": {
+        "failure": [
+          "compression cannot hold the gain (the gain depended on verbose content the zipper removes) -> loopback to improve",
+          "conductor returns stopped_unmet after its own 3 internal loops"
+        ],
+        "max_iterations": 2,
+        "on_failure": {
+          "action": "loopback",
+          "to": "improve"
+        }
+      },
+      "depends_on": [
+        "attack"
+      ]
+    }
+  ],
+  "human_placement": "on_the_loop",
+  "maker_checker": {
+    "separate_checker": true,
+    "scope": "a fresh-context reviewer sees the diff + baseline.json + candidate.json + the attacker records + the FROZEN per-mode rubric (NOT the skill's authoring rationale) and flags ONLY: (a) a per-mode completeness gain that is over-editing / corpus-overfit rather than genuine humanization; (b) any FP or fabrication regression vs baseline; (c) a handoff-spec target that isn't actually testable or ignores popsci; (d) a popsci rubric track that is secretly academic-shaped (would penalize legitimate craft); (e) a completeness-first cadence claim the knobs contradict; (f) any tampering with the frozen eval (rubric/fixtures/compare.mjs weakened, margin lowered, baseline.json mutated)"
+  },
+  "harness_primitives": [
+    "git branch/worktree isolation so every skill edit is reversible",
+    "external scratch ledger .loop/humanizer-perf/run-state.md holding the current stage + per-mode metrics across context resets",
+    "the FROZEN improved eval (per-mode rubric v2 + popsci worked exemplars + paired discrimination fixtures), pinned by harden_eval and immutable for the rest of the loop — the ruler is fixed before the thing measured changes",
+    "eval_selftest.mjs: a non-vacuity self-test proving the per-mode rubric discriminates good vs bad for BOTH modes (good-popsci-with-craft PASSES, clickbait FAILS)",
+    "the pinned immutable baseline.json (captured stage baseline on a behavior-unedited tree) as the regression reference",
+    "a HELD-OUT validation corpus (fresh AI + human prose for BOTH modes, NEVER the evals/corpus/ files) that only the attacker stage uses — the anti-overfit instrument",
+    "the per-mode blind-judge eval (a rewrite agent follows SKILL.md per mode, then an INDEPENDENT blind judge scores per-mode completeness/register/fabrication) as the performance oracle — noisy + costly, run at the gates only",
+    "compare.mjs: a deterministic per-mode metric-gate (popsci.completeness_mean >= base+margin AND academic not regressed AND over_edited==0 AND fabricated==0 AND no per-piece regression) — AUTHORED with harden_eval/baseline and FROZEN; improve/ship may not edit it (anti gate-tampering, checked by the maker-checker)",
+    ".loop/humanizer-perf/pre-zip/ — a verbatim snapshot of the improved (pre-compression) skill, taken at the start of ship so diff_lossless can prove LOST==0 against the compressed dir"
+  ],
+  "stop_conditions": {
+    "success": "the SHIPPED (compressed) humanizer beats baseline per-mode completeness (popsci by >=MARGIN, academic not regressed) with human over-editing still 0/27 and fabrication still 0, the attacker battery is clean on held-out inputs for both modes over >=2 rounds, and the conductor effective_verdict is industrial",
+    "failure": [
+      "any stage exhausts its max_iterations without passing its check",
+      "the attacker repeatedly proves the quality gain is over-editing/overfit that cannot be fixed without regressing the FP=0 guarantee (the quality<->FP frontier is the real ceiling)"
+    ],
+    "escalate": [
+      "the only way to raise per-mode completeness more is to over-edit signal-less prose (quality<->FP frontier hit) — a product decision",
+      "adding specificity to 'improve' a piece would require inventing a fact (fabrication) — hard-stop",
+      "the corpus is too small to prove the per-mode gain generalizes and no held-out corpus can be sourced"
+    ],
+    "max_iterations": 5
+  },
+  "risk_guards": [
+    {
+      "risk": "moving goalposts — changing the EVAL (ruler) and the SKILL (measured) in the same loop makes any gain un-attributable",
+      "mitigation": "harden_eval is a SEPARATE first stage that FREEZES the rubric/fixtures/compare.mjs before baseline; the skill is then measured against a fixed bar; the maker-checker flags any later eval edit"
+    },
+    {
+      "risk": "popsci rubric is secretly academic-shaped — it would penalize legitimate craft (rhetorical Qs, 'you', analogy) and reward stiffening",
+      "mitigation": "eval_selftest requires a good-popsci-WITH-craft fixture to PASS the popsci track and a stiff-academic-ified popsci to score LOW; the maker-checker re-confirms the popsci track fits popsci-register.md"
+    },
+    {
+      "risk": "reward hacking / corpus overfit — the per-mode number is gamed by over-editing or tuning to the exact corpus pieces",
+      "mitigation": "the held-out attacker stage (fresh AI+human, both modes, --need 2) + the FP-on-human guard + the maker-checker scoped to 'genuine vs overfit' + compare.mjs forbidding any per-piece regression"
+    },
+    {
+      "risk": "fabrication to manufacture specificity (the hard fail)",
+      "mitigation": "fabricated==0 is a hard gate inside compare.mjs AND an attacker fabrication oracle AND the skill's own no-new-facts verify step"
+    },
+    {
+      "risk": "FP regression — over-editing returns and undoes v3.0.0's primary win (0/27)",
+      "mitigation": "calibrate.py (0 strong FP) + the behavioral no-op check on the 27 human texts + held-out human prose in the attacker; compare.mjs gates over_edited==0"
+    },
+    {
+      "risk": "judge noise mistaken for a real per-mode gain — the blind-judge score is non-deterministic",
+      "mitigation": "compare.mjs requires a MARGIN beyond noise AND no per-piece regression AND the attacker confirms on held-out; machine_verifiable:true scopes to the deterministic comparison, while 'genuinely more complete' leans on the attacker + maker-checker"
+    }
+  ]
+}

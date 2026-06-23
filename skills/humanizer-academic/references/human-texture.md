@@ -120,10 +120,64 @@ asymmetric — it spends more words where the point is harder.
 
 ---
 
+## Academic — the two required ADD moves, together (one worked example)
+
+Every triggered academic rewrite must do **both** §1 (a committed, calibrated claim)
+and §2 (one abstract summary promoted to a source-present specific). Here they land
+in the same passage. Assume the source elsewhere already states the 2025 IPO figure
+and the deposit total — nothing below is new.
+
+**Before (SUBTRACT done, but ADD skipped — scrubbed yet flat/stance-less):**
+> The financial sector experienced notable developments during the period. A number
+> of indicators improved, and the sector reinforced its position within the regional
+> economy. These trends point to a range of possible trajectories going forward.
+
+**After (committed claim + source-present specific, register intact):**
+> On the 2025 figures, finance — not property — is what carried the year: Hong Kong
+> retook the top global IPO market with about HK$286 billion raised, and deposits
+> passed HK$19 trillion. The evidence indicates a recovery led by capital markets;
+> whether it broadens depends on demand the data does not yet show.
+
+> What changed: "a range of possible trajectories" became a held, calibrated claim
+> ("the evidence indicates… led by capital markets"); the abstract "indicators
+> improved" became the IPO and deposit figures **already in the source**. Zero new
+> facts; hedging ("whether it broadens", "does not yet show") preserved.
+
+---
+
+## Popsci — the two required ADD moves (one worked example)
+
+> `popsci` mode keeps the craft (rhetorical Q, "you", analogy) that academic mode
+> strips — see popsci-register.md. The ADD here is: (1) let **one** real,
+> source-grounded analogy/example carry the key point, and (2) replace a generic
+> uplift close with a grounded one (an open question or real implication **already
+> in the source**). Never invent the analogy or the implication.
+
+**Before (SUBTRACT done — hype gone — but explanation abstract + uplift close):**
+> Vaccines work by preparing the immune system in advance. The immune system is
+> able to recognize and respond to threats more effectively after this preparation.
+> Ultimately, the future of immunology is incredibly bright.
+
+**After (one analogy carries it; grounded close; voice intact):**
+> A vaccine is a wanted poster handed to your immune system: it shows the pathogen's
+> face without the crime, so the next time the real thing shows up, the response is
+> already drawn up and fast. Why do some vaccines need boosters, then? Because that
+> memory fades at different rates — which is exactly what the source's antibody-decay
+> curves are tracking.
+
+> What changed: the abstract "recognize and respond" became **one** carrying analogy
+> (the wanted poster); the empty "future is bright" close became a real open question
+> answered from the source's own decay data. Craft kept (second person, a genuine
+> rhetorical question); no hype, no invented fact.
+
+---
+
 ## ADD checklist (run after SUBTRACT, before final register re-check)
 
-- [ ] Is there at least one **committed, calibrated** claim per major section?
-- [ ] Did I replace ≥1 abstract summary with a **source-present** specific — and
+**academic:**
+- [ ] Is there at least one **committed, calibrated** claim (and one per major
+      section in a long input)?
+- [ ] Did I promote ≥1 abstract summary into a **source-present** specific — and
       add **zero** new facts/numbers/citations?
 - [ ] Did sentence/paragraph length **vary on purpose** (and does `sentence_cv`
       rise vs. the input, as a diagnostic)?
@@ -131,3 +185,14 @@ asymmetric — it spends more words where the point is harder.
       argument does not earn it?
 - [ ] Did register stay academic (cross-check academic-register.md)? No slang, no
       banter, no fake imperfections introduced in the name of "texture".
+
+**popsci:**
+- [ ] Does **one** real, **source-grounded** analogy/example carry the key point
+      (not the mechanism restated abstractly)?
+- [ ] Is any generic uplift close replaced with a **grounded** one (open question /
+      real implication **already in the source**) — and **zero** new facts?
+- [ ] Is the craft **preserved** (rhetorical Q, "you", analogy) and the register
+      still serious (cross-check popsci-register.md)? No hype/clickbait/emoji.
+
+**long inputs (both modes):** varied section openings, a single through-line, a
+**synthesizing** (not recap) conclusion — adding no length and no content.

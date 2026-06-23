@@ -150,23 +150,50 @@ voice. (See popsci-register.md.)
 Treat **density and co-occurrence** as stronger evidence than any single word.
 
 ### Step 3 — ADD human texture (without inventing)
-The half generic humanizers skip. Load `references/human-texture.md`.
-- **`academic`**: surface a committed claim with calibrated confidence; replace
-  an abstract summary with the concrete number/case/mechanism **already in the
-  source**; deliberate sentence/paragraph-length variance; controlled asymmetry
-  (not every list is three).
-- **`popsci`**: let one real analogy or concrete example (already implied by the
-  source) carry a point; vary rhythm (a short punchy sentence after a long one);
-  a genuine through-line instead of a listicle — but stay **serious**, never hype.
-- **Never invent** a number, case, study, or quote to add specificity. If the
-  source has none, keep it general.
+The half generic humanizers skip — SUBTRACT alone leaves prose scrubbed but flat,
+stance-less, and abstract, which still reads as machine. **Once a rewrite is
+triggered (the abstain gate in Step 1 is UNCHANGED), the ADD below is required, not
+optional**, but bounded hard by zero net-new facts. Load
+`references/human-texture.md` (worked before/after examples per mode there).
+- **`academic` — do at least both, every triggered rewrite:**
+  1. **Surface ≥1 committed claim with calibrated confidence** — state a point the
+     source already makes as a held, calibrated claim (`the evidence indicates`,
+     `more plausibly`, `证据表明`, `更可能的解释是`), not a survey of possibilities.
+     Calibration ≠ casualness and ≠ dropping hedges.
+  2. **Promote ≥1 abstract summary into a concrete number / case / mechanism ALREADY
+     IN THE SOURCE** — retrieve a specific figure, named entity, dated event, or
+     causal step from elsewhere in the same text; never generate one. Plus: sentence/
+     paragraph-length variance; controlled asymmetry (not every list is three — but
+     data enumerations are not forced triads).
+- **`popsci` — do at least both, every triggered rewrite:**
+  1. **Let ONE real, source-grounded analogy or concrete example carry a key point**
+     — pick the single best one the source already implies and let it do the
+     explanatory work instead of restating the mechanism abstractly. Preserve
+     existing craft (rhetorical Q, "you", analogy) — removing it is a false positive.
+  2. **Replace any generic uplift close with a grounded one** — swap "the future is
+     bright" / "未来可期" / "拭目以待" for an open question, real next step, or
+     concrete implication **already in the source**. Vary rhythm; keep one
+     through-line, not a listicle — and stay **serious**, never hype.
+- **Never invent** a number, case, study, quote, analogy, or implication. If the
+  source has none, keep it general (you may name the gap). Specificity is
+  **retrieval from the source**, never generation.
 
-### Step 4 — Re-check register (mode floor)
+### Step 4 — Re-check register (mode floor) + whole-document arc
 `academic` → cross-check `references/academic-register.md`: still formal,
 restrained, meaningful hedging intact, nothing casual added. `popsci` →
 cross-check `references/popsci-register.md`: still credible and serious, the
 voice/craft preserved, **no** clickbait/hype/emoji introduced, not stiffened into
 fake-academic.
+
+**Long inputs (multi-section) — treat the document as a whole, not section-by-section:**
+- **Vary section openings** — don't start every section the same way (every
+  paragraph "本节将…", every section "X is an important…"); let openings differ.
+- **One through-line** — keep a single load-bearing argument visible across
+  sections so the arc builds, rather than marching finding-by-finding.
+- **Synthesizing conclusion** — the close should *synthesize* (tie the threads into
+  the through-line / state the standing implication) rather than recap the sections.
+- Adds **no** length and **no** new content — this is shape across the existing
+  text, under the same zero-net-new-facts rule.
 
 ### Step 5 — Verify
 - **No-new-facts check**: scan output against the locked constraint list — zero
