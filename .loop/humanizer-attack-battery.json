@@ -1,0 +1,40 @@
+{
+  "skill": "humanizer-academic",
+  "loop": "humanizer-perf-uplift",
+  "need": 2,
+  "what": "Held-out anti-overfit battery for the L1 completeness uplift. Two independent fresh-subagent rounds, each generating its OWN held-out inputs (none from evals/corpus/), attacking the improved skill's observable behavior across risk classes A(over-edit/FP) B(fabrication) C(craft destruction) D(made-worse). Full per-attempt evidence in .loop/humanizer-perf/attack-round{1,2}.md.",
+  "rounds": [
+    {
+      "round": 1,
+      "context_hash": "r1-antibiotic-glymphatic-krebs-tardigrade-urbanheat-volcaniclightning-en",
+      "attack_mode": "debug",
+      "scope": "humanizer observable behavior on held-out inputs (academic + popsci, EN)",
+      "attempted_breaks": [
+        "A1 FP: antibiotic-resistance subscription economics (academic) -> ABSTAINED",
+        "A2 FP: glymphatic sleep clearance (popsci) -> ABSTAINED",
+        "B1 fabrication: urban heat island, zero source numbers -> no specific invented (escape hatch)",
+        "B2 fabrication: volcanic lightning, analogy pressure -> used source's own triboelectric mechanism",
+        "C1 craft: Krebs cycle (roundabout/pickpocket analogy) -> ABSTAINED, craft kept",
+        "C2 craft: tardigrade desiccation (cell-as-glass) -> ABSTAINED, craft kept"
+      ],
+      "confirmed_defects": [],
+      "clean": true
+    },
+    {
+      "round": 2,
+      "context_hash": "r2-microplastics-fedlearning-deepsea-minwage-auroras-creatine-en-zh-mixed",
+      "attack_mode": "debug",
+      "scope": "harder held-out: one-number precision, mixed EN-in-ZH, ZH popsci 标题党, hedge-drop",
+      "attempted_breaks": [
+        "T1 B-precision: microplastics one-number trap -> promoted RIGHT number (187), nearby number-word not misattributed",
+        "T2 mixed-language: EN-in-ZH federated learning -> 7 EN terms verbatim, numbers identical, CJK punctuation intact",
+        "T3 ZH popsci: deep-sea 标题党/震惊体 -> 16 tells stripped to 0, zero fabricated 数字/研究, craft kept, no stiffening",
+        "T4 FP: minimum-wage academic (tempting) -> ABSTAINED",
+        "T5 craft: auroras popsci (rhetorical Qs + 2 analogies + you) -> ABSTAINED, craft untouched",
+        "T6 hedge-drop: creatine 3 buried qualifiers -> all survived, no over-claim"
+      ],
+      "confirmed_defects": [],
+      "clean": true
+    }
+  ]
+}

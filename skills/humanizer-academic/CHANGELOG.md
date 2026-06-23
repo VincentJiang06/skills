@@ -4,6 +4,32 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
+## 3.1.0 — Per-mode completeness uplift (2026-06-23)
+
+**Minor** (abstain-first and the register floors are unchanged — an additive quality
+lift). Improves whole-document 完成度 in both modes, via a loop-constructor-designed
+perf-uplift loop, validated by a hardened per-mode blind-judge eval + an independent
+held-out attacker battery.
+
+### Changed
+- **Step 3 ADD is now required-when-triggered** (FP-safe — the abstain-first entry
+  gate is unchanged, so ADD only fires on prose already judged worth rewriting):
+  `academic` must surface a committed claim + promote a SOURCE-PRESENT specific;
+  `popsci` must let one source-grounded analogy carry a point + land a grounded close.
+- **Step 4** gains a whole-document arc note for long inputs (vary section openings;
+  a synthesizing — not recap — conclusion; one through-line).
+- **`references/blind-judge-rubric.md` rebuilt PER-MODE** (academic Track A + popsci
+  Track B, each with a 完成度/completeness dimension; reserve-5 + paired source-vs-rewrite
+  lift) — popsci completeness was previously unmeasurable (the rubric was academic-shaped).
+- **`references/human-texture.md`** gains per-mode ADD worked examples.
+
+### Measured (strict paired blind judge, whole-document priority)
+- academic whole-document completeness **4.00 → 4.83**; popsci **4.17 → 4.83** (5-pt).
+- over-editing on human prose **0**; fabrication **0**; deterministic harness green
+  (detector 115/115, calibrate PASS, behavioral 22/22).
+- **Held-out attacker battery: 2 rounds, both clean (HARDENED)** — generalizes across
+  EN/ZH/mixed; no out-of-sample over-editing or fabrication; popsci craft preserved.
+
 ## 3.0.0 — Two modes + abstain-first (2026-06-21)
 
 **Breaking** (default rewrite aggressiveness changes). Reworks the skill around

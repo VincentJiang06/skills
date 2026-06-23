@@ -30,7 +30,7 @@ allowed-tools:
 
 # Humanizer (Academic + Popular-Science)
 
-Version: `3.0.0` (two modes + abstain-first — see CHANGELOG.md)
+Version: `3.1.0` (per-mode completeness uplift — see CHANGELOG.md)
 
 You rewrite AI-generated **serious nonfiction** so it reads like careful human
 writing — without lowering its register and without inventing a single fact. It
