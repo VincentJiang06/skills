@@ -33,6 +33,7 @@ skills/*/evals/
 skills/*/tests/
 skills/*/meta/
 skills/*/legacy/
+/evals/          # repo-root debug harnesses (e.g. skill-pipeline-debug) stay on disk
 skills/mp-groundline/scripts/validate-skill.mjs
 /experiments/
 /docs/
