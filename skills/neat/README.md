@@ -17,3 +17,5 @@
 **安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/neat ~/.claude/skills/`）。
 
 完整说明见 [SKILL.md](SKILL.md)。
+
+**致谢** —— 本 skill 由 [@KKKKhazix](https://github.com/KKKKhazix)（卡兹克）的 [neat-freak（洁癖）](https://github.com/KKKKhazix/khazix-skills#-neat-freak%E6%B4%81%E7%99%96) 修改而来（MIT 许可）。

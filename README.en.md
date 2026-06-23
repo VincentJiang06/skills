@@ -164,6 +164,8 @@ Methodology draws on the wider Agent Skills ecosystem — Anthropic's
 [skills](https://github.com/anthropics/skills) (spec + `skill-creator`) and obra's
 [superpowers](https://github.com/obra/superpowers).
 
+The `neat` skill is adapted from [@KKKKhazix](https://github.com/KKKKhazix)'s [neat-freak（洁癖）](https://github.com/KKKKhazix/khazix-skills#-neat-freak%E6%B4%81%E7%99%96) (MIT).
+
 ## License
 
 [MIT](LICENSE) © 2026 Vince Jiang. Use, adapt, and redistribute freely.

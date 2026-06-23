@@ -17,3 +17,5 @@
 **Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/neat ~/.claude/skills/`).
 
 Full spec: [SKILL.md](SKILL.md)
+
+**Credit** — Adapted from [@KKKKhazix](https://github.com/KKKKhazix)'s [neat-freak（洁癖）](https://github.com/KKKKhazix/khazix-skills#-neat-freak%E6%B4%81%E7%99%96) (MIT).

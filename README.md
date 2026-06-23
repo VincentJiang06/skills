@@ -156,6 +156,8 @@ tools/vince-mp-cli/ # mp-cli-sup 驱动的 Node CLI
 方法论借鉴了更广的 Agent Skills 生态 —— Anthropic 的 [skills](https://github.com/anthropics/skills)（规范 +
 `skill-creator`）与 obra 的 [superpowers](https://github.com/obra/superpowers)。
 
+`neat` skill 由 [@KKKKhazix](https://github.com/KKKKhazix)（卡兹克）的 [neat-freak（洁癖）](https://github.com/KKKKhazix/khazix-skills#-neat-freak%E6%B4%81%E7%99%96) 修改而来（MIT 许可）。
+
 ## 许可证
 
 [MIT](LICENSE) © 2026 Vince Jiang。可自由使用、修改、再分发。
