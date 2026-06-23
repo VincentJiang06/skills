@@ -60,10 +60,24 @@ A good description has four parts, in this order:
 4. **Domain markers (optional)** — file extensions, library names, tool
    names that, when present in the conversation, tip toward invocation.
 
-Total length: aim for 60-150 tokens. Below 60 is usually too vague; above
-150 dilutes the signal and starts wasting per-conversation context (the
-description sits in the available-skills system reminder on every turn,
-not just when invoked).
+Total length: aim for **~300 characters (≈ 60–80 tokens)** — enough for the verb
++ 2–3 triggers + one anti-trigger, no more. **HARD LIMIT: 1024 characters —
+Claude Code TRUNCATES the description beyond it, so an over-long one silently
+loses exactly the trigger/anti-trigger text it needs.** Below ~240 chars (60 tok)
+is usually too vague; above ~600 chars (150 tok) dilutes the signal and wastes
+per-conversation context (the description sits in the available-skills reminder on
+EVERY turn, not just when invoked). `measure_tokens.py` reports the char/token
+count and flags over-target/over-limit — **read that number, don't eyeball it**.
+
+### Compressing an over-long description (the Retrigger + Compress fix)
+
+An over-long description is almost always crammed with **feature detail, edge
+cases, mode tables, version notes, or eval numbers** — content that belongs in the
+SKILL.md body, not the trigger line. Cut it to four parts only: (1) one clause on
+WHAT it does · (2) WHEN to use it + the `$name` trigger · (3) the single most
+important do-NOT / route-away · (4) optional domain markers. Everything else moves
+into the body. This is **lossless**: the cut detail isn't deleted, it's relocated
+to where Claude actually reads it (on invocation).
 
 ## Template
 

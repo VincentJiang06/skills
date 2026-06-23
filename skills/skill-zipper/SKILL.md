@@ -14,6 +14,12 @@ Restructure an existing Claude Code skill without losing content. The five
 operations are **Compress**, **Encapsulate**, **Enrich**, **Harden**, and
 **Retrigger**; analyze which apply, then propose a plan.
 
+A comprehensive pass refines **every part** — the `description`, SKILL.md, and
+every `rules/`/`references/` file — **and the load architecture** (always-loaded
+vs on-demand). The `description` is highest-leverage: it sits in the skills index
+on EVERY turn and Claude Code **truncates it past 1024 chars**. `measure_tokens.py`
+sizes it and emits Architecture flags — never ship what the flags call BAD.
+
 Before reasoning about any of these, **read `rules/progressive-disclosure-model.md`**
 to internalize what "always-loaded" vs "on-demand" means and the role of
 each directory (`rules/`, `references/`, `assets/`, `scripts/`). Without
@@ -26,19 +32,24 @@ writes, then report token impact and diff evidence.
 
 ---
 
-## Step 1: Read the skill
+## Step 1: Read the skill (every part)
 
 Ask for the skill directory path (or accept it if already provided).
 
-Read:
-- `SKILL.md` (required — stop if missing)
-- All existing `rules/*.md` files
-- The names of files in `scripts/`, `assets/`, `references/` (note what exists; don't read bodies unless needed for analysis)
+Run `scripts/measure_tokens.py <skill_dir>` **first** and capture: the
+**description** char/token size, the always-loaded vs on-demand split, and the
+**Architecture flags** block (description over-limit, always-loaded budget,
+oversized parts, orphans). The flags tell you which parts need work.
 
-Run `scripts/measure_tokens.py <skill_dir>` and capture the output. This
-gives you the actual always-loaded vs on-demand split.
+Then read, to refine **every part** (not just SKILL.md):
+- `SKILL.md` — required (stop if missing), **including its frontmatter `description`**.
+- All `rules/*.md` and `references/*.md` bodies — candidates for Compress / merge /
+  dedup; a `references/` file may duplicate SKILL.md content.
+- `scripts/`, `assets/`, `schemas/` — note what exists; read a body only when a
+  flag (oversized / orphan) or the analysis points at it.
 
-Print a one-line inventory plus always-loaded/on-demand token totals.
+Print a one-line inventory + the description size + always-loaded/on-demand totals
++ any Architecture flags.
 
 ## Step 2: Analyze each dimension
 

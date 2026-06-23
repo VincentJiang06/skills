@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
-"""measure_tokens.py — real token accounting for a Claude Code skill.
+"""measure_tokens.py — real token accounting + architecture flags for a Claude Code skill.
 
 Walks a skill directory and reports line + token counts, grouped by load
-discipline:
+discipline, PLUS the frontmatter `description` size and a set of architecture
+flags that surface the parts a restructure should refine.
 
+  - Description:   the frontmatter `description:` — the HIGHEST-leverage text. It
+                   sits in the available-skills index on EVERY turn (not just on
+                   invocation), Claude Code truncates it past a hard limit, and an
+                   over-long one dilutes trigger signal. Measured + flagged here.
   - Always-loaded: SKILL.md (enters context the moment the skill is invoked)
   - On-demand:     rules/, references/, scripts/, assets/  (only enter context
                    when Claude explicitly Reads them)
@@ -16,17 +21,14 @@ Usage:
   measure_tokens.py <skill_dir> --json
 
 The token count uses OpenAI's `tiktoken` cl100k_base encoder as a proxy for
-Claude's tokenizer. The two are not identical, but cl100k_base is within ~5%
-of Claude's actual count for English+code text and is good enough for relative
-sizing decisions (the only decision this script supports). For absolute
-billing-grade numbers, swap in `anthropic.Anthropic().messages.count_tokens()`
-via the --tokenizer flag (not yet implemented).
+Claude's tokenizer (within ~5% for English+code; good enough for relative sizing).
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -44,6 +46,14 @@ ALWAYS_LOADED = "SKILL.md"
 ON_DEMAND_DIRS = ("rules", "references", "scripts", "assets")
 SKIP_DIRS = ("evals", "test", "tests", "__pycache__")
 
+# --- Architecture budgets (thresholds the flags use; tune in diagnosis-rubric.md) ---
+DESC_HARD_LIMIT = 1024     # chars — Claude Code TRUNCATES the description beyond this
+DESC_TARGET = 320          # chars — trigger-focused target (what + when/$trigger + key do-NOT)
+SKILL_TOK_CONCERNING = 1500
+SKILL_TOK_BAD = 3000
+ONDEMAND_TOK_BIG = 4000    # a single on-demand file this large should usually be split
+ONDEMAND_LINES_BIG = 400
+
 
 @dataclass
 class FileMetric:
@@ -58,6 +68,10 @@ class FileMetric:
 class SkillReport:
     skill_dir: Path
     files: list[FileMetric] = field(default_factory=list)
+    skill_md_text: str = ""       # raw SKILL.md (for orphan detection)
+    desc_present: bool = False
+    desc_chars: int = 0
+    desc_tokens: int = 0
 
     def by_group(self, group: str) -> list[FileMetric]:
         return [f for f in self.files if f.group == group]
@@ -78,6 +92,44 @@ def count_lines(text: str) -> int:
     if not text.endswith("\n"):
         n += 1
     return n
+
+
+def extract_description(skill_md_text: str) -> str | None:
+    """Return the folded frontmatter `description:` value, or None if absent.
+
+    Handles YAML block scalars (`>`, `>-`, `|`, `|-`) and plain/quoted scalars,
+    folding to the rendered string Claude actually sees (single newlines -> spaces).
+    """
+    m = re.match(r"^---\n(.*?)\n---", skill_md_text, re.S)
+    if not m:
+        return None
+    fm = m.group(1).split("\n")
+    i = next((k for k, l in enumerate(fm) if re.match(r"^description:", l)), -1)
+    if i < 0:
+        return None
+    head = re.sub(r"^description:\s*", "", fm[i])
+    if head[:1] in (">", "|"):  # block scalar — gather indented/blank lines
+        buf = []
+        i += 1
+        while i < len(fm) and (fm[i] == "" or fm[i][:1] in (" ", "\t")):
+            buf.append(fm[i])
+            i += 1
+        out, prev_blank = "", True
+        for line in (l.strip() for l in buf):
+            if line == "":
+                out += "\n"
+                prev_blank = True
+            else:
+                out += ("" if prev_blank else " ") + line
+                prev_blank = False
+        return out.strip()
+    # plain/quoted scalar (may continue on indented continuation lines)
+    buf = [head]
+    i += 1
+    while i < len(fm) and fm[i][:1] in (" ", "\t"):
+        buf.append(fm[i].strip())
+        i += 1
+    return " ".join(buf).strip().strip('"').strip("'")
 
 
 def classify(rel_path: Path) -> str:
@@ -116,7 +168,71 @@ def walk_skill(skill_dir: Path, encoder) -> SkillReport:
             tokens=count_tokens(text, encoder),
             group=group,
         ))
+        if str(rel).replace("\\", "/") == ALWAYS_LOADED:
+            report.skill_md_text = text
+            desc = extract_description(text)
+            if desc is not None:
+                report.desc_present = True
+                report.desc_chars = len(desc)
+                report.desc_tokens = count_tokens(desc, encoder)
     return report
+
+
+def compute_flags(report: SkillReport) -> list[tuple[str, str, str]]:
+    """Architecture flags: (severity, area, message). severity ∈ ok|warn|bad."""
+    flags: list[tuple[str, str, str]] = []
+
+    # 1. description — the most-always-loaded text
+    if report.desc_present:
+        c = report.desc_chars
+        if c > DESC_HARD_LIMIT:
+            flags.append(("bad", "description",
+                          f"{c} chars > {DESC_HARD_LIMIT} HARD LIMIT — Claude Code TRUNCATES it; "
+                          f"Retrigger/Compress to a trigger-only description (~{DESC_TARGET} chars)"))
+        elif c > DESC_TARGET:
+            flags.append(("warn", "description",
+                          f"{c} chars > {DESC_TARGET} target — dilutes trigger signal; "
+                          f"cut to what + when/$trigger + the key do-NOT (feature detail belongs in the body)"))
+    else:
+        flags.append(("bad", "description", "no frontmatter description found — the skill cannot trigger reliably"))
+
+    # 2. always-loaded SKILL.md budget
+    _, a_tokens = report.totals("always")
+    if a_tokens > SKILL_TOK_BAD:
+        flags.append(("bad", "always-loaded",
+                      f"SKILL.md {a_tokens:,} tokens > {SKILL_TOK_BAD:,} — Encapsulate detail into on-demand rules/references"))
+    elif a_tokens > SKILL_TOK_CONCERNING:
+        flags.append(("warn", "always-loaded",
+                      f"SKILL.md {a_tokens:,} tokens > {SKILL_TOK_CONCERNING:,} — candidate for Encapsulate/Compress"))
+
+    on_demand = report.by_group("on_demand")
+
+    # 3. oversized CONTEXT-LOADED files. rules/references/assets get Read INTO context,
+    #    so size matters; scripts/ are EXECUTED (not loaded), so skip them here.
+    for f in on_demand:
+        if f.rel.startswith("scripts/"):
+            continue
+        if f.tokens > ONDEMAND_TOK_BIG or f.lines > ONDEMAND_LINES_BIG:
+            flags.append(("warn", "on-demand",
+                          f"{f.rel} is large ({f.lines} lines / {f.tokens:,} tokens) — consider splitting or compressing"))
+
+    # 4. orphan on-demand files: referenced by NOBODY (SKILL.md OR any other file) =
+    #    dead weight, or a missing 'load when' pointer.
+    texts: dict[str, str] = {}
+    for f in on_demand:
+        try:
+            texts[f.rel] = f.path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            texts[f.rel] = ""
+    for f in on_demand:
+        base = f.rel.split("/")[-1]
+        referenced = (base in report.skill_md_text or f.rel in report.skill_md_text
+                      or any((base in t or f.rel in t) for r, t in texts.items() if r != f.rel))
+        if not referenced:
+            flags.append(("warn", "orphan",
+                          f"{f.rel} is referenced nowhere (SKILL.md or other files) — dead weight, or a missing 'load when' pointer"))
+
+    return flags
 
 
 def fmt_int(n: int) -> str:
@@ -127,9 +243,28 @@ def fmt_signed(n: int) -> str:
     return f"{n:+,}"
 
 
+def _desc_band(report: SkillReport) -> str:
+    if not report.desc_present:
+        return "MISSING"
+    c = report.desc_chars
+    if c > DESC_HARD_LIMIT:
+        return f"OVER HARD LIMIT (>{DESC_HARD_LIMIT}, truncated)"
+    if c > DESC_TARGET:
+        return f"dilution (>{DESC_TARGET} target)"
+    return "ok"
+
+
 def print_report(report: SkillReport) -> None:
     print(f"Skill: {report.skill_dir.name}")
     print(f"  Path: {report.skill_dir}")
+    print()
+
+    # Description — loaded in the available-skills index on EVERY turn
+    if report.desc_present:
+        print(f"  Description (frontmatter — in the skill index on EVERY turn):")
+        print(f"    {report.desc_chars:>6,} chars  {report.desc_tokens:>5,} tokens   [{_desc_band(report)}]")
+    else:
+        print("  Description: (MISSING — the skill cannot trigger reliably)")
     print()
 
     always = report.by_group("always")
@@ -164,6 +299,17 @@ def print_report(report: SkillReport) -> None:
         ratio = a_tokens / total_tokens * 100
         print(f"  {'Always-loaded share of total tokens:':<48}{ratio:>5.1f}%")
 
+    # Architecture flags — what a comprehensive refinement should act on
+    flags = compute_flags(report)
+    print()
+    print("  Architecture flags (every part + the load architecture):")
+    if not flags:
+        print("    ✓ none — description within limits, lean always-loaded, no oversized/orphan parts")
+    else:
+        sev_mark = {"bad": "✗ BAD ", "warn": "• warn", "ok": "  ok  "}
+        for sev, area, msg in flags:
+            print(f"    {sev_mark.get(sev, '?')} [{area}] {msg}")
+
 
 def print_diff(before: SkillReport, after: SkillReport) -> None:
     a_b_lines, a_b_tokens = before.totals("always")
@@ -179,6 +325,9 @@ def print_diff(before: SkillReport, after: SkillReport) -> None:
     print(f"Before: {before.skill_dir}")
     print(f"After:  {after.skill_dir}")
     print()
+    # description delta (a Retrigger/Compress on the description shows up here)
+    if before.desc_present or after.desc_present:
+        print(f"  {'Description chars':<24}{before.desc_chars:>20,}{after.desc_chars:>20,}{fmt_signed(after.desc_chars - before.desc_chars):>20}")
     print(f"  {'Layer':<24}{'Before':>20}{'After':>20}{'Delta':>20}")
     print("  " + "─" * 84)
 
@@ -209,6 +358,15 @@ def report_to_dict(report: SkillReport) -> dict:
     o_lines, o_tokens = report.totals("on_demand")
     return {
         "skill_dir": str(report.skill_dir),
+        "description": {
+            "present": report.desc_present,
+            "chars": report.desc_chars,
+            "tokens": report.desc_tokens,
+            "hard_limit": DESC_HARD_LIMIT,
+            "target": DESC_TARGET,
+            "over_hard_limit": report.desc_chars > DESC_HARD_LIMIT,
+            "band": _desc_band(report),
+        },
         "files": [
             {"rel": f.rel, "group": f.group, "lines": f.lines, "tokens": f.tokens}
             for f in report.files
@@ -218,12 +376,16 @@ def report_to_dict(report: SkillReport) -> dict:
             "on_demand": {"lines": o_lines, "tokens": o_tokens},
             "skill": {"lines": a_lines + o_lines, "tokens": a_tokens + o_tokens},
         },
+        "flags": [
+            {"severity": sev, "area": area, "message": msg}
+            for sev, area, msg in compute_flags(report)
+        ],
     }
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Measure line + token counts for a Claude Code skill.",
+        description="Measure line + token counts (and architecture flags) for a Claude Code skill.",
     )
     parser.add_argument("skill_dir", nargs="?", help="Path to skill directory.")
     parser.add_argument("--diff", nargs=2, metavar=("BEFORE", "AFTER"),

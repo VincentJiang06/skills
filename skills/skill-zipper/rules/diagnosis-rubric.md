@@ -6,10 +6,13 @@ on hunches.
 
 ## The two-minute smoke test
 
-Before any deeper analysis, eyeball these four numbers from `measure_tokens.py`:
+Before any deeper analysis, read these numbers from `measure_tokens.py` — it
+reports the **description** size and an **Architecture flags** block (next
+section) on top of the load-split:
 
 | Metric | Healthy | Concerning | Bad |
 |--------|---------|------------|-----|
+| **Description chars** — in the available-skills index on EVERY turn; the single most always-loaded text | < 320 (~80 tok) | 320–1024 | **> 1024 — Claude Code TRUNCATES it** |
 | SKILL.md lines | < 150 | 150-300 | > 300 |
 | SKILL.md tokens | < 1,500 | 1,500-3,000 | > 3,000 |
 | Always-loaded share of total | < 20% | 20-40% | > 40% |
@@ -26,6 +29,25 @@ short-circuit the share row: if SKILL.md lines < 150 *and* tokens <
 in absolute terms; the share is a meaningless ratio at this scale.
 Only treat share > 40% as bad when at least one of (lines, tokens) is
 already in the concerning or bad band.
+
+## Architecture flags — refine every part, not just SKILL.md's prose
+
+`measure_tokens.py` ends with an **Architecture flags** block. This is what makes
+the refinement *comprehensive* — it covers the description + every part + the load
+architecture, not only SKILL.md. Act on every `✗ BAD`; weigh every `• warn`. Each
+flag maps to an operation:
+
+| Flag | What it means | Operation |
+|------|---------------|-----------|
+| `[description]` over hard limit / dilution | the single most always-loaded text is truncated or bloated | **Retrigger + Compress** the description → `description-quality.md` |
+| `[always-loaded]` SKILL.md over budget | too much enters context on every invocation | **Encapsulate** detail into on-demand `rules/`/`references/` |
+| `[on-demand]` file large | one `rules/`/`references/` file is heavy to Read | **Compress** it, or split it into focused files |
+| `[orphan]` referenced nowhere | dead weight, or a missing "load when" pointer | delete it (confirm truly unused — lossless) **or** add the SKILL.md pointer |
+
+Then ALSO eyeball the parts the flags can't size: are two `rules/` files saying
+the same thing (merge)? does a `references/` file duplicate content already in
+SKILL.md (extract, don't duplicate)? is a script's contract undocumented? A
+comprehensive pass refines the description, SKILL.md, **and** every on-demand part.
 
 ## Per-operation diagnosis
 
