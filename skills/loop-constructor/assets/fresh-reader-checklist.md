@@ -33,8 +33,15 @@ a hollow check is exactly the trap this pass exists to catch.
 
 ## Design level
 
-- [ ] **Decision log honest.** D0–D5 (`selection_log`) each have a real
+- [ ] **Decision log honest.** D0–D6 (`selection_log`) each have a real
       justification, not a label. D1's stage boundaries pass the seam test.
+- [ ] **Cadence matches the knobs (D6).** If D6 claims *completeness-first*, the
+      design actually shows it — low `max_iterations`, large per-stage scope,
+      `plan_execute_verify`/`explore_narrow`, and a THOROUGH per-stage check (not a
+      smoke). Guidepost: completeness-first ≈ single-digit-low caps (≤4); a
+      completeness_first label at ≥8 caps + `retry` + a smoke check is a **mislabel**
+      (the linter can't catch it — that's why this box exists). Same in reverse for
+      *iteration-first*.
 - [ ] **Maker/checker concrete.** `maker_checker.scope` names a specific
       adversarial target (the diff + the per-stage checks), not "review quality".
 - [ ] **Autonomy matches risk.** `human_placement` follows D3 (weak check or

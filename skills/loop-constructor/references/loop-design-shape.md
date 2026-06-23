@@ -75,7 +75,8 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
     { "decision": "D2", "answer": "<patterns per stage>", "why": "<failure mode -> pattern>" },
     { "decision": "D3", "answer": "<in_the_loop | on_the_loop>", "why": "<blast × reversibility × feedback>" },
     { "decision": "D4", "answer": "<medium | large>", "why": "<sequential vs independent fan-out>" },
-    { "decision": "D5", "answer": "<caps + routing>", "why": "<the guard choices>" }
+    { "decision": "D5", "answer": "<caps + routing>", "why": "<the guard choices>" },
+    { "decision": "D6", "answer": "<completeness_first | iteration_first>", "why": "<iteration-boundary cost vs check latency; how it tuned caps/pattern/scope/check-thoroughness>" }
   ],
   "stages": [
     {
@@ -109,10 +110,12 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 }
 ```
 
-- **`selection_log`** — the D0–D5 decision trail from `references/loop-selection.md`
+- **`selection_log`** — the D0–D6 decision trail from `references/loop-selection.md`
   (the **mechanism**): each entry is `{decision, answer, why}`. The linter does
   not gate it, but a design without it is incomplete — it's what makes the chosen
-  shape reviewable rather than asserted. Emit it and surface it in the report.
+  shape reviewable rather than asserted. Emit it and surface it in the report. D6
+  records the iteration profile (completeness-first / iteration-first) as a dial
+  over the existing knobs — not a new linted field.
 - **`loop_altitude`** — `medium` (sequential gated stages, single-agent) or
   `large` (+ parallel fan-out; see `pattern.multi_agent_orchestra`). `small` is
   **not** a valid altitude.

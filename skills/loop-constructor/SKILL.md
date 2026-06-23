@@ -2,7 +2,7 @@
 name: loop-constructor
 description: >
   Design the engineered loop for a medium/large (semi-)autonomous AI-coding task
-  — by running an explicit selection procedure (D0–D5) that decomposes it into a
+  — by running an explicit selection procedure (D0–D6) that decomposes it into a
   tree of gated sub-loops — and emit a filled, machine-checkable loop-design spec
   plus a decision log, persisted as a runnable .loop/ runbook in the project. It
   DESIGNS and teaches loop design; it does NOT execute the loop. Applied
@@ -38,11 +38,11 @@ judgments instead of asserting from memory.
 ## The mechanism: SELECT → FILL → VERIFY → PERSIST
 
 Four phases. The redesign moves all the hard calls (is-it-a-loop, decompose,
-pattern, autonomy, parallelism) into one **ordered, operational selection
-procedure** — no more "use judgment + query the KB" hand-waving.
+pattern, autonomy, parallelism, cadence) into one **ordered, operational
+selection procedure** — no more "use judgment + query the KB" hand-waving.
 
 ### 1. SELECT — run the decision procedure (`references/loop-selection.md`)
-Answer **D0–D5 in order**; each answer determines part of the shape and is
+Answer **D0–D6 in order**; each answer determines part of the shape and is
 recorded with a one-line justification (the **decision log**):
 
 - **D0 — Is it a loop?** Name a fast runnable check that answers "done?" without a
@@ -59,6 +59,11 @@ recorded with a one-line justification (the **decision log**):
   (multi-agent); else `medium` (sequential).
 - **D5 — Guards.** Per-stage caps + `on_failure` routing; outer budget + failure +
   escalate; risk guards with mitigations.
+- **D6 — Iteration profile (cadence).** completeness-first (few long thorough
+  passes) vs iteration-first (many short cheap passes), chosen from
+  iteration-boundary cost vs check latency, then **re-tunes D2/D3/D5** (pattern,
+  caps, scope, check-thoroughness). A *dial*, not a schema field; not
+  linter-enforced, so the fresh-reader confirms the knobs match the claimed cadence.
 
 The procedure is the **selection method** — it replaces altitude-by-vibes with a
 reviewable derivation. Record the answers as the `selection_log` array.
@@ -99,7 +104,7 @@ design the linter rejects** — a written `.loop/` doc is itself proof the desig
 passed. A `REFUSED:` line → fix the design and re-run. Tell the user the two paths.
 
 ## Report
-Hand back: the **decision log** (D0–D5), the loop-design JSON, the lint result
+Hand back: the **decision log** (D0–D6), the loop-design JSON, the lint result
 (PASS), the fresh-reader verdict, a self-scored rubric
 (`loop-principle/templates/loop_quality_rubric.template.json`), and residual risks.
 
@@ -115,7 +120,7 @@ The skill reads from the **loop-principle KB**. Resolve its path in this order:
 
 | File | When to load |
 |------|--------------|
-| `references/loop-selection.md` | **Phase 1 (SELECT)** — the D0–D5 decision procedure that derives the loop shape + decision log. |
+| `references/loop-selection.md` | **Phase 1 (SELECT)** — the D0–D6 decision procedure that derives the loop shape + decision log. |
 | `references/loop-design-shape.md` | **Phase 2 (FILL)** — the exact canonical loop-design JSON keys the linter validates (flat + staged shapes + the persist contract). |
 | `references/loop-principle-map.md` | KB grounding: each decision/field → loop-principle node ids + docs + which templates/checklists to reuse, and the query_kb recipe. |
 | `assets/fresh-reader-checklist.md` | **Phase 3 (VERIFY)** — the operational fresh-reader template (per-stage + design-level boxes the linter can't check). |
@@ -131,7 +136,7 @@ The skill reads from the **loop-principle KB**. Resolve its path in this order:
   runbook to `.loop/` is producing the design *artifact*. Never run the designed
   loop, run the target's code, or modify the loop-principle KB.
 - **Run the selection procedure.** Don't pick a shape by vibes — derive it from
-  D0–D5 and emit the decision log. A design without a decision log is incomplete.
+  D0–D6 and emit the decision log. A design without a decision log is incomplete.
 - **Emit STAGED** unless D1 genuinely finds 0 seams. The flat shape stays valid
   as the atomic single-stage unit (linter still accepts it).
 - **Reject-on-no-check (per stage).** A stage with no runnable feedback signal
