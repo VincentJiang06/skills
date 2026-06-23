@@ -1,15 +1,11 @@
 ---
 name: mp-groundline
-description: >
-  Migrate a WeChat Mini Program off the Skyline renderer onto the WebView renderer
-  with front-end pages kept visually CONSISTENT: flip the renderer, KEEP the working
-  Skyline-era workarounds, verify and fix only real deltas (minimal diff, not a
-  rewrite), and emit an agent-facing MIGRATION-MAP doc classifying every finding
-  KEEP / VERIFY / REWRITE. Triggers: "把小程序从 skyline 迁移到 webview 保持页面一致",
-  "migrate this mini program off Skyline to WebView", "生成 skyline→webview 迁移对照 doc",
-  "$mp-groundline". Do NOT use for: live runtime debugging (mp-cli-sup),
-  DEVELOPING Skyline components/animations (the skyline-* skills), webview→skyline
-  reverse migration, perf-only optimization, or non-WeChat work.
+description: >-
+  Migrate a WeChat Mini Program off the Skyline renderer onto WebView, keeping
+  pages visually CONSISTENT, and emit a MIGRATION-MAP doc. Use for "把小程序从
+  skyline 迁移到 webview", "migrate off Skyline to WebView", "$mp-groundline". NOT
+  for live-runtime debugging (mp-cli-sup), Skyline component dev, or
+  reverse/non-WeChat work.
 version: 0.1.0
 ---
 

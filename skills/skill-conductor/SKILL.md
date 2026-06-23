@@ -1,12 +1,10 @@
 ---
 name: skill-conductor
 description: >
-  Drive a Claude Code skill through the full skill pipeline. Use when the
-  user wants to build/test/compress a skill end to end, run guidance -> engineer
-  -> zipper, or improve an idea/existing skill through all stages. Do NOT use for
-  one stage only (call that stage), planning
-  only (skill-guidance), compression only (skill-zipper), or blank
-  scaffolding without a pipeline (skill-creator).
+  ORCHESTRATES the whole skill pipeline end to end (guidance -> engineer ->
+  zipper) with gated loops. Use to take a skill from idea to shipped, or improve
+  one through all stages: "$skill-conductor". It RUNS THE FULL LOOP, unlike the
+  single stages. Not for one stage only or blank scaffolding (skill-creator).
 ---
 
 # skill-conductor

@@ -1,12 +1,10 @@
 ---
 name: skill-engineer
 description: >
-  Build and test a Claude Code skill from a skill-guidance handoff spec.
-  Use when the user wants to implement/develop/wire a skill, make eval cases
-  pass, turn a handoff-spec into files, or points at
-  `.skill-guidance/handoff-spec.json`. Stage 2 of the skill pipeline. Do
-  NOT use for planning/auditing (skill-guidance), compression
-  (skill-zipper), or blank scaffolding without a spec.
+  BUILDS and TESTS a skill from a skill-guidance handoff spec (stage 2). Use
+  when asked to implement/develop/wire a skill, make eval cases pass, or
+  pointed at `.skill-guidance/handoff-spec.json`: "$skill-engineer". It
+  WRITES+TESTS; not plan/audit (guidance), compress (zipper), or loop (conductor).
 ---
 
 # skill-engineer

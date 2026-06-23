@@ -1,17 +1,11 @@
 ---
 name: album-review
 version: 0.1.0
-description: >
+description: >-
   Deep, source-traceable long-form Chinese album review (乐评). Use when the user
-  supplies a primary music credit (歌手 / 作曲家 / 指挥家 / 乐队 / 演奏家) + an album
-  name and wants ONE comprehensive 10,000–15,000-中文字符 critique across every
-  musical dimension — any idiom: pop/rock, classical (work vs performance +
-  reference-recording comparison), jazz, electronic, hip-hop, folk, soundtrack,
-  world. Triggers: "给 <艺术家/作曲家/指挥家> 的专辑 <名称> 写一篇深度乐评",
-  "全面评测这张专辑", "comprehensive album review of <album> by <artist>",
-  "$album-review". Do NOT use for: audio-gear evaluation ("这条耳机声音怎么样",
-  "这个 DAC 推得动吗" → hifi-review); buying / price / where-to-stream advice;
-  bare lyric translation with no critical content; non-music subjects.
+  names a music credit (artist/composer/band) + an album and wants one
+  comprehensive critique. Triggers: "写一篇深度乐评", "全面评测这张专辑",
+  "$album-review". NOT for audio-gear evaluation (→ hifi-review).
 ---
 
 # album-review

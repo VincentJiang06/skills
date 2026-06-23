@@ -1,19 +1,10 @@
 ---
 name: test-driven-development
-description: >
-  Test-driven development for NON-TRIVIAL behavior — write or update a failing
-  test FIRST, watch it fail, then write minimal code to pass. The test suite is
-  a LIVING SPEC of the current target: as the target changes you EDIT / MERGE /
-  DELETE tests, not only add. Use when implementing real logic (a
-  function/method/endpoint/component with branching or edge cases), fixing a bug
-  (reproduce with a failing test first), or changing behavior of already-tested
-  code (update its tests to the new target). Prefer MODIFYING the existing suite
-  over growing it: one test per feature-group, merge related cases into one
-  parametrized test, delete tests the change made stale. Delegate the mechanical
-  parts — suite inventory, test runs, stale-test scans — to subagents. Do NOT
-  engage for trivial/mechanical edits (renames, formatting, comments, type-only,
-  config/constant tweaks), throwaway prototypes/spikes, generated code, or
-  pure-docs changes.
+description: >-
+  Test-driven development for NON-TRIVIAL behavior — write a failing test FIRST,
+  watch it fail, then write minimal code to pass; the suite is a LIVING SPEC you
+  EDIT/MERGE/DELETE as the target changes. Use when implementing real logic, fixing
+  a bug, or changing tested behavior. Do NOT use for trivial edits or prototypes.
 ---
 
 # Test-Driven Development

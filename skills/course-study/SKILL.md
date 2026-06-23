@@ -1,14 +1,10 @@
 ---
 name: course-study
-description: >
-  Turn a course's materials (PDF slides, a pasted topic list, or just a course
-  name) into complete-coverage, Feynman-explained, exam-ready revision notes.
-  Triggers: "study/revise this course", "revise these lecture slides", "make a
-  study guide / cheat sheet for my midterm/final/quiz", "explain <course topic>
-  simply", "$course-study". Do NOT use for: album/music review
-  (→ album-review); open-ended tutoring conversation; solving or doing the
-  user's graded homework / exam questions to submit; generating notes for a
-  course with no materials AND no identifiable standard syllabus.
+description: >-
+  Turn a course's materials (slides, a topic list, or a course name) into
+  complete-coverage, Feynman-explained, exam-ready revision notes. Use to
+  study/revise a course or build an exam cheat sheet: "revise these slides",
+  "$course-study". Do NOT use to do the user's graded homework for submission.
 license: MIT
 model: claude-sonnet-4-6
 user-invocable: true

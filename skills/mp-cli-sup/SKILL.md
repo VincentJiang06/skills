@@ -1,16 +1,11 @@
 ---
 name: mp-cli-sup
-description: >
-  Debug a WeChat Mini Program's LIVE runtime through the system `vince-mp` JSON CLI.
-  Start a persistent session once — it auto-resolves the project (miniprogramRoot) and the
-  DevTools automation port — then read and act with instant, connection-reused commands whose
-  element uids stay STABLE across calls: pageData, query/snapshot then tap/input, camera-less
-  `scan`, console, single-element screenshot, a real project `doctor` (tsc + .js freshness),
-  and client to backend error-log correlation by requestId. Use when the user says "debug
-  WeChat DevTools", "连上小程序 / start a mp session", "inspect pageData", "query an element then
-  tap it", "camera-less scan smoke", "why won't the simulator connect", "check tsc/.js freshness",
-  "switch backend env", or "pull this Mini Program's backend error log by requestId". Do NOT use for generic
-  browser automation, source-only Mini Program edits without runtime, or non-WeChat connector work.
+description: >-
+  Debug a WeChat Mini Program's LIVE runtime via the system `vince-mp` JSON CLI —
+  one persistent session, then instant reused commands (pageData, query/tap, scan,
+  console, doctor, log correlation). Use for "debug WeChat DevTools", "连上小程序",
+  "$mp-cli-sup". NOT for browser automation, source-only edits, or non-WeChat
+  work.
 ---
 
 # Vince Mini Program CLI Support

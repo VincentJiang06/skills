@@ -1,22 +1,11 @@
 ---
 name: humanizer-academic
 description: >-
-  Rewrite AI-generated SERIOUS NONFICTION (English, Chinese, or mixed EN-in-ZH)
-  to remove AI-writing signals while preserving register and never inventing
-  facts — in one of TWO modes: `academic` (严肃学术论文: thesis, abstract, lit
-  review, research/policy report) or `popsci` (科普严肃: serious popular-science
-  / science journalism, NOT clickbait). ABSTAIN-FIRST: if the text already reads
-  human, it returns it unchanged ("reads human; no rewrite needed") instead of
-  over-editing — the fix for false positives. Mode sets the register floor and
-  what even counts as an AI tell (a rhetorical question is craft in popsci, a
-  slip in a paper; a data triad / "significant" / numbered section is NORMAL in a
-  paper, not an AI tell). Use when AI-looking academic or serious popsci prose
-  should read human but stay credible, or "$humanizer-academic". Discriminate:
-  (1) vs a CASUAL humanizer — both modes PRESERVE seriousness, never go chatty;
-  (2) vs POETRY / fiction / speech — legitimately rhetorical, route away;
-  (3) DETECT vs REWRITE — the bundled script only DETECTS (diagnostic, never the
-  oracle); "just score this" returns the signal map, no rewrite. Do NOT use for
-  inventing evidence/citations/numbers, casual chit-chat, or creative genres.
+  Rewrite AI-generated SERIOUS NONFICTION (EN/ZH) to read human, inventing
+  nothing, in mode `academic` or `popsci`; ABSTAIN-FIRST — leaves it unchanged if
+  it already reads human. Use for AI-looking academic/serious-popsci prose, or
+  "$humanizer-academic". NOT for casual chit-chat, poetry/fiction, or inventing
+  facts.
 allowed-tools:
   - Read
   - Write

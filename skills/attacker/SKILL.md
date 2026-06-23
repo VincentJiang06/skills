@@ -1,19 +1,10 @@
 ---
 name: attacker
-description: >
-  Attack a product's ACTUAL observable behavior, OR red-team an idea/argument/plan
-  (debate con-side); record ONLY proven, reproducible breakages as attack records. A
-  FRESH, TDD-independent subagent attacks within a declared ATTACK SCOPE
-  (--scope/--out-of-scope). Product mode sees only the requirement + observable
-  behavior, never the impl/TDD suite/author framing (re-inheriting the builder's blind
-  spot → false green); idea mode takes the claim but critiques it independently. Each
-  record carries an auditable independence_attestation, gated by a deterministic
-  validator. Pairs with loop-constructor (attack→fix→re-attack). Use-when: "attack/break
-  this feature", "red-team this product", "red-team an idea/argument/plan", "$attacker".
-  Do-NOT: (1) unit tests / "add a failing test first" — vince-tdd (attacker DISTRUSTS
-  it, attacks the running product); (2) fix bugs — a fix round repairs, never edits the
-  target; (3) design the loop — loop-constructor; (4) debug a live MP runtime with no
-  break-it framing — mp-cli-sup.
+description: >-
+  Attack a product's observable behavior, or red-team an idea/argument/plan; a FRESH,
+  TDD-independent subagent records ONLY proven, reproducible breakages. Use-when:
+  "attack/break this feature", "red-team this product / idea", "$attacker". Do-NOT:
+  write tests or fix bugs — it only finds breakages, never edits the target.
 ---
 
 # attacker

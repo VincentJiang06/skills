@@ -1,20 +1,10 @@
 ---
 name: loop-constructor
-description: >
-  Design the engineered loop for a medium/large (semi-)autonomous AI-coding task
-  — by running an explicit selection procedure (D0–D6) that decomposes it into a
-  tree of gated sub-loops — and emit a filled, machine-checkable loop-design spec
-  plus a decision log, persisted as a runnable .loop/ runbook in the project. It
-  DESIGNS and teaches loop design; it does NOT execute the loop. Applied
-  front-end over the loop-principle KB (reuses its templates/checklists, doesn't
-  restate them). Anchor: design backward from "what check proves this is done?"
-  (loop engineering ≈ verification engineering). Use-when: "how should I design a
-  loop for X", "design an agent loop", "set up an autonomous loop / self-running
-  agent workflow", "$loop-constructor". Do-NOT (route away): (1) "reword this
-  prompt" / single-shot prompt engineering — not a loop design; (2) "now actually
-  run the loop / build the feature" — designs, does not execute; (3) "add a node
-  to loop-principle" / edit the KB — KB authoring, out of scope; (4) non-agentic
-  / non-loop or domain questions (album/audio/course) — route to relevant skill.
+description: >-
+  Design the engineered loop for a medium/large (semi-)autonomous AI-coding task by
+  decomposing it into gated sub-loops, emitted as a runnable .loop/ runbook. Use-when:
+  "design an agent loop", "set up an autonomous / self-running agent workflow",
+  "$loop-constructor". It DESIGNS the loop; it does NOT execute it.
 ---
 
 # loop-constructor

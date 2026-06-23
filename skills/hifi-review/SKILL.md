@@ -1,16 +1,10 @@
 ---
 name: hifi-review
-description: >
-  Objective, source-traceable evaluation of HiFi gear. Transducers
-  (IEM / headphone / TWS): 量感 (per-band quantity) + 风格 (signature) from
-  frequency-response-vs-target; technicalities from review consensus. Source
-  gear (DAC / amp / DAP): measured competence (SINAD/THD/output-Z/power) +
-  system matching + chip/topology — a competent source is audibly transparent.
-  Searches all sources (measurements, media reviews, specs) via a style-profiled
-  media roster (orientation judged dynamically), cleans them, renders a bilingual
-  verdict where every claim traces to evidence. Triggers: "客观评价这条耳机",
-  "对比 A 和 B 的声音", "这个 DAC 素质如何 / 推得动吗", "$hifi-review".
-  Not for: buying/价格 recommendations; EQ tuning; speakers; non-audio.
+description: >-
+  Objective, source-traceable evaluation of HiFi gear — transducers (IEM/HP/TWS)
+  and source gear (DAC/amp/DAP) — as a bilingual, evidence-traced verdict. Use
+  for an objective sound assessment or A/B: "客观评价这条耳机", "这个 DAC 素质如何",
+  "$hifi-review". NOT for buying recommendations, EQ, or speakers.
 ---
 
 # hifi-review

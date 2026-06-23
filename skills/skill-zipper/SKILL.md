@@ -1,11 +1,11 @@
 ---
 name: skill-zipper
 description: >
-  Restructure an existing Claude Code skill for token efficiency, reliability,
-  and trigger accuracy. Use when a skill is too long, needs splitting/token
-  reduction, has vague rules, fails to trigger, or needs structure audit. Do NOT
-  use for creating skills from scratch (skill-creator), measuring output quality
-  across runs, or non-skill writing/editing.
+  COMPRESSES an existing skill LOSSLESSLY for token efficiency, reliability, and
+  trigger accuracy. Use when a skill is too long, needs token reduction or
+  splitting, has vague rules, or fails to trigger: "$skill-zipper". WITHOUT
+  losing content; not build (engineer), audit (guidance), or scaffold
+  (skill-creator).
 ---
 
 # skill-zipper

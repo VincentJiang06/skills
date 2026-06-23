@@ -1,12 +1,11 @@
 ---
 name: skill-guidance
 description: >
-  Evaluate a Claude Code skill or skill repo and emit the handoff spec for
-  skill-engineer. Use when the user asks whether a skill is good,
-  industrial-grade, missing pieces, needs scoring/audit/scope, or points at a
-  SKILL.md/repo before build. Stage 1 of the skill pipeline. Do NOT use
-  for implementation (skill-engineer), token restructuring
-  (skill-zipper), or blank scaffolding (skill-creator).
+  AUDITS a skill/repo and SPECS the build, emitting skill-engineer's handoff
+  spec (stage 1). Use when asked if a skill is good/industrial-grade,
+  needs scoring/scope/missing-pieces, or pointed at a SKILL.md before build:
+  "$skill-guidance". It PLANS only; not build (engineer), compress (zipper), or
+  full loop (conductor).
 ---
 
 # skill-guidance
