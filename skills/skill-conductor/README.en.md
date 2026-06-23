@@ -7,7 +7,7 @@
 **What it does** — Drives a Claude Code skill through the full skill-building pipeline: guidance → engineer → zipper, end to end, with quality-gate loops. A thin orchestrator that chains the three stage skills skill-guidance, skill-engineer, skill-zipper, then re-runs skill-guidance as the final auditor.
 
 **Why it's good** —
-- **Anti-inflation final acceptance** — scores on `min(re-audit, independent-battery)`, never self-graded high; the verdict can never exceed that independent behavioral battery.
+- **Anti-inflation final acceptance** — scores on `min(re-audit, independent-battery)`, never self-graded high; the verdict can never exceed that independent behavioral battery (the battery is the **vince-attacker** skill, invoked only after the re-audit passes).
 - Loops back to the **gap-owning stage** (design-wrong → G, test-wrong → E, lossy compression → Z); a failing artifact is never passed downstream.
 - **Stops honestly** (stopped_unmet) when it hits the loop cap without clearing the bar — it never relaxes a gate just to "pass."
 - Runs autonomously and writes a machine-checkable run trace at `<target>/.skill-conductor/conductor-log.json`.

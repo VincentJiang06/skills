@@ -7,7 +7,7 @@
 **做什么** —— 驱动一个 Claude Code skill 走完整条 skill 流水线：guidance → engineer → zipper，端到端，带质量门循环。一个薄编排器，串起 skill-guidance、skill-engineer、skill-zipper 三个阶段 skill，最后回到 skill-guidance 做复审。
 
 **好在哪** ——
-- **防注水的最终验收** —— 取分用 `min(复审, 独立测试组)`，绝不自评打高分；分数永远不超过那组独立行为测试。
+- **防注水的最终验收** —— 取分用 `min(复审, 独立测试组)`，绝不自评打高分；分数永远不超过那组独立行为测试（独立测试组即 **vince-attacker** 对抗组，且仅在复审通过后才触发）。
 - 过不了线就**回退到出问题的那一阶段**重做（设计错回 G、实现错回 E、压缩有损回 Z），失败的产物绝不往下游传。
 - 触到循环上限还过不了，就**诚实停下**（stopped_unmet），绝不为了「通过」而放松质量门。
 - 全程自动运行，并落一份可机读的运行轨迹 `<target>/.skill-conductor/conductor-log.json`。

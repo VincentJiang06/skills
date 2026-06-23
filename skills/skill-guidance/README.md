@@ -10,6 +10,7 @@
 - 一张扎根 `develop-principle` 知识库的 **7 支柱就绪度评分表**，判断 skill 是否「工业级」、缺什么、缺多少。
 - 产物是机器可消费的**合约**（schema 校验），第 2 阶段 `skill-engineer` 可直接吃，不靠口头交接。
 - 每条判断都引自 KB，而非凭记忆 —— 评分有据，缺口落到具体可执行的动作上。
+- **上下文不足先追问，不埋猜测** —— 构建前跑一道上下文充分性门（`detect_context_gaps.mjs` + `rules/elicitation.md`）：缺关键信息就向人**追问**，绝不把猜测埋进 `blocking_unknowns`（本 skill 的头号失败模式）。
 
 **什么时候用** —— 「这个 skill 好不好 / 够不够工业级」·「帮我打分 / 审计 / 定范围」·「构建前先看看这个 SKILL.md / 仓库」；也可用 `/skill-guidance` 显式调用。
 **不适用** —— 实现 / 写代码（→ skill-engineer）；token 重构（→ skill-zipper）；空白脚手架（→ skill-creator）。
