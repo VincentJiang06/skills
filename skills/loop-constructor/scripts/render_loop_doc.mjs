@@ -143,7 +143,7 @@ export function renderMarkdown(design) {
 
   if (Array.isArray(design.selection_log) && design.selection_log.length > 0) {
     out.push("## Why this shape (decision log)");
-    out.push("> The D0–D5 selection procedure that derived this loop's shape.");
+    out.push("> The D0–D6 selection procedure that derived this loop's shape.");
     design.selection_log.forEach((e) => {
       if (e == null || typeof e !== "object") return;
       const d = oneLine(e.decision);
