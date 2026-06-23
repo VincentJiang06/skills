@@ -145,6 +145,7 @@ Engineering honesty means writing down what isn't closed — the natural extensi
 - **Guidance's context-sufficiency detector is a seed, not an oracle.** The keyword detector that triggers elicitation can be fooled both ways (spec-vocabulary filler reads as "sufficient"; paraphrase reads as "insufficient"). Mitigated by design — the rule treats it as a seed and the agent's judgment of *substance* is the oracle — but not deterministically closed.
 - **The conductor's "attacker only after a passing re-audit" gate is convention- + invariant-checked, not yet runtime-interlocked.** The ordering holds via the rule prose + the conductor-log `min(re-audit, battery)` invariant; it isn't yet a hard machine gate inside conductor's own `round6` (a noted follow-up).
 - **Verification is asymptotic, not a proof.** The independent maker/checker battery is load-bearing, and each round can still surface a green-but-wrong; we stop after closing every *proven* hole, not at perfection.
+- **loop-constructor's D6 completeness-first/iteration-first cadence is guidance, not linter-enforced (a deliberate scope choice).** A design can claim `completeness_first` while carrying high caps + retry + a smoke check — the linter can't catch that mislabel; the fresh-reader cadence box (with a quantified guidepost: completeness-first ≈ caps ≤4) + the maker/checker are the gate. Recorded honestly rather than pretended-closed.
 
 ## Layout
 
