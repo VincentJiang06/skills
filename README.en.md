@@ -138,6 +138,15 @@ Skills that build skills — run the conductor for the whole loop, or any stage 
 
 Methodology substrate — two agent-first, self-validating KBs: **[`develop-principle/`](develop-principle/)** (building industrial skills) and **[`loop-principle/`](loop-principle/)** (engineering agent loops — the substrate `loop-constructor` stands on).
 
+## Known limitations (honest)
+
+Engineering honesty means writing down what isn't closed — the natural extension of "the closed loop lies" (above). Current residuals after the pipeline's latest staged debug pass (guidance trigger-based elicitation; conductor wiring in the attacker):
+
+- **Guidance's context-sufficiency detector is a seed, not an oracle.** The keyword detector that triggers elicitation can be fooled both ways (spec-vocabulary filler reads as "sufficient"; paraphrase reads as "insufficient"). Mitigated by design — the rule treats it as a seed and the agent's judgment of *substance* is the oracle — but not deterministically closed.
+- **The conductor's "attacker only after a passing re-audit" gate is convention- + invariant-checked, not yet runtime-interlocked.** The ordering holds via the rule prose + the conductor-log `min(re-audit, battery)` invariant; it isn't yet a hard machine gate inside conductor's own `round6` (a noted follow-up).
+- **Verification is asymptotic, not a proof.** The independent maker/checker battery is load-bearing, and each round can still surface a green-but-wrong; we stop after closing every *proven* hole, not at perfection.
+- **loop-constructor's D6 completeness-first/iteration-first cadence is guidance, not linter-enforced (a deliberate scope choice).** A design can claim `completeness_first` while carrying high caps + retry + a smoke check — the linter can't catch that mislabel; the fresh-reader cadence box (with a quantified guidepost: completeness-first ≈ caps ≤4) + the maker/checker are the gate. Recorded honestly rather than pretended-closed.
+
 ## Layout
 
 ```

@@ -152,6 +152,26 @@ function atomAlwaysGreen(atom, depth) {
     if (one && one[1] !== '""' && one[1] !== "''" && !one[1].startsWith("-") && !one[1].includes("$")) return true;
   }
   if (/\b(\d+)\s*(-eq|=|==)\s*\1\b/.test(base)) return true; // 1 -eq 1 / 1 = 1 — constant true
+  // constant binary comparison inside test/[/[[ that is ALWAYS TRUE (e.g. `test 5 -gt 3`,
+  // `[ abc = abc ]`, `[ abc != xyz ]`) — decidable literals only, no $-expansion/backtick.
+  // Always-FALSE forms (`[ x = y ]`) are NOT flagged: they can fail, which is fine.
+  {
+    const ct = base.match(/^(?:test|\[\[?)\s+(.*?)\s*(?:\]\]?)?\s*$/);
+    if (ct && !/[$`]/.test(ct[1])) {
+      const inner = ct[1].trim();
+      const num = inner.match(/^(-?\d+)\s+(-eq|-ne|-lt|-le|-gt|-ge)\s+(-?\d+)$/);
+      if (num) {
+        const a = parseInt(num[1], 10), b = parseInt(num[3], 10);
+        const truthy = { "-eq": a === b, "-ne": a !== b, "-lt": a < b, "-le": a <= b, "-gt": a > b, "-ge": a >= b }[num[2]];
+        if (truthy) return true;
+      }
+      const str = inner.match(/^(['"]?)([^'"\s]*)\1\s+(=|==|!=)\s+(['"]?)([^'"\s]*)\4$/);
+      if (str) {
+        const eq = str[2] === str[5];
+        if (str[3] === "!=" ? !eq : eq) return true;
+      }
+    }
+  }
   if (/\bgrep\b[^|;&]*\s(''|"")(\s|$)/.test(base)) return true; // empty pattern matches every line
   if (/\bgrep\b/.test(base) && /(\.loop\/|agent[-_. ]?log|run[-_]?state|\bscratch\b|self[-_. ]?report)/.test(base)) return true; // grades its own homework
   return false;

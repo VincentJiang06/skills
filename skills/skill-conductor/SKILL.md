@@ -69,8 +69,10 @@ classified). Repeat Z or skip compression, but never ship a lossy restructure.
 
 ### Step 5 — Final Acceptance (the detection mechanism)
 
-Load `rules/final-acceptance.md`. Re-run guidance on the built skill, run the
-fresh-subagent behavioral battery, and record both verdicts. The effective
+Load `rules/final-acceptance.md`. Re-run guidance on the built skill (the
+re-audit GATE, criteria 1–3); **only if it passes**, invoke the **vince-attacker**
+skill as the independent adversarial battery (criterion 4) — never burn the
+attacker on a build that fails the re-audit. Record both verdicts. The effective
 verdict is `min(re_audit_verdict, battery_verdict)` and may never exceed the
 battery. Route gaps to G/E/Z by owner; after `MAX_FULL_LOOPS`, stop with honest
 `stopped_unmet`.

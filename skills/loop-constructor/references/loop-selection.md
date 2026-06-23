@@ -1,11 +1,11 @@
-# The loop-selection procedure (D0–D5)
+# The loop-selection procedure (D0–D6)
 
 This is the **mechanism** the skill runs. The old skill said "pick the altitude
 from blast-radius × reversibility × surface-area, decompose into phases, surface
 the KB" — and left every hard call to judgment. This replaces that with an
-**ordered decision procedure**: answer D0–D5 in order and the shape of the loop
+**ordered decision procedure**: answer D0–D6 in order and the shape of the loop
 is determined, with a one-line justification recorded for each. The output of
-running this procedure is the **decision log** (D0–D5 answers) plus the filled
+running this procedure is the **decision log** (D0–D6 answers) plus the filled
 loop-design JSON.
 
 Anchor (never skip): **a loop closes autonomously only when a fast, runnable
@@ -178,11 +178,50 @@ Grounding: `procedure.stop_gate`, `procedure.escalation_triggers`,
 
 ---
 
+## D6 — Iteration profile (cadence): completeness-first vs iteration-first
+
+The structure (D0–D5) says *what* the loop is; D6 sets *how much to attempt per
+pass vs how many passes to run*, then **re-tunes D2 / D3 / D5** to match. This is a
+**dial, not a new schema field** — it manifests entirely through the existing
+`loop_pattern` / `max_iterations` / per-stage scope / check-thoroughness choices.
+Decide it from the **cost of an iteration boundary** (how expensive it is to
+re-enter a pass) vs the **cost/latency of the check** (how expensive it is to ask
+"done?"):
+
+| | **completeness-first** (few, long, thorough passes) | **iteration-first** (many, short, cheap passes) |
+|---|---|---|
+| **Pick when** | re-entry/context-rebuild is expensive · the check is slow/costly (run it rarely, on a near-complete artifact) · cross-iteration thrash costs more than a long pass · the task rewards a coherent whole (design, contracts, a migration cutover) | the check is fast & cheap (sub-second), so frequent feedback is ~free · the solution space is unknown and incremental probing beats a big plan · small steps de-risk a fragile/ambiguous change |
+| **`max_iterations`** | **low** (per-stage and outer; guidepost ≈ ≤4) — a pass is meant to land | higher (≈ 8+) — each pass is a small increment |
+| **per-stage scope** | **large** — do the whole stage's work before checking | small — one slice per pass |
+| **`loop_pattern`** | `plan_execute_verify` / `explore_narrow` (deliberate, mid-flight self-correction *within* a pass) | `retry` is fine (cheap re-attempt) |
+| **check (`feedback_signal`)** | **thorough** — the full suite / an exhaustive predicate, not a fast smoke | fast smoke that runs every pass |
+| **effort / `human_placement`** | higher effort per pass; `on_the_loop` review at the *few* gates | lower effort per pass; tighter loop |
+
+**Procedure:** state the profile and the trade, then **revisit D2 (pattern), D3
+(autonomy granularity), and D5 (caps + scope)** and set each as the table says.
+Default to **completeness-first** when iteration boundaries are expensive or the
+check is slow; **iteration-first** when feedback is fast and cheap. Mixed is legal
+— a stage with a slow check can be completeness-first while a sibling with a fast
+check is iteration-first; record the per-stage profile in the stage's rationale.
+
+**Honest caveat (the mislabel trap):** the profile is *not* linter-enforced. A
+design can SAY `completeness_first` while carrying high caps + `retry` + a smoke
+check — a mislabel the linter cannot catch. The **fresh-reader** (and the
+maker/checker) must confirm the knobs actually match the claimed cadence: a
+completeness-first design with `max_iterations: 12` and a one-line smoke check is
+lying. `passing_but_wrong` for the cadence belongs in the fresh-reader pass.
+
+Grounding: `pattern.plan_execute_verify`, `pattern.retry_loop`,
+`concept.feedback_signal_spectrum`, `principle.machine_verifiable_dod`.
+
+---
+
 ## Output of the procedure
 
-1. The **decision log** — D0–D5, each with the answer + a one-line justification
+1. The **decision log** — D0–D6, each with the answer + a one-line justification
    (this is what makes the shape *reviewable* instead of magic). Emit it as the
-   `selection_log` array in the design JSON and in the report.
+   `selection_log` array in the design JSON and in the report. D6 records the
+   chosen iteration profile (completeness-first / iteration-first) and the trade.
 2. The filled **staged** (or flat) loop-design JSON per
    `references/loop-design-shape.md`.
 

@@ -28,9 +28,19 @@ Record this as a `stages[]` entry with `stage: "final_audit"`.
 
 ---
 
+## Order of operations — the re-audit GATES the attacker
+
+Criteria 1–3 below are the **re-audit gate**; criterion 4 is the **attacker
+battery**. Run them **in order, and gate**: invoke the attacker **only after the
+re-audit (1–3) passes**. If the re-audit fails, route back to the owning stage
+**without invoking the attacker** — do not spend the adversarial battery on a
+skill that cannot even pass basic audit (attacker is a *late-stage* skill: it
+fires when the build is roughly formed, typically loop 1–2, not before). In the
+run-log, a fail-audit attempt records `attacker_invoked: false`.
+
 ## Pass criteria
 
-**PASS** (`final_verdict: "done"`) only when **all four** hold:
+**PASS** (`final_verdict: "done"`) only when **all four** hold (1–3 first, then 4):
 
 1. **Verdict clears the bar:** `overall_readiness.verdict` is **not `draft`**
    (i.e. `candidate` or `industrial`, per the target bar set in Step 1).
@@ -54,36 +64,50 @@ Record this as a `stages[]` entry with `stage: "final_audit"`.
 3. **Intent matches the original goal:** the fresh `intent.summary` still
    matches the **goal recorded in Step 1**. A skill that got built well but
    drifted off the original intent **fails** this criterion.
-4. **An INDEPENDENT behavioral battery passes** (the anti-inflation gate — the
-   one that matters). Pillar-presence scoring (`score_skill.mjs` + the engineer's
-   self-authored, self-passing eval suite) **caps at `candidate`** — re-running
-   the builder's own cases certifies nothing about the inputs they didn't think
-   of, which is exactly where bugs hide. To reach **`industrial`** the conductor
-   must build and run its **own** battery against the built artifact and have it
-   pass — see "The independent battery" below. Guidance is the planner; it does
-   not get to bless its own build.
+4. **The INDEPENDENT attacker battery passes** (the anti-inflation gate — the one
+   that matters), **and it runs only after criteria 1–3 pass**. Pillar-presence
+   scoring (`score_skill.mjs` + the engineer's self-authored, self-passing eval
+   suite) **caps at `candidate`** — re-running the builder's own cases certifies
+   nothing about the inputs they didn't think of, which is exactly where bugs
+   hide. To reach **`industrial`** the conductor invokes the **vince-attacker**
+   skill against the built artifact and it must come back clean — see "The
+   independent battery" below. Guidance is the planner; it does not get to bless
+   its own build.
 
 When all four hold: write `final_verdict: "done"`, set `blocking_gaps: []`,
 finish. Print a short summary (verdict, loops taken).
 
 ---
 
-## The independent battery (criterion 4)
+## The independent battery (criterion 4) = the vince-attacker skill
 
 The pipeline's worst failure is a **closed loop**: the engineer writes its own
 eval cases and the conductor re-runs *that same battery*, so "11/11 green"
 proves only that the builder's chosen inputs pass — never the inputs they didn't
 think of, which is where every shipped bug lives. Break the loop here.
 
-**Run the battery in a FRESH subagent, not in your own context.** This is the
-crux: a battery you generate in the same context that just built and blessed the
-skill inherits the builder's blind spots and reproduces the closed loop — it
-reports "16/16 pass" while real bugs sail through. Dispatch a subagent (Task)
-that **never saw the build**, handing it only: the built skill's path, the spec's
-`recommended_design.adversarial_checklist`, and the skill's own doc-claims to
-verify. Tell it to *attack the input domain and report any wrong answer*. Do NOT
-reuse the engineer's `evals/`. The subagent derives cases two ways and runs them
-against the built artifact:
+**The battery IS the `vince-attacker` skill — invoke it (gated: only after the
+re-audit, criteria 1–3, passes).** Attacker is purpose-built for this: a FRESH,
+TDD-independent subagent that attacks the built skill's **observable behavior**
+within a declared scope and records ONLY proven, reproducible breakages, gated by
+its own deterministic validator. Do not hand-roll a fresh-subagent battery here
+when the skill exists — call it:
+
+```bash
+# 1. invoke vince-attacker on the BUILT skill (see its SKILL.md): hand it the
+#    built path + the spec's recommended_design.adversarial_checklist as scope;
+#    it writes attack records + a ledger. It must NOT see the engineer's evals/.
+# 2. validate the records + the battery the attacker produced (the installed
+#    vince-attacker sibling ships these — resolve them where attacker is installed):
+node ../vince-attacker/scripts/validate_attack_records.mjs <records-dir-or-file>
+node ../vince-attacker/scripts/check_battery_clean.mjs <ledger.json> --need 1   # exit 0 iff clean/hardened
+```
+
+`battery_verdict` is `industrial` only if the attacker battery comes back **clean**
+(zero proven breakages, including zero green-but-wrong outputs); any validated
+attack record demotes it to `candidate` and becomes a `blocking_gap` routed to
+the owning stage. Tell the attacker to derive cases two ways and run them against
+the built artifact:
 
 1. **Domain-derived edges** from the skill's *actual input domain* (not generic
    labels). Reason about what the input really is and attack it:
@@ -125,9 +149,11 @@ its claims checked by reading + behavioral reasoning, and still caps at
 
 Record **two** verdicts in the run-log's `quality` object and never conflate them:
 - `re_audit_verdict` — guidance's pillar-presence re-audit (structural; closed-loop).
-- `battery_verdict` — the **fresh-subagent** battery's finding: `industrial` only
-  if it found **zero** bugs (including zero green-but-wrong outputs); `candidate`
-  if it found any.
+- `battery_verdict` — the **vince-attacker** battery's finding (run only after the
+  re-audit passed): `industrial` only if it came back clean — **zero** validated
+  attack records (including zero green-but-wrong outputs); `candidate` if it
+  recorded any. If the re-audit failed and the attacker was therefore not invoked,
+  leave `battery_verdict: null` and record `attacker_invoked: false`.
 
 Then `effective_verdict = min(re_audit_verdict, battery_verdict)` and **the
 written verdict may never exceed `battery_verdict`.** So a build the re-audit

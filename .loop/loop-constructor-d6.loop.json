@@ -1,0 +1,164 @@
+{
+  "task": "Add completeness-first iteration-profile guidance (D6) to loop-constructor, dogfood it, and harden via a 3-lens attacker review — run as a completeness-first loop (few long thorough passes).",
+  "loop_altitude": "medium",
+  "loop_altitude_rationale": "A doc/contract change to one skill, fully reversible (git), single-agent. The attacker fan-out lives INSIDE the review stage, not as parallel debug stages — so medium, not large.",
+  "selection_log": [
+    {
+      "decision": "D0",
+      "answer": "loop",
+      "why": "runnable checks exist: loop-constructor's evals/run_all.mjs (53-case linter+renderer battery), the linter on a produced design, and grep for the D6 section — done is machine-decidable"
+    },
+    {
+      "decision": "D1",
+      "answer": "staged (2 seams)",
+      "why": "seam1: the D6 guidance is authored and the battery stays green (handed to dogfood); seam2: a lint+render-valid completeness-first design exists (handed to the attacker review). Each upstream check runs before the downstream stage exists"
+    },
+    {
+      "decision": "D2",
+      "answer": "plan_execute_verify on all three",
+      "why": "each stage is a deliberate change whose failure mode is a plausible-looking edit that doesn't actually hold (hollow guidance; a mislabeled design; a harden that breaks the battery) — verify-each-step against a thorough check is the pattern"
+    },
+    {
+      "decision": "D3",
+      "answer": "on_the_loop",
+      "why": "reversible (git); the thorough battery + lint discriminate well; the one subjective bit (does the cadence guidance read true) is gated by the fresh-reader + the attacker review at the gate, not per-iteration approval"
+    },
+    {
+      "decision": "D4",
+      "answer": "medium",
+      "why": "strictly sequential — guidance -> dogfood -> review each depend on the prior artifact; no independent fan-out (the 3 attacker lenses are internal to stage 3)"
+    },
+    {
+      "decision": "D5",
+      "answer": "low caps (2/2/2, outer 2) + escalate",
+      "why": "completeness-first: a pass is meant to land; on exhaustion escalate to a human rather than thrash"
+    },
+    {
+      "decision": "D6",
+      "answer": "completeness_first",
+      "why": "the iteration boundary is expensive (each pass reloads the whole skill's contract + reasons about cross-file consistency) and the check is thorough/slow (a 53-case battery + a full attacker review), so few long complete passes beat many shallow ones — tuned: low max_iterations, large per-stage scope, plan_execute_verify, thorough checks"
+    }
+  ],
+  "stages": [
+    {
+      "id": "author_d6_guidance",
+      "definition_of_done": {
+        "goal": "the D6 'Iteration profile (cadence)' section + its knob-mapping table exist in references/loop-selection.md, and D6 is wired into SKILL.md (SELECT), references/loop-design-shape.md (selection_log), and assets/fresh-reader-checklist.md (cadence box); loop-constructor's evals/run_all.mjs still passes 53/53",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "node skills/loop-constructor/evals/run_all.mjs && grep -q \"D6 — Iteration profile\" skills/loop-constructor/references/loop-selection.md",
+        "expect": "pass",
+        "falsifiable_when": "the D6 section is missing (grep fails) OR a doc edit breaks the linter/renderer battery (run_all goes red)",
+        "passing_but_wrong": "D6 exists as an empty heading with no knob-mapping content — grep passes but the guidance is hollow. Ruled out by the dogfood stage (which exercises the actual completeness-first knob choices) + the fresh-reader cadence box"
+      },
+      "stop_conditions": {
+        "failure": [
+          "the D6 guidance cannot be authored without breaking the existing battery"
+        ],
+        "max_iterations": 2,
+        "on_failure": {
+          "action": "escalate"
+        }
+      },
+      "depends_on": []
+    },
+    {
+      "id": "dogfood_verify",
+      "definition_of_done": {
+        "goal": "a completeness-first loop-design (this file) lints PASS and renders a runbook, and the fresh-reader cadence box holds — its knobs actually match the claimed completeness_first profile (low max_iterations, plan_execute_verify, thorough checks), not a mislabel",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "node skills/loop-constructor/scripts/lint_loop_design.mjs .loop/loop-constructor-d6.design.json && node skills/loop-constructor/scripts/render_loop_doc.mjs .loop/loop-constructor-d6.design.json --out .loop --slug loop-constructor-d6 --force",
+        "expect": "pass",
+        "falsifiable_when": "the design omits a required field or carries an always-green check (linter non-zero), OR the renderer refuses to emit a runbook (render non-zero) — the DoD covers BOTH lint AND render",
+        "passing_but_wrong": "the design lints green while being a MISLABELED completeness-first (high caps + retry + smoke checks) — the linter cannot catch this (D6 is guidance-only, not a linted field). Ruled out only by the fresh-reader cadence box + the attacker contract-gameability lens (this is the honest residual of the guidance-only choice)"
+      },
+      "stop_conditions": {
+        "failure": [
+          "the design cannot be made to both lint AND honestly exhibit the completeness-first knobs"
+        ],
+        "max_iterations": 2,
+        "on_failure": {
+          "action": "loopback",
+          "to": "author_d6_guidance"
+        }
+      },
+      "depends_on": [
+        "author_d6_guidance"
+      ]
+    },
+    {
+      "id": "attacker_review_harden",
+      "definition_of_done": {
+        "goal": "a 3-lens vince-attacker review (contract gameability of D6 + this concrete design + the whole loop-constructor structure) is run; every PROVEN structural defect is fixed and the evals/run_all.mjs battery stays 53/53; any unfixable finding (e.g. D6 not linter-enforced) is recorded as an honest residual",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "node skills/loop-constructor/evals/run_all.mjs && test -f .loop/loop-constructor-d6/attacker-findings.md",
+        "expect": "pass",
+        "falsifiable_when": "a hardening edit breaks the linter/renderer battery (run_all red), OR no attacker-findings.md artifact exists (the review wasn't recorded) — the check now covers both the regression AND that the review produced a recorded artifact",
+        "passing_but_wrong": "the battery is green but the attacker found a structural gap the 53 cases don't cover — exactly why the attacker (not just the battery) is this stage's gate; the DoD requires proven findings fixed-or-recorded, judged by the maker/checker, not by the battery alone"
+      },
+      "stop_conditions": {
+        "failure": [
+          "an attacker finding requires a schema/linter change the user scoped OUT (guidance-only) — record as residual, do not silently expand scope"
+        ],
+        "max_iterations": 2,
+        "on_failure": {
+          "action": "loopback",
+          "to": "dogfood_verify"
+        }
+      },
+      "depends_on": [
+        "dogfood_verify"
+      ]
+    }
+  ],
+  "human_placement": "on_the_loop",
+  "maker_checker": {
+    "separate_checker": true,
+    "scope": "a fresh-context reviewer sees only the produced docs + this design + the per-stage checks; flags: (a) a D6 section that reads concrete but doesn't actually change any knob choice, (b) this design being a mislabeled completeness-first, (c) loop-constructor structural gaps (linter blind spots, selection holes, persist-contract). Correctness/requirements only"
+  },
+  "harness_primitives": [
+    "git per-file edits to skills/loop-constructor/ for reversible work",
+    "loop-constructor's own evals/run_all.mjs (53-case linter+renderer battery) as the thorough per-stage check",
+    "the linter + render_loop_doc on a produced design as the dogfood gate",
+    "vince-attacker (3 lenses) as the independent structural review; its validators gate the records",
+    "external scratch ledger .loop/loop-constructor-d6/run-state.md across context resets"
+  ],
+  "stop_conditions": {
+    "success": "D6 is authored + wired into all four docs, the 53-case battery stays green and goldens still lint, this completeness-first design lints+renders with knobs that honestly match the profile, and the 3-lens attacker review's proven findings are fixed or recorded as residuals",
+    "failure": [
+      "any stage exhausts its max_iterations without passing its check",
+      "the attacker proves D6 is purely cosmetic (changes no knob) and it cannot be made real within guidance-only scope"
+    ],
+    "escalate": [
+      "a real fix requires a schema/linter change (scoped OUT: guidance-only) — surface to the user",
+      "the completeness-first guidance and the existing D0-D5 procedure turn out irreconcilable"
+    ],
+    "max_iterations": 2
+  },
+  "risk_guards": [
+    {
+      "risk": "the cadence is cosmetic — D6 reads nice but changes no actual knob choice (reward hacking on prose)",
+      "mitigation": "the dogfood stage forces D6 to drive real knob settings; the fresh-reader cadence box + attacker lens-1 attack a mislabel"
+    },
+    {
+      "risk": "mislabel trap — a design claims completeness-first while carrying high caps + retry + smoke checks (D6 not linter-enforced, by the guidance-only choice)",
+      "mitigation": "the fresh-reader cadence box is the enforcement point; recorded as an explicit honest residual rather than pretended-closed"
+    },
+    {
+      "risk": "scope creep — an attacker finding tempts a schema/linter change the user scoped OUT",
+      "mitigation": "guidance-only is a hard boundary; such findings are recorded as residuals + escalated, never silently built"
+    },
+    {
+      "risk": "regression to the existing battery from doc edits",
+      "mitigation": "every stage re-runs the 53-case evals/run_all.mjs; goldens must still lint"
+    }
+  ]
+}

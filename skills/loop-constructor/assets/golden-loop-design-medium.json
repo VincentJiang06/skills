@@ -8,7 +8,8 @@
     { "decision": "D2", "answer": "explore_narrow / plan_execute_verify / retry", "why": "characterize searches the existing contract; implement is risky middleware needing mid-flight correction; load_verify is a retryable assertion" },
     { "decision": "D3", "answer": "on_the_loop", "why": "reversible dev-only change, checks discriminate well — human reviews at gates, not each iteration" },
     { "decision": "D4", "answer": "medium", "why": "stages are strictly sequential (each depends on the prior); no independent fan-out work" },
-    { "decision": "D5", "answer": "caps + loopback routing", "why": "per-stage caps; load_verify loops back to implement, implement loops back to characterize; escalate on any public-API change" }
+    { "decision": "D5", "answer": "caps + loopback routing", "why": "per-stage caps; load_verify loops back to implement, implement loops back to characterize; escalate on any public-API change" },
+    { "decision": "D6", "answer": "iteration_first", "why": "the contract/ratelimit checks are fast and cheap (npm test in seconds), so frequent small passes (implement cap 8) beat few long ones — tuned: higher caps, retry acceptable on the load stage" }
   ],
   "stages": [
     {
