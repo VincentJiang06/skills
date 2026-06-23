@@ -157,3 +157,70 @@ A round>1 runs a FIXED sequence (the same carry-forward ledger as §c of loop-an
    incremental new surface (`scope_change:"expanded"` when surface grows, `"stable"` otherwise —
    never a wild jump). **NEVER restart from scratch.** Monotonic depth is a discipline; the validator
    only checks `depth ≥ 1` and that `scope_change` is a valid enum.
+
+## SKILL.md attack-round detail (the condensed 5-phase runbook, verbatim)
+
+SKILL.md keeps the spawn line + the five phase NAMES; this is the per-phase detail it points to.
+
+Spawn the attack as a **fresh, isolated subagent**. Hand it a **curated context
+bundle of ONLY**: (a) the requirement / intended behavior, and (b) the target's
+observable behavior (invoke + observe + baseline — the target-adapter contract).
+**Do NOT pass** implementation source, the TDD/unit suite, or author framing into
+its window. Enforcement (Q1): a new subagent starts with an empty context window;
+the only project content it sees is what your spawn prompt includes — so the
+withholding is a property of what you choose to include, audited per record by
+`independence_attestation.withheld` (the validator REJECTS a confirmed record
+whose `withheld` omits `implementation_source` or `tdd_suite`). If the same model
+wrote the target, route verification to a **separate** fresh checker instance
+(generator ≠ judge).
+
+Inside the subagent run **READ → DESIGN → EXECUTE → PROVE → RECORD**:
+
+1. **READ** — map the attack surface from observable behavior (not source);
+   derive intended behavior independently from the requirement; measure a
+   steady-state **baseline**. No baseline ⇒ `needs_instrumentation` →
+   `needs_judgment`, never a guess.
+2. **DESIGN** — **reuse the inherited ledger first** (round>1): skip/deprioritize
+   already-tried low-yield attacks, spend fresh budget on NEW surface + unconfirmed
+   leads. Then derive attacks via spec-inversion + STRIDE breadth + the business-logic
+   abuse catalog from `assets/payload-library.json`; build a small attack tree tagged
+   cost/likelihood/prereq; attack cheapest-highest-impact first.
+3. **EXECUTE** — frame each as a falsifiable experiment scoped to the smallest
+   unit; **blast-radius control** + staged escalation + abort/stop conditions;
+   **debug/product:** attack **real seams (no mocks)** where the attack lands; **idea:** run
+   the reasoning over the **minimal scenario/case**; **structural:** trace the structure/logic
+   itself (reading it is expected). In **`both`** mode do the **structural pass FIRST**, then
+   debug. **Stop at whichever hard cap hits first — `--budget N` (attempts) OR `--max-tokens T`
+   (tokens)** — exhaust-budget mode (report ALL breaks, not first-break).
+4. **PROVE** — pick from the **mode-appropriate** ranked **oracle menu**
+   (`references/oracle-menu.md`): **product** oracles (implicit→differential→metamorphic→
+   control→specified), **idea** oracles (counterexample / contradiction / unmet_assumption /
+   scope_violation / infeasibility / missing_case), or **structural** oracles (the idea oracles
+   that fit design critique + specified — §S). State which fired; confirm `observed != expected`
+   (idea: `expected`=what the claim predicts; structural: `expected`=what good structure / the
+   stated goal requires); shrink to a 1-minimal reproducer / minimal scenario; **re-run it** (a
+   fresh reader re-checks the reasoning) to confirm it still fails (`repro.replayed_ok`).
+5. **RECORD** — one record per **proven** defect → `records[]`; unprovable / vague →
+   `needs_judgment[]`; out-of-scope discovery → `out_of_scope[]` (kept, not counted). Tag
+   each record's **`attack_scope`** (∈ `summary.in_scope`) and its **`attack_kind`**
+   (`debug` | `structural`, permitted by `summary.attack_mode`); compute `regression_key`,
+   dedup, roll up `ASR@n` + unique-finding count + severity histogram **+ the round
+   verdict** (`round_verdict` + `stop_reason` + `tokens_used`/`max_tokens` +
+   `carried_from_round`) **+ the v0.3.1 fields** (`attack_mode` + `context_sources` +
+   `scope_change` + `depth`). **debug/idea** records carry `claim` + `not_strawman` +
+   `derived_independently`; **debug/product** records carry `real_collaborator_at_seam` +
+   `withheld ⊇ {implementation_source, tdd_suite}`; **structural** records carry
+   `critique_basis` + `derived_independently:true` (NO withheld/seam — you may see the structure).
+
+### REGRESSION → context-fill → DEEPEN (the SKILL.md condensed form, verbatim)
+
+Round > 1 follows a fixed sequence (the same carry-forward ledger as v0.2.0, now with an
+explicit order):
+1. **Regression FIRST** — re-run every prior record's repro by `regression_key`: now-passing →
+   `status:"fixed"`; still-failing → stays `confirmed` and **blocks**.
+2. **Use that resolution to FILL context** — what's fixed / still-broken feeds THIS round's
+   context (record it in `summary.context_sources`).
+3. **Then go DEEPER** — increment `summary.depth`, attack **within scope at greater depth** /
+   incremental new surface (`scope_change:"expanded"` if surface grows). **NEVER restart from
+   scratch** (cold-restarting wastes tokens). Monotonic depth across rounds is a discipline; the
+   validator only checks `depth ≥ 1`.

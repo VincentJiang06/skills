@@ -102,3 +102,73 @@ the attack — I'd rather ask than guess."**
 - **`summary.context_digest`** (v0.3.0, OPTIONAL) — a one-line attestation of what context the
   round's attacks were grounded in (claim/requirement, scope, break-bar). Kept lean; when present
   the validator only type-checks it (non-empty string).
+
+## Preflight — the full step-by-step (CONTEXT-gate → scope → mode → MODE-altitude → budget)
+
+SKILL.md keeps the gate ORDER; this is the full procedure for each step.
+
+0. **CONTEXT — a HARD GATE (do this FIRST — load `references/context-intake.md`).** Take in a
+   rich context bundle: the **target** (product OR idea) + its **type**, the **claim /
+   requirement**, **constraints**, **success criteria**, **what counts as a real break**,
+   the **in/out-of-scope** domains, and **prior rounds**. **The attacker MUST NOT attack until
+   (a) SCOPE is clear (`in_scope` declared and specific) AND (b) CONTEXT is sufficient.** If
+   insufficient: first **ASK the user** (prompt for the missing specifics — the more precise
+   the context, the sharper the attack); if still thin, **SELF-RESEARCH the project** to
+   establish scope / attack surface / structure (the WHAT). Record where the round's context
+   came from in **`summary.context_sources`** (≥1 strings, e.g. `"user-provided"`,
+   `"self-researched: surface map"`). **Self-research is independence-safe:** for **debug** you
+   may map the surface/requirement but still derive EXPECTATIONS from the requirement, NOT from
+   reading impl internals (don't re-contaminate debug expectations); for **structural** reading
+   the structure is expected and fine. Product debug still excludes impl/tests/author framing;
+   idea takes the claim but critiques it **independently**. Optionally also record a one-line
+   `summary.context_digest`.
+1. **Scope (the ATTACK-SCOPE CONTRACT).** Declare WHICH domains/layers are attacked:
+   - **`--scope <descriptor>…`** → `summary.in_scope` (≥1 RICH free-form descriptors, e.g.
+     "UI rendering errors", "page navigation/logic transitions") — the only domains a
+     finding may target. Every confirmed record tags its **`attack_scope`** (one of these).
+   - **`--out-of-scope <descriptor>…`** → `summary.out_of_scope` (may be empty) — declared
+     exclusions. An observation found OUTSIDE scope goes in the **top-level `out_of_scope[]`**
+     bucket: **kept, but NOT counted as a finding and NOT gated**. ("Attack the UI" → hits
+     UI rendering + page navigation, NOT backend logic.)
+   - Also resolve **`--target <module/feature|idea>`** and **`--round N`**.
+2. **Mode — `target.type` (`product` | `idea`).** **product** = a running feature
+   (the v0.1–0.2 path: product oracles + the impl/TDD firewall + a real seam). **idea** =
+   an argument/design/plan (debate con-side): the proof shape is **claim + observed≠expected
+   + reasoning chain + minimal scenario + `not_strawman` + an idea oracle + a critique
+   derived independently** — SAME loop/round-verdict/budget/carry-forward, only the oracle +
+   proof shape change. The validator gates each record by its mode (see `references/oracle-menu.md`).
+2b. **Attack MODE — `summary.attack_mode` (`debug` | `structural` | `both`).** A SECOND, orthogonal
+   axis (the round's ALTITUDE), set per round and required on the summary:
+   - **`debug`** = a concrete behavioral bug-hunt (the existing flow). Records are `attack_kind:"debug"`.
+   - **`structural`** = interrogate the project's **LOGIC/ARCHITECTURE** — design problems, coupling,
+     logic-flow, missing/leaky abstractions, inconsistent patterns — higher altitude. Records are
+     `attack_kind:"structural"`: you MUST be allowed to **SEE the structure** to critique it, so
+     structural records DROP impl-withholding + `real_collaborator_at_seam` and instead REQUIRE a
+     **`critique_basis`** (the external design principle OR stated goal violated) + `observed≠expected`
+     + `derived_independently:true` + a **STRUCTURAL oracle** (`references/oracle-menu.md` §S).
+   - **`both`** = do **STRUCTURAL FIRST, then debug** (a protocol discipline; the validator only
+     enforces that each record's `attack_kind` is permitted by the mode: `debug`→only debug,
+     `structural`→only structural, `both`→either).
+2c. **Scope stability + depth.** Set **`summary.scope_change`** (`initial` | `stable` | `expanded` |
+   `narrowed`) — each round stays stable OR expands **incrementally** (never a wild jump) — and
+   **`summary.depth`** (int ≥ 1, the progressive-deepening level within the scope; see Regression).
+3. **Dual hard budget** (MANDATORY — the round is HARD-BOUNDED, no endless attack):
+   - **`--budget N`** — attempts cap (rolled up as `ASR@n`). **Default ≈ 12** if unset.
+   - **`--max-tokens T`** — per-round token-consumption cap (NOT wall-clock time). **Default ≈ 60k** if unset.
+   - **`--max-context T`** *(v0.3.2, soft)* — a **loose** cap (**≈ 30k** default) on CONTEXT intake +
+     self-research: stay **scope-relevant**, do NOT slurp the whole repo. Loose by design — a rough
+     ceiling so context/cost don't balloon, not a hard gate.
+   The round stops at **whichever cap hits first**, in **exhaust-budget mode** (one
+   round reports ALL proven breaks for a batch fix — NOT stop-on-first). **Speed (v0.3.2):** attack
+   cheapest-highest-impact first, and you MAY **early-exit** once the declared scope is adequately
+   covered within budget — don't burn the full budget if the scope is already covered. Never
+   default to unbounded crawling — a run is cheap and re-runnable per feature.
+4. Locate/create the **target project's** `.loop/` for `attack-records.jsonl` +
+   the battery ledger (project-local, NOT under the skill dir).
+5. **Round 1 → cold start** (`carried_from_round:null`). **Round>1 → CARRY-FORWARD:**
+   load this skill's OWN prior attack ledger from `<project>/.loop/` (surface map +
+   attempted-attacks + confirmed/fixed records by `regression_key`) and re-derive only
+   **NEW** surface — do NOT re-plan from scratch (re-deriving the whole attack plan each
+   round is token waste). Record which prior round you inherited as `carried_from_round`.
+   Still **NOT** loaded (product mode): impl source / TDD suite / author framing
+   (independence preserved).
