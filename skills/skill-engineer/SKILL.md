@@ -22,18 +22,10 @@ not a license to skip verification. The deliverable is a built skill plus a
 
 ## Backing knowledge base
 
-Ground the build in the local **develop-principle** KB (the `develop-principle/`
-library at the repo root; default `../../develop-principle`). Do not invent the TDD/testing
-method — pull it:
-
-```bash
-node <kb>/tools/query_kb.mjs "TDD red green refactor eval case 契约 变异" --broad
-node <kb>/tools/query_kb.mjs "skill 测试 轨迹 回归 金字塔" --broad
-```
-
-Reuse its templates instead of duplicating them: `templates/eval_case.template.json`,
-`templates/tdd_plan.template.md`, `templates/trajectory_assertion.template.json`,
-and the matrices in `testing/` (`test_strategy_matrix.json`, `tdd_workflow.json`).
+Ground the build in the local **develop-principle** KB (default
+`../../develop-principle`, at the repo root) — do not invent the TDD/testing
+method. Load `rules/kb-grounding.md` for the query commands and the
+develop-principle templates/matrices to reuse instead of duplicating.
 
 ## Steps
 
@@ -107,6 +99,7 @@ file is the real output.
 
 | File | When to load |
 |------|--------------|
+| `rules/kb-grounding.md` | Before Step 1 (and any TDD/testing query) — the develop-principle KB query commands and the templates/matrices to reuse. |
 | `rules/ingest-spec.md` | Step 1 — read the handoff-spec, handle a missing spec, turn actions into a backlog. |
 | `rules/red-green-refactor.md` | Step 2 — the TDD loop for skills and how to pull develop-principle's tdd/test assets. |
 | `rules/run-evals.md` | Steps 3 & 5 — write eval cases, run them with-skill, grade, check trajectories, regression. |

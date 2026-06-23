@@ -3,6 +3,16 @@
 neat-freak deletes memory files and rewrites `CLAUDE.md` / `docs/`. These are the
 controls that keep a bad run recoverable. Load before any delete/rewrite (第三步).
 
+## 0. 最小护栏速览（at-a-glance）
+
+这个 skill **会删除记忆文件、重写 CLAUDE.md / docs**——破坏性。最小护栏（完整版见下文各节）：
+
+- **不分类不删除**：linter 无法归类的文件（既不是记忆、也不是 docs/CLAUDE.md/README）一律不动。删除只针对能明确归类为「已废弃记忆 / 已被取代的临时计划」的文件。
+- **先预览再删**：删除/批量改写前，先列出"将删除/将改写"清单（dry-run / preview），让用户能看到再执行。
+- **要求 git 工作树**：仓库应是 git 工作树，这样坏的破坏性运行可 `git restore` 回滚；否则记一条显式 waiver。
+- **HARD 阻断 / SOFT 咨询**：`kb_audit` 退出非 0（HARD 违规）**阻断**"同步完成"；SOFT 违规只警告、记进「未处理」，不阻断。
+- **全局配置极度克制**：`~/.claude/CLAUDE.md` / `~/.codex/AGENTS.md` 只在用户明确表达跨项目意图时才动。
+
 ## 1. Never delete what you can't classify
 
 Only delete a file you can positively classify as **disposable knowledge**:

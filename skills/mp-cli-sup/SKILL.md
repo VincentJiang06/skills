@@ -55,16 +55,11 @@ its own `--workspace-root`; `--port` alone will reuse the live session and not s
 
 ## Command map (load `references/cli-contract.md` for exact schema)
 
-- **Session lifecycle:** `session start|status|stop|restart|reconnect` (auto-reconnects on a dropped connection; `reconnect` forces it).
-- **Read (instant):** `page`, `stack`, `data [path]`, `sysinfo`, `query <sel> [--all]`,
-  `snapshot <sel>`, `console [--clear]`, `eval '<expr>'`.
-- **Act (uids persist):** `tap <uid>`, `input <uid> <text>`, `scan <code> [--type t] [--method m] [--raw]`,
-  `shot <output>`, `nav <url>`, `step '<json>'` (any supported workflow step — see `references/cli-contract.md`), `run --stdin` (batch).
-- **Diagnose / cross-stack:** `doctor [--skip-typecheck]`, `env list|use <key>|current|token <t>`,
-  `logs --request-id <id> | --user-id <id> | --code <n>`.
-- **One-shot / special:** add `--no-session` to any shorthand (except `console`, whose buffer lives in the session daemon) for a single connect-and-exit;
-  `smoke-existing --ws-endpoint <ws>` (attach-only non-invasive); `screenshot`, `media`,
-  `capabilities`, `help`.
+The full command surface — session lifecycle, the read/act/diagnose/one-shot
+shorthands, the at-a-glance grouped map, plus the exact step list and error codes —
+lives in `references/cli-contract.md`. **Load it before building or running any
+`vince-mp` command** (its "At-a-glance command map" section is the grouped
+index; the sections below it are the exact schema).
 
 ## Core rules
 
@@ -101,3 +96,4 @@ its own `--workspace-root`; `--port` alone will reuse the live session and not s
 - `node scripts/validate-skill.mjs` — structural validation (files, frontmatter, `vince-mp help --json`).
 - `node scripts/run_all.mjs` — deterministic contract check: every documented command / shorthand / workflow step / error code / version pin is verified against the live `vince-mp capabilities --json`, so the docs can't silently drift from the CLI. `--self-test` proves each check discriminates.
 - `node scripts/check_release_gate.mjs` — closes the release gate only on real evidence (executes each cited command by exit code; requires the harness self-test to still pass).
+- `node scripts/check_battery_clean.mjs` — the stage-3 adversarial-hardening gate: reads the defect ledger (`.loop/mp-cli-sup-battery.json`) and asserts a trailing run of consecutive clean rounds with the required round shape and green regressions (`--consecutive N`). RED when the ledger is absent or has too few clean rounds.

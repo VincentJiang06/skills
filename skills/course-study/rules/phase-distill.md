@@ -39,6 +39,18 @@ for a topic list / syllabus. Every concept carries one.
 The order is **mandatory** and the **plain-language capsule is FIRST** — never
 lead with the formal definition.
 
+The five parts, in order:
+
+1. **Plain-language capsule** — explain it simply, as if to a smart friend with
+   no jargon. One short paragraph. (This is FIRST, always.)
+2. **Intuition** — why it exists, what problem it solves, an analogy if it helps.
+3. **Formal treatment** — the precise version: LaTeX formula or code, symbols
+   defined.
+4. **Worked example** — a concrete, step-by-step example (numbers plugged in /
+   algorithm traced). **Mandatory** for every non-trivial concept.
+5. **Connections + common misconception** — prerequisites and what it enables; a
+   cross-topic bridge where useful; one thing students typically get wrong.
+
 ```markdown
 ### [Concept Name] ([source location])
 

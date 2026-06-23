@@ -12,6 +12,35 @@ Anchor (never skip): **a loop closes autonomously only when a fast, runnable
 check can answer "is it done?"** — `principle.closed_loop_needs_a_check`. So
 every decision below is downstream of "what check proves this stage is done?".
 
+## D0–D6 at a glance
+
+Answer **D0–D6 in order**; each answer determines part of the shape and is
+recorded with a one-line justification (the **decision log**):
+
+- **D0 — Is it a loop?** Name a fast runnable check that answers "done?" without a
+  human reading output. No check and can't build one → route away (not a loop).
+- **D1 — Decompose?** List phases; accept a stage boundary only where a stable,
+  checkable artifact is handed across it (the *seam test*). 0 seams → flat; ≥1 →
+  staged.
+- **D2 — Per stage: pattern + check.** Pattern by the stage's failure mode; the
+  cheapest check on the spectrum that still fails on that mode; fill
+  `falsifiable_when` + `passing_but_wrong`.
+- **D3 — Autonomy.** `in_the_loop` vs `on_the_loop` from blast-radius ×
+  reversibility × feedback-quality (weakest check wins).
+- **D4 — Parallelism.** Independent stages that benefit from fan-out → `large`
+  (multi-agent); else `medium` (sequential).
+- **D5 — Guards.** Per-stage caps + `on_failure` routing; outer budget + failure +
+  escalate; risk guards with mitigations.
+- **D6 — Iteration profile (cadence).** completeness-first (few long thorough
+  passes) vs iteration-first (many short cheap passes), chosen from
+  iteration-boundary cost vs check latency, then **re-tunes D2/D3/D5** (pattern,
+  caps, scope, check-thoroughness). A *dial*, not a schema field; not
+  linter-enforced, so the fresh-reader confirms the knobs match the claimed cadence.
+
+The procedure is the **selection method** — it replaces altitude-by-vibes with a
+reviewable derivation. Record the answers as the `selection_log` array.
+Each D-item below is the full procedure for that decision.
+
 ---
 
 ## D0 — Is it a loop at all? (the gate)

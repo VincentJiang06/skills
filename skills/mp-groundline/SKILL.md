@@ -100,13 +100,9 @@ checkout` of `app.json` + touched page `.json`.
 
 ## Metrics
 
-- **migration_correctness** = every hard Skyline-only feature present is flagged
-  `rewrite` AND zero false `rewrite` on a clean-workaround program (target 1.0;
-  oracle = the deterministic eval harness).
-- **minimal_diff** = files touched + lines changed (the mechanical flip is one
-  `app.json` edit + N page-json edits only where a page override exists).
-- **activation_precision** = the 4 positives + 4 adjacent negatives in
-  `assets/eval-cases.json` via `trigger_eval.mjs --judge cli` (target ≥0.9).
+Three success metrics — **migration_correctness**, **minimal_diff**,
+**activation_precision** — with full definitions, oracles, targets, and measured
+values in `assets/metric-plan.json`. Load it when validating or releasing.
 
 ## Modules (load on demand)
 

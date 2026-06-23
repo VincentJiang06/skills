@@ -8,6 +8,24 @@ subagent.
 The principle: **the suite tracks the *current* target.** When code changes, the
 test count for that feature-group should **not** grow just because you touched it.
 You change the spec, you don't append to it.
+Before adding anything, check what's there
+and prefer to change it:
+
+## Quick reference — edit/merge/delete/add
+
+| Situation | Do this | Not this |
+|---|---|---|
+| An existing test already covers the area | **Edit / strengthen** it | Add a second overlapping test |
+| New behavior is related to an existing test | **Merge** into one parametrized/table-driven test | Add a separate near-duplicate |
+| Target changed → an existing test asserts the old behavior | **Update** it to the new target (or **delete** if obsolete) | Leave old + new asserting in conflict |
+| N micro-behaviors of one feature | **One** parametrized test with N cases | N separate tests |
+| Coverage already exists elsewhere | **Consolidate / delete** the duplicate | Grow net test count for the same group |
+| Genuinely new feature-group, nothing covers it | **Add ONE** group test | A test per assertion |
+
+Net rule: for the same feature-group, the test count should **not** grow just
+because the code changed. Worked examples + per-stack consolidation patterns:
+[references/modify-mode.md](references/modify-mode.md).
+(That pointer is from SKILL.md; the worked examples + per-stack patterns are in Step 3 below.)
 
 ---
 

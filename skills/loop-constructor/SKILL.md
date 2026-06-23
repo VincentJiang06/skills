@@ -33,30 +33,17 @@ selection procedure** — no more "use judgment + query the KB" hand-waving.
 
 ### 1. SELECT — run the decision procedure (`references/loop-selection.md`)
 Answer **D0–D6 in order**; each answer determines part of the shape and is
-recorded with a one-line justification (the **decision log**):
-
-- **D0 — Is it a loop?** Name a fast runnable check that answers "done?" without a
-  human reading output. No check and can't build one → route away (not a loop).
-- **D1 — Decompose?** List phases; accept a stage boundary only where a stable,
-  checkable artifact is handed across it (the *seam test*). 0 seams → flat; ≥1 →
-  staged.
-- **D2 — Per stage: pattern + check.** Pattern by the stage's failure mode; the
-  cheapest check on the spectrum that still fails on that mode; fill
-  `falsifiable_when` + `passing_but_wrong`.
-- **D3 — Autonomy.** `in_the_loop` vs `on_the_loop` from blast-radius ×
-  reversibility × feedback-quality (weakest check wins).
-- **D4 — Parallelism.** Independent stages that benefit from fan-out → `large`
-  (multi-agent); else `medium` (sequential).
-- **D5 — Guards.** Per-stage caps + `on_failure` routing; outer budget + failure +
-  escalate; risk guards with mitigations.
-- **D6 — Iteration profile (cadence).** completeness-first (few long thorough
-  passes) vs iteration-first (many short cheap passes), chosen from
-  iteration-boundary cost vs check latency, then **re-tunes D2/D3/D5** (pattern,
-  caps, scope, check-thoroughness). A *dial*, not a schema field; not
-  linter-enforced, so the fresh-reader confirms the knobs match the claimed cadence.
-
-The procedure is the **selection method** — it replaces altitude-by-vibes with a
-reviewable derivation. Record the answers as the `selection_log` array.
+recorded with a one-line justification (the **decision log**). The ordered
+decisions: **D0** is-it-a-loop (name the runnable "done?" check or route away) ·
+**D1** decompose (seam test → flat vs staged) · **D2** per-stage pattern + check
+(+ `falsifiable_when`/`passing_but_wrong`) · **D3** autonomy (`in_the_loop` vs
+`on_the_loop`) · **D4** parallelism (`large` fan-out vs `medium` sequential) ·
+**D5** guards (caps + `on_failure` + risk guards) · **D6** iteration profile /
+cadence (completeness-first vs iteration-first, a *dial* that re-tunes D2/D3/D5).
+Load `references/loop-selection.md` and run the full procedure — each D-item there
+is the operational decision rule. The procedure is the **selection method** — it
+replaces altitude-by-vibes with a reviewable derivation. Record the answers as the
+`selection_log` array.
 
 ### 2. FILL — write the loop-design JSON (`references/loop-design-shape.md`)
 The decisions above mostly determine the spec. Fill the canonical **staged**

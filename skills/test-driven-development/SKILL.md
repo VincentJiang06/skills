@@ -58,19 +58,12 @@ not "skip TDD just this once" on real logic, not "better add a test" on a rename
 
 ### Two special cases: refactoring & untested code
 
-Behavior-preserving work doesn't fit "write a failing test first" — handle it explicitly:
-
-- **Refactor with green tests already covering it** → do **not** write a new
-  failing test. The existing tests are your safety net: run them after, keep them
-  green. There's no new behavior to RED.
-- **Refactor untested code, or a request to "add tests to legacy code"** → write
-  **characterization tests** that pin the *current* behavior **first**, then
-  change. This is the one legitimate test that passes when written — its "red"
-  equivalent is confirming it actually exercises the target (assert a deliberately
-  wrong value once, watch it fail, then lock in the real value). Only then refactor.
-  This fires because you're about to **change** existing untested behavior — not
-  merely because some code lacks tests. A trivial or brand-new addition (a plain
-  getter, a one-liner) still goes through the right-size gate above and usually skips.
+Behavior-preserving work doesn't fit "write a failing test first":
+**refactor with green tests covering it** → don't write a new failing test, keep
+the existing ones green; **refactor untested / "add tests to legacy" code** →
+write **characterization tests** pinning *current* behavior first, then change.
+Full handling (the characterization "red" equivalent, why it fires on *change*
+not on mere lack of tests): [references/refactor-and-legacy.md](references/refactor-and-legacy.md).
 
 ## The loop — once per feature-GROUP, not per assertion
 
@@ -105,20 +98,12 @@ one cycle per group:
 ## Modify mode — the default once a suite exists
 
 The suite tracks the *current* target. Before adding anything, check what's there
-and prefer to change it:
-
-| Situation | Do this | Not this |
-|---|---|---|
-| An existing test already covers the area | **Edit / strengthen** it | Add a second overlapping test |
-| New behavior is related to an existing test | **Merge** into one parametrized/table-driven test | Add a separate near-duplicate |
-| Target changed → an existing test asserts the old behavior | **Update** it to the new target (or **delete** if obsolete) | Leave old + new asserting in conflict |
-| N micro-behaviors of one feature | **One** parametrized test with N cases | N separate tests |
-| Coverage already exists elsewhere | **Consolidate / delete** the duplicate | Grow net test count for the same group |
-| Genuinely new feature-group, nothing covers it | **Add ONE** group test | A test per assertion |
-
+and **prefer to change it**: edit/strengthen an existing test, **merge** related
+behavior into one parametrized test, **update or delete** a test the target moved
+past, consolidate duplicates — **add ONE** group test only when nothing covers it.
 Net rule: for the same feature-group, the test count should **not** grow just
-because the code changed. Worked examples + per-stack consolidation patterns:
-[references/modify-mode.md](references/modify-mode.md).
+because the code changed. The full situation→action table, worked examples + the
+per-stack consolidation patterns: [references/modify-mode.md](references/modify-mode.md).
 
 ## Delegate the mechanical parts to subagents
 
@@ -203,6 +188,7 @@ Can't check a box? You skipped a step — fix it before claiming done.
 |------|-----------|
 | [references/enforcement-gates.md](references/enforcement-gates.md) | The anti-gaming core: verification-evidence, revert-to-red, Beck's GREEN strategies, optional context-isolated test-author + independent-verifier subagents. |
 | [references/modify-mode.md](references/modify-mode.md) | Once a suite exists: native collectors, edit/merge/delete decision, consolidation patterns. |
+| [references/refactor-and-legacy.md](references/refactor-and-legacy.md) | The two special cases — behavior-preserving refactor, or "add tests to legacy / untested code" (characterization tests). |
 | [references/testing-anti-patterns.md](references/testing-anti-patterns.md) | When adding mocks / test-only helpers — the over-mock and assert-on-mock traps. |
 
 ## Eval (real-fixture behavioral harness)

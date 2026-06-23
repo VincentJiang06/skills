@@ -146,3 +146,18 @@ network/canvas/camera instrumentation; no implicit file writes; no implicit Came
   `storageSet {"key","value"}` / `storageGet|storageRemove {"key"}` ·
   `elementTrigger {"uid","eventName","detail?"}` · `elementAttribute|elementProperty {"uid","name"}` ·
   `longpress {"uid"}` · `mediaAction {"action","options?"}`.
+
+## At-a-glance command map
+
+A grouped index of the surface above (load this section, or the SKILL.md skeleton, when you just need the shape; the sections above hold the exact schema):
+
+- **Session lifecycle:** `session start|status|stop|restart|reconnect` (auto-reconnects on a dropped connection; `reconnect` forces it).
+- **Read (instant):** `page`, `stack`, `data [path]`, `sysinfo`, `query <sel> [--all]`,
+  `snapshot <sel>`, `console [--clear]`, `eval '<expr>'`.
+- **Act (uids persist):** `tap <uid>`, `input <uid> <text>`, `scan <code> [--type t] [--method m] [--raw]`,
+  `shot <output>`, `nav <url>`, `step '<json>'` (any supported workflow step — see `references/cli-contract.md`), `run --stdin` (batch).
+- **Diagnose / cross-stack:** `doctor [--skip-typecheck]`, `env list|use <key>|current|token <t>`,
+  `logs --request-id <id> | --user-id <id> | --code <n>`.
+- **One-shot / special:** add `--no-session` to any shorthand (except `console`, whose buffer lives in the session daemon) for a single connect-and-exit;
+  `smoke-existing --ws-endpoint <ws>` (attach-only non-invasive); `screenshot`, `media`,
+  `capabilities`, `help`.

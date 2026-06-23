@@ -109,80 +109,35 @@ Read the text as an editor for its mode and decide:
 Never rewrite a text you cannot justify rewriting. "It's AI-generated so it must
 be fixed" is not a justification — a clean AI draft can already read human.
 
+> **Steps 2–4 fire only when you did NOT abstain.** Their full mode-aware detail
+> lives in `rules/rewrite-protocol.md` — **load it now** (once a rewrite is
+> triggered). The skeleton below is the spine; the rules file holds the per-mode
+> remove/preserve lists, the required ADD moves, and the long-document arc.
+
 ### Step 2 — SUBTRACT (mode-aware: remove only what is an AI tell IN THIS MODE)
-Remove the signals that matter **for the mode**. Load the mode pattern refs:
+Remove the signals that matter **for the mode**, per `rules/rewrite-protocol.md`
+(its Step 2 lists what each mode removes vs PRESERVES). Load the mode pattern refs:
 `references/english-patterns.md`, `references/chinese-patterns.md` (lexical), and
-`references/structural-statistical-signals.md` (structural).
-
-**`academic` — remove:** inflated/promotional vocab used as filler, AI connector
-overload (Moreover/Furthermore/此外/与此同时 every paragraph), mechanical
-rule-of-three scaffolding, report-shell *over-density* ("本节将……" on every
-subsection), evenly-sprinkled hedging, balanced negative parallelism used
-mechanically, bold-label lists, chat residue.
-**`academic` — PRESERVE (these are NOT tells here):** discipline jargon including
-`significant`/`significantly`/`robust`/`comprehensive`/`enhance`/`landscape` in
-technical use; three-item **data** enumerations; numbered sections (2.1, 3.4); a
-**single** "This paper presents/examines…"; "These results suggest"; Chinese
-`对……进行……分析` / `研究表明` / `这说明` as genuine connectives. (See
-academic-register.md "do not strip".)
-
-**`popsci` — remove:** clickbait/hype ("mind-blowing", "you won't believe",
-"buckle up", 震惊体/涨知识/快收藏), emoji and exclamation spam, listicle shell
-("5 facts that…", **bold-numbered** headers as a structural crutch), fake "did
-you know" hooks, generic "the future is bright" wraps, AI connector overload,
-over-explaining the obvious.
-**`popsci` — PRESERVE (legitimate craft, removing it is a false positive):**
-rhetorical questions, second-person "you", vivid analogies/metaphors, a narrative
-hook, an occasional guiding triad, concrete everyday examples, a curious human
-voice. (See popsci-register.md.)
-
-Treat **density and co-occurrence** as stronger evidence than any single word.
+`references/structural-statistical-signals.md` (structural). Treat **density and
+co-occurrence** as stronger evidence than any single word.
 
 ### Step 3 — ADD human texture (without inventing)
 The half generic humanizers skip — SUBTRACT alone leaves prose scrubbed but flat,
 stance-less, and abstract, which still reads as machine. **Once a rewrite is
-triggered (the abstain gate in Step 1 is UNCHANGED), the ADD below is required, not
-optional**, but bounded hard by zero net-new facts. Load
-`references/human-texture.md` (worked before/after examples per mode there).
-- **`academic` — do at least both, every triggered rewrite:**
-  1. **Surface ≥1 committed claim with calibrated confidence** — state a point the
-     source already makes as a held, calibrated claim (`the evidence indicates`,
-     `more plausibly`, `证据表明`, `更可能的解释是`), not a survey of possibilities.
-     Calibration ≠ casualness and ≠ dropping hedges.
-  2. **Promote ≥1 abstract summary into a concrete number / case / mechanism ALREADY
-     IN THE SOURCE** — retrieve a specific figure, named entity, dated event, or
-     causal step from elsewhere in the same text; never generate one. Plus: sentence/
-     paragraph-length variance; controlled asymmetry (not every list is three — but
-     data enumerations are not forced triads).
-- **`popsci` — do at least both, every triggered rewrite:**
-  1. **Let ONE real, source-grounded analogy or concrete example carry a key point**
-     — pick the single best one the source already implies and let it do the
-     explanatory work instead of restating the mechanism abstractly. Preserve
-     existing craft (rhetorical Q, "you", analogy) — removing it is a false positive.
-  2. **Replace any generic uplift close with a grounded one** — swap "the future is
-     bright" / "未来可期" / "拭目以待" for an open question, real next step, or
-     concrete implication **already in the source**. Vary rhythm; keep one
-     through-line, not a listicle — and stay **serious**, never hype.
-- **Never invent** a number, case, study, quote, analogy, or implication. If the
-  source has none, keep it general (you may name the gap). Specificity is
-  **retrieval from the source**, never generation.
+triggered, the ADD is required, not optional**, bounded hard by zero net-new facts:
+do **both** required moves for the mode (`rules/rewrite-protocol.md` Step 3 +
+`references/human-texture.md` worked examples). **Never invent** a number, case,
+study, quote, analogy, or implication — specificity is **retrieval from the
+source**, never generation.
 
 ### Step 4 — Re-check register (mode floor) + whole-document arc
 `academic` → cross-check `references/academic-register.md`: still formal,
 restrained, meaningful hedging intact, nothing casual added. `popsci` →
 cross-check `references/popsci-register.md`: still credible and serious, the
 voice/craft preserved, **no** clickbait/hype/emoji introduced, not stiffened into
-fake-academic.
-
-**Long inputs (multi-section) — treat the document as a whole, not section-by-section:**
-- **Vary section openings** — don't start every section the same way (every
-  paragraph "本节将…", every section "X is an important…"); let openings differ.
-- **One through-line** — keep a single load-bearing argument visible across
-  sections so the arc builds, rather than marching finding-by-finding.
-- **Synthesizing conclusion** — the close should *synthesize* (tie the threads into
-  the through-line / state the standing implication) rather than recap the sections.
-- Adds **no** length and **no** new content — this is shape across the existing
-  text, under the same zero-net-new-facts rule.
+fake-academic. For **long, multi-section inputs**, also apply the whole-document
+arc (vary section openings, one through-line, a synthesizing conclusion) in
+`rules/rewrite-protocol.md` Step 4 — shape only, no added length or content.
 
 ### Step 5 — Verify
 - **No-new-facts check**: scan output against the locked constraint list — zero
@@ -222,6 +177,7 @@ detect-only mode: the detector's JSON map + a plain-language reading of deltas.
 
 | File | Load when |
 |------|-----------|
+| `rules/rewrite-protocol.md` | When a rewrite is triggered (you did NOT abstain) — the mode-aware SUBTRACT/ADD/arc detail for Steps 2–4. |
 | `references/academic-register.md` | `academic` mode register floor + "do not strip" list. |
 | `references/popsci-register.md` | `popsci` mode register floor + legitimate-craft preserve list. |
 | `references/english-patterns.md` | English lexical SUBTRACT (Step 2). |

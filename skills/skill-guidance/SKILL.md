@@ -24,16 +24,10 @@ human, or in a pipeline run log an explicit assumption — never block.
 ## Backing knowledge base
 
 Ground every judgment in the local **develop-principle** KB (default
-`../../develop-principle`, at the repo root) — not memory:
-
-```bash
-node <kb>/tools/query_kb.mjs "<topic>" --broad         # principles, templates, checklists
-node <kb>/tools/fetch_skill_reference.mjs --list        # public skills to compare against
-node <kb>/tools/fetch_skill_reference.mjs <repo.id> <skill-path> --out /tmp/sg-ref
-```
-
-The scorecard scores the target against the **7 pillars**: `design`, `research`
-(资料搜集), `testing`, `tdd`, `metrics`, `low_context_kb`, `lifecycle`.
+`../../develop-principle`, at the repo root) — not memory; load
+`rules/kb-grounding.md` for the query commands and the 7 pillars
+(`design`, `research`, `testing`, `tdd`, `metrics`, `low_context_kb`,
+`lifecycle`) the scorecard scores against.
 
 ## Steps
 
@@ -109,6 +103,7 @@ top 1–2 `P0` actions, `blocking_unknowns` count).
 
 | File | When to load |
 |------|--------------|
+| `rules/kb-grounding.md` | Before Step 1 (and any pillar query) — the develop-principle KB query commands and the 7 pillars to ground judgments in. |
 | `rules/intent-and-maturity.md` | Step 2 — how to read intent and classify stub/draft/mature, and how maturity maps to altitude. |
 | `rules/elicitation.md` | Step 6 — the context-sufficiency gate: detect gaps, phrase one targeted question per missing slot, ask (standalone) vs log-assumption (pipeline), never dump into `blocking_unknowns`. |
 | `rules/scorecard.md` | Step 3 — the 7-pillar rubric, the KB query per pillar, and present/partial/absent definitions. |
