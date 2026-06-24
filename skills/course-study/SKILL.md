@@ -9,7 +9,7 @@ license: MIT
 model: claude-sonnet-4-6
 user-invocable: true
 metadata:
-  version: 3.0.0
+  version: 3.0.1
   author: claude-code
   domains:
     - education

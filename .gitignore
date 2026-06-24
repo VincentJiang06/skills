@@ -39,3 +39,6 @@ skills/mp-groundline/scripts/validate-skill.mjs
 /docs/
 /tools/vince-mp-cli/test/
 /tools/vince-mp-cli/tests/
+
+# one-off ClawHub publish helper (delete after use)
+finish-clawhub-publish.sh

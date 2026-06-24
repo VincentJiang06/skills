@@ -1,6 +1,6 @@
 ---
 name: album-review
-version: 0.1.0
+version: 0.1.1
 description: >-
   Deep, source-traceable long-form Chinese album review (乐评). Use when the user
   names a music credit (artist/composer/band) + an album and wants one

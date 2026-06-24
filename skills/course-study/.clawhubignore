@@ -1,0 +1,13 @@
+# Local-only dev artifacts — never publish to ClawHub
+evals/
+tests/
+meta/
+legacy/
+output/
+_meta.json
+.DS_Store
+__pycache__/
+*.pyc
+*.log
+.gitignore
+.clawhubignore
