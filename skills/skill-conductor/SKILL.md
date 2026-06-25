@@ -33,7 +33,7 @@ Sibling skills (read them; do **not** duplicate them):
 - `../skill-engineer/SKILL.md`
 - `../skill-zipper/SKILL.md`
 
-Backing KB: `../../develop-principle` (the `develop-principle/` library at the repo root).
+Backing KB: `../skill-guidance/skill-principle` (embedded in sibling `skill-guidance`).
 
 ## Steps
 

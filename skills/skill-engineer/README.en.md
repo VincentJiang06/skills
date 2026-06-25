@@ -15,6 +15,6 @@
 **When to use** — "implement / develop / wire this skill" · "make the eval cases pass" · "turn this handoff-spec into files" · when pointing at `.skill-guidance/handoff-spec.json`; or call `/skill-engineer`.
 **Not for** — planning / auditing (→ skill-guidance); token compression / restructuring (→ skill-zipper); blank scaffolding with no spec (→ skill-creator).
 
-**Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/skill-engineer ~/.claude/skills/`).
+**Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/skill-engineer ~/.claude/skills/`). For full function, also install `skill-guidance`; the `skill-principle/` KB now lives inside `skill-guidance/skill-principle/`, and `skill-engineer` reuses it.
 
 Full spec: [SKILL.md](SKILL.md)

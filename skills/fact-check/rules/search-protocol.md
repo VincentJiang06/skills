@@ -1,6 +1,6 @@
 # Search protocol: parallel, snippet-first, early-exit
 
-The speed of this skill lives here. Grounded in develop-principle
+The speed of this skill lives here. Grounded in skill-principle
 `procedure.search_fan_out`, a **bounded** `procedure.iterative_deepening`
 (stop at "enough to answer", not "exhaustive"), `procedure.source_reliability_grading`,
 and `principle.claim_evidence_traceability`.

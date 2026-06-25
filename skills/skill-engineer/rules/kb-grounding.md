@@ -1,12 +1,12 @@
-# kb-grounding — ground the build in the develop-principle KB
+# kb-grounding — ground the build in the skill-principle KB
 
 Read this before Step 1 (and any time you need the TDD/testing method). It is
-the mechanics of grounding the build in the local **develop-principle** KB
+the mechanics of grounding the build in the local **skill-principle** KB
 instead of inventing the method.
 
-Ground the build in the local **develop-principle** KB (the `develop-principle/`
-library at the repo root; default `../../develop-principle`). Do not invent the TDD/testing
-method — pull it:
+Ground the build in the shared **skill-principle** KB embedded in sibling
+`skill-guidance` (default `../skill-guidance/skill-principle`). Do not invent the
+TDD/testing method — pull it:
 
 ```bash
 node <kb>/tools/query_kb.mjs "TDD red green refactor eval case 契约 变异" --broad

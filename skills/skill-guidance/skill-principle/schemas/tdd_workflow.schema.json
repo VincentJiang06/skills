@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.dev/skill-principle/schemas/tdd_workflow.schema.json",
+  "title": "Skill Principle Skill TDD Workflow",
+  "type": "object",
+  "required": ["schema_version", "workflow_id", "title_zh", "title_en", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "string"},
+    "workflow_id": {"type": "string"},
+    "title_zh": {"type": "string"},
+    "title_en": {"type": "string"},
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "phase", "action_zh", "action_en", "outputs"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "phase": {"type": "string", "enum": ["red", "green", "refactor", "harden"]},
+          "action_zh": {"type": "string"},
+          "action_en": {"type": "string"},
+          "outputs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+        }
+      }
+    }
+  }
+}

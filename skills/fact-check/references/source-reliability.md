@@ -1,7 +1,7 @@
 # Source reliability & freshness (Admiralty-lite)
 
 Grade sources quickly so corroboration is *meaningful*, not just *count*. Adapted
-from develop-principle `procedure.source_reliability_grading` (Admiralty code) —
+from skill-principle `procedure.source_reliability_grading` (Admiralty code) —
 kept light for speed.
 
 ## Reliability tiers (prefer higher; reach corroboration faster)

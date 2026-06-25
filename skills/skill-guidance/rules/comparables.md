@@ -2,7 +2,7 @@
 
 Goal: learn how *similar real skills* solve the structure problems the target is
 weak on — then transfer the pattern, never the content. This is the light
-application of develop-principle's research pillar.
+application of skill-principle's research pillar.
 
 ## Procedure
 
@@ -17,8 +17,8 @@ application of develop-principle's research pillar.
    node <kb>/tools/fetch_skill_reference.mjs --list   # ids/stars/paths only — NOT the learn hints
    cat <kb>/references/skill_repos.registry.json      # the what_to_learn_zh/en hints live here
    ```
-   (`<kb>` is the develop-principle dir, default
-   `develop-principle/references/skill_repos.registry.json` — read the JSON file,
+   (`<kb>` is the skill-principle dir, default
+   `skill-principle/references/skill_repos.registry.json` — read the JSON file,
    don't rely on `--list` for the learn hints.)
    Quick gap → comparable map (a starting point; refine by domain):
 

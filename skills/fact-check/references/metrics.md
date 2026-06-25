@@ -1,7 +1,7 @@
 # Metrics
 
 For a skill whose whole point is **efficiency**, speed and safety are first-class,
-measurable signals — not ceremony. Grounded in develop-principle `pillar.metrics`
+measurable signals — not ceremony. Grounded in skill-principle `pillar.metrics`
 (`metric.cost_per_success`, `metric.activation_precision`).
 
 ## Headline — speed (cost-per-success, bucketed by tier)
@@ -34,7 +34,7 @@ measurable signals — not ceremony. Grounded in develop-principle `pillar.metri
 
 ## How to measure
 
-Paired runs (develop-principle `procedure.paired_skill_eval`): hold model/tasks
+Paired runs (skill-principle `procedure.paired_skill_eval`): hold model/tasks
 constant, run a labeled question set (a mix of simple, complex, contested,
 volatile, and unanswerable), and record the above. The deterministic validator
 gives traceability for free; speed and correctness need the labeled set.

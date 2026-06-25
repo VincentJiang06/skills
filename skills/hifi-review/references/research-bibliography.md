@@ -104,7 +104,7 @@ Harman 5128 over-ear target (AES 2023).
 ⚠️ **Values needing validation:** SINAD tier boundaries (100/90/80) and the
 hiss-risk heuristic are pragmatic starting points; refine against ASR datasets.
 
-## Method grounding (develop-principle)
+## Method grounding (skill-principle)
 
 - Evidence traceability & claim/observation separation — `research_doc_quality`
   checklist; `knowledge_base_architecture`.

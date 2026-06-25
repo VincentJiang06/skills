@@ -20,7 +20,7 @@ reads it cold — so it must stand alone, with no reference back to this run.
   `summary`.
 - **comparables[]** — `repo_id`, optional `skill_path`, `what_to_borrow`
   (structural lesson, not content). May be empty at lite altitude.
-- **recommended_design** — the 8 design units (from develop-principle's design
+- **recommended_design** — the 8 design units (from skill-principle's design
   doc), each concrete enough to build from:
   - `trigger` — when to activate: positive, negative, and adjacent false-trigger cases.
   - `protocol` — the execution runbook: preflight → steps → verify → report.

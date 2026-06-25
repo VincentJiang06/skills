@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "suite_id": "context_budget.low_context_kb",
+  "purpose": "Protect the low-context contract of skill-principle by enforcing short entrypoints, compact nodes, and bounded query fixtures.",
+  "rules": {
+    "agent_index_max_chars": 2500,
+    "readme_max_chars": 3500,
+    "node_summary_zh_max_chars": 220,
+    "node_summary_en_max_chars": 360,
+    "query_requirement_max_chars": 180,
+    "query_expected_total_ids_max": 12,
+    "query_generated_limit": 12
+  }
+}

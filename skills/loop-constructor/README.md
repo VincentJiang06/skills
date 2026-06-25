@@ -14,6 +14,6 @@
 **什么时候用** —— 「该怎么给 X 设计一个循环」·「设计一个 agent loop」·「搭一个自主 / 自运行的 agent 工作流」；也可用 `/loop-constructor` 显式调用。
 **不适用** —— 「帮我改写这段 prompt」/ 单次 prompt 工程（不是循环设计）；「现在真的把这个循环跑起来 / 把功能做出来」（它只设计、不执行）；「给 loop-principle 加个节点」/ 改知识库（KB 编写，超范围）；非 agent / 非循环或领域问题（乐评 / 音频 / 课程 → 对应 skill）。
 
-**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/loop-constructor ~/.claude/skills/`）。
+**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/loop-constructor ~/.claude/skills/`）。`loop-principle/` 知识库已内置在本 skill 目录里，会随 `loop-constructor` 一起安装。
 
 完整说明见 [SKILL.md](SKILL.md)。

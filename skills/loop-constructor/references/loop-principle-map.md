@@ -2,8 +2,8 @@
 
 This is a **thin pointer**. The substance lives in the loop-principle KB; cite
 these node ids and load the templates/checklists by path instead of restating
-theory. Resolve `<kb>` per SKILL.md "Grounding" (in-repo `../../loop-principle`;
-after deploy, `$LOOP_PRINCIPLE` or an absolute path installed alongside).
+theory. Resolve `<kb>` per SKILL.md "Grounding": default to the embedded
+`loop-principle/` directory inside this skill; `$LOOP_PRINCIPLE` may override it.
 
 ## Retrieval recipe
 

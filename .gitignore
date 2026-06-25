@@ -9,6 +9,9 @@ __pycache__/
 # Internal research notes (never publish)
 .research/
 
+# Internal SkillHub/Caoliao release channel (never publish to public git)
+/caoliao release/
+
 # skill pipeline build provenance (not part of the shipped skill)
 .skill-conductor/
 .skill-guidance/

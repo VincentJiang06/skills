@@ -15,6 +15,6 @@
 **什么时候用** —— 「把这个 skill 从头建好/测好/压好」·「跑一遍 guidance → engineer → zipper」·「把这个想法或现有 skill 推过所有阶段」；也可用 `/skill-conductor` 显式调用。
 **不适用** —— 只跑某一个阶段（直接调那个阶段 skill）；只做规划（→ skill-guidance）；只做压缩（→ skill-zipper）；没有流水线的空白脚手架（→ skill-creator）。
 
-**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/skill-conductor ~/.claude/skills/`）。
+**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/skill-conductor ~/.claude/skills/`）。全功能请同时安装 `skill-guidance` 与 `skill-engineer`；`skill-principle/` 知识库现在内置在 `skill-guidance/skill-principle/`，`skill-conductor` 会复用它。
 
 完整说明见 [SKILL.md](SKILL.md)。

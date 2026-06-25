@@ -15,6 +15,6 @@
 **什么时候用** —— 「实现 / 开发 / 接好这个 skill」·「让 eval case 跑通」·「把 handoff-spec 变成文件」·指向 `.skill-guidance/handoff-spec.json` 时；也可用 `/skill-engineer` 显式调用。
 **不适用** —— 规划 / 审计（→ skill-guidance）；token 压缩 / 重构（→ skill-zipper）；没有 spec 的空白脚手架（→ skill-creator）。
 
-**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/skill-engineer ~/.claude/skills/`）。
+**安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/skill-engineer ~/.claude/skills/`）。全功能请同时安装 `skill-guidance`；`skill-principle/` 知识库现在内置在 `skill-guidance/skill-principle/`，`skill-engineer` 会复用它。
 
 完整说明见 [SKILL.md](SKILL.md)。

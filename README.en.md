@@ -11,7 +11,8 @@
 - **[hifi-review](skills/hifi-review/)** — objective HiFi-gear evaluation: signature from FR-vs-target, competence from measurements, every claim traced to evidence.
 - **[course-study](skills/course-study/)** — course materials → complete-coverage, Feynman-explained, exam-ready notes.
 - **[fact-check](skills/fact-check/)** — a fast, citation-backed BLUF answer to a factual question (≤2 / ≤5 min).
-- **[humanizer-academic](skills/humanizer-academic/)** — rewrites AI-generated serious prose (EN / ZH / mixed) in two modes (academic / popsci); abstain-first, strips AI signals while keeping each genre's register.- **[mp-cli-sup](skills/mp-cli-sup/)** — debugs a *live* WeChat Mini Program via the `vince-mp` CLI: one persistent session, stable uids, camera-less scan.
+- **[humanizer-academic](skills/humanizer-academic/)** — rewrites AI-generated serious prose (EN / ZH / mixed) in two modes (academic / popsci); abstain-first, strips AI signals while keeping each genre's register.
+- **[mp-cli-sup](skills/mp-cli-sup/)** — debugs a *live* WeChat Mini Program via the `vince-mp` CLI: one persistent session, stable uids, camera-less scan.
 - **[mp-groundline](skills/mp-groundline/)** — WeChat Mini Program Skyline→WebView migration, consistency-first, with a read-only scanner + migration map.
 
 **Coding discipline — auto-triggered as you build**
@@ -41,7 +42,8 @@ Manual alternative: `cp -R skills/<name> ~/.claude/skills/`.
 
 **Dependencies & "installing everything":**
 - **Runtime**: `node` (≥18) for the `.mjs` validators, `python3` for the `.py` scripts. **Both use only the standard library — no `npm install` / `pip install` needed.**
-- **The two KBs are NOT installed by `npx skills`.** `loop-constructor` and `skill-guidance/engineer/conductor` reference [`loop-principle/`](loop-principle/) and [`develop-principle/`](develop-principle/) (via the relative path `../../`). The `skills` CLI only installs entries under `skills/`, **not these two sibling KBs**. For full function, also copy them to your install root (e.g. `~/.claude/loop-principle`, `~/.claude/develop-principle`) or set `$LOOP_PRINCIPLE`; without them the skills **degrade gracefully** to the node ids cited in `references/`.
+- **The two principle KBs now install with their corresponding skills.** `loop-principle/` is embedded at [`skills/loop-constructor/loop-principle/`](skills/loop-constructor/loop-principle/); `skill-principle/` is embedded at [`skills/skill-guidance/skill-principle/`](skills/skill-guidance/skill-principle/). Selecting `loop-constructor` or `skill-guidance` installs the matching KB as part of that skill folder.
+- **For the full pipeline**, `skill-engineer` and `skill-conductor` reuse `skill-guidance/skill-principle/`, so install `skill-guidance` alongside them. You no longer need to copy the KBs as siblings of the agent home's `skills/` directory.
 - **`mp-cli-sup`** also needs [`tools/vince-mp-cli/`](tools/vince-mp-cli/) (a Node CLI).
 - To get everything at once (skills + both KBs + CLI), just `git clone` the whole repo.
 
@@ -94,11 +96,11 @@ Hard-won, reusable on your next skill:
 ## Layout
 
 ```
-skills/             # install-ready skills (one folder each, with its own README — details live there)
-develop-principle/  # agent-first KB powering the pipeline (substrate for skill-guidance/engineer/conductor)
-loop-principle/     # agent-first KB on loop engineering (substrate for loop-constructor)
-tools/vince-mp-cli/ # Node CLI that mp-cli-sup drives
-.loop/              # runnable runbooks produced by loop-constructor (one per task + attack/battery records)
+skills/                                      # install-ready skills (one folder each, with its own README)
+skills/skill-guidance/skill-principle/       # embedded skill principle KB, installed with skill-guidance
+skills/loop-constructor/loop-principle/      # embedded loop-engineering KB, installed with loop-constructor
+tools/vince-mp-cli/                          # Node CLI that mp-cli-sup drives
+.loop/                                       # runnable runbooks produced by loop-constructor
 ```
 
 ## Design philosophy (why these are different)
@@ -117,7 +119,7 @@ A few principles, hardened by building these skills one at a time and then polis
 Engineering honesty means writing down what isn't closed — the natural extension of "the closed loop lies":
 
 - **Verification is asymptotic, not a proof.** The independent battery can still surface a green-but-wrong each round; we stop after closing every *proven* hole, not at perfection (e.g. humanizer v3.1's held-out attack "2/2 clean" = no proven break within budget, ≠ proven correct).
-- **The two KBs are not installed by `npx skills`** (see [Install](#install)). The 4 KB-dependent skills degrade gracefully when the KB is absent, but full function needs them copied separately.
+- **The two KBs are larger than ordinary skill support files, but now install with their corresponding skills** (see [Install](#install)). This is deliberate: a slightly larger install gives users full retrieval, templates, checklists, and self-checks immediately.
 - **The conductor's "attacker only after a passing re-audit" gate is convention- + invariant-checked, not yet runtime-interlocked.** It holds via the rule prose + the `min(re-audit, battery)` invariant; not yet a hard machine gate (a noted follow-up).
 - **Guidance's context-sufficiency detector is a seed, not an oracle.** The keyword detector that triggers elicitation can be fooled both ways; by design the agent's judgment of *substance* is the oracle, but it isn't deterministically closed.
 - **loop-constructor's D6 cadence (completeness-first / iteration-first) is guidance, not linter-enforced.** A design can claim one cadence while carrying the opposite knobs — the linter can't catch it; the fresh-reader cadence box + the maker/checker are the gate.

@@ -2,7 +2,7 @@
 
 Testing a skill means running an agent **with the skill** on realistic prompts
 and checking its trajectory and output — not reading the skill and imagining it
-works. This is develop-principle's `pillar.testing` / `procedure.trajectory_eval`.
+works. This is skill-principle's `pillar.testing` / `procedure.trajectory_eval`.
 Pull the templates:
 
 ```bash

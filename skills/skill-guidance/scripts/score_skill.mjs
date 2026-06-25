@@ -98,7 +98,7 @@ const signals = {
 };
 
 // --- cheap per-pillar structural hint (present/partial/absent). The agent
-// refines these against develop-principle's rubric; they are only a seed. ---
+// refines these against skill-principle's rubric; they are only a seed. ---
 function hint(present, partial) {
   if (present) return "present";
   if (partial) return "partial";

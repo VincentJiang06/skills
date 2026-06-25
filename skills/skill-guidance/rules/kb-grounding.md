@@ -1,11 +1,11 @@
-# kb-grounding — ground every judgment in the develop-principle KB
+# kb-grounding — ground every judgment in the skill-principle KB
 
 Read this before Step 1 (and any time you need a pillar query). It is the
-mechanics of grounding judgments in the local **develop-principle** KB instead
+mechanics of grounding judgments in the local **skill-principle** KB instead
 of memory.
 
-Ground every judgment in the local **develop-principle** KB (default
-`../../develop-principle`, at the repo root) — not memory:
+Ground every judgment in the embedded **skill-principle** KB (default
+`skill-principle/` inside this skill folder) — not memory:
 
 ```bash
 node <kb>/tools/query_kb.mjs "<topic>" --broad         # principles, templates, checklists

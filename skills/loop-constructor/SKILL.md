@@ -86,12 +86,12 @@ Hand back: the **decision log** (D0–D6), the loop-design JSON, the lint result
 (`loop-principle/templates/loop_quality_rubric.template.json`), and residual risks.
 
 ## Grounding (KB path resolution)
-The skill reads from the **loop-principle KB**. Resolve its path in this order:
-1. In this repo: `../../loop-principle` (relative to the skill dir).
-2. After deploy to `~/.claude` / `~/.agents`: set `$LOOP_PRINCIPLE` or pass the
-   absolute path. Do **not** hardcode-fail; if the KB is absent, say so and
-   degrade to the cited node ids in `references/`. Retrieval recipe:
-   `node <kb>/tools/query_kb.mjs "<topic>"`.
+The skill reads from the embedded **loop-principle KB** at `loop-principle/`
+inside this skill folder. Installing `loop-constructor` installs the KB too. If
+an operator deliberately overrides it with `$LOOP_PRINCIPLE`, use that absolute
+path; otherwise default to `./loop-principle`. Do **not** hardcode-fail; if the
+KB is absent, say so and degrade to the cited node ids in `references/`.
+Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 
 ## Modules
 

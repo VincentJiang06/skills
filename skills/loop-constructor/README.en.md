@@ -14,6 +14,6 @@
 **When to use** — "how should I design a loop for X" · "design an agent loop" · "set up an autonomous / self-running agent workflow"; or call `/loop-constructor`.
 **Not for** — "reword this prompt" / single-shot prompt engineering (not a loop design); "now actually run the loop / build the feature" (it designs, does not execute); "add a node to loop-principle" / editing the KB (KB authoring, out of scope); non-agentic / non-loop or domain questions (album / audio / course → the relevant skill).
 
-**Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/loop-constructor ~/.claude/skills/`).
+**Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/loop-constructor ~/.claude/skills/`). The `loop-principle/` KB is embedded in this skill folder and installs with `loop-constructor`.
 
 Full spec: [SKILL.md](SKILL.md)

@@ -14,7 +14,7 @@ Turn a **guidance handoff-spec** into a **built, tested skill**, then hand it to
 and runs evals. It is **test-driven** — failing eval cases come before
 implementation — and it **gates on real verification**: never report success
 until the eval cases have actually been run and passed (or a blocker is
-recorded). See develop-principle's `principle.executable_acceptance`.
+recorded). See skill-principle's `principle.executable_acceptance`.
 
 It runs **autonomously** (no human-in-the-loop confirmation), but autonomy is
 not a license to skip verification. The deliverable is a built skill plus a
@@ -22,10 +22,10 @@ not a license to skip verification. The deliverable is a built skill plus a
 
 ## Backing knowledge base
 
-Ground the build in the local **develop-principle** KB (default
-`../../develop-principle`, at the repo root) — do not invent the TDD/testing
-method. Load `rules/kb-grounding.md` for the query commands and the
-develop-principle templates/matrices to reuse instead of duplicating.
+Ground the build in the shared **skill-principle** KB embedded in sibling
+`skill-guidance` (default `../skill-guidance/skill-principle`) — do not invent
+the TDD/testing method. Load `rules/kb-grounding.md` for the query commands and
+the skill-principle templates/matrices to reuse instead of duplicating.
 
 ## Steps
 
@@ -46,7 +46,7 @@ node scripts/scaffold_skill.mjs <target-dir> --spec <target>/.skill-guidance/han
 
 ### Step 2 — Plan red-green-refactor
 
-Load `rules/red-green-refactor.md` and pull develop-principle's `tdd_plan` /
+Load `rules/red-green-refactor.md` and pull skill-principle's `tdd_plan` /
 `test_strategy_matrix`. Turn the spec's `prioritized_actions` into an ordered
 TDD backlog: each action becomes (failing check → minimal implementation →
 refactor). Sequence P0 → P1 → P2, and never more rigor than the `altitude` asks.
@@ -99,9 +99,9 @@ file is the real output.
 
 | File | When to load |
 |------|--------------|
-| `rules/kb-grounding.md` | Before Step 1 (and any TDD/testing query) — the develop-principle KB query commands and the templates/matrices to reuse. |
+| `rules/kb-grounding.md` | Before Step 1 (and any TDD/testing query) — the skill-principle KB query commands and the templates/matrices to reuse. |
 | `rules/ingest-spec.md` | Step 1 — read the handoff-spec, handle a missing spec, turn actions into a backlog. |
-| `rules/red-green-refactor.md` | Step 2 — the TDD loop for skills and how to pull develop-principle's tdd/test assets. |
+| `rules/red-green-refactor.md` | Step 2 — the TDD loop for skills and how to pull skill-principle's tdd/test assets. |
 | `rules/run-evals.md` | Steps 3 & 5 — write eval cases, run them with-skill, grade, check trajectories, regression. |
 | `rules/verification-harness.md` | Steps 3 & 5 — the hard bar: a committed re-runnable harness + captured output for script skills, a real red artifact, no tautological tests, boundary coverage. Supersedes softer wording. |
 | `rules/build-design-units.md` | Step 4 — implement each of the 8 design units into real files; progressive-disclosure conventions. |

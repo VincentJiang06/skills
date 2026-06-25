@@ -11,7 +11,8 @@
 - **[hifi-review](skills/hifi-review/)** —— 客观 HiFi 器材评价：风格由频响-对-目标得出、素质由测量得出，每条结论追溯到证据。
 - **[course-study](skills/course-study/)** —— 课程材料 → 全覆盖、费曼式、可应试的复习笔记。
 - **[fact-check](skills/fact-check/)** —— 对事实性问题给出快速、有出处的 BLUF 回答（≤2 / ≤5 分钟）。
-- **[humanizer-academic](skills/humanizer-academic/)** —— 重写 AI 生成的严肃文本（中 / 英 / 混合），两模式（学术 / 科普）；先判定、读着像人就不动，去 AI 痕迹同时保留体裁腔调。- **[mp-cli-sup](skills/mp-cli-sup/)** —— 通过 `vince-mp` CLI 调试*实时*运行的微信小程序：一次持久会话、uid 稳定、免相机 scan。
+- **[humanizer-academic](skills/humanizer-academic/)** —— 重写 AI 生成的严肃文本（中 / 英 / 混合），两模式（学术 / 科普）；先判定、读着像人就不动，去 AI 痕迹同时保留体裁腔调。
+- **[mp-cli-sup](skills/mp-cli-sup/)** —— 通过 `vince-mp` CLI 调试*实时*运行的微信小程序：一次持久会话、uid 稳定、免相机 scan。
 - **[mp-groundline](skills/mp-groundline/)** —— 微信小程序 Skyline→WebView 迁移，一致性优先，配只读扫描器 + 迁移地图。
 
 **编码纪律 —— 写代码时自动触发**
@@ -41,7 +42,8 @@ npx skills add VincentJiang06/skills      # 交互式勾选要装的 skill
 
 **依赖与「装全」注意事项：**
 - **运行时**：`node`（≥18）跑 `.mjs` 校验器、`python3` 跑 `.py` 脚本。**两者都只用标准库 —— 无需 `npm install` / `pip install`。**
-- **两个知识库不随 `npx skills` 一起装。** `loop-constructor`、`skill-guidance/engineer/conductor` 会引用 [`loop-principle/`](loop-principle/) 与 [`develop-principle/`](develop-principle/)（通过相对路径 `../../`）。`skills` CLI 只装 `skills/` 下的条目，**不装这两个同级知识库**。要全功能，请把它们也拷到 skill 安装根目录（如 `~/.claude/loop-principle`、`~/.claude/develop-principle`），或设 `$LOOP_PRINCIPLE`；不装也能跑 —— skill 会优雅降级到 `references/` 里引用的节点 id。
+- **两个 principle KB 现在随对应 skill 一起安装。** `loop-principle/` 内置在 [`skills/loop-constructor/loop-principle/`](skills/loop-constructor/loop-principle/)；`skill-principle/` 内置在 [`skills/skill-guidance/skill-principle/`](skills/skill-guidance/skill-principle/)。选择安装 `loop-constructor` 或 `skill-guidance` 时，知识库会作为该 skill 的子目录一起带上。
+- **流水线全功能安装**：`skill-engineer` 与 `skill-conductor` 复用 `skill-guidance/skill-principle/`，所以跑完整 guidance → engineer → conductor 流水线时，请一并安装 `skill-guidance`。不用再把两个 KB 额外拷到 agent home 的同级目录。
 - **`mp-cli-sup`** 还需要 [`tools/vince-mp-cli/`](tools/vince-mp-cli/)（Node CLI）。
 - 想一次拿全（skills + 两个 KB + CLI），直接 `git clone` 整个仓库最省事。
 
@@ -94,11 +96,11 @@ npx skills add VincentJiang06/skills      # 交互式勾选要装的 skill
 ## 目录结构
 
 ```
-skills/             # 开箱即用的 skill（各一个文件夹，含各自 README —— 细节看那里）
-develop-principle/  # 驱动流水线的 agent-first 知识库（skill-guidance/engineer/conductor 的底座）
-loop-principle/     # loop engineering 的 agent-first 知识库（loop-constructor 的底座）
-tools/vince-mp-cli/ # mp-cli-sup 驱动的 Node CLI
-.loop/              # loop-constructor 产出的可照跑 runbook（各任务一份 + 攻击/电池记录）
+skills/                                      # 开箱即用的 skill（各一个文件夹，含各自 README —— 细节看那里）
+skills/skill-guidance/skill-principle/       # 内置 skill principle KB，随 skill-guidance 一起安装
+skills/loop-constructor/loop-principle/      # 内置 loop engineering KB，随 loop-constructor 一起安装
+tools/vince-mp-cli/                          # mp-cli-sup 驱动的 Node CLI
+.loop/                                       # loop-constructor 产出的可照跑 runbook（各任务一份 + 攻击/电池记录）
 ```
 
 ## 设计哲学（凭什么不一样）
@@ -117,7 +119,7 @@ tools/vince-mp-cli/ # mp-cli-sup 驱动的 Node CLI
 工程化的诚实要求把没堵死的也写出来 —— 这正是「闭环会骗人」的延伸：
 
 - **验证是渐近的，不是证明。** 独立对抗组每轮仍可能再揪出一个「绿但错」；我们在堵死所有「已证实」的漏洞后收手，而非宣称完美（如 humanizer v3.1 的留出集攻击「2 轮全 clean」= 预算内无可证破坏，≠ 证明无误）。
-- **两个知识库不随 `npx skills` 安装**（见[安装](#安装)）。依赖 KB 的 4 个 skill 在 KB 缺席时优雅降级，但要全功能需另行拷贝。
+- **两个知识库体量较大，但会随对应 skill 一起安装**（见[安装](#安装)）。这是有意取舍：牺牲一点安装体积，换取用户一键安装后即可获得完整检索、模板、清单和自校验。
 - **conductor 的「attacker 须在复审通过后才触发」是约定 + 不变量校验，尚未运行时硬联锁。** 由规则文本 + `min(复审, 测试组)` 不变量保证，尚未做成硬性机器门（后续项）。
 - **guidance 的上下文充分性探测器是「种子」，不是「裁判」。** 触发提问的关键词探测两个方向都可能被骗；按设计由 agent 对「实质内容」的判断作最终裁判，但并非确定性堵死。
 - **loop-constructor 的 D6 节奏（完成度优先 / 迭代优先）是「指南」，非 linter 强制。** 设计可声称一种节奏却配反的旋钮 —— linter 抓不到，由 fresh-reader 的 cadence 框 + maker/checker 把关。

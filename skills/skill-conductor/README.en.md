@@ -15,6 +15,6 @@
 **When to use** — "build/test/compress this skill end to end" · "run guidance → engineer → zipper" · "push this idea or existing skill through all stages"; or call `/skill-conductor`.
 **Not for** — running just one stage (call that stage skill); planning only (→ skill-guidance); compression only (→ skill-zipper); blank scaffolding with no pipeline (→ skill-creator).
 
-**Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/skill-conductor ~/.claude/skills/`).
+**Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/skill-conductor ~/.claude/skills/`). For full function, also install `skill-guidance` and `skill-engineer`; the `skill-principle/` KB now lives inside `skill-guidance/skill-principle/`, and `skill-conductor` reuses it.
 
 Full spec: [SKILL.md](SKILL.md)

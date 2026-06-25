@@ -1,6 +1,6 @@
 # Scorecard: the 7-pillar readiness rubric
 
-Score the target against develop-principle's 7 pillars. For each pillar: pull the
+Score the target against skill-principle's 7 pillars. For each pillar: pull the
 canonical criteria from the KB (don't reason from memory), judge the target,
 score it, cite evidence, list gaps.
 

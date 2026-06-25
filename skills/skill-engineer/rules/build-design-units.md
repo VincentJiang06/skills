@@ -11,7 +11,7 @@ orchestrator with detail pushed into `rules/`.
 | `protocol` | SKILL.md body `## Steps` | A runbook: preflight → steps → verify → report. Each step says which module to load. |
 | `resources` | `references/` (full) | On-demand context (domain docs, examples). Reference clearly from SKILL.md with "load when…". |
 | `evidence_base` | `references/` + citations | For fact-dependent skills only; otherwise the spec says `N/A` — skip it. |
-| `controls` | scripts / schema / allowed-tools / hooks | **Externalize** — a script/validator/schema, not a prose "please be careful". develop-principle `anti_pattern.prompted_architecture` is the failure to avoid. |
+| `controls` | scripts / schema / allowed-tools / hooks | **Externalize** — a script/validator/schema, not a prose "please be careful". skill-principle `anti_pattern.prompted_architecture` is the failure to avoid. |
 | `tests` | `evals/` | The cases from Step 3 live here; they ARE the build's acceptance. |
 | `metrics` | a short note in SKILL.md or `rules/` | How success/activation/cost is measured. Don't over-instrument a lite skill. |
 | `lifecycle` | a `version` + `CHANGELOG` | `N/A` / minimal at lite. |

@@ -1,6 +1,6 @@
 # Red-green-refactor for skills
 
-The build loop, from develop-principle's `pillar.tdd` /
+The build loop, from skill-principle's `pillar.tdd` /
 `procedure.red_green_refactor_for_skill`. Pull the canonical method and templates
 rather than improvising:
 
