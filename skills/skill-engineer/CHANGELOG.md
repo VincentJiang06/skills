@@ -1,5 +1,15 @@
 # Changelog — skill-engineer
 
+## 2.1.0 — 2026-07-02
+
+- **New opt-in module `rules/eval-exchange.md`**: cross-agent eval handoff via
+  a local file-exchange directory. Engages ONLY when the user says they are
+  developing another agent in parallel AND names an exchange address; the
+  address's own `SPEC.md` is the contract (nothing hardcoded here). Foreign
+  artifacts run as extra evidence, never replacing required cases or the
+  `validate_report.mjs` gate; the build never blocks on a broken exchange;
+  local filesystem only.
+
 ## 2.0.0 — 2026-07-02
 
 Pipeline-v2 refactor (design: `.loop/pipeline-v2.design.md`).

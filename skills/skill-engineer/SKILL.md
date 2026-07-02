@@ -7,7 +7,7 @@ description: >
   WRITES+TESTS; not plan/audit (guidance), compress (zipper), or loop (conductor).
 license: MIT
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # skill-engineer
@@ -79,9 +79,9 @@ Load `rules/run-evals.md` (running + grading); the bar is
 capture real stdout + exit code into `verification.command_output`.
 Behavioral skills: run the cases fresh, grade against the written acceptance,
 trajectory included. **At full altitude, or whenever triggering is a top
-driver, also run the empirical trigger eval** (`rules/trigger-eval.md`:
-labeled cases, `--runs 3`, held-out slice). Loop Step 4 ↔ 5 until green or a
-blocker is recorded — never proceed with unrun or failing required cases.
+driver, also run the empirical trigger eval** (`rules/trigger-eval.md`). Loop
+Step 4 ↔ 5 until green or a blocker is recorded — never proceed with unrun or
+failing required cases.
 
 ### Step 6 — Refactor, report, self-gate
 
@@ -109,6 +109,7 @@ stage. Print a 3-line summary; the report file is the real output.
 | `rules/verification-harness.md` | Steps 3 & 5 — the hard bar: harness, red artifact, coverage, security lint. |
 | `rules/build-design-units.md` | Step 4 — the 8 units; naming/portability rules for built skills. |
 | `rules/trigger-eval.md` | Step 5 — empirical trigger precision/recall; holdout tuning loop. |
+| `rules/eval-exchange.md` | ONLY when the user names an eval-exchange address for a parallel agent build. |
 | `rules/build-report.md` | Step 6 — report fields + the handoff to skill-zipper. |
 
 ## Scripts
@@ -121,5 +122,5 @@ stage. Print a 3-line summary; the report file is the real output.
 
 ## Assets
 
-`assets/build-report.schema.json` — the report contract ·
-`assets/trigger-eval.schema.json` — the trigger-eval report shape.
+`assets/build-report.schema.json` · `assets/trigger-eval.schema.json` — the
+report + trigger-eval contracts.
