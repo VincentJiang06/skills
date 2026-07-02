@@ -24,11 +24,17 @@
 - **[attacker](skills/attacker/)** — attacks a product's *actual observable behavior* (or red-teams an idea): a fresh, TDD-independent subagent records only proven, reproducible breakages; pairs with loop-constructor (attack→fix→re-attack).
 - **[reorganize-logic](skills/reorganize-logic/)** — rebuilds the design-contract layer (architecture + structure + interfaces) with the code as the single source of truth, behind a review gate.
 
-**The skill-building pipeline — skills that build skills**
-- **[skill-conductor](skills/skill-conductor/)** — drives guidance → engineer → zipper end to end with anti-inflation final acceptance.
-- **[skill-guidance](skills/skill-guidance/)** — audits a skill/repo and emits a schema-validated handoff spec.
-- **[skill-engineer](skills/skill-engineer/)** — builds and tests a skill from that spec, red-green-refactor, with an independent battery.
-- **[skill-zipper](skills/skill-zipper/)** — restructures an existing skill for token efficiency, reliability, and trigger accuracy — losslessly.
+**The skill-building pipeline — skills that build skills (v2)**
+
+A four-stage pipeline whose **gates are executable scripts**: the script a stage
+self-gates with is the *same* script the conductor re-runs to gate it — builder
+and gatekeeper share one ruler, zero room to copy a command wrong.
+- **[skill-conductor](skills/skill-conductor/)** — drives guidance → engineer → zipper end to end; gates by running the stage scripts, anti-inflation final acceptance on `min(re-audit, independent battery)`, prefix-tolerant sibling resolution (repo + installed names).
+- **[skill-guidance](skills/skill-guidance/)** — audits a skill/repo, emits the handoff spec, and self-gates with `validate_spec.mjs` (7 pillars, score↔status, verdict vs cap, gap→action); three dispositions (plan-interactive / plan-pipeline / audit), audit writes `post-build-audit.json` without clobbering the build spec.
+- **[skill-engineer](skills/skill-engineer/)** — builds + tests red-green-refactor, self-gates with `validate_report.mjs` (P0 / adversarial-checklist joins, harness **re-run on the spot**, red-log check); trigger_eval with 3-vote majority + held-out anti-overfitting; behavioral RED = baseline-without-skill; pre-ship security lint.
+- **[skill-zipper](skills/skill-zipper/)** — restructures losslessly for token efficiency, reliability, and trigger accuracy, with a portability checklist (open-standard 6-field core vs Claude-Code-only fields) and description guidance aligned to mid-2026.
+
+> To keep Opus continuously syncing the principle KB + this pipeline to the latest ecosystem, see [`skills/skill-guidance/skill-principle/UPDATE.md`](skills/skill-guidance/skill-principle/UPDATE.md) (a Fact Registry of load-bearing numbers + a quality bar). The previous v1 is frozen in [`archive/`](archive/).
 
 ## Install
 
@@ -97,17 +103,19 @@ Hard-won, reusable on your next skill:
 
 ```
 skills/                                      # install-ready skills (one folder each, with its own README)
-skills/skill-guidance/skill-principle/       # embedded skill principle KB, installed with skill-guidance
+skills/skill-guidance/skill-principle/       # embedded skill principle KB, installed with skill-guidance (incl. UPDATE.md refresh runbook)
 skills/loop-constructor/loop-principle/      # embedded loop-engineering KB, installed with loop-constructor
 tools/vince-mp-cli/                          # Node CLI that mp-cli-sup drives
+tools/deploy_pipeline_skills.mjs             # deploy the four pipeline skills to a local install (vince- prefix, byte-verified)
 .loop/                                       # runnable runbooks produced by loop-constructor
+archive/                                     # frozen previous versions (e.g. pipeline v1); not installable, not maintained
 ```
 
 ## Design philosophy (why these are different)
 
 A few principles, hardened by building these skills one at a time and then polishing them with loops.
 
-1. **Proof, not vibes.** A skill you can't verify is one you can't trust. Each ships a deterministic validator + an eval, built test-first. Loop engineering ≈ verification engineering: **define the check that proves it's done, then design backward from it.**
+1. **Proof, not vibes.** A skill you can't verify is one you can't trust. Each ships a deterministic validator + an eval, built test-first. Loop engineering ≈ verification engineering: **define the check that proves it's done, then design backward from it.** The pipeline goes further — **its gates are executable scripts, not prose**: a stage's self-check and the conductor's gate run the *same* script, so a rule changes in one place and both stay in sync (in v1 a shipped example spec violated its own rule for weeks — the fate of prose-only gates).
 2. **The closed loop lies.** A skill's own tests go green while it's still wrong — green-but-wrong by default. So each faces an **independent fresh-agent battery** (`attacker`), blind to its build rules, attacking on a held-out set. It caught real bugs the self-tests missed in *every* skill. Success is scored by an independent judge, never by "count the patterns I deleted."
 3. **Accuracy over speed.** Crude buckets mislabel every edge case. Classify from **rich per-item descriptors + judgment at runtime**, not a hard enum. The one deliberate exception is `fact-check` (speed-first) — and even it is never confident-and-wrong.
 4. **Sharp scope, no creep.** "More features = better" is a trap. Each skill does **one job well**: thin `SKILL.md`, progressive disclosure, low always-loaded cost.

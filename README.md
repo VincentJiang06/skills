@@ -24,11 +24,15 @@
 - **[attacker](skills/attacker/)** —— 攻击产品的*真实可观测行为*（或红队一个想法）：全新、与 TDD 独立的 subagent 只记可复现、已证实的破坏，与 loop-constructor 配对（攻击→修复→再攻击）。
 - **[reorganize-logic](skills/reorganize-logic/)** —— 以**代码为唯一事实源**重建设计契约层（架构 + 结构 + 接口），删除遗留走评审门。
 
-**造 skill 的流水线 —— 造 skill 的 skill**
-- **[skill-conductor](skills/skill-conductor/)** —— 带防注水最终验收地驱动 guidance → engineer → zipper 全程。
-- **[skill-guidance](skills/skill-guidance/)** —— 审计 skill/仓库并产出 schema 校验的 handoff spec。
-- **[skill-engineer](skills/skill-engineer/)** —— 从 spec 构建并测试 skill，红-绿-重构，配独立测试组。
-- **[skill-zipper](skills/skill-zipper/)** —— 为 token 效率、可靠性、触发准确度无损重构现有 skill。
+**造 skill 的流水线 —— 造 skill 的 skill（v2）**
+
+四阶段流水线，**门禁本身是可执行脚本**：每个阶段自校验用的脚本，就是 conductor 把关时重跑的同一个脚本——builder 与 gatekeeper 共用一把尺，抄错命令的空间为零。
+- **[skill-conductor](skills/skill-conductor/)** —— 端到端驱动 guidance → engineer → zipper；门禁直接跑阶段脚本，最终验收 `min(复审, 独立测试组)` 防注水，sibling 名前缀容忍（repo 名与装机名通吃）。
+- **[skill-guidance](skills/skill-guidance/)** —— 审计 skill/仓库、产出 handoff spec，并用 `validate_spec.mjs` 自 gate（7 支柱、评分↔状态、verdict vs cap、缺口→动作全查）；三种 disposition（交互规划 / 管道规划 / 审计），审计写 `post-build-audit.json` 不覆写构建 spec。
+- **[skill-engineer](skills/skill-engineer/)** —— 从 spec 红-绿-重构构建并测试，用 `validate_report.mjs` 自 gate（P0/对抗清单 join、**harness 当场重跑**、红日志校验）；trigger_eval 3 次投票 + held-out 防过拟合；行为类 skill 的红阶段 = 无技能基线；发布前安全 lint。
+- **[skill-zipper](skills/skill-zipper/)** —— 为 token 效率、可靠性、触发准确度无损重构；带可移植性清单（开放标准 6 字段核 vs Claude-Code-only 字段）与对齐 2026 的描述指南。
+
+> 想让 Opus 持续把 principle KB 与这条流水线追到生态最新，见 [`skills/skill-guidance/skill-principle/UPDATE.md`](skills/skill-guidance/skill-principle/UPDATE.md)（含承重数字的 Fact Registry + 质量杆）。上一代 v1 冻结在 [`archive/`](archive/)。
 
 ## 安装
 
@@ -97,17 +101,19 @@ npx skills add VincentJiang06/skills      # 交互式勾选要装的 skill
 
 ```
 skills/                                      # 开箱即用的 skill（各一个文件夹，含各自 README —— 细节看那里）
-skills/skill-guidance/skill-principle/       # 内置 skill principle KB，随 skill-guidance 一起安装
+skills/skill-guidance/skill-principle/       # 内置 skill principle KB，随 skill-guidance 一起安装（含 UPDATE.md 更新 runbook）
 skills/loop-constructor/loop-principle/      # 内置 loop engineering KB，随 loop-constructor 一起安装
 tools/vince-mp-cli/                          # mp-cli-sup 驱动的 Node CLI
+tools/deploy_pipeline_skills.mjs             # 把四个 pipeline skill 部署到本地安装（vince- 前缀，逐字节校验）
 .loop/                                       # loop-constructor 产出的可照跑 runbook（各任务一份 + 攻击/电池记录）
+archive/                                     # 冻结的旧版本（如 pipeline v1）；不可安装、不维护
 ```
 
 ## 设计哲学（凭什么不一样）
 
 几条原则，都是把这些 skill 一个个造出来、再用循环反复打磨之后踩实的。
 
-1. **要证据，不要感觉。** 验证不了的 skill 就是信不过的 skill。每个都带确定性校验器 + eval，测试先行。循环工程 ≈ 验证工程：**先定「什么 check 证明它做好了」，再倒推设计**。
+1. **要证据，不要感觉。** 验证不了的 skill 就是信不过的 skill。每个都带确定性校验器 + eval，测试先行。循环工程 ≈ 验证工程：**先定「什么 check 证明它做好了」，再倒推设计**。流水线更进一步——**门禁是可执行脚本，不是散文**：阶段自检与 conductor 把关跑同一个脚本，规则改一处、两处同步，杜绝「文档说一套、执行另一套」（v1 里 shipped 的示例 spec 违反自家规则数周无人察觉，正是散文门禁的下场）。
 2. **闭环会骗人。** skill 自己的测试会在它仍错着时亮绿灯 —— 默认「绿而错」。所以每个都要面对一个对构建规则一无所知的**独立新 agent 测试组**（`attacker`），在留出集上攻击。它在*每一个* skill 里都揪出过自测漏掉的真 bug。成败由独立判官定，而非「数我删了几个套路」。
 3. **准确 ≫ 速度。** 粗暴分桶把每个边缘情况贴错标签。用**丰富的逐项描述符 + 运行时判断**分类，而非硬枚举。唯一刻意例外是 `fact-check`（速度优先）—— 但它也绝不「自信地答错」。
 4. **范围锋利，绝不蔓延。** 「功能越多越好」是陷阱。每个 skill 只把**一件事做好**：瘦 `SKILL.md`、渐进披露、低常驻开销。
