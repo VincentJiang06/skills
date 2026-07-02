@@ -46,6 +46,25 @@ proven flaw in the idea was found (≥1 confirmed idea record); **`clean`** = th
 be broken within budget (robust-so-far, **NOT** "proven true" — exactly the honest caveat
 below); **`inconclusive`** = a budget cap hit with no flaw found.
 
+## (a2) Attacker IS the loop's `roles.evaluator` (LOOPS.md §II, bundled as loop-constructor's `references/loops-model.md`)
+
+loop-constructor's staged design carries three separated roles — planner, generator,
+evaluator — and the **evaluator** is defined as a *fresh, adversarial* context
+(`separate_context: true`, `adversarial: true`) told the artifact is broken and to
+prove it. **attacker is the concrete implementation of that evaluator role.** The
+separation is enforced per record via `independence_attestation`, in the **mode's own
+form**: debug/product attacks run behind the withhold firewall — a subagent that never
+saw the impl / TDD suite / author framing, deriving `expected` independently
+(`independence_attestation.withheld`); **structural** critique necessarily SEES the
+structure (you must see it to critique it — the firewall is deliberately dropped
+there), so its independence is `derived_independently: true` + `critique_basis` (own
+reading against an external principle/goal, the maker's framing never adopted as
+settled). The constant across modes: **the verdict never comes from the maker's own
+context.** So when a loop-constructor runbook names `roles.evaluator`, the attack
+round IS that role: the two skills are one mechanism — the loop *declares* the
+separation, attacker *enforces* it. (A generator grading its own work is the
+sycophancy §II warns about; attacker is the structural fix.)
+
 ## (b) Exhaust-budget stop mode (report all breaks, not first-break)
 
 A round runs in **exhaust-budget mode**: it does NOT stop on the first proven break.
@@ -106,6 +125,33 @@ backed by a cap actually reached (`attempts_used >= budget_n` OR `tokens_used >=
 break within budget B."** A larger budget, a different surface, or a sharper oracle could
 still find a break. The loop owner reads `clean` as *converged within the declared budget*,
 not as a correctness proof.
+
+## (e) Why the independent battery matters MORE on Claude 4.8 (not less)
+
+4.8's system card (Anthropic, 2026-05-28) reports honesty **up** — the model self-reports
+its own defects far more readily than prior generations (fails to flag an important issue
+in its own code ~3.7% of the time, ≈4× better than 4.7; uncritically-reported flawed
+results ≈0, a first). The tempting inference is "a model this honest needs less external
+adversarial checking." That inference is wrong, and both reasons make the independent
+battery *more* load-bearing, not less:
+
+1. **Honesty ≠ bug-finding.** Self-reporting a flaw you already see is not the same as an
+   independent adversary *finding* a flaw you don't. Correlated error (Knight–Leveson) is
+   invisible to the mind that produced it no matter how honest — a misread spec yields a
+   matching impl AND a matching self-assessment. Only a context that never saw the impl
+   breaks the correlation. This is *why* the withhold-firewall exists, not decoration.
+2. **Injection-robustness regressed.** The same card reports agentic prompt-injection
+   robustness regressed vs 4.7 (Gray Swan red-teaming ASR ≈9.6% vs 6.0%; deployment
+   safeguards close the gap, but the raw-model surface is weaker). Injection /
+   adversarial-input is precisely the class a self-grading build is blindest to — the
+   surface where the model is now weaker is the surface the independent battery covers.
+   Keep adversarial-input payloads first-class in DESIGN: `assets/payload-library.json`
+   carries the *input* classes (metacharacters, boundary, sequence, …) but **no LLM
+   prompt-injection payloads** — when the target has an LLM-integrated surface, add
+   those to the attack plan explicitly.
+
+Net: a more honest model is a better *fixer* once handed a proven break; it is not a
+substitute for the fresh adversary that produces the break. The battery stays.
 
 ## Metrics
 

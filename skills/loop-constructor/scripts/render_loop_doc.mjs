@@ -141,6 +141,35 @@ export function renderMarkdown(design) {
   out.push(list(HARD_CONSTRAINTS));
   out.push("");
 
+  // Roles (LOOPS.md §II) — three separate contexts, so no agent grades its own work.
+  const roles = design.roles;
+  if (roles && typeof roles === "object") {
+    out.push("## Roles (three separate contexts — never one agent grading itself)");
+    if (roles.planner && isNonEmpty(roles.planner.mandate)) out.push(`- **Planner:** ${mdText(roles.planner.mandate)}`);
+    if (roles.generator && isNonEmpty(roles.generator.mandate)) out.push(`- **Generator:** ${mdText(roles.generator.mandate)}`);
+    if (roles.evaluator && isNonEmpty(roles.evaluator.mandate)) {
+      out.push(`- **Evaluator (fresh context, adversarial — told the artifact is broken, proves it):** ${mdText(roles.evaluator.mandate)}`);
+    }
+    out.push("");
+  }
+
+  // Contract (LOOPS.md §III) — negotiated testable assertions; grade THIS, not the spec.
+  const contract = design.contract;
+  if (contract && typeof contract === "object" && Array.isArray(contract.assertions) && contract.assertions.length > 0) {
+    out.push("## Contract (negotiated acceptance criteria — grade THIS, not the original spec)");
+    out.push(
+      "> The generator and evaluator agreed these testable assertions before the build. The loop is done only when every one is proven by its check."
+    );
+    for (const a of contract.assertions) {
+      if (a == null || typeof a !== "object") continue;
+      const id = isNonEmpty(a.id) ? codeSpan(a.id) : "`?`";
+      const stage = isNonEmpty(a.stage) ? ` (stage ${codeSpan(a.stage)})` : "";
+      const check = isNonEmpty(a.check) ? ` · graded by ${codeSpan(a.check)}` : "";
+      out.push(`- **${id}**${stage} — ${mdText(a.must)}${check}`);
+    }
+    out.push("");
+  }
+
   if (Array.isArray(design.selection_log) && design.selection_log.length > 0) {
     out.push("## Why this shape (decision log)");
     out.push("> The D0–D6 selection procedure that derived this loop's shape.");

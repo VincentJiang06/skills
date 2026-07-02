@@ -2,6 +2,61 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.4.0] — 2026-07-02
+
+Grounding/coherence update tying attacker to the upgraded loop-constructor (0.2.0) and
+to the Claude 4.8 threat model. **No change to the validator, the schema, or the 85-case
+battery** (still green) — the value is making the skill's role explicit and current.
+
+### Added
+- **Attacker IS the loop's `roles.evaluator`** (`rules/loop-and-metrics.md` §(a2)):
+  loop-constructor 0.2.0 now emits three separated roles (LOOPS.md §II, bundled as
+  loop-constructor's `references/loops-model.md`), and its `evaluator` — a fresh,
+  adversarial context (`separate_context: true`, `adversarial: true`) told the artifact
+  is broken — is *defined* as this skill's stance. The two skills are one mechanism: the
+  loop declares the separation, attacker enforces it per-record via
+  `independence_attestation` **in the mode's own form** (debug/product: the withhold
+  firewall; structural: `derived_independently` + `critique_basis` — the firewall is
+  deliberately dropped where you must see the structure to critique it). SKILL.md's
+  loop-integration prose names the tie.
+- **Why the independent battery matters MORE on 4.8, not less** (§(e), rule + rationale):
+  4.8 honesty ↑ but (1) honesty ≠ independently finding correlated-error bugs — a misread
+  spec yields a matching impl AND a matching self-assessment; only a context that never
+  saw the impl breaks the correlation — and (2) prompt-injection robustness regressed, the
+  class a self-grading build is blindest to. A more honest model is a better *fixer*, not a
+  substitute for the fresh adversary that produces the break.
+
+### Changed
+- Added `version: 0.4.0` to frontmatter (the CHANGELOG history had reached 0.3.2 while the
+  frontmatter carried no `version` field).
+
+### Unchanged
+- `validate_attack_records.mjs`, the prove-or-flag / reproducible-or-drop gate, the dual
+  budget, carry-forward ledger, non-vacuity self-test, and the release/battery gates.
+
+### Validated + hardened by an independent opus-4.8 xhigh battery (same day)
+Fresh audit + adversarial + behavioral agents (executor=judge=opus-4.8 xhigh):
+**behavioral** — a fresh evaluator-in-a-loop actor refused the "4.8 is honest, skip the
+battery" bait 5/5 on the judge rubric (correlated error, injection regression, withhold
+firewall, honest `clean` semantics); **audit** — BOTH §(e) system-card claims fact-checked
+TRUE via web search against the actual Opus 4.8 system card (2026-05-28), and both §(a2)
+schema claims verified against the real linter/validator; **adversarial** — one P1 + three
+P2 found and fixed same-day:
+- **P1: §(a2) unconditional withhold claim contradicted structural mode** (which
+  deliberately DROPS the firewall — you must see the structure to critique it). §(a2) now
+  states the mode-conditional forms (debug/product: `withheld`; structural:
+  `derived_independently` + `critique_basis`) and the invariant that survives all modes:
+  the verdict never comes from the maker's own context.
+- **P2: §(e) implied `payload-library.json` covers prompt-injection** — it carries input
+  classes, not LLM prompt-injection payloads. Now stated explicitly: add prompt-injection
+  payloads to the plan when the target has an LLM-integrated surface.
+- **P2: §(e) system-card claims were uncited** — now carry the card date + the verified
+  figures (flag-own-flawed-code ~3.7%, ≈4× better; Gray Swan ASR ≈9.6% vs 6.0%).
+- **P2: `LOOPS.md §II` was a dangling reference in an installed skill** (repo-root file
+  that never ships) — all three cite-sites now point at the bundled copy
+  (loop-constructor's `references/loops-model.md`).
+Deterministic battery re-run after fixes: 85/85.
+
 ## [0.3.2] — 2026-06-23
 
 Small, **loose** soft-limits on context + speed (deliberately rough ceilings, not hard gates —

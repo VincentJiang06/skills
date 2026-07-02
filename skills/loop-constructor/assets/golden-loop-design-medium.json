@@ -84,6 +84,26 @@
     "separate_checker": true,
     "scope": "fresh-context reviewer sees only the diff + the per-stage acceptance checks; flags correctness / stated-requirement gaps only, especially any behavior change to existing endpoints"
   },
+  "roles": {
+    "planner": { "mandate": "turn the goal into the staged spec + the contract; never write middleware or test code" },
+    "generator": { "mandate": "write the middleware + load harness to satisfy the contract; may NOT weaken a test or grade its own output" },
+    "evaluator": {
+      "separate_context": true,
+      "adversarial": true,
+      "mandate": "a fresh context that never saw the impl or the generator's reasoning; assume the rate limiter is broken and try to prove it — bypass the window, race the counter, regress an existing endpoint"
+    }
+  },
+  "contract": {
+    "negotiated_by": ["generator", "evaluator"],
+    "assertions": [
+      { "id": "A1", "must": "every pre-existing public endpoint returns its captured baseline status + body (no regression)", "check": "npm test api:contract", "stage": "characterize" },
+      { "id": "A2", "must": "the (threshold+1)th request inside the window returns HTTP 429, and every request at or below the threshold returns 200", "check": "npm test api:ratelimit -- -t threshold-boundary", "stage": "implement_rate_limit" },
+      { "id": "A3", "must": "the 429 response carries a Retry-After header with a positive integer seconds value", "check": "npm test api:ratelimit -- -t retry-after", "stage": "implement_rate_limit" },
+      { "id": "A4", "must": "the limiter is keyed per client, so one client cannot exhaust another client's quota", "check": "npm test api:ratelimit -- -t per-client-isolation", "stage": "implement_rate_limit" },
+      { "id": "A5", "must": "p99 latency stays under budget with zero 5xx at the target RPS, and the harness first proves it achieved the target RPS", "check": "node scripts/loadtest.mjs --rps 200 --assert", "stage": "load_verify" },
+      { "id": "A6", "must": "no test assertion is weakened relative to the pre-change baseline over the whole run", "check": "human-verify: the evaluator diffs test/ against the baseline tag captured in stage 1 and confirms no assertion was loosened", "stage": "cross-cutting" }
+    ]
+  },
   "harness_primitives": [
     "git worktree isolation for reversible work",
     "external scratch ledger (.loop/run-state.md) holding which stage is done and what's next across context resets",

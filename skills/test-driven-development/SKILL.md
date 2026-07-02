@@ -1,5 +1,6 @@
 ---
 name: test-driven-development
+version: 0.2.0
 description: >-
   Test-driven development for NON-TRIVIAL behavior — write a failing test FIRST,
   watch it fail, then write minimal code to pass; the suite is a LIVING SPEC you
@@ -115,8 +116,8 @@ Keep the main thread fast and uncluttered. Dispatch these to subagents — in
   pass/fail + the failure message (not the full-suite noise, not a re-run per assertion).
 - **Stale / duplicate scan** — find tests referencing removed/renamed symbols or
   overlapping coverage.
-- **Batch case-writing** — when a group needs many parametrized cases, draft them
-  in a subagent, then review.
+- **Batch case-writing** — draft a group's many parametrized cases in a subagent,
+  then review.
 
 Don't do all of this inline and serially — that's the slow, redundant process this
 skill exists to replace.
@@ -137,11 +138,17 @@ This gate is **per feature-group** (not per assertion, not per micro-behavior),
 and it is never skipped — not even when "it obviously fails." Confirm the failure
 is the *expected* one (feature missing), not a typo or import error.
 
-**Evidence, not honor.** "Red confirmed" / "tests pass" / "done" are claims you
-must back with the *run*: the command you ran and its real output/exit code (the
-subagent you delegated the run to returns exactly this). Banned without evidence:
-"should pass", "this probably fails", "looks correct", "seems to work". An
-unverified claim is a defect. See [enforcement-gates.md](references/enforcement-gates.md).
+**Why this bites harder when one context writes both test and code:** their mistakes
+*correlate* (Knight–Leveson) — a test shaped to fit the code goes green by mirroring
+the implementation, not by being right. Watch-it-fail + revert-to-red break that
+correlation (the attacker/evaluator independence, turned on your own tests); for
+high-stakes new behavior a **fresh test-author subagent** given only the spec is
+stronger still ([enforcement-gates.md](references/enforcement-gates.md) §4).
+
+**Evidence, not honor.** Back every "red confirmed" / "tests pass" / "done" with the
+*run* — command + real output/exit code (your delegated runner returns exactly this).
+Banned without it: "should pass", "probably fails", "looks correct", "seems to work".
+An unverified claim is a defect ([enforcement-gates.md](references/enforcement-gates.md) §1).
 
 ## Prove the test catches the bug — the revert-to-red gate (bug fixes)
 
@@ -167,6 +174,18 @@ genuinely unavoidable (true external I/O), and never assert on the mock itself.
 When adding mocks or test-only helpers, load
 [references/testing-anti-patterns.md](references/testing-anti-patterns.md).
 
+## In an agent loop, you are the GENERATOR
+
+Inside a loop-constructor runbook (separated roles), TDD is the **generator's**
+inner discipline: your suite is part of the artifact, **not** the loop's verdict —
+a fresh **evaluator** (the attacker stance) grades the negotiated contract. Never
+present your own green as acceptance; and during NEGOTIATE, get a machine-gradable
+**"no test assertion weakened, deleted, or renamed-around vs baseline"**
+cross-cutting assertion into the contract (the loop does NOT emit one for you) —
+then a weakened-or-vanished assertion is a **breach**, not a pass (a modify-mode
+edit needs a citable target change).
+Details: [enforcement-gates.md §7](references/enforcement-gates.md#tdd-in-a-loop).
+
 ## Before you call it done
 
 - [ ] Right-size gate applied — engaged on real behavior, skipped on trivia (reason stated).
@@ -186,16 +205,16 @@ Can't check a box? You skipped a step — fix it before claiming done.
 
 | File | Load when |
 |------|-----------|
-| [references/enforcement-gates.md](references/enforcement-gates.md) | The anti-gaming core: verification-evidence, revert-to-red, Beck's GREEN strategies, optional context-isolated test-author + independent-verifier subagents. |
+| [references/enforcement-gates.md](references/enforcement-gates.md) | The anti-gaming core: verification-evidence, revert-to-red, Beck's GREEN strategies, optional context-isolated test-author + independent-verifier subagents, TDD-inside-a-loop (generator role). |
 | [references/modify-mode.md](references/modify-mode.md) | Once a suite exists: native collectors, edit/merge/delete decision, consolidation patterns. |
 | [references/refactor-and-legacy.md](references/refactor-and-legacy.md) | The two special cases — behavior-preserving refactor, or "add tests to legacy / untested code" (characterization tests). |
 | [references/testing-anti-patterns.md](references/testing-anti-patterns.md) | When adding mocks / test-only helpers — the over-mock and assert-on-mock traps. |
 
 ## Eval (real-fixture behavioral harness)
 
-`evals/` holds small **real fixture repos** (pytest / vitest) with scenarios
-(must-engage, must-skip, modify-mode traps, anti-gaming traps). The grader runs
-on the agent's resulting diff and **auto-reverts the production change to confirm
-each new test goes red** (vacuity check), counts net test growth on modify traps
-(proliferation), and checks zero new tests on negatives (right-size precision).
+`evals/` holds small **real fixture repos** (pytest / vitest: must-engage,
+must-skip, modify-mode + anti-gaming traps). The grader runs on the resulting
+diff, **auto-reverts the production change to confirm each new test goes red**
+(vacuity), counts net test growth on modify traps, and expects zero new tests
+on negatives (right-size precision).
 See `evals/README.md`.

@@ -53,7 +53,25 @@ function isNonEmptyStringList(v) {
   return Array.isArray(v) && v.length > 0 && v.every(isNonEmptyString);
 }
 
-const VALID_ON_FAILURE_ACTIONS = new Set(["loopback", "escalate", "abort"]);
+// `restart` is a first-class action (LOOPS.md §V "Let The Loop Restart"): discard
+// this stage's work and re-derive it from the contract, rather than patching a
+// codebase that has become archaeology. Like escalate/abort it carries NO `to`
+// (it doesn't reset an upstream gate — it throws its own work away and re-enters),
+// so the "stray to" rule below rejects a restart that names a target.
+const VALID_ON_FAILURE_ACTIONS = new Set(["loopback", "escalate", "abort", "restart"]);
+
+// A negotiated contract (LOOPS.md §III) needs enough testable assertions that the
+// evaluator can't rubber-stamp. This is a STRUCTURAL floor only — real sufficiency
+// (single endpoint ≈ 8–12, module ≈ 12–20, app-sized ≈ 20+) is a judgment the
+// fresh-reader makes, not the linter. The floor just rejects a contract that is
+// vacuous on its face — and it counts only MACHINE-GRADABLE assertions: if
+// `human-verify:` entries counted, the floor could be met entirely by rubber
+// stamps ("human-verify: someone gives a thumbs up"), which defeats the point of
+// a graded contract. Human-verify assertions remain legal ABOVE the floor for the
+// genuinely non-machine-checkable residue.
+const CONTRACT_MIN_ASSERTIONS = 3;
+
+const HUMAN_VERIFY_RE = /^human-verify\s*:/i;
 
 // The check is the success gate. Presence alone is not enough: a check that
 // CANNOT fail on a broken implementation (`true`, `npm test || true`, `cmd; true`,
@@ -444,6 +462,23 @@ function validateStagedDesign(input, checks, add) {
     }
   });
 
+  // Contract → stage traceability (LOOPS.md §III): every negotiated assertion
+  // must name the stage that proves it (a real stage id) or "cross-cutting". An
+  // assertion that maps to no stage is a criterion the design does not actually
+  // cover — the same kind of gap the engineer's checklist_coverage join catches.
+  const contract = input.contract;
+  if (isPlainObject(contract) && Array.isArray(contract.assertions)) {
+    contract.assertions.forEach((it, i) => {
+      if (!isPlainObject(it)) return; // shape already failed at design level
+      const who = JSON.stringify(it.id !== undefined ? it.id : i);
+      if (it.stage === undefined) {
+        add(`contract.assertions[${i}].stage`, false, `assertion ${who} names no stage; every negotiated assertion must be traceable to the stage that proves it (a stage id) or "cross-cutting"`);
+      } else if (it.stage !== "cross-cutting" && !idSet.has(it.stage)) {
+        add(`contract.assertions[${i}].stage`, false, `assertion ${who} maps to unknown stage ${JSON.stringify(it.stage)} (no such stage); the contract→stage traceability is broken`);
+      }
+    });
+  }
+
   // Acyclic / reachability — only meaningful once ids exist and deps resolve.
   if (depsResolve && idSet.size === stages.length) {
     const cycle = findCycle(stages);
@@ -719,6 +754,139 @@ function validateDesignLevel(input, add) {
       add("risk_guards", true);
     }
   }
+
+  // roles + contract — the LOOPS.md operating model (§II separate roles, §III
+  // negotiate the contract). REQUIRED for a staged design (a real multi-stage loop
+  // where a single agent grading its own work turns sycophantic, and an
+  // un-negotiated spec gets rubber-stamped). Optional for the flat atomic unit
+  // (one stage, where maker_checker already carries the separation) — but if
+  // present on a flat design they are still shape-checked, never rubber-stamped.
+  const staged = isStagedShape(input);
+  validateRoles(input.roles, staged, add);
+  validateContract(input.contract, staged, add);
+}
+
+// Three separated roles (LOOPS.md §II): a planner that turns the goal into the
+// spec and never touches code, a generator that writes everything and is forbidden
+// from grading its own work, and an evaluator that runs in a fresh context, is told
+// the artifact is broken, and tries to prove it. Mixing them is the most common
+// loop failure — the model becomes sycophantic the moment it grades itself.
+function validateRoles(roles, required, add) {
+  if (roles === undefined) {
+    if (required) {
+      add(
+        "roles",
+        false,
+        "roles missing; a staged loop must separate planner / generator / evaluator into distinct contexts — a model that grades its own work turns sycophantic (LOOPS.md §II). Provide roles.{planner,generator,evaluator} each with a mandate; the evaluator must be separate_context + adversarial."
+      );
+    }
+    return;
+  }
+  if (!isPlainObject(roles)) {
+    add("roles", false, "roles must be an object with planner / generator / evaluator");
+    return;
+  }
+  let ok = true;
+  for (const r of ["planner", "generator", "evaluator"]) {
+    const v = roles[r];
+    if (!isPlainObject(v) || !isNonEmptyString(v.mandate)) {
+      add(`roles.${r}`, false, `roles.${r} missing or has an empty mandate; state what this role does and does NOT do (the planner never touches code; the generator never grades its own work; the evaluator only judges)`);
+      ok = false;
+    }
+  }
+  // The evaluator is the load-bearing separation: a fresh, adversarial context.
+  const ev = roles.evaluator;
+  if (isPlainObject(ev)) {
+    if (ev.separate_context !== true) {
+      add("roles.evaluator.separate_context", false, "roles.evaluator.separate_context must be true; the evaluator must run in a context that never saw the generator's reasoning or the impl (else it grades its own work — correlated error).");
+      ok = false;
+    }
+    if (ev.adversarial !== true) {
+      add("roles.evaluator.adversarial", false, "roles.evaluator.adversarial must be true; the evaluator is told from its first message that the artifact is broken and its job is to prove it (LOOPS.md §II) — a neutral reviewer rubber-stamps.");
+      ok = false;
+    }
+  }
+  if (ok) add("roles", true);
+}
+
+// A negotiated contract (LOOPS.md §III): before the generator writes a line, it
+// proposes what "done" looks like and the evaluator pushes back until they agree on
+// a checklist of testable assertions. The CONTRACT — not the original spec — is what
+// gets graded. Each assertion must be gradable: a runnable check that can FAIL, or an
+// explicit human-verify note. For a staged design every assertion is traceable to the
+// stage that proves it (or "cross-cutting"); the stage-resolution is checked in
+// validateStagedDesign where the stage ids are known.
+function validateContract(contract, required, add) {
+  if (contract === undefined) {
+    if (required) {
+      add(
+        "contract",
+        false,
+        "contract missing; before building, the generator and evaluator must negotiate a checklist of testable assertions and grade against THAT, not the original spec (LOOPS.md §III). Provide contract.assertions[] (each {id, must, check, stage})."
+      );
+    }
+    return;
+  }
+  if (!isPlainObject(contract)) {
+    add("contract", false, "contract must be an object with an assertions[] list");
+    return;
+  }
+  const a = contract.assertions;
+  if (!Array.isArray(a) || a.length < CONTRACT_MIN_ASSERTIONS) {
+    add(
+      "contract.assertions",
+      false,
+      `contract.assertions must be an array of at least ${CONTRACT_MIN_ASSERTIONS} testable assertions (got ${Array.isArray(a) ? `${a.length}` : JSON.stringify(a)}); too few criteria lets the evaluator rubber-stamp — scale the count to the surface (endpoint ≈ 8–12, module ≈ 12–20, app ≈ 20+, per LOOPS.md §III).`
+    );
+    return;
+  }
+  // The floor counts only MACHINE-GRADABLE assertions — a floor met by
+  // `human-verify:` rubber stamps is no floor at all (found by an adversarial
+  // eval: 1 real check + 2 thumbs-up entries passed the old count).
+  const ids = new Set();
+  let ok = true;
+  const machineGradable = a.filter(
+    (it) => isPlainObject(it) && isNonEmptyString(it.check) && !HUMAN_VERIFY_RE.test(it.check.trim())
+  ).length;
+  if (machineGradable < CONTRACT_MIN_ASSERTIONS) {
+    add(
+      "contract.assertions.machine_gradable",
+      false,
+      `contract needs at least ${CONTRACT_MIN_ASSERTIONS} MACHINE-gradable assertions (found ${machineGradable}; human-verify entries don't count toward the floor) — a contract graded mostly by human-verify rubber stamps cannot close a loop autonomously.`
+    );
+    ok = false;
+  }
+  a.forEach((it, i) => {
+    if (!isPlainObject(it)) {
+      add(`contract.assertions[${i}]`, false, "each assertion must be an object {id, must, check, stage}");
+      ok = false;
+      return;
+    }
+    if (!isNonEmptyString(it.id)) {
+      add(`contract.assertions[${i}].id`, false, "assertion.id missing/empty");
+      ok = false;
+    } else if (ids.has(it.id)) {
+      add(`contract.assertions[${i}].id`, false, `duplicate assertion id ${JSON.stringify(it.id)}; assertion ids must be unique`);
+      ok = false;
+    } else {
+      ids.add(it.id);
+    }
+    if (!isNonEmptyString(it.must)) {
+      add(`contract.assertions[${i}].must`, false, "assertion.must missing/empty; state the testable claim the evaluator grades");
+      ok = false;
+    }
+    // Each assertion is gradable: a runnable check that can FAIL, or an explicit
+    // human-verify note. A hollow check (always-green) means the criterion is
+    // ungraded — the same reward-hacking the feedback_signal.check analysis catches.
+    if (!isNonEmptyString(it.check)) {
+      add(`contract.assertions[${i}].check`, false, "assertion.check missing/empty; give the runnable check that grades it, or 'human-verify: <why not machine-checkable>'");
+      ok = false;
+    } else if (!HUMAN_VERIFY_RE.test(it.check.trim()) && checkCannotFail(it.check)) {
+      add(`contract.assertions[${i}].check`, false, `assertion.check ${JSON.stringify(it.check)} cannot fail on a broken impl — an always-green no-op grades every implementation as passing; give a check that can FAIL, or mark it 'human-verify: …'`);
+      ok = false;
+    }
+  });
+  if (ok) add("contract", true);
 }
 
 function finalize(checks) {

@@ -86,8 +86,12 @@ a new RED first — it does not belong in the REFACTOR step.
 ## 4. Context-isolated test-author (optional; non-trivial NEW behavior)
 
 An agent that already knows how it will implement a feature will subconsciously
-write the test *around* that implementation — "cheating without meaning to." For
-non-trivial new behavior where genuine test-first matters, isolate the two roles:
+write the test *around* that implementation — **correlated (common-mode) error**,
+the same failure the attacker skill is built to defeat: a checker that shares the
+author's mental model inherits its blind spot, so a green test can be green because
+it mirrors the code rather than because the code is right. This is more acute on a
+model that writes the test and the implementation in one context. For non-trivial new
+behavior where genuine test-first matters, isolate the two roles:
 
 - Dispatch a **test-author subagent** given the **contract/spec only** (signature,
   inputs, expected behavior, edge cases) — and *not* the planned implementation.
@@ -121,6 +125,42 @@ It returns a pass/fail verdict with specifics. Fix what it flags before reportin
 After watching RED, commit the failing test as its own checkpoint before writing
 the implementation. Then, if the test is later altered to force green, it shows up
 plainly in the diff against that checkpoint. Cheap insurance on larger changes.
+
+---
+
+## 7. Inside an agent loop: TDD is the GENERATOR's discipline {#tdd-in-a-loop}
+
+When this skill runs inside an engineered loop (a loop-constructor `.loop/` runbook
+with separated roles), know which role you are. TDD is how the **generator** keeps
+itself honest while building; the suite it writes is **part of the artifact** — it
+is NOT the loop's verdict:
+
+- **Your green is not the loop's green.** The loop grades the negotiated
+  **contract** via the **evaluator** — a fresh, adversarial context (the attacker
+  skill's stance) that never trusts the generator's self-run. Present your suite's
+  pass as generator-side evidence, never as acceptance.
+- **Test edits are contract-visible — if you negotiate the assertion in.** A
+  modify-mode edit is justified by a target change you can cite (a requirement, an
+  interface, a stage spec) — never by "the test is red and I want it green."
+  loop-constructor does **not** auto-emit a no-weakening check: it is an
+  author-written contract assertion. So during NEGOTIATE, make sure the contract
+  carries a cross-cutting **"no test assertion weakened, deleted, or renamed-around
+  vs a captured baseline tag"** assertion — the cheap evasions are not in-place
+  edits but *delete the red test and add a laxer one*, *rename/move it*, or *hoist
+  the assertion behind a looser helper* (modify-mode legitimately sanctions
+  deletion, so it is the natural cover story). The check must be **machine-gradable
+  and vanish-aware**: diff against a baseline *tag* covering deletions, renames,
+  and untracked additions (loop-constructor's `references/loop-selection.md` shows
+  the trap — a naive `git diff --quiet -- tests/` misses new untracked files). Then
+  a weakened-or-vanished test reads as a **contract breach** the evaluator catches.
+  Without it, no-weakening stays your own modify-mode discipline; don't pretend the
+  loop enforces what the contract never wrote down.
+- **Contract assertions ⇒ feature-groups.** A stage's contract assertions are the
+  natural feature-group list: one RED/GREEN cycle per assertion group, and the
+  checks the contract names are the runs you delegate.
+
+Outside a loop, the same separation exists in miniature: §4 (fresh test-author) and
+§5 (independent verifier) are role-separation sized to a single change.
 
 ---
 

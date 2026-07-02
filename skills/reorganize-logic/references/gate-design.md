@@ -3,7 +3,14 @@
 The gate is **pure grep/heuristic and language-agnostic** by design (lightest,
 broadest). That choice has a sharp consequence: it **cannot** prove the prose is
 faithful, so it never pretends to. It does only what a deterministic check does
-reliably, and **flags everything ambiguous for the agent** instead of guessing.
+reliably, and **flags everything ambiguous for Claude** instead of guessing.
+
+**The gate is the portable half.** The skill's orchestration is Claude-native (see
+SKILL.md → *Built for Claude*), but `verify_contracts.mjs` is deliberately kept
+language-agnostic node with no Claude dependency: the deterministic tie-to-code must
+run anywhere, be re-runnable in CI, and never depend on a model's judgment. Claude
+does the judgment (derive, synthesize, reconcile, read for faithfulness); the gate
+does the proof. Keep that split — don't push judgment into the gate or proof into Claude.
 
 Grounding: `principle.executable_acceptance` (the contract is only trusted once a
 runnable check ties it to the code), `principle.claim_evidence_traceability` (every
@@ -62,15 +69,15 @@ symbols)`. The gate passes only at **ratio 1.0** with zero flags. Matching is
 `uuid`/`idx`/`valid`. This is what stops a near-name false-positive from inflating
 coverage.
 
-## What the gate canNOT do (the agent must)
+## What the gate canNOT do (Claude must)
 
 - It cannot tell whether a signature or a described behavior is *true* — only that
   the symbol exists at the cited line. → the **fresh-reader pass** (in
   `references/protocol.md`) re-reads each artifact cold.
 - It cannot resolve a `NEEDS_RECONCILE` flag — by design. A near-name might be a
   typo or a genuinely different symbol; the gate refuses to guess and blocks until
-  a human/agent decides. This is the "flag candidates, agent reconciles" contract,
-  not a limitation to route around.
+  Claude (or a human) decides. This is the "flag candidates, Claude reconciles"
+  contract, not a limitation to route around.
 - Its export heuristics cover a wide set of forms (listed under *Extracted public
   surface* above) but are **not exhaustive** — that is inherent to a pure-grep,
   language-agnostic extractor. Two safety properties bound the risk:
@@ -82,7 +89,7 @@ coverage.
     dropped" guarantee holds **for the recognized forms**. For anything beyond them,
     the **fresh-reader pass** (re-reading the code's entry points against the
     contract — mandatory, see `references/protocol.md`) is the completeness backstop.
-  When the agent meets an unrecognized export form, add it to the extractor (with a
+  When Claude meets an unrecognized export form, add it to the extractor (with a
   regression case) rather than trusting a green. This is the documented limit of a
   pure-grep gate — not a defect to route around.
 

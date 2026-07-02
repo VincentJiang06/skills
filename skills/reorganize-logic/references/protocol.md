@@ -35,6 +35,35 @@ Build a fresh mental model of what the system *actually* does now. If the code a
 the legacy contract disagree, the code wins — silently; do not annotate the new
 contract with "the old doc said X".
 
+**Delegate this to Claude subagents (the Claude-native step).** For anything past a
+single small module, don't derive serially in the main thread:
+
+1. Spawn an **Explore** subagent (read-only) to map the entry points and module
+   boundaries in scope — it returns *where* the public surface lives, not a review.
+2. Then spawn **one derivation subagent per module, in parallel** (a single message
+   with multiple Task calls). Each gets ONLY its module's code — **never the legacy
+   docs** — and returns that module's public surface
+   (`Symbol | Signature | Source(file:line)`) + one-line responsibilities.
+   Withholding the legacy docs keeps the **derivation layer** independent: a
+   subagent that never read them cannot copy them. Scope this claim honestly —
+   it protects the extracted surface (which the gate re-verifies against code
+   anyway), NOT the final prose: the composing main thread HAS read
+   `_legacy-context.md`, so legacy phrasing can still echo in the architecture
+   narrative; the guards there are authoring from the code and the delegated
+   fresh-reader pass below. And unlike the attacker sibling — whose independence
+   is validator-ENFORCED per record — this withholding is a prompt convention:
+   nothing verifies it, so actually follow it.
+3. The main thread **composes** the returned surfaces into the three artifacts and
+   resolves cross-module boundaries. Run the compose + architecture synthesis at
+   **xhigh** — it is the deep-judgment step; raise effort rather than padding prompts.
+
+If a context compaction hits the **main thread** mid-rebuild, it re-reads the on-disk
+artifacts (the `_legacy-context.md` and whatever contracts are already written) to
+rebuild its own state — never trust the summary. (Main-thread recovery only; the
+derivation subagents are short-lived and stay legacy-blind regardless.) And Claude 4.8
+is literal: it will not infer an interface you didn't extract, so walk **every** entry
+point the Explore pass found — exhaustively, not a sample.
+
 ## 3 — Author `architecture.md`
 
 Write `docs/contracts/architecture.md` from scratch:
@@ -69,7 +98,7 @@ It must print `PASS` and exit 0. Otherwise:
   exported symbol, or excluded too much. Document it instead; don't game coverage.
 - **FLAG [NEEDS_RECONCILE]** — a near-name match the gate won't guess for you. Open
   the cited code, decide the right symbol, fix the contract, re-run. A flag blocks
-  the gate exactly so a human/agent looks — never override it.
+  the gate exactly so Claude (or a human) looks — never override it.
 
 See `references/gate-design.md` for what each tag proves and what it can't.
 
@@ -92,3 +121,9 @@ read each artifact cold and confirm: the architecture diagram matches how the co
 is actually wired; the structure map's responsibilities are true; each interface's
 signature and described behavior match the implementation. A green gate on a
 prose-wrong contract is exactly the trap this pass exists to catch.
+
+**Delegate the faithfulness pass too (maker ≠ checker).** Spawn a **fresh** subagent
+per artifact (or per module for `interfaces.md`) that never saw the derivation — give
+it the written contract plus the cited code and ask it to find one place the prose
+diverges from the implementation. A fresh context is a genuinely independent checker;
+the deriving thread re-reading its own output is not.

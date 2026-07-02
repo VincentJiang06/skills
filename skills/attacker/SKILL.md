@@ -1,5 +1,6 @@
 ---
 name: attacker
+version: 0.4.0
 description: >-
   Attack a product's observable behavior, or red-team an idea/argument/plan; a FRESH,
   TDD-independent subagent records ONLY proven, reproducible breakages. Use-when:
@@ -118,10 +119,13 @@ the full enforcement detail of each**:
 
 attacker is a **sub-loop NODE**, not the loop owner: loop-constructor emits the `.loop/` runbook,
 maker–checker is mandatory, and attacker is the loop's `feedback_signal.check` / STOP-CONDITION (the
-verdict semantics above). Rounds alternate attacker → fixer → fresh attacker, carrying the prior
+verdict semantics above). It is the concrete **`roles.evaluator`** of that loop (LOOPS.md §II,
+bundled as loop-constructor's `references/loops-model.md`): the fresh, adversarial context told the
+artifact is broken and to prove it — the separation is *why* it grades what the builder can't. Rounds alternate attacker → fixer → fresh attacker, carrying the prior
 ledger forward. **Load `rules/loop-and-metrics.md`** for the round-alternation diagram, the dual
-budget, the carry-forward ledger, and the metric definitions (`ASR@n`, severity histogram, the
-must-be-zero false-negative / false-positive invariants).
+budget, the carry-forward ledger, the metric definitions (`ASR@n`, severity histogram, the
+must-be-zero false-negative / false-positive invariants), and **why the independent battery matters
+*more* on Claude 4.8** (honesty ↑ ≠ self-found bugs; injection-robustness ↓).
 
 ## Modules
 

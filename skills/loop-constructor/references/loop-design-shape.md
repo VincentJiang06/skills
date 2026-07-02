@@ -92,13 +92,24 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
       "stop_conditions": {
         "failure": ["<>=1 non-empty string>"],
         "max_iterations": 8,
-        "on_failure": { "action": "loopback | escalate | abort", "to": "<UPSTREAM stage id (a depends_on ancestor) — loopback only>" }
+        "on_failure": { "action": "loopback | escalate | abort | restart", "to": "<UPSTREAM stage id (a depends_on ancestor) — loopback ONLY; restart/escalate/abort carry no `to`>" }
       },
       "depends_on": ["<stage id>", "..."]
     }
   ],
   "human_placement": "in_the_loop | on_the_loop",
   "maker_checker": { "separate_checker": true, "scope": "<string>" },
+  "roles": {
+    "planner":   { "mandate": "<turns the goal into the spec+contract; never touches code>" },
+    "generator": { "mandate": "<writes everything; may NOT grade its own work or weaken a check>" },
+    "evaluator": { "separate_context": true, "adversarial": true, "mandate": "<fresh context that never saw the impl; told the artifact is broken, proves it>" }
+  },
+  "contract": {
+    "negotiated_by": ["generator", "evaluator"],
+    "assertions": [
+      { "id": "<A1>", "must": "<testable claim>", "check": "<runnable check that can FAIL, or 'human-verify: <why>'>", "stage": "<stage id | cross-cutting>" }
+    ]
+  },
   "harness_primitives": ["<>=0 items>"],
   "stop_conditions": {
     "success": "<string>",
@@ -125,6 +136,30 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
   depends on has passed its check (gate-after-every-stage; never advance past a
   failing gate). The design-level `stop_conditions.max_iterations` is the
   **outer** budget; each stage's `max_iterations` is its **inner** retry cap.
+- **`roles`** (LOOPS.md §II — *Separate The Roles*) — three contexts, three
+  system prompts: a **planner** that turns the goal into the spec+contract and
+  never touches code, a **generator** that writes everything and is forbidden from
+  grading its own work, and an **evaluator** that runs in a fresh context, is told
+  the artifact is broken, and tries to prove it. Required for staged (a real
+  multi-stage loop); the flat atomic unit leans on `maker_checker`. The evaluator
+  IS the expanded `maker_checker` — `evaluator.separate_context` ⇔
+  `maker_checker.separate_checker`. Mixing roles is the most common loop failure:
+  the model turns sycophantic the moment it grades itself.
+- **`contract`** (LOOPS.md §III — *Negotiate The Contract First*) — before the
+  generator writes a line, the generator proposes what "done" looks like and the
+  evaluator pushes back until they agree on a checklist of **testable assertions**.
+  The **contract, not the original spec, is what gets graded.** Each assertion is
+  gradable (a check that can FAIL, or an explicit `human-verify:`) and, for a
+  staged design, traceable to the stage that proves it (or `cross-cutting`). Scale
+  the count to the task — ≈20 for an app-sized build; the linter's floor of 3 only
+  rejects a vacuous contract, so the fresh-reader judges real sufficiency (10 is
+  usually too few; the evaluator rubber-stamps).
+- **`restart`** (LOOPS.md §V — *Let The Loop Restart*) — a stage `on_failure.action`
+  meaning *discard this stage's work and re-derive it from the contract* rather than
+  patching a codebase that has become archaeology. It carries no `to` (it throws its
+  own work away and re-enters — it does not reset an upstream gate). Restart is not
+  a human-escalation trigger: insert a human only when the **contract** is wrong,
+  not when a build is.
 
 ### What the linter enforces for STAGED designs (FAIL rules)
 
@@ -145,10 +180,31 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 | `stages[i].depends_on` | present but not an array, **or** references a stage id that does not exist |
 | `stages.reachability` | the `depends_on` edges form a cycle (no enterable root ⇒ cannot terminate) |
 | `hybrid.*` | a top-level `feedback_signal` / `definition_of_done` / `loop_pattern` alongside `stages[]` (per-loop fields belong inside a stage) |
+| `roles` | missing (staged requires it); or any of planner/generator/evaluator missing a non-empty `mandate`; or `evaluator.separate_context !== true` / `evaluator.adversarial !== true` (the load-bearing separation — an evaluator that shares context or is neutral grades its own work / rubber-stamps) |
+| `contract` | missing (staged requires it); `assertions` not an array of ≥ 3, **or fewer than 3 MACHINE-gradable assertions** (`human-verify:` entries don't count toward the floor — a floor met by rubber stamps is no floor); any assertion missing a non-empty `id` (unique) or `must`; an assertion's `check` missing, or an always-green no-op that can't FAIL (unless it is `human-verify: …`); an assertion's `stage` missing or naming a non-existent stage (traceability broken) |
+| `stages[i].stop_conditions.on_failure` (restart) | `restart` is a valid action but carries no `to`; a `restart` (or `escalate`/`abort`) that names a `to` FAILs (a routing target is only meaningful for `loopback`) |
 | design-level | `stop_conditions` (non-empty-string **`success`** + non-empty-string `failure` + capped `max_iterations`) / `human_placement` / `maker_checker` / `risk_guards` / `harness_primitives` — same rules as the flat shape |
 
 A complete staged design → all `PASS`, exit 0. See
 `assets/golden-loop-design-medium.json` for a passing staged fixture.
+
+> **How the hollow-check analysis binds to a compound command.** The
+> cannot-fail analyzer walks shell exit semantics: for `;`-chains and pipes the
+> **last** segment decides the exit status (so that's what it judges); for `&&`
+> every branch must be always-green to flag; for `||` any always-green branch
+> flags. So `real-assert && …` is never flagged, and `… | grep -qx 0` is judged
+> on the final `grep`. Two honest limits remain by design: a *custom* command
+> that happens to always exit 0 is undecidable here, and the analyzer proves
+> nothing about *what* a passing check asserts — both are exactly what
+> `passing_but_wrong` + the fresh-reader exist to catch.
+
+> **Attestation boundary (what a green linter does NOT prove).** Three fields are
+> author-attested booleans the linter gates on but cannot verify:
+> `machine_verifiable`, `roles.evaluator.separate_context`, and
+> `roles.evaluator.adversarial`. A design can set them `true` while the mandate
+> prose describes a generator grading itself — the linter makes the separation
+> impossible to *omit*, the fresh-reader/maker-checker make it *true*
+> (`references/loops-model.md` §III, "Honest limit").
 
 ## The loop docs (persisted artifact)
 

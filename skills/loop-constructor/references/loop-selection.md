@@ -100,7 +100,12 @@ For **each** stage (and the flat loop if D1 = flat):
 
 **Check** — pick the **cheapest runnable check on the spectrum**
 (lint → typecheck → test → build → diff → screenshot → logs → telemetry) that
-still **FAILS on this stage's failure mode**. Then fill two clauses:
+still **FAILS on this stage's failure mode**. When the stage's DoD is a *quality /
+taste* judgment no objective check can reach (visual design, prose voice, UX), the
+check is a **calibrated rubric-scorer** — weighted axes, calibrated on good-vs-slop
+reference exemplars, output = score + a paragraph, gate = a threshold
+(`references/loops-model.md` §VI). It is still a runnable check (the evaluator runs
+it), so the anchor holds. Then fill two clauses:
 - `falsifiable_when` — the **concrete broken state** that makes this check FAIL
   (a real failure, NOT a restatement of the goal).
 - `passing_but_wrong` — a **concrete** implementation that would pass this check
@@ -194,8 +199,12 @@ Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
 ## D5 — Guards: caps, failure routing, risk
 
 - **Per stage**: a `max_iterations` retry cap + `on_failure` routing —
-  `loopback` to an **upstream** stage (a `depends_on` ancestor), `escalate`, or
-  `abort`.
+  `loopback` to an **upstream** stage (a `depends_on` ancestor), `escalate`,
+  `abort`, or **`restart`** (discard this stage's work and re-derive it from the
+  contract — LOOPS.md §V; the right move when a build has become archaeology, and a
+  frontier model often ships a clean rewrite faster than it patches). A `restart`
+  is autonomous, not an escalation: **don't insert a human to interrupt a restart —
+  insert one only when the *contract* is wrong, not when a build is.**
 - **Design-level**: an outer `max_iterations` budget, a non-empty `failure`
   branch list, `escalate` triggers, and a non-empty `success` state.
 - **Risk guards**: name each applicable anti-pattern + a concrete mitigation —
@@ -244,6 +253,25 @@ Grounding: `pattern.plan_execute_verify`, `pattern.retry_loop`,
 `concept.feedback_signal_spectrum`, `principle.machine_verifiable_dod`.
 
 ---
+
+## After D0–D6: assign the roles + negotiate the contract
+
+D0–D6 derive the *shape*. Two more moves — the LOOPS.md operating model
+(`references/loops-model.md`) — turn that shape into a loop that won't converge on
+slop. Both are **linter-enforced for staged designs**:
+
+- **Assign the three roles (§II).** Fill `roles.{planner,generator,evaluator}` —
+  three separate contexts. The **evaluator** is a fresh, adversarial context
+  (`separate_context: true`, `adversarial: true`): it never saw the impl and is told
+  to prove the artifact is broken. It IS the expanded `maker_checker`; a single
+  agent that grades its own work turns sycophantic.
+- **Negotiate the contract (§III).** *Before* filling stage DoDs, have the generator
+  propose what "done" means and the evaluator push back until they agree on a
+  checklist of **testable assertions** — the `contract.assertions[]`. Each is
+  gradable (a check that can FAIL, or `human-verify:`) and mapped to the stage that
+  proves it (or `cross-cutting`). Size it to the task (≈20 for an app-sized build).
+  **The contract, not the original spec, is what the loop grades** — so every stage
+  DoD in FILL should trace back to contract assertions, not restate the spec.
 
 ## Output of the procedure
 
