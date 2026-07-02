@@ -20,6 +20,11 @@ table in `rules/altitude.md`) but scores 0 caps the verdict at `draft` regardles
 of the ratio — record it as a P0 gap. A required pillar scoring **1 (partial)**
 does **not** cap — it produces a P1 action.
 
+These arithmetic/cap rules are **executable**: `scripts/validate_spec.mjs`
+recomputes the ratio, checks score↔status, and applies the cap — you cannot
+emit a spec that violates them, so compute honestly rather than adjusting the
+verdict by hand.
+
 ## The pillars
 
 For each, the KB query gives the authoritative checklist; judge against it.

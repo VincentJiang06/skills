@@ -6,7 +6,7 @@
     "references/*.json",
     "testing/search_aliases.json"
   ],
-  "token_count": 16718,
+  "token_count": 16844,
   "token_index": {
     "10": {
       "docs": [],
@@ -2095,6 +2095,7 @@
     "agents": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management",
         "doc.research.skill_engineering_reading_list",
@@ -2151,7 +2152,9 @@
       ]
     },
     "agentskills": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [
         "concept.skill"
       ],
@@ -2478,6 +2481,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance",
@@ -2730,6 +2734,7 @@
     "anthropic": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.research.skill_engineering_reading_list",
         "doc.testing.skill_testing_process",
         "doc.testing.tdd_for_skill_development"
@@ -3390,6 +3395,7 @@
       "docs": [],
       "nodes": [],
       "assets": [
+        "tool.query_kb",
         "tool.run_all_checks"
       ],
       "references": [
@@ -3457,6 +3463,7 @@
     "authoring": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.research.skill_engineering_reading_list"
       ],
       "nodes": [
@@ -3666,6 +3673,14 @@
         "ref.arxiv.claimaudit"
       ]
     },
+    "bar": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "base": {
       "docs": [
         "doc.architecture.industrial_skill_design",
@@ -3707,7 +3722,9 @@
       ]
     },
     "baseline": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -3755,6 +3772,14 @@
         "ref.skillsvote.lifecycle_governance",
         "ref.tool_registry_design"
       ]
+    },
+    "bearing": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "beck": {
       "docs": [
@@ -3909,6 +3934,7 @@
     "best": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.research.skill_engineering_reading_list",
         "doc.testing.skill_testing_process"
@@ -5049,6 +5075,7 @@
     },
     "claude": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_management"
       ],
       "nodes": [
@@ -5119,6 +5146,7 @@
     },
     "code": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.skill_lifecycle_management",
         "doc.research.evidence_driven_skill_research"
@@ -6548,6 +6576,14 @@
         "ref.eval_stat_guarantees"
       ]
     },
+    "date": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "de": {
       "docs": [],
       "nodes": [],
@@ -7528,6 +7564,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance",
@@ -7615,6 +7652,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance",
@@ -8351,7 +8389,9 @@
       ]
     },
     "entry": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -8448,6 +8488,7 @@
     "equipping": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.research.skill_engineering_reading_list"
       ],
       "nodes": [
@@ -8841,6 +8882,7 @@
     "evidence": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management",
         "doc.research.evidence_driven_skill_research"
@@ -9236,6 +9278,7 @@
     },
     "fact": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.research.evidence_driven_skill_research"
       ],
       "nodes": [
@@ -9790,6 +9833,14 @@
         "ref.agent_eval_survey"
       ]
     },
+    "fold": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "folder": {
       "docs": [],
       "nodes": [],
@@ -10032,7 +10083,9 @@
       ]
     },
     "four": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -10318,7 +10371,8 @@
         "checklist.skill_release_gate",
         "schema.checklist",
         "schema.quality_gate",
-        "template.skill_design_record"
+        "template.skill_design_record",
+        "tool.run_all_checks"
       ],
       "references": [
         "ref.google_sre.canarying",
@@ -10328,6 +10382,7 @@
     },
     "gated": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_management"
       ],
       "nodes": [
@@ -10341,6 +10396,7 @@
     },
     "gates": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management"
       ],
@@ -10629,6 +10685,7 @@
     },
     "governance": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management",
         "doc.research.skill_ops_reading_list"
@@ -10692,6 +10749,7 @@
     },
     "grade": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.research.evidence_driven_skill_research"
       ],
       "nodes": [
@@ -11921,7 +11979,9 @@
       ]
     },
     "in": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [
         "anti_pattern.prompted_architecture",
         "metric.claim_traceability_rate",
@@ -11966,6 +12026,14 @@
         "ref.tool_registry_design",
         "ref.w3c.prov_overview"
       ]
+    },
+    "incident": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "include": {
       "docs": [],
@@ -12619,6 +12687,7 @@
     },
     "is": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.testing.tdd_for_skill_development"
       ],
       "nodes": [
@@ -12985,6 +13054,7 @@
     },
     "kb": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance"
@@ -12996,6 +13066,7 @@
         "principle.id_references",
         "principle.progressive_disclosure",
         "principle.short_node_budget",
+        "procedure.evidence_gated_update",
         "procedure.production_feedback_loop"
       ],
       "assets": [
@@ -13568,6 +13639,7 @@
     "lifecycle": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management",
         "doc.research.skill_ops_reading_list"
@@ -13840,7 +13912,9 @@
       ]
     },
     "load": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [
         "pillar.kb_architecture",
         "principle.progressive_disclosure"
@@ -13930,7 +14004,9 @@
     "log": {
       "docs": [],
       "nodes": [],
-      "assets": [],
+      "assets": [
+        "report.update_log"
+      ],
       "references": [
         "ref.sigstore"
       ]
@@ -14558,6 +14634,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance",
@@ -14572,6 +14649,7 @@
       "nodes": [],
       "assets": [
         "decision.0001",
+        "report.update_log",
         "template.release_report",
         "template.research_doc",
         "template.tdd_plan",
@@ -15715,7 +15793,9 @@
       ]
     },
     "no": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -15802,6 +15882,7 @@
     "not": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.testing.skill_testing_process"
       ],
       "nodes": [
@@ -15873,6 +15954,14 @@
       "references": [
         "ref.memgpt"
       ]
+    },
+    "numbers": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "oasis": {
       "docs": [],
@@ -15947,6 +16036,7 @@
     },
     "of": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.research.skill_reference_library",
         "doc.testing.tdd_for_skill_development"
       ],
@@ -16083,6 +16173,7 @@
     },
     "on": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.research.skill_reference_library",
         "doc.testing.skill_testing_process"
       ],
@@ -16145,6 +16236,7 @@
     },
     "only": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.local_retrieval_workflow"
       ],
       "nodes": [
@@ -16169,6 +16261,7 @@
     },
     "open": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_management"
       ],
       "nodes": [
@@ -16296,6 +16389,7 @@
     },
     "operations": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance",
@@ -16764,6 +16858,14 @@
         "ref.owasp.agentic_skills_top10",
         "ref.owasp.llm_top10"
       ]
+    },
+    "owner": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "p3925": {
       "docs": [],
@@ -17304,7 +17406,9 @@
       ]
     },
     "phase": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -17331,6 +17435,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance",
@@ -17406,7 +17511,9 @@
       ]
     },
     "pipeline": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -17465,7 +17572,8 @@
       ],
       "assets": [
         "template.metric_plan",
-        "template.tdd_plan"
+        "template.tdd_plan",
+        "tool.query_kb"
       ],
       "references": [
         "ref.openai.codex_best_practices"
@@ -17702,6 +17810,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.research.skill_engineering_reading_list",
         "doc.testing.skill_testing_process"
@@ -17892,6 +18001,7 @@
     "principle": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.research.evidence_driven_skill_research",
@@ -17912,6 +18022,7 @@
         "procedure.red_green_refactor_for_skill"
       ],
       "assets": [
+        "tool.run_all_checks",
         "tool.scaffold_agent_principle"
       ],
       "references": [
@@ -17987,6 +18098,7 @@
     },
     "procedure": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management",
         "doc.research.evidence_driven_skill_research",
@@ -18302,7 +18414,9 @@
       ]
     },
     "propagation": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -18547,7 +18661,9 @@
       ]
     },
     "quality": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [
         "metric.marginal_lift",
         "metric.regression_escape_rate",
@@ -19071,7 +19187,9 @@
       ]
     },
     "recording": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [
         "procedure.triangulation"
       ],
@@ -19153,6 +19271,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance",
@@ -19462,6 +19581,14 @@
         "ref.anthropic.context_engineering"
       ]
     },
+    "refresh": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "refs": {
       "docs": [],
       "nodes": [],
@@ -19514,6 +19641,7 @@
     },
     "registry": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_management",
         "doc.research.skill_engineering_reading_list",
         "doc.research.skill_reference_library"
@@ -19637,6 +19765,14 @@
       "references": [
         "ref.byterover"
       ]
+    },
+    "relax": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "release": {
       "docs": [
@@ -19824,6 +19960,7 @@
       "nodes": [],
       "assets": [
         "report.kb_quality",
+        "report.update_log",
         "schema.quality_report",
         "template.release_report",
         "testing.kb_quality_gates",
@@ -19854,7 +19991,8 @@
       "docs": [],
       "nodes": [],
       "assets": [
-        "report.kb_quality"
+        "report.kb_quality",
+        "report.update_log"
       ],
       "references": []
     },
@@ -19946,6 +20084,7 @@
     },
     "research": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.research.evidence_driven_skill_research",
         "doc.research.skill_engineering_reading_list",
         "doc.research.skill_ops_reading_list",
@@ -20556,6 +20695,16 @@
         "ref.openai.agents_tracing"
       ]
     },
+    "runbook": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [
+        "procedure.evidence_gated_update"
+      ],
+      "assets": [],
+      "references": []
+    },
     "running": {
       "docs": [],
       "nodes": [],
@@ -20761,7 +20910,9 @@
       ]
     },
     "schema": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [
         "schema.checklist",
@@ -21562,6 +21713,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_governance",
@@ -21636,7 +21788,8 @@
         "schema.skill_repo_registry",
         "template.skill_design_record",
         "template.skill_release_manifest",
-        "tool.fetch_skill_reference"
+        "tool.fetch_skill_reference",
+        "tool.run_all_checks"
       ],
       "references": [
         "ref.adarubric",
@@ -21755,6 +21908,7 @@
       "docs": [
         "doc.architecture.industrial_skill_design",
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management",
         "doc.research.skill_engineering_reading_list",
@@ -22311,7 +22465,9 @@
       "references": []
     },
     "standard": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [
         "concept.skill"
       ],
@@ -22359,6 +22515,14 @@
         "ref.otel.genai_spans",
         "ref.tool_registry_design"
       ]
+    },
+    "standing": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "stanford": {
       "docs": [],
@@ -23034,6 +23198,14 @@
         "ref.swe_bench"
       ]
     },
+    "sweep": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "switch": {
       "docs": [],
       "nodes": [],
@@ -23619,6 +23791,7 @@
     },
     "the": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.research.skill_engineering_reading_list",
         "doc.research.skill_reference_library",
         "doc.testing.tdd_for_skill_development"
@@ -23911,6 +24084,14 @@
         "ref.memgpt"
       ]
     },
+    "tighten": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "time": {
       "docs": [],
       "nodes": [
@@ -23941,6 +24122,7 @@
     },
     "to": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.knowledge_base_architecture",
         "doc.operations.local_retrieval_workflow",
         "doc.operations.skill_lifecycle_management",
@@ -24529,6 +24711,14 @@
         "ref.osintframework.com"
       ]
     },
+    "triage": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "trial": {
       "docs": [
         "doc.metrics.quantitative_skill_metrics"
@@ -24620,6 +24810,14 @@
       "references": [
         "ref.efficient_bench_agents"
       ]
+    },
+    "true": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "trust": {
       "docs": [],
@@ -24924,13 +25122,16 @@
     },
     "update": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_management"
       ],
       "nodes": [
         "pillar.lifecycle",
         "procedure.evidence_gated_update"
       ],
-      "assets": [],
+      "assets": [
+        "report.update_log"
+      ],
       "references": [
         "ref.owasp.agentic_skills_top10",
         "ref.skillsvote.lifecycle_governance"
@@ -24948,6 +25149,7 @@
     },
     "updates": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_management"
       ],
       "nodes": [],
@@ -24965,7 +25167,9 @@
       "references": []
     },
     "url": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -25150,7 +25354,9 @@
       ]
     },
     "valid": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -25165,6 +25371,7 @@
         "technique.metamorphic_test"
       ],
       "assets": [
+        "tool.run_all_checks",
         "tool.validate_kb"
       ],
       "references": [
@@ -25793,7 +26000,9 @@
       ]
     },
     "with": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [
         "concept.skill",
         "metric.marginal_lift",
@@ -27543,6 +27752,22 @@
         "ref.nist.ai_rmf"
       ]
     },
+    "不入": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "不入库": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "不变": {
       "docs": [],
       "nodes": [],
@@ -28023,6 +28248,38 @@
     "与上下文": {
       "docs": [
         "doc.research.skill_ops_reading_list"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "与业": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "与业主": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "与业主质": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "与业主质量杆": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
       ],
       "nodes": [],
       "assets": [],
@@ -29280,6 +29537,30 @@
       "references": [
         "ref.anthropic.equipping_agents_skills"
       ]
+    },
+    "业主": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "业主质": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "业主质量": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "业化": {
       "docs": [
@@ -31872,6 +32153,14 @@
         "ref.skills_re.registry"
       ]
     },
+    "为真": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "为离": {
       "docs": [],
       "nodes": [],
@@ -32190,6 +32479,30 @@
       "nodes": [
         "pillar.metrics"
       ],
+      "assets": [],
+      "references": []
+    },
+    "主质": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "主质量": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "主质量杆": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
       "assets": [],
       "references": []
     },
@@ -32726,6 +33039,30 @@
       "nodes": [
         "pillar.research"
       ],
+      "assets": [],
+      "references": []
+    },
+    "事故": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "事故级": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "事故级证": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
       "assets": [],
       "references": []
     },
@@ -36064,12 +36401,38 @@
       "references": []
     },
     "传播": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
         "ref.agenteval.dag"
       ]
+    },
+    "传播到": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "传播到四": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "传播到四个": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "传播和": {
       "docs": [],
@@ -41745,6 +42108,14 @@
       "assets": [],
       "references": []
     },
+    "入库": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "入检": {
       "docs": [],
       "nodes": [],
@@ -43499,6 +43870,7 @@
     },
     "内容": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.research.skill_reference_library"
       ],
       "nodes": [
@@ -43508,6 +43880,22 @@
       "references": [
         "ref.w3c.prov_overview"
       ]
+    },
+    "内容为": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "内容为真": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "内容产": {
       "docs": [],
@@ -45437,6 +45825,22 @@
         "ref.claude_code.skills_docs"
       ]
     },
+    "凭证": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "凭证据": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "出七": {
       "docs": [],
       "nodes": [],
@@ -46873,6 +47277,14 @@
         "ref.arxiv.deeprag"
       ]
     },
+    "分诊": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "分阶": {
       "docs": [],
       "nodes": [],
@@ -47326,6 +47738,22 @@
       "references": [
         "ref.arxiv.claimaudit"
       ]
+    },
+    "到四": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "到四个": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "到底": {
       "docs": [],
@@ -47828,6 +48256,14 @@
       "nodes": [
         "pillar.design"
       ],
+      "assets": [],
+      "references": []
+    },
+    "刷新": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
       "assets": [],
       "references": []
     },
@@ -55468,6 +55904,14 @@
         "ref.skillsvote.lifecycle_governance"
       ]
     },
+    "合法": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "合的": {
       "docs": [],
       "nodes": [],
@@ -56855,6 +57299,38 @@
       "references": [
         "ref.openai.gpt41_prompting_guide"
       ]
+    },
+    "含承": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "含承重": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "含承重数": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "含承重数字的": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "含格": {
       "docs": [],
@@ -60235,6 +60711,14 @@
       "assets": [],
       "references": []
     },
+    "四个": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "四步": {
       "docs": [],
       "nodes": [],
@@ -62440,12 +62924,30 @@
       ]
     },
     "基线": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
         "ref.asb_iclr2025"
       ]
+    },
+    "基线门": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "基线门禁": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "基设": {
       "docs": [],
@@ -65340,6 +65842,14 @@
         "ref.nato.admiralty_code"
       ]
     },
+    "字的": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "字评": {
       "docs": [],
       "nodes": [],
@@ -67938,6 +68448,22 @@
       "references": [
         "ref.rand.delphi"
       ]
+    },
+    "容为": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "容为真": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "容产": {
       "docs": [],
@@ -72008,6 +72534,38 @@
       "references": [
         "ref.openai.practical_agents"
       ]
+    },
+    "常驻": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "常驻更": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "常驻更新": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "常驻更新手册": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "干预": {
       "docs": [],
@@ -80872,7 +81430,9 @@
       "references": []
     },
     "手册": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -81497,6 +82057,14 @@
       "assets": [],
       "references": []
     },
+    "扫描": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "扰动": {
       "docs": [],
       "nodes": [],
@@ -81624,6 +82192,30 @@
       "nodes": [
         "anti_pattern.prompted_architecture"
       ],
+      "assets": [],
+      "references": []
+    },
+    "承重": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "承重数": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "承重数字": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
       "assets": [],
       "references": []
     },
@@ -82430,6 +83022,14 @@
       "references": [
         "ref.openai.eval_best_practices"
       ]
+    },
+    "折入": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "护一": {
       "docs": [
@@ -83961,6 +84561,22 @@
       "references": [
         "ref.adarubric"
       ]
+    },
+    "按阶": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "按阶段": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "按需": {
       "docs": [
@@ -87383,6 +87999,30 @@
       "assets": [],
       "references": []
     },
+    "播到": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "播到四": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "播到四个": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "播和": {
       "docs": [],
       "nodes": [],
@@ -87941,6 +88581,38 @@
       "assets": [],
       "references": []
     },
+    "收紧": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "收紧凭": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "收紧凭证": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "收紧凭证据": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "收都": {
       "docs": [],
       "nodes": [
@@ -88355,6 +89027,38 @@
         "ref.memory_survey_2026"
       ]
     },
+    "放松": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "放松需": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "放松需事": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "放松需事故级证据": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "放标": {
       "docs": [],
       "nodes": [],
@@ -88517,6 +89221,30 @@
         "metric.mutation_score",
         "technique.mutation_test"
       ],
+      "assets": [],
+      "references": []
+    },
+    "故级": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "故级证": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "故级证据": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
       "assets": [],
       "references": []
     },
@@ -88860,12 +89588,22 @@
       ]
     },
     "数字": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
         "ref.nato.admiralty_code"
       ]
+    },
+    "数字的": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "数字评": {
       "docs": [],
@@ -90188,6 +90926,22 @@
         "ref.memory_survey_2026"
       ]
     },
+    "新手": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "新手册": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "新指": {
       "docs": [],
       "nodes": [],
@@ -90253,6 +91007,30 @@
       "nodes": [
         "metric.regression_escape_rate"
       ],
+      "assets": [],
+      "references": []
+    },
+    "新运": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "新运行": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "新运行手": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
       "assets": [],
       "references": []
     },
@@ -90806,6 +91584,38 @@
       "references": [
         "ref.sigstore"
       ]
+    },
+    "日期": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "日期不": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "日期不入": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "日期不入库": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "旧版": {
       "docs": [],
@@ -93228,6 +94038,7 @@
     },
     "更新": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_management"
       ],
       "nodes": [
@@ -93240,6 +94051,22 @@
         "ref.prisma.2020",
         "ref.skillsvote.lifecycle_governance"
       ]
+    },
+    "更新手": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "更新手册": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "更新指": {
       "docs": [],
@@ -93280,6 +94107,30 @@
       "references": [
         "ref.owasp.agentic_skills_top10"
       ]
+    },
+    "更新运": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "更新运行": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "更新运行手册": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "更稳": {
       "docs": [],
@@ -93685,6 +94536,30 @@
       "references": [
         "ref.anthropic.advanced_tool_use"
       ]
+    },
+    "期不": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "期不入": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "期不入库": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "期最": {
       "docs": [],
@@ -96081,6 +96956,30 @@
       "references": [
         "ref.grade.working_group"
       ]
+    },
+    "松需": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "松需事": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "松需事故": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "板和": {
       "docs": [],
@@ -114689,7 +115588,9 @@
       ]
     },
     "研究": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [],
       "assets": [],
       "references": [
@@ -114699,6 +115600,22 @@
         "ref.memory_survey_2026",
         "ref.trace.trajectory_eval"
       ]
+    },
+    "研究扫": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "研究扫描": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "研究报": {
       "docs": [],
@@ -116934,6 +117851,22 @@
       "references": [
         "ref.stable_toolbench"
       ]
+    },
+    "究扫": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "究扫描": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "究报": {
       "docs": [],
@@ -119696,6 +120629,22 @@
         "ref.grade.working_group"
       ]
     },
+    "级证": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "级证据": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "级评": {
       "docs": [],
       "nodes": [
@@ -120136,6 +121085,30 @@
         "ref.niso.z3919"
       ]
     },
+    "紧凭": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "紧凭证": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "紧凭证据": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "纯优": {
       "docs": [],
       "nodes": [],
@@ -120207,6 +121180,22 @@
       "references": [
         "ref.hal.holistic_agent_leaderboard"
       ]
+    },
+    "线门": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "线门禁": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "组件": {
       "docs": [
@@ -126310,6 +127299,22 @@
         "ref.osworld"
       ]
     },
+    "行手": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "行手册": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "行搜": {
       "docs": [],
       "nodes": [
@@ -129470,6 +130475,7 @@
     "记录": {
       "docs": [
         "doc.metrics.quantitative_skill_metrics",
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance"
       ],
       "nodes": [
@@ -130417,6 +131423,7 @@
     "证据": {
       "docs": [
         "doc.architecture.industrial_skill_design",
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management",
         "doc.research.evidence_driven_skill_research"
@@ -134395,7 +135402,9 @@
       "references": []
     },
     "质量": {
-      "docs": [],
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
       "nodes": [
         "metric.marginal_lift",
         "procedure.source_reliability_grading"
@@ -134517,6 +135526,14 @@
       "references": [
         "ref.promptfoo.test_agent_skills"
       ]
+    },
+    "质量杆": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "质量评": {
       "docs": [],
@@ -137332,6 +138349,7 @@
     },
     "运行": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_management"
       ],
       "nodes": [
@@ -137381,6 +138399,22 @@
       "references": [
         "ref.mlflow.eval_driven_development"
       ]
+    },
+    "运行手": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "运行手册": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "运行时": {
       "docs": [],
@@ -140752,6 +141786,30 @@
         "ref.arxiv.question_decomp_rag"
       ]
     },
+    "重数": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "重数字": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "重数字的": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
     "重新": {
       "docs": [],
       "nodes": [],
@@ -141296,6 +142354,14 @@
       "references": [
         "ref.google_sre.canarying"
       ]
+    },
+    "量杆": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
     },
     "量每": {
       "docs": [],
@@ -142488,6 +143554,7 @@
     },
     "门禁": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance",
         "doc.operations.skill_lifecycle_management"
       ],
@@ -143100,6 +144167,7 @@
     },
     "阶段": {
       "docs": [
+        "doc.operations.kb_update_runbook",
         "doc.operations.skill_lifecycle_governance"
       ],
       "nodes": [
@@ -144532,6 +145600,30 @@
     "需下载某": {
       "docs": [
         "doc.research.skill_reference_library"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "需事": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "需事故": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "需事故级": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
       ],
       "nodes": [],
       "assets": [],
@@ -146763,6 +147855,30 @@
       "nodes": [
         "pillar.research"
       ],
+      "assets": [],
+      "references": []
+    },
+    "驻更": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "驻更新": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
+      "assets": [],
+      "references": []
+    },
+    "驻更新手": {
+      "docs": [
+        "doc.operations.kb_update_runbook"
+      ],
+      "nodes": [],
       "assets": [],
       "references": []
     },

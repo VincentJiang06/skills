@@ -21,15 +21,15 @@
     {"pillar": "research", "status": "partial", "score": 1, "evidence": "Pattern libraries (encapsulation/hardening) exist but are authored, not sourced to external evidence.", "gaps": ["no provenance for the pattern catalogues"]},
     {"pillar": "testing", "status": "present", "score": 2, "evidence": "diff_lossless.py + measure_tokens.py give deterministic verification; evals/ present.", "gaps": []},
     {"pillar": "tdd", "status": "partial", "score": 1, "evidence": "Verification scripts exist but tests are not written before edits.", "gaps": ["no failing-case-first workflow"]},
-    {"pillar": "metrics", "status": "absent", "score": 0, "evidence": "No defined success rate or activation precision for the restructuring outcome.", "gaps": ["define before/after token delta as a tracked metric", "define a triggering-accuracy metric"]},
+    {"pillar": "metrics", "status": "partial", "score": 1, "evidence": "Before/after token delta is printed by the verification checklist, but no activation-precision measurement and no tracked success rate.", "gaps": ["record the token delta as a tracked metric", "measure triggering accuracy on a labeled set"]},
     {"pillar": "low_context_kb", "status": "present", "score": 2, "evidence": "SKILL.md is a thin orchestrator; 9 rules files loaded on demand.", "gaps": []},
     {"pillar": "lifecycle", "status": "absent", "score": 0, "evidence": "No version, changelog, or deprecation path in the skill.", "gaps": ["add a version + changelog"]}
   ],
   "overall_readiness": {
-    "ratio": 0.57,
-    "points": "8/14",
+    "ratio": 0.643,
+    "points": "9/14",
     "verdict": "candidate",
-    "summary": "Strong design and low-context structure with deterministic verification; held back from industrial by missing metrics and lifecycle."
+    "summary": "Strong design and low-context structure with deterministic verification; held back from industrial by thin metrics and missing lifecycle."
   },
   "comparables": [
     {"repo_id": "repo.addyosmani_agent-skills", "skill_path": "skills/using-agent-skills/SKILL.md", "what_to_borrow": "per-step verification gates and an anti-rationalization table to harden instructions"}
@@ -51,9 +51,10 @@
     ]
   },
   "prioritized_actions": [
-    {"id": "A1", "pillar": "metrics", "action": "Define and record before/after always-loaded token delta and a held-out triggering-accuracy score.", "priority": "P0", "rationale": "Metrics absent caps the verdict at candidate."},
+    {"id": "A1", "pillar": "metrics", "action": "Record before/after always-loaded token delta per run and measure triggering accuracy on a labeled, partly held-out case set.", "priority": "P0", "rationale": "Metrics still partial caps confidence in the restructure outcome; this is the cheapest path to industrial."},
     {"id": "A2", "pillar": "lifecycle", "action": "Add a version + changelog and a breaking-change rule.", "priority": "P1", "rationale": "Enables safe evolution of a widely reused skill."},
-    {"id": "A3", "pillar": "research", "action": "Add provenance to the pattern catalogues or mark them authored heuristics.", "priority": "P2", "rationale": "Improves trust without changing behavior."}
+    {"id": "A3", "pillar": "tdd", "action": "Write the failing verification case (expected diff/flags) before applying a restructure plan, and keep it as the regression case.", "priority": "P1", "rationale": "Turns the existing deterministic checks into a tests-first workflow."},
+    {"id": "A4", "pillar": "research", "action": "Add provenance to the pattern catalogues or mark them authored heuristics.", "priority": "P2", "rationale": "Improves trust without changing behavior."}
   ],
   "handoff": {
     "next_skill": "skill-engineer",

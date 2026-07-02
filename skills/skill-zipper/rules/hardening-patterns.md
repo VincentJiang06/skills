@@ -254,6 +254,31 @@ template.
 
 ---
 
+## H11. Bare imperative without rationale
+
+**Vague form** (rigid, not vague — but it fails the same way):
+> "ALWAYS use constructor injection."
+> "NEVER call the API directly. MUST go through the wrapper."
+
+**Why it fails**: a wall of capitalized ALWAYS/NEVER/MUST gives the model the
+letter of the rule with none of its reasoning, so it follows the rule where it
+shouldn't apply and misses the unanticipated cases the rule was written for.
+Anthropic's skill-authoring guidance flags ALL-CAPS rule spam as a yellow flag;
+the fix is to make the *reason* available, because the reason is the rubric
+the model uses on novel cases.
+
+**Precise rewrite**: state the rule, then the why.
+
+> "Use constructor injection; field injection breaks testability because we
+> can't mock dependencies without spinning up the whole Spring context."
+
+> "Go through the API wrapper — it owns retry/backoff and auth refresh, and
+> direct calls bypass both."
+
+**Pattern**: `<rule>; <because-clause that names the failure the rule prevents>`.
+One caveat: for genuinely non-negotiable safety gates, keep the imperative AND
+add the reason — the emphasis is fine, the missing rationale is the bug.
+
 ## When NOT to harden
 
 Don't over-harden. Vagueness is sometimes the right design choice:

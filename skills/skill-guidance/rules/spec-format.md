@@ -1,8 +1,11 @@
 # The machine-handoff spec
 
-The deliverable. It must validate against `assets/handoff-spec.schema.json`. Write
-it to `<target-skill-dir>/.skill-guidance/handoff-spec.json`. `skill-engineer`
-reads it cold — so it must stand alone, with no reference back to this run.
+The deliverable. It must validate against `assets/handoff-spec.schema.json`.
+Write it to `<target-skill-dir>/.skill-guidance/handoff-spec.json` — except in
+the **audit** disposition (re-auditing a built skill), where it goes to
+`<target>/.skill-guidance/post-build-audit.json` so the original build spec is
+preserved for comparison. `skill-engineer` reads the spec cold — it must stand
+alone, with no reference back to this run.
 
 ## Field guide
 
@@ -10,7 +13,7 @@ reads it cold — so it must stand alone, with no reference back to this run.
   (`stub`/`draft`/`mature`, from Step 2).
 - **intent** — `summary`, `in_scope[]`, `out_of_scope[]`, `primary_user`,
   `triggers_observed[]` (from Step 2).
-- **altitude** + **altitude_rationale** — the Step 5 call and its one-line why.
+- **altitude** + **altitude_rationale** — the Step 4 call and its one-line why.
 - **scorecard** — exactly 7 entries, one per pillar (`design`, `research`,
   `testing`, `tdd`, `metrics`, `low_context_kb`, `lifecycle`). Each:
   `status` (`present`/`partial`/`absent`/`na`), `score` (2/1/0, or `null` when
@@ -31,8 +34,12 @@ reads it cold — so it must stand alone, with no reference back to this run.
   - `metrics[]` — success rate, activation precision, cost-per-success, pass^k as applicable.
   - `lifecycle` — version, release gate, rollback, deprecation.
   - `adversarial_checklist` — **required, domain-typed, and exhaustive for the
-    input class.** Classify the skill's input, then list **every** mandatory edge
-    for that class (not a generic sentence):
+    input class.** Format every entry as `input/hazard → expected output` with
+    the **literal Unicode arrow `→` (U+2192), exactly one per entry** — the
+    schema and `validate_spec` reject ASCII `->` and compound entries
+    (`A → x; B → y` must be split into two), because the arrow is the
+    machine-parsed delimiter the E gate joins on. Classify the skill's input,
+    then list **every** mandatory edge for that class (not a generic sentence):
     - **delimiter/key transform** → contains-delimiter key, leading/trailing/double
       delimiter, literal-key-vs-built-path **collision**, **empty-string key**,
       empty nested object, round-trip/idempotency.
@@ -65,12 +72,16 @@ reads it cold — so it must stand alone, with no reference back to this run.
 ## Validate before finishing
 
 ```bash
-node -e "JSON.parse(require('fs').readFileSync('<dir>/.skill-guidance/handoff-spec.json','utf8'))"
+node scripts/validate_spec.mjs <target-dir>        # --audit for audit runs
 ```
-Confirm: 7 scorecard entries, every non-N/A gap has an action, `altitude_rationale`
-is set, `verdict` is consistent with `ratio` and any required-pillar-absent cap,
-and the JSON parses. Then, for human-facing runs, print the 3-line summary defined
-in SKILL.md Step 6 (optional in autonomous pipeline runs).
+
+Exit 0 required. The gate enforces: JSON parses + schema-valid; exactly 7
+scorecard pillars; score↔status agreement; `ratio`/`points` arithmetic;
+`verdict` consistent with the ratio bands and the required-pillar cap;
+checklist entries in `input → expected output` form; every absent/partial
+pillar mapped to an action; no TODO/TBD placeholders. Fix and re-emit until
+green — never hand a red spec downstream. Then, for human-facing runs, print
+the 3-line summary defined in SKILL.md Step 7 (optional in pipeline runs).
 
 ## Quality bar
 

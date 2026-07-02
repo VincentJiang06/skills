@@ -15,12 +15,21 @@
 //
 // Usage:
 //   node scripts/trigger_eval.mjs <skill-dir> <cases.json> [--judge mock|cli]
-//        [--threshold 0.9] [--mock-rule <substring>] [--model <id>] [--json]
+//        [--threshold 0.9] [--runs 3] [--mock-rule <substring>] [--model <id>] [--json]
 //
-// cases.json: { "cases": [ { "id": "t1", "prompt": "…", "should_trigger": true }, … ] }
-//             (a bare array is also accepted)
+// cases.json: { "cases": [ { "id": "t1", "prompt": "…", "should_trigger": true,
+//                            "holdout": true? }, … ] }   (a bare array also accepted)
 //
-// Exit 0 iff passed (precision >= threshold AND recall >= threshold), else 1.
+// --runs N     judge each case N times and take the majority — a single LLM-judge
+//              call is noisy; Anthropic's skill-creator uses 3 runs per query for
+//              a reliable trigger rate.
+// holdout      mark ~40% of cases "holdout": true and never tune the description
+//              against them; the gate then ALSO requires the held-out slice to
+//              clear the threshold, which is what stops description overfitting
+//              (skill-creator's 60/40 train/held-out split).
+//
+// Exit 0 iff passed: combined precision AND recall >= threshold, and — when any
+// holdout cases exist — held-out precision AND recall >= threshold too.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -114,27 +123,51 @@ function resolveJudge(name, opts = {}) {
 }
 
 // --- runner: returns a report conforming to assets/trigger-eval.schema.json ---
-export function runTriggerEval({ skillDir, description, name, cases, judge, threshold = 0.9 }) {
+export function runTriggerEval({ skillDir, description, name, cases, judge, threshold = 0.9, runs = 1 }) {
   if (skillDir && (!description || !name)) {
     const fm = parseFrontmatter(fs.readFileSync(path.join(skillDir, "SKILL.md"), "utf8"));
     name = name || fm.name;
     description = description || fm.description;
   }
   const judgeFn = typeof judge === "function" ? judge : resolveJudge(judge);
-  const predictions = cases.map((c) => judgeFn(description, name, c.prompt) === true);
+  const votes = cases.map((c) => {
+    let v = 0;
+    for (let r = 0; r < runs; r += 1) if (judgeFn(description, name, c.prompt) === true) v += 1;
+    return v;
+  });
+  const predictions = votes.map((v) => v * 2 > runs); // majority; tie counts as SKIP
   const { confusion, precision, recall, accuracy } = computeMetrics(cases, predictions);
-  const passed = precision >= threshold && recall >= threshold;
+
+  const sub = (want) => {
+    const idx = cases.map((c, i) => [c, i]).filter(([c]) => (c.holdout === true) === want).map(([, i]) => i);
+    if (!idx.length) return null;
+    const m = computeMetrics(idx.map((i) => cases[i]), idx.map((i) => predictions[i]));
+    return {
+      total: idx.length,
+      confusion: m.confusion,
+      metrics: { precision: round3(m.precision), recall: round3(m.recall), accuracy: round3(m.accuracy) },
+      passed: m.precision >= threshold && m.recall >= threshold
+    };
+  };
+  const holdout = sub(true);
+  const split = holdout ? { train: sub(false), holdout } : null;
+
+  const passed = precision >= threshold && recall >= threshold && (holdout ? holdout.passed : true);
   return {
     skill: name || "(unknown)",
     judge: typeof judge === "string" ? judge : "custom",
     threshold,
+    runs,
     total: cases.length,
     confusion,
     metrics: { precision: round3(precision), recall: round3(recall), accuracy: round3(accuracy) },
+    ...(split ? { split } : {}),
     cases: cases.map((c, i) => ({
       id: c.id ?? `case-${i + 1}`,
       should_trigger: c.should_trigger === true,
       triggered: predictions[i],
+      votes: votes[i],
+      ...(c.holdout === true ? { holdout: true } : {}),
       outcome: outcomeOf(c.should_trigger === true, predictions[i])
     })),
     passed
@@ -144,11 +177,12 @@ export function runTriggerEval({ skillDir, description, name, cases, judge, thre
 // --- CLI ---
 function main() {
   const args = process.argv.slice(2);
-  let skillDir = null, casesPath = null, judge = "cli", threshold = 0.9, mockRule = "YES", model = null, asJson = false;
+  let skillDir = null, casesPath = null, judge = "cli", threshold = 0.9, runs = 1, mockRule = "YES", model = null, asJson = false;
   for (let i = 0; i < args.length; i += 1) {
     const a = args[i];
     if (a === "--judge") judge = args[++i];
     else if (a === "--threshold") threshold = Number(args[++i]);
+    else if (a === "--runs") runs = Math.max(1, Number(args[++i]) || 1);
     else if (a === "--mock-rule") mockRule = args[++i];
     else if (a === "--model") model = args[++i];
     else if (a === "--json") asJson = true;
@@ -156,7 +190,7 @@ function main() {
     else if (!casesPath) casesPath = a;
   }
   if (!skillDir || !casesPath) {
-    console.error("Usage: node scripts/trigger_eval.mjs <skill-dir> <cases.json> [--judge mock|cli] [--threshold 0.9] [--mock-rule <substr>] [--model <id>] [--json]");
+    console.error("Usage: node scripts/trigger_eval.mjs <skill-dir> <cases.json> [--judge mock|cli] [--threshold 0.9] [--runs 3] [--mock-rule <substr>] [--model <id>] [--json]");
     process.exit(2);
   }
   const raw = JSON.parse(fs.readFileSync(path.resolve(casesPath), "utf8"));
@@ -166,16 +200,20 @@ function main() {
     process.exit(2);
   }
   const judgeFn = resolveJudge(judge, { mockRule, model });
-  const report = runTriggerEval({ skillDir, cases, judge: judgeFn, threshold });
+  const report = runTriggerEval({ skillDir, cases, judge: judgeFn, threshold, runs });
   report.judge = judge; // record the named judge, not "custom"
   if (asJson) {
     console.log(JSON.stringify(report, null, 2));
   } else {
-    console.log(`skill: ${report.skill}   judge: ${judge}   threshold: ${threshold}`);
+    console.log(`skill: ${report.skill}   judge: ${judge}   threshold: ${threshold}   runs/case: ${runs}`);
     console.log(`precision ${report.metrics.precision}  recall ${report.metrics.recall}  accuracy ${report.metrics.accuracy}  (TP ${report.confusion.tp} FP ${report.confusion.fp} FN ${report.confusion.fn} TN ${report.confusion.tn})`);
+    if (report.split) {
+      console.log(`  train:   precision ${report.split.train.metrics.precision}  recall ${report.split.train.metrics.recall}  (${report.split.train.total} cases)`);
+      console.log(`  holdout: precision ${report.split.holdout.metrics.precision}  recall ${report.split.holdout.metrics.recall}  (${report.split.holdout.total} cases) ${report.split.holdout.passed ? "ok" : "BELOW THRESHOLD"}`);
+    }
     for (const c of report.cases) {
       const ok = c.outcome === "TP" || c.outcome === "TN";
-      console.log(`  ${ok ? "ok  " : "MISS"} [${c.outcome}] ${c.id}: want ${c.should_trigger ? "TRIGGER" : "SKIP"}, got ${c.triggered ? "TRIGGER" : "SKIP"}`);
+      console.log(`  ${ok ? "ok  " : "MISS"} [${c.outcome}] ${c.id}${c.holdout ? " (holdout)" : ""}: want ${c.should_trigger ? "TRIGGER" : "SKIP"}, got ${c.triggered ? "TRIGGER" : "SKIP"} (${c.votes}/${runs})`);
     }
     console.log(report.passed ? "\nRESULT: PASS" : "\nRESULT: FAIL");
   }

@@ -43,6 +43,11 @@ This resolves the cap rule in `rules/scorecard.md`. A **required** pillar scorin
 0 forces `verdict: draft` and a P0 action. A **N/A-eligible** pillar may be
 `status: na, score: null` when genuinely out of scope (justify in `evidence`).
 
+> Enforcement lives in `scripts/validate_spec.mjs` (`REQUIRED_AT`): required =
+> the "required" rows below (`design`+`low_context_kb` at lite; those plus
+> `testing`/`tdd`/`metrics` at full). If you edit this table, update the script
+> in the same change — the evals assert they agree.
+
 | Pillar | lite | full |
 |---|---|---|
 | `design` | required | required |

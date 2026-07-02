@@ -1,202 +1,157 @@
 # Pipeline gates and the loop
 
-Load this for Steps 2–4. It says **exactly how to read each stage's artifact**
-to decide pass/fail, **which gap loops back to which stage**, and the
-**max-iteration bounds** that keep the loop finite.
+Load this for Steps 2–4. It says how each stage's gate **runs** (an executable
+script, not prose you re-derive), **which gap loops back to which stage**, and
+the **max-iteration bounds** that keep the loop finite.
 
 The principle: **gate after every stage; never pass a failing artifact
-downstream.** When a gate fails, repeat the stage (or loop back) until it passes
-or the budget is spent — then stop and report (`rules/final-acceptance.md`).
+downstream.** When a gate fails, repeat the stage (or loop back) until it
+passes or the budget is spent — then stop and report
+(`rules/final-acceptance.md`). Each stage attempt — pass *or* fail — is one
+entry in the run-log `stages[]`.
 
-Read the artifacts directly with `node -e` / `cat`; the conductor runs no
-scripts of its own. Each stage attempt — pass *or* fail — is one entry in the
-run-log `stages[]` array.
+## Resolving the gate scripts (installed names carry a prefix)
+
+The G and E gates are scripts shipped by the stage skills themselves — the
+same scripts those stages self-gate with, so builder and gatekeeper can't
+drift. Resolve the sibling dirs first (repo: `skill-guidance`; installed:
+e.g. `vince-skill-guidance`):
+
+```bash
+cd <this skill-conductor dir>
+SG=$(ls -d ../skill-guidance ../*-skill-guidance 2>/dev/null | head -1)
+SE=$(ls -d ../skill-engineer ../*-skill-engineer 2>/dev/null | head -1)
+```
 
 ---
 
 ## Stage G — Guidance gate
 
 **Artifact:** `<target>/.skill-guidance/handoff-spec.json`
-(contract: `skill-guidance/assets/handoff-spec.schema.json`).
+(contract: `$SG/assets/handoff-spec.schema.json`).
 
-**PASS when both hold:**
-1. The spec is **schema-valid** — it parses and carries the fields downstream
-   needs (`recommended_design`, `prioritized_actions`, `altitude`, `scorecard`,
-   `handoff`).
-2. A **verdict is recorded**: `overall_readiness.verdict` is one of
-   `draft | candidate | industrial`.
+**Gate — exit 0 required:**
 
 ```bash
-node -e "const s=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));['recommended_design','prioritized_actions','altitude','scorecard','handoff'].forEach(k=>{if(!(k in s))throw new Error('spec missing '+k)});if(!s.overall_readiness||!s.overall_readiness.verdict)throw new Error('no verdict');console.log('G gate ok:',s.target.name||s.target.path,s.altitude,s.overall_readiness.verdict)" <target>/.skill-guidance/handoff-spec.json
+node "$SG/scripts/validate_spec.mjs" <target-dir>
 ```
 
-A low verdict (e.g. `draft`) does **not** fail this gate — guidance is *allowed*
-to report a draft skill; that is its job. The G gate only checks that a usable,
-schema-valid plan **exists**. (Whether the *finished* skill is good enough is
-decided by Final Acceptance, Step 5.)
+It enforces schema validity plus internal consistency: exactly 7 scorecard
+pillars, score↔status agreement, ratio/points arithmetic, verdict vs the ratio
+bands **and** the required-pillar cap, checklist entries in
+`input → expected output` form, every absent/partial pillar mapped to an
+action, no TODO/TBD placeholders. Record its final `G gate ok: …` line as
+`gate_evidence`.
 
-**On fail** (spec missing / unparseable / no verdict): `action: "repeat"` Stage
-G, up to **MAX_G** attempts. If still failing, `action: "stop"` and report —
-without a spec there is nothing to build.
+A **low verdict does not fail this gate** — guidance is allowed (required) to
+report a draft skill honestly; the gate checks that a usable, self-consistent
+plan exists. Whether the *finished* skill is good enough is Final Acceptance's
+question (Step 5).
+
+**On fail** (unparseable, schema-invalid, inconsistent): `action: "repeat"`
+Stage G, up to **MAX_G** attempts; if still failing, `action: "stop"` — without
+a valid plan there is nothing to build.
 
 ---
 
 ## Stage E — Engineer gate
 
 **Artifact:** `<target>/.skill-engineer/build-report.json`
-(contract: `skill-engineer/assets/build-report.schema.json`).
+(contract: `$SE/assets/build-report.schema.json`).
 
-**PASS when all five hold:**
-1. **Verification actually ran:** `verification.ran == true`.
-2. **All required eval cases pass:** `verification.all_required_passed == true`
-   **and** `tests.totals.failed == 0` (`tests.totals.total > 0` — a build with
-   zero cases has not been verified).
-3. **Every P0 is done:** every action whose spec `priority == "P0"` appears in
-   `actions_resolved` with `status == "done"`. A `blocked`/`deferred` P0 fails
-   the gate.
-4. **Verification is real, independent, and executable (script skills).** If the
-   built skill ships deterministic logic, **the conductor re-runs the harness
-   itself** (`node <target>/<harness_path>`) and confirms exit 0 — never trust a
-   self-reported pass count. Fail the gate, and **fail closed** (the skill is
-   `candidate` at best, never `done`/`industrial`), if any of these hold:
-   - **No executable harness.** `harness_ran != true`, `harness_path` missing, or
-     the file does not exist / does not run.
-   - **Tautological harness.** The harness implements the skill's mechanism inside
-     `evals/` instead of importing it from a separate `scripts/` file — it tests
-     its own copy, not the shipped logic. Require the mechanism in `scripts/` (or
-     equivalent) and the harness to import it.
-   - **Fabricated or hollow red phase.** `.skill-engineer/red/red.log` is prose,
-     or it is only a module-not-found crash / a bare `EXIT:1` with **no `FAIL `
-     line**. A real red log shows assertion-level process output (`FAIL <case>`
-     lines against an importable-but-wrong stub). Narrative sentences, import
-     errors, or a lone exit code prove the file was absent, not that the
-     assertions were authored first — treat the red phase as missing and score
-     `tdd: partial` at most (never `present`).
-   (A pure LLM-behavioral lite skill with no deterministic script is exempt from
-   #4 but is still subject to Final Acceptance's independent battery.)
-5. **Every adversarial-checklist edge has a passing case (coverage gate).** Diff
-   the spec's `recommended_design.adversarial_checklist` against the build-report's
-   `tests.checklist_coverage`: **every** checklist entry must map to an existing
-   `tests.eval_cases[].id` whose own `passed` is `true`. Any entry that is
-   uncovered, mapped to a nonexistent `case_id`, or covered by a failing case,
-   **fails the E gate → repeat Stage E** to add the case + fix the bug it exposes.
-   This is the point: catch the domain bug **here, in the loop** (where it can be
-   fixed and still reach `industrial`), not at Final Acceptance (where the battery
-   can only demote to `candidate`).
-
-   ```bash
-   node -e "const fs=require('fs');const s=JSON.parse(fs.readFileSync(process.argv[1],'utf8')),r=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const need=s.recommended_design.adversarial_checklist||[];const cases=new Map((r.tests.eval_cases||[]).map(c=>[c.id,c.passed===true]));const cov=new Map((r.tests.checklist_coverage||[]).map(c=>[c.edge,c]));const missing=need.filter(e=>{const c=cov.get(e);return !c||c.passed!==true||cases.get(c.case_id)!==true});if(missing.length){console.error('CHECKLIST GAP — uncovered/failing: '+JSON.stringify(missing));process.exit(1)}console.log('checklist ok: '+need.length+'/'+need.length+' covered')" <target>/.skill-guidance/handoff-spec.json <target>/.skill-engineer/build-report.json
-   ```
-
-The build-report's `actions_resolved` carries **no** `priority` field, so the
-gate must take the P0 id list from the **spec** and join by id. Pass the
-handoff-spec as the **second** argument so the P0 ids are real (not invented from
-the report):
+**Gate — exit 0 required:**
 
 ```bash
-node -e "const fs=require('fs'),cp=require('child_process'),path=require('path');const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8')),s=JSON.parse(fs.readFileSync(process.argv[2],'utf8')),target=process.argv[3];const p0=s.prioritized_actions.filter(a=>a.priority==='P0').map(a=>a.id);const done=new Set(r.actions_resolved.filter(a=>a.status==='done').map(a=>a.id));const p0ok=p0.every(id=>done.has(id));const t=r.tests.totals;const need=s.recommended_design.adversarial_checklist||[];const cases=new Map((r.tests.eval_cases||[]).map(c=>[c.id,c.passed===true]));const cov=new Map((r.tests.checklist_coverage||[]).map(c=>[c.edge,c]));const covered=need.filter(e=>{const c=cov.get(e);return c&&c.passed===true&&cases.get(c.case_id)===true}).length;const covok=covered===need.length;const touched=[...(r.built?.files_created||[]),...(r.built?.files_modified||[])];const scriptTouched=touched.some(f=>/(^|\/)scripts\/.+\.(mjs|js|py|sh|ts|tsx|jsx)$/.test(f));const v=r.verification||{};const hreq=v.harness_required===true||scriptTouched;let hok=!hreq;if(hreq){const hp=v.harness_path||'',out=v.command_output||'';hok=v.harness_ran===true&&!!hp&&/^PASS\s+\S+/m.test(out);if(hok&&target){const full=path.join(target,hp);if(fs.existsSync(full)){const bin=hp.endsWith('.py')?'python3':hp.endsWith('.sh')?'bash':'node';const p=cp.spawnSync(bin,[full],{encoding:'utf8'});hok=p.status===0&&/^PASS\s+\S+/m.test(p.stdout)}else hok=false}}const ok=r.verification.ran===true&&r.verification.all_required_passed===true&&t.failed===0&&t.total>0&&p0ok&&covok&&hok;console.log('E gate',ok?'ok':'FAIL','| ran',r.verification.ran,'| pass',t.passed+'/'+t.total,'| P0',p0.filter(id=>done.has(id)).length+'/'+p0.length+' done','| checklist_coverage',covered+'/'+need.length,'| harness',hreq?(hok?'ok':'FAIL'):'exempt');process.exit(ok?0:1)" <target>/.skill-engineer/build-report.json <target>/.skill-guidance/handoff-spec.json <target>
+node "$SE/scripts/validate_report.mjs" <target-dir>
 ```
-The gate `ok` boolean now **enforces** criterion #3: it is false unless every
-spec-`P0` id appears with `status: "done"` in `actions_resolved`. A
-`blocked`/`deferred` P0 makes `p0ok` false and fails the gate; the evidence line
-reports the real P0 done-count (e.g. `P0 2/3 done`).
 
-**On fail — route by the cause (read the report to decide):**
+It enforces the five criteria that used to be checked by hand, and **re-runs
+the harness itself** — never trust a self-reported pass count:
 
-| Symptom in the build-report | Cause | Action |
+1. verification actually ran (`verification.ran`, `all_required_passed`);
+2. all cases green (`totals.failed == 0`, `total > 0`, totals arithmetic);
+3. every spec **P0** action `done` (join by id against the spec);
+4. every spec `adversarial_checklist` edge covered by an existing **passing**
+   case (`tests.checklist_coverage` join) — the point is to catch the domain
+   bug *here in the loop*, where it can still reach `industrial`, not at Final
+   Acceptance, which can only demote;
+5. for any skill that ships scripts: an executable harness that **re-runs
+   green right now** (stale `command_output` fails), plus a genuine red log
+   (`.skill-engineer/red/red.log` with `FAIL <case>` lines — a
+   module-not-found crash or bare `EXIT:1` proves the file was absent, not
+   that assertions came first).
+
+Record its `E gate ok/FAIL: … | ran … | pass … | P0 … | checklist … |
+harness … | red …` line as `gate_evidence`.
+
+**On fail — route by cause (read the report to decide):**
+
+| Symptom | Cause | Action |
 |---|---|---|
-| `verification.ran == false`, or `tests.totals.failed > 0`, or `total == 0` | **Tests are bad / not green / not written.** | `action: "repeat"` Stage E (re-run the engineer; it owns the red-green-refactor loop). Up to **MAX_E** attempts. |
-| **build-report `handoff.blocking`** non-empty pointing at intent/spec problems; a P0 marked `blocked` as "unbuildable as specified"; or the re-plan would need to clear the guidance spec's `handoff.blocking_unknowns` | **The design was wrong** — the plan can't be built as written. | **First check `loops_taken < MAX_FULL_LOOPS`.** If the budget is exhausted, `action: "stop"` → `final_verdict: "stopped_unmet"` (do **not** loop). Otherwise `action: "loopback"` to Stage G: re-plan (guidance), then re-run E. **Each E→G loopback increments `loops_taken`** (it is a full loop). |
+| Gate errors about tests/harness/red/coverage (`verification.ran false`, failing totals, uncovered checklist edge, stale harness…) | **The build isn't green yet.** | `action: "repeat"` Stage E (the engineer owns red-green-refactor), up to **MAX_E** attempts. |
+| Build-report `handoff.blocking` names intent/spec problems; a P0 is `blocked` as "unbuildable as specified"; the fix needs a different plan | **The design is wrong** — this can't be built correctly from this spec. | Check `loops_taken < MAX_FULL_LOOPS` first. Budget spent → `action: "stop"`, `final_verdict: "stopped_unmet"`. Otherwise `action: "loopback"` to Stage G (re-plan), then re-run E. **Each E→G loopback increments `loops_taken`.** |
 
-Decision rule: if the failure is *"the implementation/tests aren't green yet,"*
-**repeat E**. If it is *"this can't be built correctly from this spec,"* **loop
-back to G**. When unsure, prefer one more E attempt before loopback — repeating
-the cheaper stage first is the user's intent ("keep testing").
+Decision rule: *"not green yet"* → repeat E; *"can't be built from this
+spec"* → loop back to G. When unsure, prefer one more E attempt — repeating
+the cheaper stage first.
 
-> **Field names — don't confuse them.** At the E gate the only artifact on disk
-> is the **build-report**, whose field is **`handoff.blocking`** (an array of
-> strings). The guidance-spec field is named **`handoff.blocking_unknowns`** and
-> is a *different* file — read it only after a re-plan (Stage G re-run). Do not
-> read a bare "`handoff.blocking`" off the guidance spec, and do not look for
-> `blocking_unknowns` on the build-report; neither exists.
+> **Field names.** The build-report's field is `handoff.blocking`; the
+> guidance spec's is `handoff.blocking_unknowns`. They live in different
+> files — don't read one off the other.
 
-**MAX_E ceiling (terminal rule).** If a *not-green* E failure (tests still
-failing — the top "repeat E" row, not a design-wrong cause) persists after
-**MAX_E = 3** in-pass attempts, escalate: **loop back to Stage G once** (this
-counts as a full loop and increments `loops_taken`, so first check
-`loops_taken < MAX_FULL_LOOPS`) **if a G loopback has not already been tried this
-pass**; otherwise **stop** with `final_verdict: "stopped_unmet"` and the failing
-tests listed in `blocking_gaps`. Do not silently keep repeating E past its cap.
+**MAX_E ceiling (terminal rule).** If a *not-green* failure persists after
+**MAX_E = 3** in-pass attempts: loop back to Stage G once (counts as a full
+loop; check the budget) **if** a G loopback hasn't already been tried this
+pass; otherwise stop with `final_verdict: "stopped_unmet"` and the failing
+tests in `blocking_gaps`. Never silently repeat E past its cap.
 
 ---
 
 ## Stage Z — Zipper gate
 
-**Artifact:** the restructured skill in place. The zipper proves losslessness
-with `scripts/diff_lossless.py` (its `rules/verification-checklist.md`).
+**Artifact:** the restructured skill in place; the zipper proves losslessness
+with its own `diff_lossless.py` and reports LOST/REWRITTEN counts in its Done
+summary.
 
-**PASS when:** the restructure is **lossless** — 0 LOST and 0 REWRITTEN lines,
-**OR** every `LOST` / `REWRITTEN` line is **explicitly classified** as an
-accepted Harden / Enrich / Retrigger rewrite per the zipper's checklist. No
-content is silently lost or silently reworded.
+**PASS when** the restructure is lossless — `0 LOST / 0 REWRITTEN`, **or**
+every such line explicitly classified as an accepted Harden / Enrich /
+Retrigger rewrite per the zipper's checklist. Read the Done summary's counts
+(and classifications) as `gate_evidence`; the conductor does not re-run the
+diff.
 
-**Where the lossless verdict comes from (the conductor runs no scripts of its
-own):** the zipper creates its own before-snapshot (git HEAD, or
-`/tmp/<skillname>-before/` per its `rules/write-procedure.md`), runs
-`scripts/diff_lossless.py` itself, and reports the diff result in its **Done
-summary**. Read that summary's **LOST / REWRITTEN counts** (and any
-classification of those lines) as `gate_evidence`; the conductor does **not**
-re-run `diff_lossless.py`.
+If the Done summary omits the counts, fall back: snapshot before invoking
+Stage Z (`cp -RL <target> /tmp/<name>-before`), then run
+`python3 <zipper-dir>/scripts/diff_lossless.py /tmp/<name>-before <target>`
+and read its exit code + counts (resolve `<zipper-dir>` like the other
+siblings: `../skill-zipper` or `../*-skill-zipper`).
 
-If the zipper's Done summary does not state LOST / REWRITTEN counts, fall back:
-snapshot the skill dir **before** invoking Stage Z to `/tmp/<name>-before/`
-(`cp -r <target> /tmp/<name>-before`), then after Z run
-`python3 ../skill-zipper/scripts/diff_lossless.py /tmp/<name>-before <target>`
-and read its exit code + LOST / REWRITTEN counts.
-
-Record `gate_evidence` as the diff result (LOST / REWRITTEN counts, plus the
-classification of any such lines) — e.g. `0 LOST / 0 REWRITTEN` or
-`3 LOST / 2 REWRITTEN, all classified Harden/Retrigger`.
-
-**On fail** (true content loss, unclassified rewrite, or lines that can't be
-classified):
-- `action: "repeat"` Stage Z (re-run with a tighter, more conservative plan),
-  up to **MAX_Z** attempts; **or**
-- **skip compression**: leave the built+tested skill uncompressed, set this
-  stage's `action: "proceed"`, and add a run-log note that Z was skipped and
-  why.
-
-**Never ship a lossy result.** Z is the one optional stage — a clearly-noted
-skip is acceptable, a lossy compression is not. A skipped Z does **not** block
-`final_verdict: "done"`.
+**On fail** (true loss or unclassifiable rewrite): `action: "repeat"` Stage Z
+with a more conservative plan, up to **MAX_Z**; **or skip compression** — set
+`action: "proceed"` with a run-log note. **Never ship a lossy result.** Z is
+the one optional stage: a noted skip does not block `final_verdict: "done"`.
 
 ---
 
-## Max-iteration bounds
+## Max-iteration bounds (single source — final-acceptance refers here)
 
 | Bound | Value | Meaning |
 |---|---|---|
-| **MAX_G** | 2 | Stage G repeats within one pass before stopping. |
-| **MAX_E** | 3 | Stage E repeats within one pass before escalating (loopback to G or stop). |
+| **MAX_G** | 2 | Stage G repeats within one pass. |
+| **MAX_E** | 3 | Stage E repeats within one pass before escalating. |
 | **MAX_Z** | 2 | Stage Z repeats before skipping compression. |
-| **MAX_FULL_LOOPS** | 3 | **Every** return to an earlier stage — both Stage-E→G design-wrong loopbacks **and** Final-Acceptance-driven returns (Step 5). |
+| **MAX_FULL_LOOPS** | 3 | **Every** return to an earlier stage — Stage-E→G design-wrong loopbacks **and** Final-Acceptance-driven returns. |
 
-`loops_taken` in the run-log counts **every return to an earlier stage** — both
-the Stage-E→G design-wrong loopbacks (above) **and** Final-Acceptance-driven
-returns. It does **not** count in-stage repeats, which are visible as multiple
-`stages[]` entries with the same `stage` and increasing `iteration`. Before any
-such return, check `loops_taken < MAX_FULL_LOOPS`; if the budget is exhausted, do
-not loop — **stop** with `final_verdict: "stopped_unmet"`. This makes every path
-that returns to an earlier stage finite.
+`loops_taken` counts every return to an earlier stage; in-stage repeats show
+as repeated `stages[]` entries with increasing `iteration`, not here. Before
+any return, check `loops_taken < MAX_FULL_LOOPS`; budget spent → **stop** with
+`final_verdict: "stopped_unmet"`.
 
-**Worst-case ceiling (confirm termination by arithmetic, not prose):** there are
-at most `MAX_FULL_LOOPS + 1 = 4` passes. Each pass runs each stage at most its
-per-pass max (`MAX_G`, `MAX_E`, `MAX_Z`), and **per-stage iteration counters
-reset at the start of each pass**. Total stage attempts are therefore bounded by
-`(MAX_FULL_LOOPS + 1) * max(MAX_G, MAX_E, MAX_Z) = 4 * 3 = 12` per stage —
-finite regardless of which gates fail.
+**Termination by arithmetic, not prose:** at most `MAX_FULL_LOOPS + 1 = 4`
+passes; per-stage counters reset each pass; total attempts per stage are
+bounded by `4 × max(MAX_G, MAX_E, MAX_Z) = 12`. Finite regardless of which
+gates fail.
 
-When any bound is hit and the gate still fails: **stop**, write
-`final_verdict: "stopped_unmet"`, and list the unmet gate(s) in `blocking_gaps`.
-Do not loosen a gate to force a pass — an honest `stopped_unmet` is the correct
-outcome.
+When a bound is hit and the gate still fails: stop, write
+`final_verdict: "stopped_unmet"`, list the unmet gates in `blocking_gaps`.
+Never loosen a gate to force a pass — an honest `stopped_unmet` is a correct
+outcome, and the whole pipeline trusts these flags.

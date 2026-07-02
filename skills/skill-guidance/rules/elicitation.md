@@ -49,23 +49,28 @@ detector says *which* slot, you phrase the *domain* question. Generic
 Write the questions to `<target>/.skill-guidance/clarifying-questions.json` as a
 JSON array of strings (this is a real artifact the pipeline and the eval read).
 
-## 3. Two modes — same detection, different disposition
+## 3. Three dispositions — same detection, different handling
 
-The trigger is identical; only what you do with the questions differs.
+The detection is identical; only what you do with a gap differs (SKILL.md
+Step 0 says how to tell them apart):
 
-- **Standalone / interactive** (a human is present): surface the questions with
+- **plan-interactive** (a human is present): surface the questions with
   `AskUserQuestion`, fold the answers into the spec, then emit. This is the
   primary mode — a human asked you to evaluate/plan a skill.
-- **Pipeline / non-interactive** (invoked by `skill-conductor`, no human to
+- **plan-pipeline** (invoked by `skill-conductor` pre-build, no human to
   answer): you must **not block** the autonomous run. Still emit
   `clarifying-questions.json` (so the gap is recorded and surfaced), then proceed
   with an **explicit, logged assumption** for each gap: fill the affected design
   unit with your best-effort answer and record `assumed: <decision> because
   <reason>` in `altitude_rationale` / the relevant `evidence`. The conductor and
   a later human can see exactly what was assumed.
+- **audit** (re-auditing a *built* skill for final acceptance): skip this gate
+  entirely — asking design questions about a finished build is noise. Anything
+  genuinely still open belongs in the scorecard as a pillar gap with a
+  prioritized action. Do not write `clarifying-questions.json`; write the spec
+  to `post-build-audit.json` (see `rules/spec-format.md`).
 
-Detect the mode from the invocation: a conductor pipeline run is non-interactive;
-a direct user invocation is interactive. When unsure, prefer asking.
+When unsure between the two plan dispositions, prefer asking.
 
 ## 4. Never dump into `blocking_unknowns`
 
@@ -80,5 +85,7 @@ asked, that is the old bug — move them to questions or assumptions.
 
 - [ ] detector ran; every `missing` slot is either asked or assumed-and-logged
 - [ ] `sufficient:true` ⇒ `clarifying-questions.json` is empty/absent (no over-ask)
-- [ ] all 8 `recommended_design` units are concretely filled (no `TODO`/`TBD`)
-- [ ] `blocking_unknowns` ≤ 1 and holds only a real external blocker
+- [ ] all 8 design units **and** the `adversarial_checklist` are concretely
+      filled — `scripts/validate_spec.mjs` fails on `TODO`/`TBD` placeholders
+- [ ] `blocking_unknowns` ≤ 1 and holds only a real external blocker (the
+      validator warns past 2)

@@ -11,6 +11,7 @@
 - 一个 `trigger_eval`：用 `claude -p` 真把这个 skill 跑起来，对着基线量**真实触发率**，而非「我觉得会触发」。
 - 独立测试组对构建规则一无所知，专抓自测漏掉的 bug。
 - 测试驱动：required case 没真跑通、或脚本 skill 没有可重跑 harness，就一律视为未验证，不报成功。
+- **v2.0：E 门是可执行的** —— 交付前自跑 `validate_report.mjs`（P0/对抗清单 join、harness **当场重跑**、红日志校验），与 conductor 用同一把尺；trigger_eval 支持 3 次投票 + held-out 防过拟合；行为类 skill 的红阶段 = 无技能基线记录；发布前安全 lint（秘钥/注入/未声明外呼）。
 
 **什么时候用** —— 「实现 / 开发 / 接好这个 skill」·「让 eval case 跑通」·「把 handoff-spec 变成文件」·指向 `.skill-guidance/handoff-spec.json` 时；也可用 `/skill-engineer` 显式调用。
 **不适用** —— 规划 / 审计（→ skill-guidance）；token 压缩 / 重构（→ skill-zipper）；没有 spec 的空白脚手架（→ skill-creator）。

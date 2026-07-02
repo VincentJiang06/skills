@@ -50,6 +50,18 @@ Two consequences of this taxonomy:
 Files in `evals/`, `test/`, or any hidden directory are infrastructure
 for the skill author. Claude never loads them during normal invocation.
 
+Two structural rules from the official authoring docs worth enforcing here:
+on-demand files should sit **one level deep** from SKILL.md (a reference that
+only another reference points to won't get read), and any file **>100 lines
+gets a table of contents** so the model can navigate it without absorbing it.
+
+**Compaction lifecycle (Claude Code, mid-2026):** once invoked, SKILL.md
+persists in context for the session; after auto-compaction the runtime
+re-attaches each invoked skill's **first ~5,000 tokens** (25,000-token cap
+across all skills). Consequence: every load-bearing instruction belongs in the
+first 5k tokens of SKILL.md — a healthy ≤1,500-token SKILL.md survives
+compaction whole, which is one more reason the always-loaded budget matters.
+
 ## Token cost model
 
 For one invocation of a skill:

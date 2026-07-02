@@ -12,7 +12,7 @@
     "testing/template_contracts.json"
   ],
   "counts": {
-    "indexed_files": 82,
+    "indexed_files": 83,
     "coverage_goals": 9,
     "long_docs": 13,
     "json_template_files": 4,
@@ -21,7 +21,7 @@
     "references": 88,
     "metrics": 10,
     "template_contracts": 4,
-    "search_tokens": 26504,
+    "search_tokens": 26505,
     "route_goals": 9,
     "route_query_cases": 21,
     "compact_query_limit": 12,
@@ -39,6 +39,7 @@
       "node_file": 6,
       "reference_file": 12,
       "report_file": 1,
+      "runbook_file": 1,
       "schema_file": 13,
       "search_index": 4,
       "template_file": 7,
@@ -186,7 +187,7 @@
         "required": true,
         "passed": true,
         "metric_path": "counts.search_tokens",
-        "actual": 26504,
+        "actual": 26505,
         "expected": 1000
       }
     ]

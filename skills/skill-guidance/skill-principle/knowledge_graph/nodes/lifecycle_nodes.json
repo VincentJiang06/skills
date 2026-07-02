@@ -156,7 +156,8 @@
       ],
       "child_ids": [],
       "doc_ids": [
-        "doc.operations.skill_lifecycle_management"
+        "doc.operations.skill_lifecycle_management",
+        "doc.operations.kb_update_runbook"
       ],
       "reference_ids": [
         "ref.skillsvote.lifecycle_governance"

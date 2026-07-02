@@ -6,6 +6,12 @@ Use the format below verbatim. Every section must be present even if
 empty (with a "no action" note) — this signals to the user that the
 dimension was analyzed, not skipped.
 
+> **Pipeline mode (invoked by skill-conductor as Stage Z):** print the plan
+> for the run log, but do **not** wait for "go" — the user's end-to-end
+> pipeline request is the approval (SKILL.md). Apply only conservative
+> lossless operations, then verify. The confirmation prompt below is for
+> direct user mode only.
+
 ---
 
 ## The plan format
@@ -50,14 +56,14 @@ After:   SKILL.md (~[N] lines, ~[N] tokens always-loaded)
 → (or: No vague instructions found)
 
 ### Retrigger
-Current description score (per rules/description-quality.md): [N]/7
+Current description score (per rules/description-quality.md): [N]/8
 → [Rewrite from scratch / Targeted fixes for items X, Y / No action needed]
   Proposed new description:
   """
   [new description text]
   """
 
-→ (or: Description score 6-7 — no action needed)
+→ (or: Description score 7-8 — no action needed)
 
 ---
 Lossless check: every line currently in SKILL.md will exist verbatim in

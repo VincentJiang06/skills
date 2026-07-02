@@ -11,6 +11,7 @@
 - The output is a machine-consumable **contract** (schema-validated) that stage 2 `skill-engineer` ingests directly — no verbal handoff.
 - Every judgment is cited from the KB, not recalled from memory — scoring is evidence-backed and gaps land as concrete, actionable items.
 - **Asks before it assumes** — a context-sufficiency gate (`detect_context_gaps.mjs` + `rules/elicitation.md`) runs before build: if a decision-critical slot is missing it **asks a human** rather than burying a guess in `blocking_unknowns` (this skill's #1 failure mode).
+- **v2.0: the spec gate is executable** — nothing ships until `validate_spec.mjs` exits 0 (exactly 7 pillars, score↔status, verdict vs the cap rule, gap→action mapping); new audit disposition writes `post-build-audit.json` so final acceptance never clobbers the build spec.
 
 **When to use** — "is this skill good / industrial-grade" · "score / audit / scope this skill" · "look at this SKILL.md / repo before building"; or call `/skill-guidance`.
 **Not for** — implementation / writing code (→ skill-engineer); token restructuring (→ skill-zipper); blank scaffolding (→ skill-creator).

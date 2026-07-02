@@ -62,6 +62,7 @@ For each of the 5 operations, the question to ask and the signal to look for:
 | A heading section whose body exceeds 30 lines | Section by section |
 | Examples that illustrate the same point ≥ 3 times | Repetition is the giveaway |
 | Reference material (enums, codes, lookup tables) | These belong in references/ |
+| **Content the model already knows** (what git is, how JSON works, generic best practices) | Delete rather than move — "assume the model is smart, add only non-obvious context" is the official authoring rule; re-teaching basics is pure tax. This is the ONE sanctioned deletion: list each such chunk in the plan, and classify its LOST lines in verification as a **known-content deletion** (never delete silently — losslessness means classified, not necessarily kept) |
 
 **Decision**: candidate → estimate token cost via tiktoken on the section
 text → state the target file. If the moved content will be Read on every
@@ -124,6 +125,8 @@ for instructional prose, not artifacts.
 | Numeric threshold without units | Add units and boundary semantics |
 | "process the X" with no algorithm | Specify the steps or link to one |
 | "use best judgment" | Either replace with a decision rubric, or leave it but document that this is intentional latitude |
+| ALL-CAPS rule spam (ALWAYS/NEVER/MUST with no reason) | Add the why — the rationale is the rubric for novel cases (H11) |
+| **Hard word/length caps on the model's reasoning or interim text** ("keep replies ≤25 words") | Remove or relax — rigid brevity caps on *reasoning* measurably degrade output quality (Anthropic's 2026-04 postmortem: ~3% drop); a format contract on a *final artifact* ("summary ≤100 words in the report") is fine. Distinguish the two before "fixing" either. |
 
 For a fuller library of vague→precise rewrites, load `rules/hardening-patterns.md`.
 
@@ -133,13 +136,13 @@ instruction — surface every rewrite for user review.
 
 ### Retrigger — "Does the description make the skill load on the right turns?"
 
-Apply the scorecard from `rules/description-quality.md`:
+Apply the 8-item scorecard from `rules/description-quality.md`:
 
 | Score | Verdict |
 |-------|---------|
-| 0-3 | Rewrite from scratch |
-| 4-5 | Targeted fixes on the missing items |
-| 6-7 | No action |
+| 0-4 | Rewrite from scratch |
+| 5-6 | Targeted fixes on the missing items |
+| 7-8 | No action |
 
 Common failure modes:
 - Buried verb (description starts with "A powerful tool that...")

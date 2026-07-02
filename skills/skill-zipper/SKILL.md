@@ -6,24 +6,28 @@ description: >
   splitting, has vague rules, or fails to trigger: "$skill-zipper". WITHOUT
   losing content; not build (engineer), audit (guidance), or scaffold
   (skill-creator).
+license: MIT
+metadata:
+  version: "2.0.0"
 ---
 
 # skill-zipper
 
-Restructure an existing Claude Code skill without losing content. The five
-operations are **Compress**, **Encapsulate**, **Enrich**, **Harden**, and
-**Retrigger**; analyze which apply, then propose a plan.
+Restructure an existing skill without losing content. The five operations are
+**Compress**, **Encapsulate**, **Enrich**, **Harden**, and **Retrigger**;
+analyze which apply, then propose a plan.
 
-A comprehensive pass refines **every part** — the `description`, SKILL.md, and
-every `rules/`/`references/` file — **and the load architecture** (always-loaded
-vs on-demand). The `description` is highest-leverage: it sits in the skills index
-on EVERY turn and Claude Code **truncates it past 1024 chars**. `measure_tokens.py`
-sizes it and emits Architecture flags — never ship what the flags call BAD.
+A comprehensive pass refines **every part** — the `description`, SKILL.md,
+every `rules/`/`references/` file — **and the load architecture**
+(always-loaded vs on-demand). The `description` is highest-leverage: it sits
+in the skills index on every turn and has hard length limits
+(`rules/description-quality.md`). `measure_tokens.py` sizes everything and
+emits Architecture flags — never ship what the flags call BAD.
 
-Before reasoning about any of these, **read `rules/progressive-disclosure-model.md`**
-to internalize what "always-loaded" vs "on-demand" means and the role of
-each directory (`rules/`, `references/`, `assets/`, `scripts/`). Without
-that model the token-cost reasoning below is meaningless.
+Before reasoning about token cost, **read
+`rules/progressive-disclosure-model.md`** — it defines always-loaded vs
+on-demand and each directory's role; without that model the cost reasoning
+below is meaningless.
 
 Direct user mode: always show a plan first and wait for "go" before writing.
 Pipeline mode: if invoked by **skill-conductor** as **Stage Z**, the user's
@@ -34,22 +38,22 @@ writes, then report token impact and diff evidence.
 
 ## Step 1: Read the skill (every part)
 
-Ask for the skill directory path (or accept it if already provided).
+Resolve the skill directory path: use it if provided; in direct user mode ask
+for it; in pipeline mode a missing path is a stage failure to report, not a
+question to ask.
 
 Run `scripts/measure_tokens.py <skill_dir>` **first** and capture: the
 **description** char/token size, the always-loaded vs on-demand split, and the
-**Architecture flags** block (description over-limit, always-loaded budget,
-oversized parts, orphans). The flags tell you which parts need work.
+**Architecture flags** block — the flags tell you which parts need work.
 
 Then read, to refine **every part** (not just SKILL.md):
 - `SKILL.md` — required (stop if missing), **including its frontmatter `description`**.
-- All `rules/*.md` and `references/*.md` bodies — candidates for Compress / merge /
-  dedup; a `references/` file may duplicate SKILL.md content.
+- All `rules/*.md` and `references/*.md` bodies — Compress/merge/dedup
+  candidates (a references file may duplicate SKILL.md).
 - `scripts/`, `assets/`, `schemas/` — note what exists; read a body only when a
   flag (oversized / orphan) or the analysis points at it.
 
-Print a one-line inventory + the description size + always-loaded/on-demand totals
-+ any Architecture flags.
+Print a one-line inventory: description size, always/on-demand totals, flags.
 
 ## Step 2: Analyze each dimension
 
@@ -82,10 +86,10 @@ summary.
 ## Losslessness rules
 
 The restructure is lossless when removed SKILL.md lines appear elsewhere
-verbatim, or are explicitly classified as Harden/Retrigger rewrites or Enrich
-extractions; every new rules file is referenced from SKILL.md; rewrites preserve
-intent; and `diff_lossless.py` exits 0 or all LOST / REWRITTEN lines are
-classified.
+verbatim or are explicitly classified (Harden/Retrigger rewrite, Enrich
+extraction, plan-listed known-content deletion); every new rules file is
+referenced from SKILL.md; rewrites preserve intent; and `diff_lossless.py`
+exits 0 or all LOST / REWRITTEN lines are classified.
 
 If the user asks you to delete a section with no destination, propose a
 destination first. If no destination makes sense, suggest keeping the
@@ -97,7 +101,7 @@ section in SKILL.md even if it's long — losslessness trumps brevity.
 
 | File | When to load |
 |------|--------------|
-| `rules/progressive-disclosure-model.md` | Always — sets the mental model for what "always-loaded" vs "on-demand" means, and the role of each directory. Without this you can't reason about token cost. |
+| `rules/progressive-disclosure-model.md` | Always — the always-loaded vs on-demand model and each directory's role; prerequisite for any token-cost reasoning. |
 | `rules/diagnosis-rubric.md` | At Step 2, before analyzing any operation. Smoke-test thresholds, per-operation signal lists, priority matrix. |
 | `rules/operation-analysis.md` | At Step 2, alongside the diagnosis rubric. Per-operation candidate criteria and cross-references to pattern libraries. |
 | `rules/encapsulation-patterns.md` | When evaluating an Encapsulate candidate. Catalogue of good patterns (P1-P5) and anti-patterns (A1-A4). |
@@ -106,6 +110,7 @@ section in SKILL.md even if it's long — losslessness trumps brevity.
 | `rules/plan-template.md` | At Step 3, before printing the plan. Exact format and confirmation prompt. |
 | `rules/write-procedure.md` | At Step 4, before writing any file. Write order, dry-run procedure, anti-patterns. |
 | `rules/verification-checklist.md` | At Step 5, after writing. Two-layer verification (script + human) and the done summary format. |
+| `rules/portability-checklist.md` | When the skill must run beyond Claude Code, pre-publication, or when frontmatter changes — the portable core vs Claude-Code-only fields. |
 
 ## Scripts
 

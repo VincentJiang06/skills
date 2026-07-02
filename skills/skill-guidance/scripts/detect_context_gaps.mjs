@@ -45,8 +45,13 @@ export function detectGaps(text) {
 function readInput() {
   const i = process.argv.indexOf("--idea");
   if (i >= 0) return process.argv[i + 1] || "";
-  const p = process.argv[2];
-  if (p && fs.existsSync(p)) return fs.readFileSync(p, "utf8");
+  let p = process.argv[2];
+  if (p && fs.existsSync(p)) {
+    // a skill DIR is documented input — resolve to its SKILL.md instead of
+    // crashing EISDIR on readFileSync (found by the v2 live battery)
+    if (fs.statSync(p).isDirectory()) p = `${p.replace(/\/$/, "")}/SKILL.md`;
+    if (fs.existsSync(p)) return fs.readFileSync(p, "utf8");
+  }
   return "";
 }
 

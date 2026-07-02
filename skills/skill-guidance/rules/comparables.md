@@ -17,9 +17,10 @@ application of skill-principle's research pillar.
    node <kb>/tools/fetch_skill_reference.mjs --list   # ids/stars/paths only — NOT the learn hints
    cat <kb>/references/skill_repos.registry.json      # the what_to_learn_zh/en hints live here
    ```
-   (`<kb>` is the skill-principle dir, default
-   `skill-principle/references/skill_repos.registry.json` — read the JSON file,
-   don't rely on `--list` for the learn hints.)
+   (`<kb>` = the skill-principle KB dir, default `skill-principle/` inside this
+   skill. The `what_to_learn_zh/en` hints live only in
+   `<kb>/references/skill_repos.registry.json` — read that JSON when choosing;
+   `--list` alone omits them.)
    Quick gap → comparable map (a starting point; refine by domain):
 
    | Weak pillar / need | Comparable to fetch |
@@ -37,6 +38,11 @@ application of skill-principle's research pillar.
    ```bash
    node <kb>/tools/fetch_skill_reference.mjs repo.anthropics_skills skills/skill-creator --out /tmp/sg-ref
    ```
+   The fetch needs network. **Offline / sandboxed:** fall back to the
+   registry's `what_to_learn_zh/en` hints alone, and say so in the
+   `comparables[]` entry (`what_to_borrow: "... (registry hints only; fetch
+   unavailable)"`) — a degraded comparable recorded honestly beats a fabricated
+   one.
 
 4. **Mine for transferable structure** — frontmatter/trigger phrasing, how
    modules are split, where tests/metrics live, how controls are externalized.

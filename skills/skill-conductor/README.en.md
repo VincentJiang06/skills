@@ -11,6 +11,7 @@
 - Loops back to the **gap-owning stage** (design-wrong → G, test-wrong → E, lossy compression → Z); a failing artifact is never passed downstream.
 - **Stops honestly** (stopped_unmet) when it hits the loop cap without clearing the bar — it never relaxes a gate just to "pass."
 - Runs autonomously and writes a machine-checkable run trace at `<target>/.skill-conductor/conductor-log.json`.
+- **v2.0: gates ARE scripts** — Stage G/E execute the stage skills' own shipped validators (`validate_spec.mjs` / `validate_report.mjs`, the latter re-running the harness itself): builder and gatekeeper share one ruler, zero room to copy a command wrong; sibling resolution tolerates install prefixes (repo names and installed names both work).
 
 **When to use** — "build/test/compress this skill end to end" · "run guidance → engineer → zipper" · "push this idea or existing skill through all stages"; or call `/skill-conductor`.
 **Not for** — running just one stage (call that stage skill); planning only (→ skill-guidance); compression only (→ skill-zipper); blank scaffolding with no pipeline (→ skill-creator).

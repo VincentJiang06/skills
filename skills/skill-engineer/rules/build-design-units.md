@@ -7,7 +7,7 @@ orchestrator with detail pushed into `rules/`.
 
 | Unit (spec field) | Where it lands | Build notes |
 |---|---|---|
-| `trigger` | SKILL.md frontmatter `description` | Encode positive + negative + **adjacent** cases; add a "Do NOT use for…" pointing to sibling skills. This is the #1 driver of whether the skill fires — make it specific and slightly pushy against under-triggering. |
+| `trigger` | SKILL.md frontmatter `description` | Encode positive + negative + **adjacent** cases; add a "Do NOT use for…" pointing to sibling skills. This is the #1 driver of whether the skill fires — make it specific and slightly pushy against under-triggering. State WHEN to use, never the workflow (process prose in a description makes the model skip the body). Target ≤320 chars; the portable spec caps it at 1,024. |
 | `protocol` | SKILL.md body `## Steps` | A runbook: preflight → steps → verify → report. Each step says which module to load. |
 | `resources` | `references/` (full) | On-demand context (domain docs, examples). Reference clearly from SKILL.md with "load when…". |
 | `evidence_base` | `references/` + citations | For fact-dependent skills only; otherwise the spec says `N/A` — skip it. |
@@ -27,6 +27,37 @@ git", "output text only") may stay as inline prose in SKILL.md.
 capabilities* (tool/permission/network/file access) — externalize those into a
 script, schema, or allowed-tools list. It does not demand you script away every
 behavioral guideline on a low-stakes skill.
+
+**Controls — surface caveat:** the `allowed-tools` frontmatter works in Claude
+Code CLI only; the Agent SDK ignores it (tool access comes from the query's
+`allowedTools`). Never make it the *only* enforcement of a dangerous-capability
+boundary — pair it with a script/schema check that runs everywhere.
+
+## Naming & portability (for the skill you are building)
+
+Rules the Agent Skills spec + platform docs now fix — apply them to every
+built skill:
+
+- **Name**: the directory name IS the command name (frontmatter `name` is a
+  display label). ≤64 chars, lowercase letters/digits/hyphens, no consecutive
+  hyphens, must equal the directory; must NOT contain "anthropic"/"claude" or
+  XML tags. Prefer a gerund phrase (`processing-pdfs`) so the action is
+  explicit.
+- **Portable core**: the spec defines six portable fields — `name`,
+  `description`, `license`, `compatibility` (≤500 chars), `metadata`,
+  `allowed-tools`. ~30 runtimes (Codex, Gemini CLI, opencode, goose, cursor…)
+  read only these. Claude-Code-only fields (`context: fork`, `hooks`, `model`,
+  `effort`, `when_to_use`, `disable-model-invocation`, …) are progressive
+  enhancement: fine to use deliberately, but never load-bearing for
+  correctness, and never rejected as "invalid" when auditing someone else's
+  skill.
+- **Declare prerequisites** in `compatibility` (e.g. "Requires node >= 18 and
+  python3") instead of assuming runtimes exist.
+- **Scripts**: non-interactive (no TTY prompts — they hang headless runtimes),
+  relative paths from the skill root, self-declared deps (stdlib-only, or PEP
+  723 / `npx pkg@ver`), structured stdout with diagnostics to stderr, and
+  bounded output (harnesses truncate tool output around 10–30k chars —
+  paginate or summarize past that).
 
 **CLI entry-point guard (script skills):** the naive
 `import.meta.url === \`file://${process.argv[1]}\`` run-as-main check **breaks on

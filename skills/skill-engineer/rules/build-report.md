@@ -46,13 +46,17 @@ to know what was built and what is safe to compress.
 ## Validate before finishing
 
 ```bash
-node -e "JSON.parse(require('fs').readFileSync('<target>/.skill-engineer/build-report.json','utf8'))"
+node scripts/validate_report.mjs <target-dir>
 ```
-Confirm: it parses, every spec P0 action appears in `actions_resolved`,
-`verification.ran` is `true` with real evidence, any required harness is
-rerunnable, `tests.totals` adds up, and every adversarial checklist edge maps to
-an existing passing case. Then print a 3-line summary: tests passed/total, P0s
-done/total, checklist covered/total, harness status, and the handoff note.
+
+Exit 0 required. The gate checks everything the prose above promises: the
+report parses and is schema-valid, `verification.ran` with all-green totals,
+every spec P0 `done`, every adversarial-checklist edge mapped to an existing
+passing case, any required harness re-runs green **right now** (stale
+`command_output` fails), and a genuine red artifact exists. The conductor runs
+the same script at Stage E — passing it here means passing it there. Then
+print a 3-line summary: tests passed/total, P0s done/total, checklist
+covered/total, harness status, and the handoff note.
 
 ## Honesty
 

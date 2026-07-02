@@ -6,121 +6,130 @@ description: >
   needs scoring/scope/missing-pieces, or pointed at a SKILL.md before build:
   "$skill-guidance". It PLANS only; not build (engineer), compress (zipper), or
   full loop (conductor).
+license: MIT
+metadata:
+  version: "2.0.0"
 ---
 
 # skill-guidance
 
 Apply industrial skill-design principles to a **target skill** and emit a
-**machine-handoff spec** that the next stage (`skill-engineer`) builds
-from. This skill **plans and evaluates — it does not build**.
+**machine-handoff spec** that `skill-engineer` builds from. This skill plans
+and evaluates — it never builds.
 
-The deliverable is a structured spec file. But a spec is only as good as its
-context, so this skill is **not** silently autonomous: it runs a
-**context-sufficiency gate** (Step 6, `rules/elicitation.md`) and **asks** when
-the input leaves a decision-critical gap — *minimize but never suppress*. Never
-bury a guess in `blocking_unknowns` (this skill's #1 failure): ask a present
-human, or in a pipeline run log an explicit assumption — never block.
+Eliciting is part of the job: the engineer inherits every gap you leave.
+*Minimize but never suppress* questions — a silent guess ships a wrong design,
+and a gap dumped into `blocking_unknowns` stalls the engineer instead of
+informing it.
+
+## Step 0 — Disposition (how you were invoked)
+
+| Invocation | Disposition | What changes |
+|---|---|---|
+| A human asked directly | **plan-interactive** | Step 6 may ask via `AskUserQuestion`. |
+| Conductor pipeline, pre-build | **plan-pipeline** | Never block: Step 6 logs one explicit assumption per gap. |
+| Final acceptance / "audit the built skill" | **audit** | Skip Step 6 (gaps → scorecard + actions, not questions). Write to `post-build-audit.json` so the original spec survives. |
+
+Unsure between the plan modes → prefer asking.
 
 ## Backing knowledge base
 
-Ground every judgment in the embedded **skill-principle** KB (default
-`skill-principle/` inside this skill folder) — not memory; load
-`rules/kb-grounding.md` for the query commands and the 7 pillars
-(`design`, `research`, `testing`, `tdd`, `metrics`, `low_context_kb`,
-`lifecycle`) the scorecard scores against.
+Ground every pillar judgment in the embedded **skill-principle** KB
+(`skill-principle/` here), not memory — the criteria live and evolve there.
+Load `rules/kb-grounding.md` for query commands and the 7 pillars (`design`,
+`research`, `testing`, `tdd`, `metrics`, `low_context_kb`, `lifecycle`).
 
 ## Steps
 
 ### Step 1 — Resolve and read the target
 
-Accept a **SKILL.md path** or a **repo path** (both supported; a "blank idea"
-arrives as a thin/stub SKILL.md — that is normal input, not an error). If a repo,
-find its `SKILL.md` (and note sibling `rules/ scripts/ references/ assets/
-evals/`).
+Accept a **SKILL.md path** or **repo path**. A thin stub (a "blank idea" as a
+SKILL.md) is normal input. If a repo: find its SKILL.md; among multiple
+candidates pick the one whose parent dir best matches the repo name, treat
+fixture dirs (`dogfood-*`, `fixtures/`, `test-*`, `examples/`) as input data,
+record the choice.
 
-**Multiple `SKILL.md`s**: pick the one whose parent dir best matches the
-repo/worktree name; treat fixture dirs (`dogfood-*`, `fixtures/`, `test-*`,
-`examples/`) as input data, not targets; if still ambiguous, evaluate the
-highest-content one and note the rest in `blocking_unknowns`. Record your choice.
-
-Run the deterministic signal pass:
+Seed the scorecard with the deterministic signal pass (evidence, not verdicts):
 
 ```bash
-node scripts/score_skill.mjs <skill-dir | SKILL.md path>
+node scripts/score_skill.mjs <skill-dir | SKILL.md>
 ```
 
-Capture its JSON: `maturity_hint`, `dirs`, `signals`, `pillar_hints`. These are
-**evidence seeds**, not verdicts — you refine them.
-
-**If `score_skill.mjs` exits non-zero (no `SKILL.md`), stop**: refuse ("no
-SKILL.md found at `<path>`"), write no spec, suggest `skill-creator`. Don't proceed.
+**No SKILL.md at all → stop**: refuse with the path, write no spec, suggest
+`skill-creator`. (A stub passes this bar; a missing file does not.)
 
 ### Step 2 — Detect intent and maturity
 
-Load `rules/intent-and-maturity.md`. From the frontmatter + body, state what the
-skill is *for*, its in/out-of-scope, primary user, and observed triggers. Settle
-**maturity** (`stub | draft | mature`) — it drives altitude in Step 5.
+Load `rules/intent-and-maturity.md`. State what the skill is *for*, in/out of
+scope, primary user, observed triggers; settle `stub | draft | mature`.
 
-### Step 3 — Score the 7-pillar readiness scorecard
+### Step 3 — Score the 7-pillar scorecard
 
-Load `rules/scorecard.md`. For each pillar, pull the canonical criteria from the
-KB (`query_kb`), judge `present | partial | absent` (0/1/2), cite evidence from
-the target, and list concrete gaps. Sum to an overall readiness (x/14) and a
-verdict (`draft | candidate | industrial`).
+Load `rules/scorecard.md`. Per pillar: pull the KB criteria, judge
+`present | partial | absent` (2/1/0) or N/A, cite evidence, list gaps concrete
+enough to build from.
 
-### Step 4 — Light comparable-design research
+### Step 4 — Decide altitude
 
-Load `rules/comparables.md`. Pick 1–2 comparable real skills, fetch them, and
-extract transferable structure (triggers, modules, tests) — the "资料搜集" step.
-Light at lite altitude, fuller at full. Learn patterns; never copy.
+Load `rules/altitude.md`. `lite` vs `full` from stakes × maturity × surface.
+Industrial = right rigor for the stakes; a wrong call here cascades — and it
+sizes the next step.
 
-### Step 5 — Decide altitude
+### Step 5 — Comparable research (资料搜集)
 
-Load `rules/altitude.md`. Choose `lite` vs `full` from stakes × maturity ×
-surface area. Industrial ≠ always-heavy — it means *right rigor for the stakes*;
-don't force a small utility through full research + metrics + lifecycle ceremony.
+Load `rules/comparables.md`. Mine 1–2 comparable real skills for transferable
+*structure*, never content. Light or skipped at lite altitude.
 
-### Step 6 — Context-sufficiency gate (elicit before emit)
+### Step 6 — Context-sufficiency gate (plan dispositions only)
 
-Load `rules/elicitation.md`. Run `node scripts/detect_context_gaps.mjs <target>`;
-for each missing slot write **one** targeted, domain-specific question to
-`<target>/.skill-guidance/clarifying-questions.json` (ask a present human via
-`AskUserQuestion`; in a pipeline run, log an explicit assumption per gap). If the
-detector says `sufficient:true`, do **not** manufacture questions. Never dump gaps
-into `blocking_unknowns`. This gate makes the spec concrete enough to build/test.
+Load `rules/elicitation.md`. Run
+`node scripts/detect_context_gaps.mjs <target | --idea "...">`; write **one**
+targeted, domain-specific question per missing slot to
+`<target>/.skill-guidance/clarifying-questions.json`; ask (interactive) or log
+assumptions (pipeline). The detector is a seed, not the verdict — but
+`sufficient:true` means don't manufacture questions.
 
-### Step 7 — Emit the machine-handoff spec
+### Step 7 — Emit and validate the spec
 
-Load `rules/spec-format.md` and the contract `assets/handoff-spec.schema.json`.
-Write the filled spec to `<skill-dir>/.skill-guidance/handoff-spec.json` (create
-the dir; it sits beside the target, not inside this skill). It captures intent,
-the scorecard, gaps, a recommended design across all 8 design units, the altitude
-call, prioritized actions, and `handoff.next_skill = "skill-engineer"`.
-The spec is the real output; optionally print a 3-line summary (verdict+ratio,
-top 1–2 `P0` actions, `blocking_unknowns` count).
+Load `rules/spec-format.md` (contract: `assets/handoff-spec.schema.json`).
+Write to `<target>/.skill-guidance/handoff-spec.json` (audit:
+`post-build-audit.json`), then gate your own output — exit 0 required:
+
+```bash
+node scripts/validate_spec.mjs <target-dir>    # --audit in audit runs
+```
+
+It enforces schema + consistency (7 pillars, score↔status, verdict vs ratio +
+required-pillar cap, checklist format, gap→action mapping), so a spec that
+would fail the conductor's G gate never leaves this stage.
+
+## Sibling naming
+
+Installed copies may carry a name prefix (repo `skill-engineer` = installed
+`vince-skill-engineer`). Resolve a sibling as: the directory beside this skill
+named `<name>` or ending in `-<name>`.
 
 ## Modules
 
 | File | When to load |
 |------|--------------|
-| `rules/kb-grounding.md` | Before Step 1 (and any pillar query) — the skill-principle KB query commands and the 7 pillars to ground judgments in. |
-| `rules/intent-and-maturity.md` | Step 2 — how to read intent and classify stub/draft/mature, and how maturity maps to altitude. |
-| `rules/elicitation.md` | Step 6 — the context-sufficiency gate: detect gaps, phrase one targeted question per missing slot, ask (standalone) vs log-assumption (pipeline), never dump into `blocking_unknowns`. |
-| `rules/scorecard.md` | Step 3 — the 7-pillar rubric, the KB query per pillar, and present/partial/absent definitions. |
-| `rules/comparables.md` | Step 4 — how to pick, fetch, and mine comparable skills from the registry; when to skip at lite altitude. |
-| `rules/altitude.md` | Step 5 — the lite-vs-full decision and what each altitude includes/skips. |
-| `rules/spec-format.md` | Step 6 — field-by-field meaning of the handoff spec and how to fill it. |
+| `rules/kb-grounding.md` | Before Step 1 — KB queries + pillar coverage. |
+| `rules/intent-and-maturity.md` | Step 2. |
+| `rules/scorecard.md` | Step 3 — rubric + judging rules. |
+| `rules/altitude.md` | Step 4 — incl. the required-pillars table. |
+| `rules/comparables.md` | Step 5. |
+| `rules/elicitation.md` | Step 6 — gaps, questions, per-disposition handling. |
+| `rules/spec-format.md` | Step 7 — every spec field + quality bar. |
 
 ## Scripts
 
 | File | Usage |
 |------|-------|
-| `scripts/score_skill.mjs` | `node scripts/score_skill.mjs <skill-dir \| SKILL.md>` — deterministic structural signals (frontmatter, dirs, size, per-pillar hints, maturity). Seeds the scorecard. |
-| `scripts/detect_context_gaps.mjs` | `node scripts/detect_context_gaps.mjs <target \| --idea "...">` — flags decision-critical slots the input leaves open (the elicitation trigger seed). `--selftest` proves it discriminates. |
+| `scripts/score_skill.mjs` | structural signals seed: `node scripts/score_skill.mjs <dir\|SKILL.md>` |
+| `scripts/detect_context_gaps.mjs` | decision-critical slot detector; `--selftest` |
+| `scripts/validate_spec.mjs` | executable spec gate (schema + consistency); `--audit`, `--selftest`. The conductor reuses it as Stage G's gate. |
 
 ## Assets
 
-| File | Usage |
-|------|-------|
-| `assets/handoff-spec.schema.json` | The JSON contract for the spec `skill-engineer` consumes. The spec you emit must conform. |
-| `assets/handoff-spec.example.json` | A filled example to copy the shape from. |
+`assets/handoff-spec.schema.json` — the spec contract ·
+`assets/handoff-spec.example.json` — a filled, validate_spec-green example.

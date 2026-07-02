@@ -12,19 +12,25 @@ planner. We re-run it on the **built** skill and read the fresh verdict.
 
 ## The re-audit
 
-**Re-run skill-guidance on the BUILT skill** (the real files on disk now,
-not the original stub/spec). It writes a fresh
-`<target>/.skill-guidance/handoff-spec.json` — the **post-build audit**. Read:
+**Re-run skill-guidance on the BUILT skill in its `audit` disposition** (tell
+it: "audit the built skill at `<target>` for final acceptance"). In that
+disposition guidance skips elicitation (remaining gaps belong in the
+scorecard, not questions) and writes to
+`<target>/.skill-guidance/post-build-audit.json` — the original handoff-spec
+is untouched, so a later Stage-E loopback still has its build plan. Gate the
+audit artifact like any spec (exit 0 required):
+
+```bash
+SG=$(ls -d ../skill-guidance ../*-skill-guidance 2>/dev/null | head -1)  # from this skill's dir
+node "$SG/scripts/validate_spec.mjs" <target-dir> --audit
+```
+
+Then read from `post-build-audit.json`:
 - `overall_readiness.verdict` (`draft | candidate | industrial`)
 - the `scorecard[]` per-pillar `status` (`present | partial | absent | na`)
 - the fresh `intent.summary`
 
 Record this as a `stages[]` entry with `stage: "final_audit"`.
-
-> The re-audit **overwrites** the Step-2 handoff-spec. If you may need to loop
-> back to Stage E (which builds from that spec), copy the audit aside first
-> (e.g. `cp <target>/.skill-guidance/handoff-spec.json <target>/.skill-guidance/post-build-audit.json`)
-> so a re-plan and the audit don't clobber each other.
 
 ---
 
@@ -86,21 +92,26 @@ eval cases and the conductor re-runs *that same battery*, so "11/11 green"
 proves only that the builder's chosen inputs pass — never the inputs they didn't
 think of, which is where every shipped bug lives. Break the loop here.
 
-**The battery IS the `vince-attacker` skill — invoke it (gated: only after the
+**The battery IS the attacker skill — invoke it (gated: only after the
 re-audit, criteria 1–3, passes).** Attacker is purpose-built for this: a FRESH,
 TDD-independent subagent that attacks the built skill's **observable behavior**
 within a declared scope and records ONLY proven, reproducible breakages, gated by
-its own deterministic validator. Do not hand-roll a fresh-subagent battery here
-when the skill exists — call it:
+its own deterministic validator. It stays essential even as models improve:
+Opus 4.8 is markedly more honest about its own flaws, but no more robust to the
+inputs nobody thought of — independent adversarial verification is what
+self-verification can't replace. Do not hand-roll a fresh-subagent battery
+when the skill exists — call it (resolve the sibling first; installed name may
+carry a prefix, e.g. `vince-attacker`):
 
 ```bash
-# 1. invoke vince-attacker on the BUILT skill (see its SKILL.md): hand it the
-#    built path + the spec's recommended_design.adversarial_checklist as scope;
-#    it writes attack records + a ledger. It must NOT see the engineer's evals/.
-# 2. validate the records + the battery the attacker produced (the installed
-#    vince-attacker sibling ships these — resolve them where attacker is installed):
-node ../vince-attacker/scripts/validate_attack_records.mjs <records-dir-or-file>
-node ../vince-attacker/scripts/check_battery_clean.mjs <ledger.json> --need 1   # exit 0 iff clean/hardened
+ATT=$(ls -d ../attacker ../*-attacker 2>/dev/null | head -1)
+# 1. invoke the attacker skill on the BUILT skill (see its SKILL.md): hand it
+#    the built path + the spec's recommended_design.adversarial_checklist as
+#    scope; it writes attack records + a ledger. It must NOT see the
+#    engineer's evals/.
+# 2. validate the records + the battery it produced:
+node "$ATT/scripts/validate_attack_records.mjs" <records-dir-or-file>
+node "$ATT/scripts/check_battery_clean.mjs" <ledger.json> --need 1   # exit 0 iff clean/hardened
 ```
 
 `battery_verdict` is `industrial` only if the attacker battery comes back **clean**
@@ -133,7 +144,11 @@ results as `gate_evidence`.
 captured stdout: a case that "passes" while printing a visibly wrong answer (a
 `@hourly` described as "daily", a `(#)` empty anchor, a `'on the  of every
 month'`) is a **gate failure**, not a pass. A green exit with a wrong string is
-exactly the inflation this gate exists to stop.
+exactly the inflation this gate exists to stop. When a model (not a script)
+judges an open-ended output here: make it reason before the verdict, and
+compare content with formatting normalized — LLM judges prefer
+markdown-styled answers 73–97% of the time even at identical content, so an
+unstyled-vs-styled comparison measures the wrong thing.
 
 **`industrial` is unreachable unless this battery passes clean.** If any case
 fails or reveals a silent wrong answer, the verdict is **`candidate`**, the
@@ -185,8 +200,8 @@ should contain, so re-planning first avoids wasted downstream loops.
 
 ## Stop condition (bounded — never fake a pass)
 
-**MAX_FULL_LOOPS = 3.** If after 3 full loops the pass criteria still don't
-hold:
+**MAX_FULL_LOOPS = 3** (defined once in `rules/pipeline-loop.md`'s bounds
+table). If after 3 full loops the pass criteria still don't hold:
 
 - **STOP.** Do not loop again. Do not relax a criterion to manufacture a pass.
 - Write `final_verdict: "stopped_unmet"`.

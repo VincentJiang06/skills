@@ -11,6 +11,7 @@
 - 过不了线就**回退到出问题的那一阶段**重做（设计错回 G、实现错回 E、压缩有损回 Z），失败的产物绝不往下游传。
 - 触到循环上限还过不了，就**诚实停下**（stopped_unmet），绝不为了「通过」而放松质量门。
 - 全程自动运行，并落一份可机读的运行轨迹 `<target>/.skill-conductor/conductor-log.json`。
+- **v2.0：门就是脚本** —— Stage G/E 直接执行阶段技能自带的校验器（`validate_spec.mjs` / `validate_report.mjs`，后者当场重跑 harness）：builder 和 gatekeeper 用同一把尺，抄错命令的空间为零；sibling 解析前缀容忍（repo 名与安装名通吃）。
 
 **什么时候用** —— 「把这个 skill 从头建好/测好/压好」·「跑一遍 guidance → engineer → zipper」·「把这个想法或现有 skill 推过所有阶段」；也可用 `/skill-conductor` 显式调用。
 **不适用** —— 只跑某一个阶段（直接调那个阶段 skill）；只做规划（→ skill-guidance）；只做压缩（→ skill-zipper）；没有流水线的空白脚手架（→ skill-creator）。

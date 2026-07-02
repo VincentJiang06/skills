@@ -18,7 +18,8 @@ record your best reading plus the ambiguity in `blocking_unknowns` — do not st
 ## Classify maturity
 
 `scripts/score_skill.mjs` returns a `maturity_hint`; confirm or override it by
-reading. Use these definitions:
+reading (the hint's thresholds are crude — a frontmatter-plus-short-body file
+over 25 lines still reads as a stub; override it). Use these definitions:
 
 | Maturity | Looks like | Implication |
 |---|---|---|
@@ -26,7 +27,7 @@ reading. Use these definitions:
 | `draft` | Real body and maybe some modules, but no test/eval assets and thin controls. | Evaluate what exists; recommend the missing units. Altitude from stakes. |
 | `mature` | Body + modules + test/eval assets. | Evaluation + comparable research; surface gaps and polish, not a rebuild. |
 
-Maturity is an input to altitude (Step 5), not the whole decision — a mature but
+Maturity is an input to altitude (Step 4), not the whole decision — a mature but
 high-stakes skill may still warrant full rigor, and a stub utility may stay lite.
 
 ## A note on "blank idea" input

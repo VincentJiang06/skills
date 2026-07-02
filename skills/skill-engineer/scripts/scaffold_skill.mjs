@@ -47,8 +47,16 @@ const protocol = spec?.recommended_design?.protocol ?? "<preflight -> steps -> v
 const resources = (spec?.recommended_design?.resources ?? []).filter(Boolean);
 const evidence = String(spec?.recommended_design?.evidence_base ?? "");
 const wantsReferences = resources.length > 0 || (evidence && !/^\s*n\/?a/i.test(evidence));
-const controlsText = (spec?.recommended_design?.controls ?? []).join(" ").toLowerCase();
-const wantsScripts = altitude === "full" || /script|validator|schema|hook/.test(controlsText);
+// A skill whose mechanism is deterministic needs scripts/ even at lite and even
+// when the controls are phrased behaviorally ("deterministic", "read-only") —
+// verification-harness mandates the mechanism live in scripts/. Look at the
+// tests/protocol wording too, not just controls (found by the v2 live battery).
+const mechanismText = [
+  ...(spec?.recommended_design?.controls ?? []),
+  ...(spec?.recommended_design?.tests ?? []),
+  spec?.recommended_design?.protocol ?? "",
+].join(" ").toLowerCase();
+const wantsScripts = altitude === "full" || /script|validator|schema|hook|determinis|\bcli\b|parser|harness/.test(mechanismText);
 const dirs = altitude === "lite"
   ? ["rules", "evals", ...(wantsScripts ? ["scripts"] : []), ...(wantsReferences ? ["references"] : [])]
   : ["rules", "scripts", "assets", "references", "evals"];

@@ -27,7 +27,8 @@ For each LOST or REWRITTEN line, classify:
 - **Accepted Harden rewrite** — the line was vague and the proposed rewrite is in the plan. The diff matcher missed the match because the wording changed significantly. *Mark accepted in the summary.*
 - **Accepted Enrich extraction** — the line was a wrapper/header for inline content that moved to a real artifact (template, script). Functionally the content is preserved in the new file. *Mark accepted with a pointer to the new file.*
 - **Accepted Retrigger rewrite** — the line was in the frontmatter description and the rewrite is the intended new description. *Mark accepted.*
-- **True loss** — content disappeared with no destination. **This is a bug.** Restore the content or write it to its intended destination.
+- **Accepted known-content deletion** — the line re-taught something the model already knows (Compress delete-class) AND the plan listed that chunk for deletion. *Mark accepted with a pointer to the plan entry.* A deletion the plan never named does not qualify — that's a true loss.
+- **True loss** — content disappeared with no destination and no plan entry. **This is a bug.** Restore the content or write it to its intended destination.
 
 Do NOT mark a LOST or REWRITTEN line as "accepted" without naming which category
 it falls into. The lossless guarantee is the skill's contract with the user;

@@ -1,9 +1,11 @@
 # Verification must be independent and executable
 
-This rule **supersedes** the softer allowances elsewhere ("red by construction",
-"inline running is acceptable at lite"). It exists because self-reported pass
-counts let real bugs and hollow tests ship while the skill still reports green.
-The bar: verification a *third party can re-run*, not a number you assert.
+This file is **the hard bar**; `rules/run-evals.md` describes the workflow that
+must clear it. It exists because self-reported pass counts let real bugs and
+hollow tests ship while the skill still reports green. The bar: verification a
+*third party can re-run*, not a number you assert — and it is executable:
+`scripts/validate_report.mjs` enforces every requirement below, so a report
+that skips one will not validate.
 
 ## 1. A committed, re-runnable harness (any skill that ships a script)
 
@@ -53,6 +55,12 @@ it on a real input. A capability you document but never test is dead
 documentation — the conductor's final acceptance extracts your doc claims and
 loops back on any with no green case.
 
+For a **pure LLM-behavioral skill** the red artifact is the
+baseline-without-skill transcript (`.skill-engineer/red/baseline.md`, per
+`rules/run-evals.md`) — a documented failing run, not a claim. Multi-pressure
+scenarios (combine 3+ pressures: time, sunk cost, authority) make behavioral
+baselines much harder to game than single-pressure ones.
+
 Absent a real failing-run artifact, report `tdd: partial` in the build — do not
 imply tests-first. At **full** altitude the **mutation** spot-check is mandatory
 and must be recorded with evidence (e.g. "broke the AWS-key regex → case C1 went
@@ -85,6 +93,24 @@ against `checklist_coverage` and loops back on any uncovered or failing entry
 reach a bug-free `industrial`), not post-hoc (which only caps at `candidate`).
 Also include an **idempotency / metamorphic** case for any transform (run twice →
 same output; round-trip → original).
+
+## 5. Security lint (before any skill ships)
+
+36.8% of scanned marketplace skills carry at least one flaw and 13.4% a
+critical one (Snyk "ToxicSkills", 2026-02) — and marketplace scanners miss
+real injections, so this pipeline owns its own security bar. Before reporting
+done, sweep the built skill and treat any hit as a **P0 gap**:
+
+- **No hardcoded secrets** — API keys, tokens, passwords in any shipped file.
+- **User input never interpolated raw into shell** — quote/escape
+  (`execFile`-style arg arrays, `urllib.parse.quote`), because unescaped
+  interpolation is the shell-injection class scanners keep missing.
+- **No undeclared network fetch** — a skill that fetches remote content must
+  say so in its description/`compatibility`; silent fetching of untrusted
+  content is the top malicious-skill pattern.
+- **Scripts are non-interactive** — no TTY prompts (they hang headless
+  runtimes); accept flags/env/stdin instead. Relative paths from the skill
+  root only.
 
 ## What the build-report must carry
 

@@ -5,38 +5,40 @@ description: >
   when asked to implement/develop/wire a skill, make eval cases pass, or
   pointed at `.skill-guidance/handoff-spec.json`: "$skill-engineer". It
   WRITES+TESTS; not plan/audit (guidance), compress (zipper), or loop (conductor).
+license: MIT
+metadata:
+  version: "2.0.0"
 ---
 
 # skill-engineer
 
-Turn a **guidance handoff-spec** into a **built, tested skill**, then hand it to
-`skill-zipper`. This is the implementation + test stage: it writes files
-and runs evals. It is **test-driven** — failing eval cases come before
-implementation — and it **gates on real verification**: never report success
-until the eval cases have actually been run and passed (or a blocker is
-recorded). See skill-principle's `principle.executable_acceptance`.
-
-It runs **autonomously** (no human-in-the-loop confirmation), but autonomy is
-not a license to skip verification. The deliverable is a built skill plus a
-`build-report.json` that `skill-zipper` (or the user) consumes.
+Turn a **guidance handoff-spec** into a **built, tested skill**, then hand it
+to `skill-zipper`. **Test-driven**: failing eval cases come before
+implementation, and success is reported only after the cases actually ran
+green (or a blocker is recorded honestly) — self-reported pass counts are how
+hollow builds ship. Autonomous, but autonomy never skips verification.
+Deliverable: the built skill + `.skill-engineer/build-report.json`.
 
 ## Backing knowledge base
 
-Ground the build in the shared **skill-principle** KB embedded in sibling
-`skill-guidance` (default `../skill-guidance/skill-principle`) — do not invent
-the TDD/testing method. Load `rules/kb-grounding.md` for the query commands and
-the skill-principle templates/matrices to reuse instead of duplicating.
+Ground the TDD/testing method in the shared **skill-principle** KB embedded in
+sibling `skill-guidance` (default `../skill-guidance/skill-principle`) — do not
+invent the method. Load `rules/kb-grounding.md` for queries and the
+templates/matrices to reuse. Installed sibling names may carry a prefix:
+resolve a sibling as the directory named `<name>` or ending in `-<name>`
+(e.g. `vince-skill-guidance`).
 
 ## Steps
 
 ### Step 1 — Ingest the plan
 
-Load `rules/ingest-spec.md`. Locate the input: a
-`<target>/.skill-guidance/handoff-spec.json` and the target skill dir. **If there
-is no spec, stop and run `skill-guidance` first** — this stage builds *from
-a plan*, it does not invent one. Read `recommended_design`, `prioritized_actions`
-(P0 first), `altitude`, and `handoff.blocking_unknowns`. Resolve blockers or
-record them; do not silently guess past a P0 unknown.
+Load `rules/ingest-spec.md`. Input: the target skill dir +
+`<target>/.skill-guidance/handoff-spec.json`. **No spec → stop and run
+`skill-guidance` first** — building without a plan is how skills drift (one
+exception: the user explicitly hands you an equivalent design). Read
+`recommended_design`, `prioritized_actions` (P0 first), `altitude`, and
+`handoff.blocking_unknowns`; resolve or record blockers per the
+gating-vs-touching rule — never silently guess past a P0 unknown.
 
 Scaffold the skeleton (idempotent, never overwrites without `--force`):
 
@@ -46,76 +48,78 @@ node scripts/scaffold_skill.mjs <target-dir> --spec <target>/.skill-guidance/han
 
 ### Step 2 — Plan red-green-refactor
 
-Load `rules/red-green-refactor.md` and pull skill-principle's `tdd_plan` /
-`test_strategy_matrix`. Turn the spec's `prioritized_actions` into an ordered
-TDD backlog: each action becomes (failing check → minimal implementation →
-refactor). Sequence P0 → P1 → P2, and never more rigor than the `altitude` asks.
-Keep the ordered backlog as a short working list (in-context is fine; at `full`
-altitude persist it to `<target>/.skill-engineer/tdd-plan.md`). This ordering is
-the spine the rest of the build follows — quick, not ceremony.
+Load `rules/red-green-refactor.md`. Turn the spec's actions into an ordered
+TDD backlog (P0 → P1 → P2), one failing-check → minimal-implementation →
+refactor cycle each. Never more rigor than the `altitude` asks.
 
 ### Step 3 — Red: write failing eval cases first
 
-Load `rules/run-evals.md` (the **Write the cases** section) **and
-`rules/verification-harness.md`** (the hard bar — it supersedes softer wording
-here). From `intent` + `recommended_design.tests`, write eval cases under
-`<target>/evals/` (cover the spec's boundary/adversarial inputs, not just happy
-paths; no tautological "grep SKILL.md" cases). For a script skill, also write the
-re-runnable harness `evals/run_all.mjs`. Confirm they **fail** against the current
-stub by **actually running them and saving the failing output** to
-`<target>/.skill-engineer/red/red.log` — "red by construction" without that
-artifact does not count as tests-first.
+Load `rules/run-evals.md` (writing cases) and `rules/verification-harness.md`
+(the hard bar). Write cases under `<target>/evals/` covering the spec's
+boundary/adversarial inputs — no happy-path-only suites, no tautological
+"grep SKILL.md" cases. Prove red by **running**:
+
+- **script skill** — `evals/run_all.mjs` harness importing the `scripts/`
+  mechanism, run against an importable wrong-sentinel stub; save the real
+  `FAIL <case>` output to `.skill-engineer/red/red.log`.
+- **LLM-behavioral skill** — run the prompt **without the skill** and save the
+  failing baseline to `.skill-engineer/red/baseline.md` — the failure the
+  skill must fix.
 
 ### Step 4 — Green: implement the design units
 
 Load `rules/build-design-units.md`. Implement the 8 units from
-`recommended_design` into real files — trigger→frontmatter, protocol→Steps,
-resources→`references/`, controls, tests→`evals/`, etc. — minimally, to make the
-red cases pass. Keep SKILL.md a thin orchestrator; push detail into `rules/`
-(progressive disclosure, per `low_context_kb`).
+`recommended_design` into real files, minimally, to make red pass. Thin
+SKILL.md orchestrator; detail into `rules/` (progressive disclosure).
 
 ### Step 5 — Verify (the gate)
 
-Load `rules/run-evals.md` (the **Run the cases** section) and obey
-`rules/verification-harness.md`. For a **script skill**, run the committed
-`evals/run_all.mjs` harness and capture its real stdout + exit code into the
-build-report's `verification.command_output` (with `harness_ran: true`,
-`harness_path`); pass counts come from that run, never a mental simulation. For a
-pure LLM-behavioral lite skill, run the cases and grade against the written
-acceptance. Loop Step 4 ↔ Step 5 until the cases pass or a blocker is recorded.
-**Do not proceed with unrun or failing required cases** — and a script skill with
-no re-runnable harness is treated as unverified.
+Load `rules/run-evals.md` (running + grading); the bar is
+`rules/verification-harness.md`. Script skills: run the committed harness,
+capture real stdout + exit code into `verification.command_output`.
+Behavioral skills: run the cases fresh, grade against the written acceptance,
+trajectory included. **At full altitude, or whenever triggering is a top
+driver, also run the empirical trigger eval** (`rules/trigger-eval.md`:
+labeled cases, `--runs 3`, held-out slice). Loop Step 4 ↔ 5 until green or a
+blocker is recorded — never proceed with unrun or failing required cases.
 
-### Step 6 — Refactor and report
+### Step 6 — Refactor, report, self-gate
 
-Tidy without breaking green (re-run after refactor). Then load
-`rules/build-report.md` and `assets/build-report.schema.json` and write
-`<target>/.skill-engineer/build-report.json`: what was built, eval results +
-evidence, which `prioritized_actions` are done/deferred/blocked, and
-`handoff.next_skill = "skill-zipper"`. Print a 3-line summary; the report
-file is the real output.
+Tidy without breaking green (re-run after refactor). Load
+`rules/build-report.md`; write `<target>/.skill-engineer/build-report.json`,
+then gate your own report — exit 0 required:
+
+```bash
+node scripts/validate_report.mjs <target-dir>
+```
+
+This is the **same executable gate the conductor re-runs at Stage E** (schema,
+all-green totals, every spec P0 done, checklist coverage, harness re-run,
+genuine red log) — a report that would fail downstream never leaves this
+stage. Print a 3-line summary; the report file is the real output.
 
 ## Modules
 
 | File | When to load |
 |------|--------------|
-| `rules/kb-grounding.md` | Before Step 1 (and any TDD/testing query) — the skill-principle KB query commands and the templates/matrices to reuse. |
-| `rules/ingest-spec.md` | Step 1 — read the handoff-spec, handle a missing spec, turn actions into a backlog. |
-| `rules/red-green-refactor.md` | Step 2 — the TDD loop for skills and how to pull skill-principle's tdd/test assets. |
-| `rules/run-evals.md` | Steps 3 & 5 — write eval cases, run them with-skill, grade, check trajectories, regression. |
-| `rules/verification-harness.md` | Steps 3 & 5 — the hard bar: a committed re-runnable harness + captured output for script skills, a real red artifact, no tautological tests, boundary coverage. Supersedes softer wording. |
-| `rules/build-design-units.md` | Step 4 — implement each of the 8 design units into real files; progressive-disclosure conventions. |
-| `rules/build-report.md` | Step 6 — the build-report fields and the handoff to skill-zipper. |
+| `rules/kb-grounding.md` | Before Step 1 — KB queries + templates to reuse. |
+| `rules/ingest-spec.md` | Step 1 — read the spec; gating-vs-touching for unknowns. |
+| `rules/red-green-refactor.md` | Step 2 — the TDD loop + techniques by altitude. |
+| `rules/run-evals.md` | Steps 3 & 5 — write, run, grade eval cases; regression. |
+| `rules/verification-harness.md` | Steps 3 & 5 — the hard bar: harness, red artifact, coverage, security lint. |
+| `rules/build-design-units.md` | Step 4 — the 8 units; naming/portability rules for built skills. |
+| `rules/trigger-eval.md` | Step 5 — empirical trigger precision/recall; holdout tuning loop. |
+| `rules/build-report.md` | Step 6 — report fields + the handoff to skill-zipper. |
 
 ## Scripts
 
 | File | Usage |
 |------|-------|
-| `scripts/scaffold_skill.mjs` | `node scripts/scaffold_skill.mjs <target-dir> [--spec <spec.json>] [--altitude lite\|full] [--force]` — create the dir skeleton + a seeded SKILL.md stub. Idempotent; never overwrites without `--force`. |
-| `scripts/trigger_eval.mjs` | Empirical trigger precision/recall vs labeled prompts (skill-creator-style) — the `metrics` pillar's evidence. Usage + cases format in `rules/trigger-eval.md`; report shape in `assets/trigger-eval.schema.json`. `--judge cli` = real (tokens), `--judge mock` = self-test. |
+| `scripts/scaffold_skill.mjs` | dir skeleton + seeded SKILL.md stub from the spec; idempotent, `--force` to overwrite. |
+| `scripts/trigger_eval.mjs` | empirical trigger precision/recall; `--judge cli` real / `mock` self-test, `--runs 3`, holdout-aware. |
+| `scripts/validate_report.mjs` | the executable E gate (schema, P0/coverage joins, harness re-run, red log); `--selftest`. Conductor reuses it. |
 
 ## Assets
 
-| File | Usage |
-|------|-------|
-| `assets/build-report.schema.json` | The JSON contract for the report `skill-zipper` (or the user) consumes. The report you emit must conform. |
+`assets/build-report.schema.json` — the report contract ·
+`assets/trigger-eval.schema.json` — the trigger-eval report shape.

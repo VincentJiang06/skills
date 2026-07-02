@@ -9,6 +9,16 @@
     "skill": { "type": "string", "minLength": 1 },
     "judge": { "type": "string", "enum": ["mock", "cli", "custom"] },
     "threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+    "runs": { "type": "integer", "minimum": 1, "description": "Judge calls per case; majority vote decides 'triggered'." },
+    "split": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Present when any case is marked holdout:true. The gate also requires the holdout slice to clear the threshold (anti-overfitting, per skill-creator's 60/40 split).",
+      "properties": {
+        "train": { "$ref": "#/definitions/slice" },
+        "holdout": { "$ref": "#/definitions/slice" }
+      }
+    },
     "total": { "type": "integer", "minimum": 1 },
     "confusion": {
       "type": "object",
@@ -42,10 +52,44 @@
           "id": { "type": "string", "minLength": 1 },
           "should_trigger": { "type": "boolean" },
           "triggered": { "type": "boolean" },
+          "votes": { "type": "integer", "minimum": 0 },
+          "holdout": { "type": "boolean" },
           "outcome": { "type": "string", "enum": ["TP", "FP", "FN", "TN"] }
         }
       }
     },
     "passed": { "type": "boolean" }
+  },
+  "definitions": {
+    "slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "confusion", "metrics", "passed"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 1 },
+        "confusion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tp", "fp", "fn", "tn"],
+          "properties": {
+            "tp": { "type": "integer", "minimum": 0 },
+            "fp": { "type": "integer", "minimum": 0 },
+            "fn": { "type": "integer", "minimum": 0 },
+            "tn": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["precision", "recall", "accuracy"],
+          "properties": {
+            "precision": { "type": "number", "minimum": 0, "maximum": 1 },
+            "recall": { "type": "number", "minimum": 0, "maximum": 1 },
+            "accuracy": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "passed": { "type": "boolean" }
+      }
+    }
   }
 }

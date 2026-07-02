@@ -85,10 +85,10 @@ H8 implicit ordering, H9 pronoun, H10 underspecified output).
 
 ## Retrigger candidates
 
-Load `rules/description-quality.md` and apply its diagnosis rubric to the
-current frontmatter `description`. If the score is 0-3, propose a rewrite
-from scratch. If 4-5, propose targeted improvements per missing item.
-If 6-7, mark this dimension as "no action needed."
+Load `rules/description-quality.md` and apply its 8-item diagnosis rubric to
+the current frontmatter `description`. If the score is 0-4, propose a rewrite
+from scratch. If 5-6, propose targeted improvements per missing item.
+If 7-8, mark this dimension as "no action needed."
 
 Retrigger has the highest impact-per-effort ratio of any operation —
 do not skip it even when other operations report no candidates.

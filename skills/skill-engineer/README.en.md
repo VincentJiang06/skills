@@ -11,6 +11,7 @@
 - A `trigger_eval` that actually RUNS the skill via `claude -p` to measure real trigger-rate against a baseline — not a hunch about what would fire.
 - An independent battery, blind to the build rules, catches what the self-tests miss.
 - Test-driven: a required case that wasn't really run, or a script skill with no re-runnable harness, counts as unverified — it won't report success.
+- **v2.0: the E gate is executable** — self-gates with `validate_report.mjs` (P0/adversarial-checklist joins, harness **re-run on the spot**, red-log check), the same script the conductor runs; trigger_eval gains 3-vote majority + held-out anti-overfitting; behavioral RED = a baseline-without-skill transcript; pre-ship security lint (secrets / injection / undeclared fetch).
 
 **When to use** — "implement / develop / wire this skill" · "make the eval cases pass" · "turn this handoff-spec into files" · when pointing at `.skill-guidance/handoff-spec.json`; or call `/skill-engineer`.
 **Not for** — planning / auditing (→ skill-guidance); token compression / restructuring (→ skill-zipper); blank scaffolding with no spec (→ skill-creator).

@@ -21,6 +21,7 @@ Embedded KB for `skill-guidance`: `skills/skill-guidance/skill-principle/`.
 ## Main Paths
 
 - `AGENT_INDEX.md`: shortest entrypoint for agents.
+- `UPDATE.md`: refresh runbook (incl. the Fact Registry).
 - `INDEX.json`: machine-readable file and coverage index.
 - `docs/`: long-form design, testing, TDD, and metrics guidance.
 - `knowledge_graph/`: compact nodes and edges for retrieval.

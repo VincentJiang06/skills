@@ -56,6 +56,22 @@
         "ref.agent_safetybench"
       ]
     },
+    "doc.operations.kb_update_runbook": {
+      "path": "UPDATE.md",
+      "title": "KB 更新运行手册 / KB Update Runbook",
+      "summary_zh": "常驻更新手册：按阶段（基线门禁→研究扫描→分诊→折入 KB→传播到四个 pipeline skill→记录）刷新 skill-principle；含承重数字的 Fact Registry 与业主质量杆（无 URL+日期不入库、schema 合法≠内容为真、收紧凭证据、放松需事故级证据）。",
+      "summary_en": "Standing refresh runbook: phase-gated KB updates (baseline gates, research sweep, triage, fold-in, propagation to the four pipeline skills, recording), with a Fact Registry of load-bearing numbers and the owner's quality bar (no URL+date no entry; schema-valid is not true; tighten with evidence, relax only on incident-grade evidence).",
+      "node_ids": [
+        "procedure.evidence_gated_update",
+        "pillar.lifecycle"
+      ],
+      "reference_ids": [
+        "ref.agentskills.open_standard",
+        "ref.anthropic.skill_authoring_best_practices",
+        "ref.claude_code.skills_docs",
+        "ref.anthropic.equipping_agents_skills"
+      ]
+    },
     "doc.operations.knowledge_base_architecture": {
       "path": "docs/operations/knowledge_base_architecture.md",
       "title": "知识库架构 / Knowledge Base Architecture",
@@ -1103,7 +1119,8 @@
         "governance"
       ],
       "doc_ids": [
-        "doc.operations.skill_lifecycle_management"
+        "doc.operations.skill_lifecycle_management",
+        "doc.operations.kb_update_runbook"
       ],
       "reference_ids": [
         "ref.skillsvote.lifecycle_governance"

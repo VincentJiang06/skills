@@ -12,21 +12,21 @@
     "testing/template_contracts.json"
   ],
   "counts": {
-    "indexed_files": 88,
+    "indexed_files": 90,
     "coverage_goals": 7,
-    "long_docs": 12,
+    "long_docs": 13,
     "json_template_files": 7,
     "nodes": 57,
     "edges": 50,
     "references": 120,
     "metrics": 18,
     "template_contracts": 7,
-    "search_tokens": 16718,
+    "search_tokens": 16844,
     "route_goals": 7,
     "route_query_cases": 27,
     "compact_query_limit": 12,
     "compact_query_cases": 27,
-    "summary_doc_cards": 12,
+    "summary_doc_cards": 13,
     "summary_node_cards": 57
   },
   "distributions": {
@@ -34,12 +34,12 @@
       "checklist_file": 5,
       "decision_record": 1,
       "edge_file": 3,
-      "long_doc": 12,
+      "long_doc": 13,
       "metric_file": 1,
       "node_file": 4,
       "reference_file": 9,
       "registry_file": 1,
-      "report_file": 1,
+      "report_file": 2,
       "schema_file": 18,
       "search_index": 4,
       "template_file": 10,
@@ -74,6 +74,7 @@
     "long_docs_referenced_by_nodes": [
       "doc.architecture.industrial_skill_design",
       "doc.metrics.quantitative_skill_metrics",
+      "doc.operations.kb_update_runbook",
       "doc.operations.knowledge_base_architecture",
       "doc.operations.local_retrieval_workflow",
       "doc.operations.skill_lifecycle_governance",
@@ -146,8 +147,8 @@
         "required": true,
         "passed": true,
         "metric_path": "counts.summary_doc_cards",
-        "actual": 12,
-        "expected": 12
+        "actual": 13,
+        "expected": 13
       },
       {
         "id": "quality.summary_node_cards_cover_nodes",
@@ -186,7 +187,7 @@
         "required": true,
         "passed": true,
         "metric_path": "counts.search_tokens",
-        "actual": 16718,
+        "actual": 16844,
         "expected": 1000
       }
     ]

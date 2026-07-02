@@ -20,12 +20,14 @@ This means:
 Retrigger is a near-zero-cost operation with high impact. Always check the
 description before any other restructuring.
 
-## Describe WHEN to use — never the multi-step workflow
+## Describe WHEN to use — never the multi-step workflow (the "Description Trap")
 
 The single highest-leverage rule, and the easiest to violate: the description
 states **when** to use the skill, not a summary of **how** it works (its internal
 steps/sequence). A one-line scope sentence ("Restructure a skill for token
-efficiency") is fine — enumerating the procedure is not.
+efficiency") is fine — enumerating the procedure is not. The community calls
+process-prose-in-the-description the **Description Trap**, and both Anthropic's
+docs and superpowers converged on the same rule independently.
 
 **Why:** if the description summarizes the workflow, Claude follows that summary
 as a shortcut and **skips the body**. Documented evidence (superpowers
@@ -42,6 +44,15 @@ implementation plans with independent tasks") made Claude read the body and run 
 This bans summarizing the *process*; the "no promises about the contents" rule
 below bans summarizing what's *in* the skill. Both failure modes cost the same —
 the body gets skipped.
+
+## The `name` is not the trigger (and has its own rules)
+
+Since mid-2026 the frontmatter `name` is a **display label only** — the
+directory name is the invocable command, so keep them equal. Name rules the
+spec/platform now enforce: ≤64 chars, lowercase letters/digits/hyphens, no
+consecutive hyphens, must NOT contain "anthropic"/"claude" or XML tags; a
+gerund phrase (`processing-pdfs`) reads best. Don't spend Retrigger effort on
+the name — the description does the triggering; just lint these rules.
 
 ## Anatomy of a good description
 
@@ -61,12 +72,15 @@ A good description has four parts, in this order:
    names that, when present in the conversation, tip toward invocation.
 
 Total length: aim for **~300 characters (≈ 60–80 tokens)** — enough for the verb
-+ 2–3 triggers + one anti-trigger, no more. **HARD LIMIT: 1024 characters —
-Claude Code TRUNCATES the description beyond it, so an over-long one silently
-loses exactly the trigger/anti-trigger text it needs.** Below ~240 chars (60 tok)
-is usually too vague; above ~600 chars (150 tok) dilutes the signal and wastes
-per-conversation context (the description sits in the available-skills reminder on
-EVERY turn, not just when invoked). `measure_tokens.py` reports the char/token
++ 2–3 triggers + one anti-trigger, no more. Two hard limits exist in mid-2026:
+the **portable Agent Skills spec caps `description` at 1,024 chars**, and
+Claude Code truncates the combined `description`+`when_to_use` at **1,536** in
+its skill listing. Stay ≤320 and both are irrelevant. Below ~240 chars (60 tok)
+is usually too vague; above ~600 chars (150 tok) dilutes the signal — and the
+whole skill listing shares roughly **1% of the context window across ALL
+installed skills**, so one bloated description gets *other* skills' descriptions
+silently shortened or dropped under pressure. Tightness is a per-install
+courtesy, not just per-skill hygiene. `measure_tokens.py` reports the char/token
 count and flags over-target/over-limit — **read that number, don't eyeball it**.
 
 ### Compressing an over-long description (the Retrigger + Compress fix)
@@ -164,7 +178,11 @@ After rewriting a description:
 1. Re-run the diagnosis rubric. It should score 7-8.
 2. Run `measure_tokens.py` on the SKILL.md frontmatter only — confirm 60-150 tokens.
 3. For an empirical check (not just eyeballing), run the engineer's trigger eval
-   on a labeled set:
-   `node ../skill-engineer/scripts/trigger_eval.mjs <skill-dir> cases.json --judge cli --threshold 0.9`
-   It scores trigger precision/recall; use the spec's `Do NOT use` neighbours as
-   the `should_trigger: false` cases. See `../skill-engineer/rules/trigger-eval.md`.
+   on a labeled set (sibling may be installed with a prefix — resolve
+   `../skill-engineer` or `../*-skill-engineer`):
+   `node <engineer>/scripts/trigger_eval.mjs <skill-dir> cases.json --judge cli --runs 3 --threshold 0.9`
+   Use the spec's `Do NOT use` neighbours as the `should_trigger: false`
+   cases, mark ~40% of cases `"holdout": true`, and when comparing an old vs
+   new description, **select by the holdout score** — a rewrite that only wins
+   on the cases you tuned against is overfit, not better. Details:
+   `<engineer>/rules/trigger-eval.md`.

@@ -1569,7 +1569,8 @@
         "governance"
       ],
       "docs": [
-        "doc.operations.skill_lifecycle_management"
+        "doc.operations.skill_lifecycle_management",
+        "doc.operations.kb_update_runbook"
       ],
       "references": [
         "ref.skillsvote.lifecycle_governance"
