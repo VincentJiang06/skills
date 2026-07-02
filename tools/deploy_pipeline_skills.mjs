@@ -23,9 +23,14 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "..");
 const DEFAULT_NAMES = ["skill-guidance", "skill-engineer", "skill-zipper", "skill-conductor"];
+// Local install roots. Claude Code reads ~/.claude/skills; ~/.agents/skills is
+// the vendor-neutral location several runtimes honor; OpenAI Codex reads its own
+// ~/.codex/skills. All get the vince- prefix so a re-deploy keeps the three in
+// sync. Roots whose parent dir is absent are skipped (that runtime isn't set up).
 const DEST_ROOTS = [
   path.join(os.homedir(), ".claude", "skills"),
   path.join(os.homedir(), ".agents", "skills"),
+  path.join(os.homedir(), ".codex", "skills"),
 ];
 
 const args = process.argv.slice(2);
@@ -92,6 +97,11 @@ for (const name of targets) {
     continue;
   }
   for (const root of DEST_ROOTS) {
+    // Skip a runtime that isn't set up on this machine — don't create its home.
+    if (!fs.existsSync(path.dirname(root))) {
+      console.log(`skip ${path.dirname(root)} (runtime not installed)`);
+      continue;
+    }
     const dest = path.join(root, `${prefix}${name}`);
     if (dryRun) { console.log(`DRY ${src} -> ${dest}`); continue; }
     const staging = fs.mkdtempSync(path.join(os.tmpdir(), `deploy-${name}-`));
