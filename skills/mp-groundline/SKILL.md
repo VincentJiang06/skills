@@ -7,7 +7,7 @@ description: >-
   for live-runtime debugging (mp-cli-sup), Skyline component dev, or
   reverse/non-WeChat work.
 metadata:
-  version: 0.1.0
+  version: 0.1.1
 ---
 
 # mp-groundline

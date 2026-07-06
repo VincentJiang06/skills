@@ -6,7 +6,7 @@ description: >-
   comprehensive critique. Triggers: "写一篇深度乐评", "全面评测这张专辑",
   "$album-review". NOT for audio-gear evaluation (→ hifi-review).
 metadata:
-  version: 0.1.1
+  version: 0.1.2
 ---
 
 # album-review

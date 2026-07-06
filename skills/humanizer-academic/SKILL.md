@@ -15,6 +15,8 @@ allowed-tools:
   - Bash
   - Task
   - AskUserQuestion
+metadata:
+  version: 3.2.0
 ---
 
 # Humanizer (Academic + Popular-Science)

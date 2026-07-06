@@ -7,7 +7,7 @@ description: >
   WRITES+TESTS; not plan/audit (guidance), compress (zipper), or loop (conductor).
 license: MIT
 metadata:
-  version: "2.1.0"
+  version: "2.1.1"
 ---
 
 # skill-engineer

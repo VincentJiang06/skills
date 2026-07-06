@@ -7,7 +7,7 @@ description: >-
   "$course-study". Do NOT use to do the user's graded homework for submission.
 license: MIT
 metadata:
-  version: 3.0.1
+  version: 3.0.2
   model: claude-sonnet-4-6
   user-invocable: true
   author: claude-code

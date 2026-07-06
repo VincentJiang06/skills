@@ -6,6 +6,8 @@ description: >-
   console, doctor, log correlation). Use for "debug WeChat DevTools", "连上小程序",
   "$mp-cli-sup". NOT for browser automation, source-only edits, or non-WeChat
   work.
+metadata:
+  version: 0.2.1
 ---
 
 # Vince Mini Program CLI Support

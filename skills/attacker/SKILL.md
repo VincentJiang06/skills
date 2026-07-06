@@ -6,7 +6,7 @@ description: >-
   "attack/break this feature", "red-team this product / idea", "$attacker". Do-NOT:
   write tests or fix bugs — it only finds breakages, never edits the target.
 metadata:
-  version: 0.4.0
+  version: 0.4.1
 ---
 
 # attacker

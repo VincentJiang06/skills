@@ -6,7 +6,7 @@ description: >-
   EDIT/MERGE/DELETE as the target changes. Use when implementing real logic, fixing
   a bug, or changing tested behavior. Do NOT use for trivial edits or prototypes.
 metadata:
-  version: 0.2.0
+  version: 0.2.1
 ---
 
 # Test-Driven Development

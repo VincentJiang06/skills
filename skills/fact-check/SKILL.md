@@ -5,6 +5,8 @@ description: >-
   returned within a hard time budget (simple ≤2 min, complex ≤5 min) — speed is
   the goal. Use for a quick verified answer: "fact-check this", "is it true Y",
   "$fact-check". NOT for an exhaustive research REPORT (→ deep-research).
+metadata:
+  version: 1.0.2
 ---
 
 # fact-check

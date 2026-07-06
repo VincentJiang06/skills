@@ -10,10 +10,10 @@
 - A deterministic, language-agnostic gate (`verify_contracts.mjs`) ties every documented interface to a real file:line and proves no recognized export was silently dropped.
 - It FLAGS ambiguous near-name matches for the agent to reconcile rather than rubber-stamping — no green-but-wrong.
 - Deletion is fail-closed: unknown → block, never silent-skip.
-- Contrast with neat, which SYNCS docs incrementally rather than rebuilding them.
+- Contrast with incremental sync, which keeps and patches docs rather than rebuilding them.
 
 **When to use** — "reorganize/rewrite the logic" · "rebuild the contracts from scratch" · "rewrite the architecture/structure/interface docs"; or call `/reorganize-logic`.
-**Not for** — incremental doc sync / session cleanup (→ neat, the sharpest boundary: this skill DELETES legacy rather than keep-and-sync); designing an agent loop (→ loop-constructor); editing the implementation code (it rebuilds the contract/doc layer, not the logic); a greenfield project with no existing contracts (nothing to clean).
+**Not for** — incremental doc sync / session cleanup (the sharpest boundary: this skill DELETES legacy rather than keep-and-sync); designing an agent loop (→ loop-constructor); editing the implementation code (it rebuilds the contract/doc layer, not the logic); a greenfield project with no existing contracts (nothing to clean).
 
 **Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/reorganize-logic ~/.claude/skills/`).
 

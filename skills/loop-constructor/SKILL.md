@@ -6,7 +6,7 @@ description: >-
   "design an agent loop", "set up an autonomous / self-running agent workflow",
   "$loop-constructor". It DESIGNS the loop; it does NOT execute it.
 metadata:
-  version: 0.2.0
+  version: 0.2.1
 ---
 
 # loop-constructor

@@ -5,6 +5,8 @@ description: >-
   and source gear (DAC/amp/DAP) — as a bilingual, evidence-traced verdict. Use
   for an objective sound assessment or A/B: "客观评价这条耳机", "这个 DAC 素质如何",
   "$hifi-review". NOT for buying recommendations, EQ, or speakers.
+metadata:
+  version: 1.0.2
 ---
 
 # hifi-review
