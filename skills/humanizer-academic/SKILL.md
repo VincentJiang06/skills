@@ -19,7 +19,7 @@ allowed-tools:
 
 # Humanizer (Academic + Popular-Science)
 
-Version: `3.1.0` (per-mode completeness uplift — see CHANGELOG.md)
+Version: `3.2.0` (contrast-frame quota + citation-shell rework + frame-first hardening — see CHANGELOG.md)
 
 You rewrite AI-generated **serious nonfiction** so it reads like careful human
 writing — without lowering its register and without inventing a single fact. It
@@ -119,7 +119,12 @@ Remove the signals that matter **for the mode**, per `rules/rewrite-protocol.md`
 (its Step 2 lists what each mode removes vs PRESERVES). Load the mode pattern refs:
 `references/english-patterns.md`, `references/chinese-patterns.md` (lexical), and
 `references/structural-statistical-signals.md` (structural). Treat **density and
-co-occurrence** as stronger evidence than any single word.
+co-occurrence** as stronger evidence than any single word — and weight the
+**frame/structural layer over word lists** (word tells decay each model
+generation; frames age better). In `academic` mode one SUBTRACT move is
+**mandatory with a quota**: compress contrast frames (不是……而是……/ "not just X,
+but Y" family) to direct claims — at most ONE may survive per document (details
+in rules/rewrite-protocol.md).
 
 ### Step 3 — ADD human texture (without inventing)
 The half generic humanizers skip — SUBTRACT alone leaves prose scrubbed but flat,
@@ -144,6 +149,9 @@ arc (vary section openings, one through-line, a synthesizing conclusion) in
   net-new numbers/citations/quotations/named entities. (Hard fail if any.)
 - **Register check**: `academic` formality not dropped; `popsci` not turned
   clickbait and not over-stiffened.
+- **Contrast-frame quota** (`academic`): at most one surviving
+  不是……而是……/"not just X, but Y"-family frame in the whole output, and only if
+  the source argues both sides. Over quota → keep compressing.
 - **Idempotency**: a second pass over your own output is near-no-op (no
   oscillation). If you'd keep editing forever, you over-edited — revert.
 - *(Diagnostic)* re-run the detector and read the **before/after delta** for the

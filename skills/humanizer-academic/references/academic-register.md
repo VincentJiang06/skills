@@ -60,6 +60,22 @@ mode unless they are genuinely empty padding.
   the *empty, repeated* frame use (e.g. every paragraph opening with 研究表明 to say
   nothing new).
 
+- **Discipline conventions vary — do not "correct" them.** Ethnographic /
+  anthropological / qualitative work legitimately uses first-person ("I conducted
+  42 interviews…", "我在田野中观察到"), reflexivity about the researcher's
+  position, and thick narrative detail — none of that is an AI tell or a register
+  slip. Quantitative methods sections legitimately run passive-heavy ("surveys
+  were administered…") — do not force active voice there. Match the field's norm,
+  which the source itself displays.
+- **Passive voice is a density-and-place judgment, not a denylist.** Passive
+  stacked wall-to-wall through findings/discussion (where human authors claim
+  agency: "we find", "I argue") reads machine-made; passive in methods or where
+  the agent is unimportant is standard scholarship. Never mechanically flip voice.
+- **Non-native academic English is not an AI signal.** Real ESL scholarly prose
+  is flagged by detectors at several times the native rate; elevated formality
+  and textbook connectors can be genuine learned register. This is exactly what
+  the abstain gate protects.
+
 > The point: real human academics write this way. A rewrite that scrubs "statistically
 > significant", renumbers away "3.4", or deletes every "研究表明" has lowered the
 > register and may have broken the claim — that is a regression, not a humanization.
@@ -67,6 +83,8 @@ mode unless they are genuinely empty padding.
 ## Prefer these transformations
 
 - evaluation -> evidence
+- over-claiming verb -> evidence-matched verb (downward only: an unsupported
+  "proves" becomes "suggests"; a genuine hedge is never strengthened)
 - uplift -> consequence
 - noun-heavy clause -> concrete verb
 - sloganized contrast -> direct claim

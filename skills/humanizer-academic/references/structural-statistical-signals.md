@@ -50,11 +50,20 @@ Sentences that announce structure instead of doing the work: "This paper examine
 …", "The following section discusses …", 本文拟……、下文将从……展开、研究背景与意义。
 **Fix:** cut the announcement and start with the claim, method, or evidence.
 
-### A6. Balanced negative parallelism (as structure, not just phrasing)
-"not just X, but Y" / 不是……而是……/ 不仅……还……used to manufacture a sense of
-insight. One instance can be fine; **density** is the signal.
-**Fix:** convert to a direct claim. Distinguish from a genuine contrast the source
-actually argues.
+### A6. Contrast / negative-parallelism frames (the #1 modern frame tell)
+"not just X, but Y" / "It's not X. It's Y." / "less about X than Y" / 不是……而是……/
+并非……而是……/ 这不仅是……更是……/ X 的本质是……/ 真正的 X 是……: deny a strawman,
+then "reveal" an elevated restatement as insight. Post-2024 models lean on this
+family hardest — as raw vocabulary tells decay with each model generation, this
+frame (with A1–A3) carries more of the evidential weight than any word list.
+**Fix (academic mode — mandatory, with a quota):** default to the direct claim —
+delete the negated half, keep the actual assertion. **At most ONE surviving
+contrast frame per document**, and only where the source genuinely argues both
+sides (the denied position is a real, cited position, not a strawman). Over
+quota = the rewrite is not done. Popsci: judge by density; an earned contrast is
+craft, stacked contrasts are the tell.
+**Detector:** the `negative_parallelism` family counts EN + ZH variants
+(diagnostic; the quota check at Step 5 is yours, not the script's).
 
 ### A7. Over-dense section scaffolding
 第一章/第二章 with dense 1.1/1.2/2.1 nesting; every subsection opening with 本节将……

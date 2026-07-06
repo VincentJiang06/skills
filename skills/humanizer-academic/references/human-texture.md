@@ -81,8 +81,17 @@ blunt sentence after a long one carries emphasis the flat version cannot.
 
 - Mix sentence lengths on purpose. Let one clause-heavy sentence be followed by a
   four-word one. The detector's `sentence_cv` should rise after a good rewrite.
+- A useful heuristic (not a rule to game): a long passage should contain the
+  occasional genuinely short sentence, and should never run three consecutive
+  sentences of near-identical length. If every sentence lands 15–22 words, the
+  rewrite isn't done.
 - Vary paragraph shape: not every paragraph needs a thesis-then-three-supports
   skeleton. Some make one point. Some accumulate. (`paragraph_cv` rises too.)
+- **Punctuation texture has its own quota.** Em-dashes and sentence fragments are
+  human devices that AI now over-uses (dashes at several times human frequency):
+  keep dashes to roughly one per ~300 words of academic prose, fragments rarer
+  still — and only where they carry real emphasis. Injecting them as seasoning
+  is the same uniformity failure in a new costume.
 - This is a *diagnostic*, not a target to game: raising CV by inserting noise is
   not the goal — raising it because the prose now has real emphasis structure is.
 

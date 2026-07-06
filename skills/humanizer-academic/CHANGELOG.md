@@ -4,6 +4,56 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
+## 3.2.0 — Contrast-frame quota + citation-shell rework + frame-first hardening (2026-07-06)
+
+**Minor** (abstain-first and the register floors unchanged; SUBTRACT gains one
+mandatory quota move in `academic`). Motivated by a comparative audit of
+momo2young/humanize-academic-writing + a sourced sweep of 2024–2026 detection
+research (Wikipedia AICATCH, Kobak et al. 2025 excess-vocab, Pangram phrase
+ratios, 腾讯新闻 7-model ZH quantitative baseline, competitor skill survey).
+
+### Changed
+- **Contrast-frame compression is now MANDATORY with a quota in `academic`**
+  (the "不是……而是……" fix): the 不是/并非……而是、这不仅是……更是、本质是/真正的
+  X 是、"not just X, but Y" / "It's not X. It's Y." / "less about X than Y"
+  family defaults to the direct claim; **at most ONE survivor per document**,
+  only when the source argues both sides. Enforced in rewrite-protocol Step 2 +
+  a new SKILL.md Step 5 verify check. Previously listed but advisory
+  ("单次出现未必有问题") — which in practice meant it was never compressed.
+- **Frame-first weighting**: era-drift note added (word tells decay each model
+  generation; frames/structure age better) — SKILL.md Step 2 + english-patterns.
+- **ZH punctuation calibration**: quantitative baseline shows ZH AI uses 破折号/
+  引号 LESS than humans (排比/对偶 are the real 2–6× excess) — 破折号 stays
+  drama-judged, never count-based; genre whitelist gains 文言/骈文.
+
+### Added
+- **Mechanical citation shells** family (EN §10b + ZH §9 引用壳): "According to
+  research…", contentless "Smith (2020) discusses X", per-sentence parenthetical
+  dumping → rework as scholars-as-agents using ONLY existing citations
+  (rearrangement; zero added, zero dropped). Conditional ADD move in Step 3.
+- **Over-claiming / novelty padding / speculative gap-filling** (EN §10a + ZH
+  §7b): verb strength ≤ evidence strength, fixed DOWNWARD only ("proves"→
+  "suggests", never strengthen a hedge); "for the first time"/首次提出/填补空白
+  cut when unsubstantiated; never dress a guess as a finding.
+- **Discipline-convention + non-native guards** (academic-register do-not-strip):
+  ethnographic first-person/reflexivity, quant passive-heavy methods, ESL
+  register are NOT tells (detectors flag real ESL prose at ~12× native rate).
+- **Passive-voice density judgment** (place-aware: findings/discussion vs
+  methods), connective-preserving deletes (never bare-delete a transition).
+- **Punctuation-texture quota** in human-texture §3 (em-dash ≈1/300 words in EN
+  academic prose, fragments rarer) + burstiness heuristic (no 3 consecutive
+  same-length sentences).
+- **Detector**: widened `negative_parallelism` (EN: isn't-just-about /
+  less-about-than / this-isn't—it's; ZH: 并非……而是 / 这不仅是……更是 / 真正的
+  X 是 / 的本质是) — amb tier, density-judged, popsci still drops the family;
+  `hype` gains corpus-backed hp phrases (serves as a testament / the complex
+  interplay of / would not be complete without). +14 pinned unit tests
+  (`test_v32_patterns`), EN lexical §6 gains Kobak-2025 excess words.
+
+### Unchanged (the load-bearing invariants)
+- Abstain-first FP guard; zero net-new facts (hard fail); register floors;
+  detector = diagnostic-only, blind judge = oracle.
+
 ## 3.1.0 — Per-mode completeness uplift (2026-06-23)
 
 **Minor** (abstain-first and the register floors are unchanged — an additive quality

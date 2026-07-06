@@ -16,8 +16,29 @@ Remove the signals that matter **for the mode**. Load the mode pattern refs:
 **`academic` — remove:** inflated/promotional vocab used as filler, AI connector
 overload (Moreover/Furthermore/此外/与此同时 every paragraph), mechanical
 rule-of-three scaffolding, report-shell *over-density* ("本节将……" on every
-subsection), evenly-sprinkled hedging, balanced negative parallelism used
-mechanically, bold-label lists, chat residue.
+subsection), evenly-sprinkled hedging, bold-label lists, chat residue,
+present-participle significance tack-ons stacked at clause ends ("…,
+highlighting the importance of…" with no new propositional content), and
+mechanical citation shells ("According to research…", "Studies have shown
+(Smith 2020)", a bare parenthetical dumped at the end of every sentence,
+"Smith (2020) discusses X" with a contentless verb — rework using ONLY the
+citations already present; see Step 3), over-claiming verbs beyond the evidence
+("proves/demonstrates/confirms" on a correlation — weaken DOWNWARD only, never
+strengthen a hedge), novelty/effort padding ("for the first time", "extensive
+experiments" unsubstantiated), formulaic openers ("In recent years…"/"随着……的
+快速发展"), and speculative gap-filling (inventing an interpretation to cover
+missing information — say what isn't known or cut).
+When removing a connector, never bare-delete it: replace it or restructure so
+the logical link survives (english-patterns.md §10a–10b, chinese-patterns.md §7b).
+
+**`academic` — MANDATORY quota move (not advisory): contrast-frame compression.**
+"不是……而是……/并非……而是……/这不仅是……更是……/X 的本质是……/真正的 X 是……" and
+EN "not just X, but Y" / "It's not X. It's Y." / "less about X than Y" —
+default-rewrite every instance to the direct claim (drop the negated strawman,
+keep the assertion). **At most ONE may survive per document**, and only when the
+source genuinely argues both sides (the denied position is real and cited, not a
+strawman). If more than one survives, the rewrite is not done — go back. This is
+checked again at Step 5.
 **`academic` — PRESERVE (these are NOT tells here):** discipline jargon including
 `significant`/`significantly`/`robust`/`comprehensive`/`enhance`/`landscape` in
 technical use; three-item **data** enumerations; numbered sections (2.1, 3.4); a
@@ -53,6 +74,12 @@ optional**, but bounded hard by zero net-new facts. Load
      causal step from elsewhere in the same text; never generate one. Plus: sentence/
      paragraph-length variance; controlled asymmetry (not every list is three — but
      data enumerations are not forced triads).
+  3. *(conditional — fire when Step 2 found mechanical citation shells)*
+     **Re-integrate the EXISTING citations as substance**: make cited scholars
+     agents of the claims the source already attributes to them ("Putnam (2000)
+     argues…" not "According to research…"); state the specific finding the text
+     already gives. Rearrangement only — zero citations added, zero dropped,
+     nothing attributed that the source does not itself state.
 - **`popsci` — do at least both, every triggered rewrite:**
   1. **Let ONE real, source-grounded analogy or concrete example carry a key point**
      — pick the single best one the source already implies and let it do the

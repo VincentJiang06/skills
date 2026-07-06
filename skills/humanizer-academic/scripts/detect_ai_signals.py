@@ -181,8 +181,11 @@ EN_LEXICAL: dict[str, tuple[str, list[str]]] = {
         r"\bvibrant\b", r"\brich tapestry\b", r"\bbreathtaking\b",
         r"\bgroundbreaking\b", r"\bgame[- ]chang(?:er|ing)\b",
         r"\bin the heart of\b", r"\ba testament to\b", r"\bunlock(?:s|ing)?\b",
+        r"\bserves as a testament\b",
         r"\bnavigat(?:e|ing) the (?:complex(?:ities)?|landscape|world)\b",
         r"\bever[- ]evolving\b", r"\bever[- ]changing\b",
+        r"\bthe complex interplay (?:of|between)\b",
+        r"(?i)\b(?:no \w+ )?would (?:not |n'?t )?be complete without\b",
     ]),
     "empty_outlook": ("hp", [
         r"\bdespite (?:these|the) challenges\b", r"\bfuture outlook\b",
@@ -342,6 +345,9 @@ EN_STRUCTURAL: dict[str, tuple[str, list[str]]] = {
         r"\bnot merely\b[^.,;]{1,60}?,?\s*but\b",
         r"\bnot only\b[^.,;]{1,60}?,?\s*but\b",
         r"\bit'?s not (?:about|that)\b[^.,;]{1,50}?,?\s*it'?s\b",
+        r"(?i)\bis(?:n'?t| not) (?:just|merely|simply|only) about\b",
+        r"(?i)\bless about\b[^.,;]{1,50}?\bthan\b",
+        r"(?i)\bthis is(?:n'?t| not)\b[^.?!]{1,50}?[—–;]\s*it'?s\b",
     ]),
     "signpost": ("amb", [
         r"(?i)\bfirst(?:ly)?,", r"(?i)\bsecond(?:ly)?,", r"(?i)\bthird(?:ly)?,",
@@ -369,7 +375,9 @@ ZH_STRUCTURAL: dict[str, tuple[str, list[str]]] = {
     ]),
     "negative_parallelism": ("amb", [
         r"不是.{0,40}?而是", r"不仅.{0,30}?(?:还|更)", r"不只是.{0,30}?更是",
-        r"与其说.{0,30}?不如说",
+        r"与其说.{0,30}?不如说", r"并非.{0,40}?而是",
+        r"这不仅(?:仅)?是.{0,30}?更是", r"真正的.{1,12}(?:是|在于)",
+        r"的本质(?:上)?(?:是|在于)",
     ]),
     "signpost": ("amb", [
         r"首先[，,]", r"其次[，,]", r"再次[，,]", r"最后[，,]",
