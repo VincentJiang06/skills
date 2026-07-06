@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) · **English** · [简体中文](README.md)
 
-> Agent skills for Claude Code — each ships a deterministic validator + a red-green eval + an independent fresh-agent battery that *tries to break it*. Small, sharply-scoped, bilingual (EN / 中文), almost all built by the repo's own pipeline + loop engine. **For any skill's details, read its own folder's README.**
+> Agent skills for Claude Code, Codex, and other agent runtimes — each ships a deterministic validator + a red-green eval + an independent fresh-agent battery that *tries to break it*. Small, sharply-scoped, bilingual (EN / 中文), almost all built by the repo's own pipeline + loop engine. **For any skill's details, read its own folder's README.**
 
 ## Skills at a glance
 
@@ -21,6 +21,8 @@
 
 **Loop & adversary — turn a medium/large task into a runnable engineering loop**
 - **[loop-constructor](skills/loop-constructor/)** — designs the engineered *loop* for a medium/large task: decomposed into gated sub-loops, persisted as a runnable `.loop/` runbook.
+- **[loop-constructor-codex](skills/loop-constructor-codex/)** — the Codex CLI variant of loop-constructor: the same loop-engineering model realized as single-agent `codex exec` runs, on-disk state, and a fresh evaluator.
+- **[model-pyramid](skills/model-pyramid/)** — right-sizes model tier + reasoning effort before subagent fan-out: peers keep both, search drops effort, large cheap lookup swarms drop one model tier, and the medium floor always holds.
 - **[attacker](skills/attacker/)** — attacks a product's *actual observable behavior* (or red-teams an idea): a fresh, TDD-independent subagent records only proven, reproducible breakages; pairs with loop-constructor (attack→fix→re-attack).
 - **[reorganize-logic](skills/reorganize-logic/)** — rebuilds the design-contract layer (architecture + structure + interfaces) with the code as the single source of truth, behind a review gate.
 
@@ -36,6 +38,16 @@ and gatekeeper share one ruler, zero room to copy a command wrong.
 
 > To keep Opus continuously syncing the principle KB + this pipeline to the latest ecosystem, see [`skills/skill-guidance/skill-principle/UPDATE.md`](skills/skill-guidance/skill-principle/UPDATE.md) (a Fact Registry of load-bearing numbers + a quality bar). The previous v1 is frozen in [`archive/`](archive/).
 
+## What this generation adds
+
+This is not a pile of prompt templates. It is a skill system with teeth:
+
+- **The build pipeline is now v2.** guidance / engineer / conductor / zipper share executable gates; specs, build reports, trigger evals, held-out cases, and red logs can be re-run instead of trusted by narration.
+- **Loop engineering is split into runtime-neutral and Codex-realized layers.** `loop-constructor` designs the general loop; `loop-constructor-codex` maps role separation, disk state, and fan-out onto `codex exec`.
+- **Independence is first-class.** `attacker`, `reorganize-logic`, and `test-driven-development` were all reworked around the rule that the same mental model should not both produce and grade the answer.
+- **Model/effort sizing is explicit.** `model-pyramid` is not model shopping and not cost rhetoric; at subagent fan-out time it emits an auditable `rule=<id> tier=<tier> effort=<notch>` line.
+- **The KBs travel with the skills.** `skill-principle` and `loop-principle` are embedded under their owning skills instead of requiring a sibling copy ritual.
+
 ## Install
 
 Use **[skills.sh](https://github.com/vercel-labs/skills)** (the `skills` CLI) — it auto-discovers every skill in the repo and installs into `~/.claude/skills/` (or `.agents/skills/` for project scope):
@@ -44,7 +56,7 @@ Use **[skills.sh](https://github.com/vercel-labs/skills)** (the `skills` CLI) �
 npx skills add VincentJiang06/skills      # interactively pick which skills to install
 ```
 
-Manual alternative: `cp -R skills/<name> ~/.claude/skills/`.
+Manual alternative: `cp -R skills/<name> ~/.claude/skills/`. Public repo skill names are prefix-free; if you maintain private local mirrors, installing as `~/.claude/skills/vince-<name>` or `~/.agents/skills/vince-<name>` is fine, but keep the installed `SKILL.md` `name` and explicit invocation strings in sync.
 
 **Dependencies & "installing everything":**
 - **Runtime**: `node` (≥18) for the `.mjs` validators, `python3` for the `.py` scripts. **Both use only the standard library — no `npm install` / `pip install` needed.**
@@ -83,7 +95,12 @@ These skills are designed to compose. Here are the common paths + a one-line dem
 > Use attacker on <skill/feature>'s observable behavior, scope = input parsing + edges; record only proven reproducible breakages.
 ```
 
-**⑤ End-of-session / keep knowledge fresh** — `neat` reconciles docs + memory against the code; `reorganize-logic` rebuilds from scratch when docs have rotted past incremental sync.
+**⑤ Size a subagent fan-out** — `model-pyramid` only sizes; it does not spawn.
+```
+> I am about to launch 24 search subagents and 2 peer reviewers; use model-pyramid to assign tier/effort for each worker.
+```
+
+**⑥ End-of-session / keep knowledge fresh** — `neat` reconciles docs + memory against the code; `reorganize-logic` rebuilds from scratch when docs have rotted past incremental sync.
 
 ## Practical tips (when developing skills)
 
@@ -108,6 +125,7 @@ skills/loop-constructor/loop-principle/      # embedded loop-engineering KB, ins
 tools/vince-mp-cli/                          # Node CLI that mp-cli-sup drives
 tools/deploy_pipeline_skills.mjs             # deploy the four pipeline skills to a local install (vince- prefix, byte-verified)
 .loop/                                       # runnable runbooks produced by loop-constructor
+eval_exchange/                               # local builder / evaluator handoff protocol and sample session
 archive/                                     # frozen previous versions (e.g. pipeline v1); not installable, not maintained
 ```
 
@@ -132,6 +150,24 @@ Engineering honesty means writing down what isn't closed — the natural extensi
 - **Guidance's context-sufficiency detector is a seed, not an oracle.** The keyword detector that triggers elicitation can be fooled both ways; by design the agent's judgment of *substance* is the oracle, but it isn't deterministically closed.
 - **loop-constructor's D6 cadence (completeness-first / iteration-first) is guidance, not linter-enforced.** A design can claim one cadence while carrying the opposite knobs — the linter can't catch it; the fresh-reader cadence box + the maker/checker are the gate.
 - **For performance/quality upgrades, final acceptance may be a stronger held-out attack instead of a full conductor re-audit** (as in humanizer v3.1) — a deliberate engineering trade-off, recorded honestly rather than cut silently.
+- **Trigger precision depends on a real runtime being available.** When an authenticated CLI is unavailable, some trigger evals use a live judge panel and say so in the report; that is usable evidence, not a disguised canonical CLI result.
+
+## Changelog
+
+Daily summaries from git history, limited to structural changes in the skill system.
+
+- **2026-07-06** — humanizer moved to v3.2 (contrast-frame quota, citation-shell rework, frame-first hardening); both principle KBs received a FABLE synthesis pass; `loop-constructor-codex` landed; `model-pyramid` added testable subagent model/effort sizing.
+- **2026-07-02** — the skill-building pipeline became v2: executable G/E gates, audit disposition, held-out trigger eval, portable zipper; v1 pipeline archived; local `eval_exchange` protocol added; `attacker` / `loop-constructor` / `reorganize-logic` / `test-driven-development` received the independence-family update.
+- **2026-06-25** — `skill-principle` and `loop-principle` were embedded under their owning skills so installs carry the KBs with them.
+- **2026-06-24** — `.clawhubignore` and version metadata were synced for ClawHub/SkillHub publishing.
+- **2026-06-23** — repo-wide zipper pass: shorter always-loaded SKILL.md files, details moved into `rules/` / `references/`; humanizer v3.1 performance uplift completed; attacker entered 0.3.x; loop-constructor added D6 cadence; README rewritten as the current user-facing entry.
+- **2026-06-22** — `mp-cli-sup` survived 8 adversarial hardening rounds and closed at 0.2.0; `attacker` landed and made independent breakage-finding a standard acceptance layer.
+- **2026-06-21** — `loop-constructor` shifted to SELECT→FILL→VERIFY; `test-driven-development` gained anti-gaming gates; humanizer split into academic / popsci modes with abstain-first behavior.
+- **2026-06-20** — README became Chinese-first; major skills gained bilingual READMEs; public repo skill names dropped the `vince-` prefix.
+- **2026-06-18** — staged `loop-constructor` and `reorganize-logic` landed; `vince-mp` CLI gained camera-less scan; README gained the one-line skill index.
+- **2026-06-15** — `loop-principle` KB + `loop-constructor` landed; `neat` added end-of-session docs/memory reconciliation.
+- **2026-06-11** — `test-driven-development` was redesigned around trigger boundaries, modify mode, and subagent delegation; KB source density improved.
+- **2026-06-05** — repo was reorganized for public release; `skills.sh` install path added; `mp-groundline` landed; `vince-mp` moved into persistent-session + doctor/scan/logs workflow.
 
 ## Acknowledgments
 

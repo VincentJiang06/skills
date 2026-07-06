@@ -1,0 +1,17 @@
+{
+  "session_id": "20260706-095235+0800-loop-constructor-codex-v0",
+  "agent_run_id": "codex-20260706-100821+0800",
+  "blocking_findings": [],
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "P3",
+      "case_id": "case-01-medium-staged",
+      "title": "Case-01 drift gate is blind to new untracked test files",
+      "evidence": "skill-tester/produced/case-01-medium-staged/output.md records that `git diff --exit-code ratelimit-baseline -- test/` catches tracked test weakening but not a new untracked test file. The design's A9 check uses the same git diff form.",
+      "reproduction": "Read `skill-tester/produced/case-01-medium-staged/design.json` contract assertion A9 and stage `verify.feedback_signal.check`; both use `git diff --exit-code ratelimit-baseline -- test/` without `git ls-files -o --exclude-standard -- test/`.",
+      "suggested_owner": "skill_tester",
+      "blocking": false
+    }
+  ]
+}

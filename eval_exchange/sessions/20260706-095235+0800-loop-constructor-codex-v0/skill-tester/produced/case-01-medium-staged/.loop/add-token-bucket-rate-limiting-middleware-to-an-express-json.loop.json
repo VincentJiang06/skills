@@ -1,0 +1,240 @@
+{
+  "task": "Add token-bucket rate-limiting middleware to an Express JSON API, config-driven from config/ratelimit.json, covered by tests, without regressing the existing endpoint contract",
+  "loop_altitude": "medium",
+  "loop_altitude_rationale": "Multi-file change (middleware + config loader + tests) on a public request path, but reversible, dev-only, and single-agent. Stages are strictly sequential (each consumes the prior stage's stable artifact), so sequential gated stages with no parallel fan-out — medium, not large.",
+  "selection_log": [
+    {
+      "decision": "D0",
+      "answer": "loop",
+      "why": "runnable checks answer done without a human reading output: `npm test api:contract` (regression), `npm test api:ratelimit` (429/200/Retry-After/per-client), and a config-load assertion — done is machine-decidable, so it is a loop."
+    },
+    {
+      "decision": "D1",
+      "answer": "staged (2 seams)",
+      "why": "seam A: characterize hands a GREEN captured contract/regression suite to implement (implement must keep it green); seam B: implement hands a working 429 middleware + loaded config to verify. Each handoff is a stable, checkable artifact the upstream can prove without the downstream existing, consumed unchanged, non-conflicting surfaces -> both boundaries pass the seam test -> staged with 3 stages."
+    },
+    {
+      "decision": "D2",
+      "answer": "characterize=explore_narrow, implement=plan_execute_verify, verify=retry",
+      "why": "characterize searches/pins the existing contract (unknown extent -> explore_narrow); implement is a risky middleware change on the request path needing mid-flight correction (plan_execute_verify); verify is a mechanical retryable re-assertion of the full contract + ratelimit suite (retry)."
+    },
+    {
+      "decision": "D3",
+      "answer": "on_the_loop",
+      "why": "dev-only, reversible, and the checks discriminate well (ratelimit test asserts 200-below AND 429-above, per-client keying) so a wrong iteration is caught by a check, not silently shipped -> human reviews at the gates, not every iteration."
+    },
+    {
+      "decision": "D4",
+      "answer": "medium",
+      "why": "the three stages form a strict dependency chain (characterize -> implement -> verify); there is no pair of independent stages that could run concurrently and benefit from fan-out -> sequential single-agent, not large."
+    },
+    {
+      "decision": "D5",
+      "answer": "per-stage caps + loopback routing + escalate-on-public-change",
+      "why": "characterize cap 3 escalate (a red baseline is an environment problem, not our change); implement cap 8 loopback->characterize (a leaked regression means the baseline needs re-pinning); verify cap 5 loopback->implement; outer escalate on any needed public-API/response-schema change."
+    },
+    {
+      "decision": "D6",
+      "answer": "iteration_first",
+      "why": "the gate checks are fast/cheap (npm test in seconds), so frequent small passes give near-free feedback and beat few long ones. Tuned accordingly: implement cap raised to 8, verify pattern is retry (cheap re-attempt), per-pass scope kept to one slice (add one ratelimit behavior at a time). characterize stays low-cap because it is a one-shot pinning, not iterative."
+    }
+  ],
+  "stages": [
+    {
+      "id": "characterize",
+      "definition_of_done": {
+        "goal": "the existing public-endpoint contract suite passes on the untouched baseline and is captured (as a git tag `ratelimit-baseline`) as the regression set later stages must keep green",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "explore_narrow",
+      "feedback_signal": {
+        "check": "npm test api:contract && git tag -f ratelimit-baseline",
+        "expect": "pass",
+        "falsifiable_when": "any existing endpoint returns a different status or body than the captured baseline expects -> the contract suite exits non-zero",
+        "passing_but_wrong": "a stale/empty contract suite that vacuously passes with zero assertions -> ruled out: the suite asserts a concrete status+body per endpoint and CI fails the suite if it collects zero tests"
+      },
+      "stop_conditions": {
+        "failure": [
+          "contract suite cannot be made green on the untouched baseline (environment broken, not our change)"
+        ],
+        "max_iterations": 3,
+        "on_failure": {
+          "action": "escalate"
+        }
+      },
+      "depends_on": []
+    },
+    {
+      "id": "implement",
+      "definition_of_done": {
+        "goal": "token-bucket middleware reads threshold+window from config/ratelimit.json and returns 429 past the threshold with a Retry-After header, per client, while the captured contract regression set stays green",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "npm test api:ratelimit && npm test api:contract",
+        "expect": "pass",
+        "falsifiable_when": "the (threshold+1)th request in the window still returns 200 (no 429), or the config values are ignored (a changed config/ratelimit.json threshold does not change the observed cutover), or any contract test regresses -> a test exits non-zero",
+        "passing_but_wrong": "middleware returns 429 for EVERY request (even below the threshold), passing a naive 'a 429 appeared' test -> ruled out: the ratelimit suite asserts 200 at/below the threshold AND 429 only above it, AND drives the threshold from config so a hardcoded limit fails the config-parametrized test"
+      },
+      "stop_conditions": {
+        "failure": [
+          "3 consecutive same-type failures on the ratelimit boundary",
+          "the contract regression set goes red (a behavior change leaked into an existing endpoint)"
+        ],
+        "max_iterations": 8,
+        "on_failure": {
+          "action": "loopback",
+          "to": "characterize"
+        }
+      },
+      "depends_on": [
+        "characterize"
+      ]
+    },
+    {
+      "id": "verify",
+      "definition_of_done": {
+        "goal": "the full contract suite + the full ratelimit suite pass together, and no test assertion was weakened relative to the ratelimit-baseline tag",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "retry",
+      "feedback_signal": {
+        "check": "npm test api:contract && npm test api:ratelimit && git diff --exit-code ratelimit-baseline -- test/",
+        "expect": "pass",
+        "falsifiable_when": "any contract or ratelimit test fails together, OR a test file was weakened since the baseline tag (git diff finds a change under test/) -> non-zero exit",
+        "passing_but_wrong": "the agent loosens a ratelimit assertion so both suites go green -> ruled out: `git diff --exit-code ratelimit-baseline -- test/` fails on ANY test change since the pinned baseline tag, and the tag was captured in stage 1 before any code landed"
+      },
+      "stop_conditions": {
+        "failure": [
+          "suites cannot both pass without weakening a test",
+          "a test file diverged from the baseline tag and cannot be justified"
+        ],
+        "max_iterations": 5,
+        "on_failure": {
+          "action": "loopback",
+          "to": "implement"
+        }
+      },
+      "depends_on": [
+        "implement"
+      ]
+    }
+  ],
+  "human_placement": "on_the_loop",
+  "maker_checker": {
+    "separate_checker": true,
+    "scope": "a fresh-context reviewer sees only the diff + the per-stage checks + config/ratelimit.json; flags any behavior change to an existing endpoint, a hardcoded limit that ignores config, or a weakened test — not general style"
+  },
+  "roles": {
+    "planner": {
+      "mandate": "turn the goal into the staged spec + the negotiated contract; write config/ratelimit.json's schema expectations; never write middleware or test code"
+    },
+    "generator": {
+      "mandate": "write the middleware + config loader + tests to satisfy the contract; may NOT weaken a test, grade its own output, or hardcode the threshold"
+    },
+    "evaluator": {
+      "separate_context": true,
+      "adversarial": true,
+      "mandate": "a fresh codex exec that never saw the impl or the generator's reasoning; given only the diff + contract.md; assume the limiter is broken and prove it — send threshold+1 requests and check for 429, edit config/ratelimit.json and confirm the cutover moves, race two clients, and diff test/ against the baseline tag for any loosened assertion"
+    }
+  },
+  "contract": {
+    "negotiated_by": [
+      "generator",
+      "evaluator"
+    ],
+    "assertions": [
+      {
+        "id": "A1",
+        "must": "every pre-existing public endpoint returns its captured baseline status + body (no regression)",
+        "check": "npm test api:contract",
+        "stage": "characterize"
+      },
+      {
+        "id": "A2",
+        "must": "the (threshold+1)th request inside the window returns HTTP 429; every request at or below the threshold returns 200",
+        "check": "npm test api:ratelimit -- -t threshold-boundary",
+        "stage": "implement"
+      },
+      {
+        "id": "A3",
+        "must": "the 429 response carries a Retry-After header with a positive integer seconds value",
+        "check": "npm test api:ratelimit -- -t retry-after",
+        "stage": "implement"
+      },
+      {
+        "id": "A4",
+        "must": "the limiter is keyed per client so one client cannot exhaust another client's quota",
+        "check": "npm test api:ratelimit -- -t per-client-isolation",
+        "stage": "implement"
+      },
+      {
+        "id": "A5",
+        "must": "the threshold and window come from config/ratelimit.json — changing the config file changes the observed cutover, no hardcoded limit",
+        "check": "npm test api:ratelimit -- -t config-driven",
+        "stage": "implement"
+      },
+      {
+        "id": "A6",
+        "must": "a malformed config/ratelimit.json fails fast at startup with a clear error rather than silently disabling the limiter",
+        "check": "npm test api:ratelimit -- -t config-malformed",
+        "stage": "implement"
+      },
+      {
+        "id": "A7",
+        "must": "the window resets: after the window elapses, a client is served 200 again",
+        "check": "npm test api:ratelimit -- -t window-reset",
+        "stage": "implement"
+      },
+      {
+        "id": "A8",
+        "must": "the full contract suite and full ratelimit suite pass together at the end",
+        "check": "npm test api:contract && npm test api:ratelimit",
+        "stage": "verify"
+      },
+      {
+        "id": "A9",
+        "must": "no test assertion was weakened relative to the pinned baseline over the whole run",
+        "check": "git diff --exit-code ratelimit-baseline -- test/",
+        "stage": "verify"
+      }
+    ]
+  },
+  "harness_primitives": [
+    "git tag `ratelimit-baseline` pinned in stage 1 as the immutable regression reference",
+    "external scratch ledger (.loop/run-state.md) holding which stage is done, the last green checkpoint, and what's next across context resets",
+    "contract.md holding the negotiated assertions (the graded criteria)",
+    "AGENTS.md standing instruction: each codex exec re-reads .loop/run-state.md + contract.md before acting"
+  ],
+  "stop_conditions": {
+    "success": "characterize, implement, and verify each pass their check in dependency order, the diff stays within the middleware + config loader + tests, and no test diverged from the ratelimit-baseline tag",
+    "failure": [
+      "any stage exhausts its max_iterations without passing its check",
+      "verify forces a redesign of implement twice without converging"
+    ],
+    "escalate": [
+      "a public-API or response-schema change becomes necessary to meet the limit",
+      "the contract itself is found to be wrong (an assertion contradicts a real requirement)"
+    ],
+    "max_iterations": 4
+  },
+  "risk_guards": [
+    {
+      "risk": "reward hacking / test overfitting (agent weakens a ratelimit test to pass)",
+      "mitigation": "the verify stage diffs test/ against the pinned baseline tag; any test change since baseline fails the gate"
+    },
+    {
+      "risk": "config ignored / hardcoded threshold passing a naive test",
+      "mitigation": "A5 drives the threshold from config/ratelimit.json so a hardcoded limit fails the config-parametrized test"
+    },
+    {
+      "risk": "error amplification (a wrong characterize baseline poisons later gates)",
+      "mitigation": "stage gates run in dependency order; a leaked regression loops implement back to characterize to re-pin, rather than head-banging in place"
+    },
+    {
+      "risk": "permission blast radius",
+      "mitigation": "dev-only; no production resources; evaluator runs --sandbox read-only, generator --sandbox workspace-write"
+    }
+  ]
+}

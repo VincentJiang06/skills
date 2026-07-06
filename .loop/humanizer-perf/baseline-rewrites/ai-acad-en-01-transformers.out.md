@@ -1,0 +1,12 @@
+[REWRITE]
+## Abstract
+
+Self-attention lets a model weight the relevance of different input elements as it processes them, and it has become a standard component of modern neural architectures. This paper investigates the computational and representational properties of multi-head self-attention in transformer networks. Attention is empirically effective across a wide range of tasks, but how individual heads specialize and interact is still not well understood. We analyze attention patterns across model depth to ask how individual heads contribute to aggregating contextual information. Attention heads tend to organize into functionally distinct groups: lower layers capture mostly local and positional dependencies, while higher layers encode more abstract semantic relationships. These findings bear on model interpretability, architectural design, and the efficient deployment of large-scale language models.
+
+## Introduction
+
+Transformer architectures have reshaped natural language processing and, increasingly, machine learning more broadly. Their self-attention mechanism lets each element of an input sequence attend to every other element, capturing long-range dependencies without the sequential bottlenecks of recurrent models. This content-based, parallelizable routing of information underpins state-of-the-art results in tasks ranging from machine translation to question answering.
+
+Yet we understand far less about how attention actually works. Transformers learn rich and transferable representations, but the internal computations that produce them are often treated as a black box. Interpretability research has tried to close this gap by analyzing attention weights, probing intermediate representations, and identifying circuits responsible for specific behaviors. What this work has not produced is a unified account of how attention heads specialize, how they coordinate, and how their behavior shifts across layers and training regimes.
+
+We study attention head behavior empirically, around three questions. Do heads take on consistent functional roles across different inputs? How does the division of labor among them change with model depth? And how redundant is attention — can heads be pruned without significant degradation in performance? Answering these bears on both the theory of transformer models and the practical goal of building more efficient and interpretable systems. Section 2 reviews related work, Section 3 describes our methodology, and Section 4 presents our results and discussion.

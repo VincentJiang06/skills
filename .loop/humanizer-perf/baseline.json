@@ -1,0 +1,16 @@
+{
+  "captured": "baseline HARD set L1 (strict paired judge)",
+  "coverage": "academic: 1 long-form + 2 excerpts; popsci: 1 long-form + 2 excerpts; strict v2.1 rubric, paired",
+  "academic": { "n_ai": 3, "completeness_mean": 4.00, "lifted": 3, "non_lifted_ids": [] },
+  "popsci":   { "n_ai": 3, "completeness_mean": 4.17, "lifted": 3, "non_lifted_ids": [] },
+  "human":    { "n": 2, "over_edited": 0, "ids_over_edited": [] },
+  "fabricated": 0,
+  "per_item": [
+    { "id": "ai-acad-en-11-longform-carbon-pricing", "mode": "academic", "overall_mean": 4.00, "verdict": "pass", "hard_fail": null, "lift_ai_ness": 2, "lift_completeness": 1 },
+    { "id": "ai-acad-en-03-monetary-policy-inflation", "mode": "academic", "overall_mean": 4.00, "verdict": "pass", "hard_fail": null, "lift_ai_ness": 1, "lift_completeness": 0 },
+    { "id": "ai-acad-en-01-transformers", "mode": "academic", "overall_mean": 4.00, "verdict": "pass", "hard_fail": null, "lift_ai_ness": 1, "lift_completeness": 0 },
+    { "id": "ai-pop-en-11-longform-immune-system", "mode": "popsci", "overall_mean": 4.17, "verdict": "pass", "hard_fail": null, "lift_ai_ness": 2, "lift_completeness": 1 },
+    { "id": "ai-pop-en-04-why-we-dream", "mode": "popsci", "overall_mean": 4.17, "verdict": "pass", "hard_fail": null, "lift_ai_ness": 1, "lift_completeness": 1 },
+    { "id": "ai-pop-en-01-sky-blue", "mode": "popsci", "overall_mean": 4.17, "verdict": "pass", "hard_fail": null, "lift_ai_ness": 1, "lift_completeness": 1 }
+  ]
+}

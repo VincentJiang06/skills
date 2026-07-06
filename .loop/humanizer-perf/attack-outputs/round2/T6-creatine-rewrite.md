@@ -1,0 +1,5 @@
+Creatine, long studied for athletic performance, has drawn newer attention as a possible cognitive aid — a claim worth examining on the evidence rather than the enthusiasm.
+
+A review synthesising findings across many trials lands on a more specific reading than "creatine helps thinking." The cognitive benefits showed up primarily in sleep-deprived or older participants; in young, well-rested adults the effects were small and often not statistically significant. That qualifier is the result, not a footnote to it. The authors also caution that many of the pooled studies were small, so the findings should be read as provisional pending larger replications.
+
+The evidence, then, is suggestive but far from conclusive: creatine may help cognition under conditions of deficit — fatigue or age — more than it sharpens an already well-rested mind. Where it would most move the field is exactly where the current trials are thinnest: large, well-powered replications in the populations that showed an effect.

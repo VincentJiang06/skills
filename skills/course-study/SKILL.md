@@ -6,10 +6,10 @@ description: >-
   study/revise a course or build an exam cheat sheet: "revise these slides",
   "$course-study". Do NOT use to do the user's graded homework for submission.
 license: MIT
-model: claude-sonnet-4-6
-user-invocable: true
 metadata:
   version: 3.0.1
+  model: claude-sonnet-4-6
+  user-invocable: true
   author: claude-code
   domains:
     - education

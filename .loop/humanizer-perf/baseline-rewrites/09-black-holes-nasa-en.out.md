@@ -1,0 +1,8 @@
+[ABSTAIN]
+Black holes are often described as consuming their surrounding gas, the result of gravity so intense that nothing can escape its pull, not even the fastest known traveler in the universe: light itself. But if black holes don't emit or reflect light, which means we can't see them, how do astronomers know they are there?
+
+The answer applies to many subjects studied in physics and deep-space astronomy — when you can't observe something directly, or you can't explain something you are seeing, you make educated guesses based on what you do see: the effect on other objects. On Earth, you can know it's a windy day without stepping outside, because a flag is flapping. Astronomers know there is a black hole when the stars or gas around it are distorted or otherwise changed. These effects show up in a few ways.
+
+Astronomers can observe a star accelerating in orbit around an unseen object. By measuring the orbiting star's rate of acceleration, astronomers can calculate the mass of the object pulling on it. When this mass is so compact and large that nothing else can explain it, astronomers conclude it is a black hole.
+
+In other instances, X-ray telescopes can observe light from binary systems where matter is pulled from the outer layers of a star that orbits a black hole. These black holes accumulate cosmic matter around themselves in a swirling pattern called an accretion disk. Gas particles in the disk accelerate and collide, heating to millions of degrees and giving off detectable X-rays. Black holes causing these types of phenomena are at least a few times the mass of the Sun and are classified as stellar-mass black holes.

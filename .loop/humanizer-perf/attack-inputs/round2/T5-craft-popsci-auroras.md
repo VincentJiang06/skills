@@ -1,0 +1,5 @@
+Stand outside on the right night in the far north and the sky does something it has no business doing: it ripples. Green curtains slide overhead, fold, and snap sideways. So what is actually moving up there?
+
+Not the air, really. Think of the upper atmosphere as a vast neon sign, and the Sun as the hand on the dimmer switch. The Sun is constantly throwing charged particles outward, and when a gust of them hits Earth, our planet's magnetic field funnels them down toward the poles. Those particles slam into oxygen and nitrogen high above you, and the gas does what the gas in a neon tube does — it glows. Oxygen tends to glow green, and higher up, a deep red.
+
+Why the poles, though, and not over your house in the suburbs? Because the magnetic field lines dive into the Earth there, like the seams of an orange converging at its ends, and the particles slide down those seams. The light isn't falling from space; it's being lit, layer by layer, where the particles finally arrive. The hard part scientists are still untangling is timing — why the curtains suddenly brighten and break apart in the span of a minute is not fully pinned down.

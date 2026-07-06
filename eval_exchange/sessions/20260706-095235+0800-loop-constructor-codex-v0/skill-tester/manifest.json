@@ -1,0 +1,34 @@
+{
+  "session_id": "20260706-095235+0800-loop-constructor-codex-v0",
+  "skill_tester": "claude",
+  "target_skill_dir": "/Users/vince/playground/skill-developer/skills/loop-constructor-codex",
+  "target_skill_version": "0.1.0",
+  "produced_cases": [
+    {
+      "case_id": "case-01-medium-staged",
+      "output_path": "skill-tester/produced/case-01-medium-staged/output.md",
+      "design_path": "skill-tester/produced/case-01-medium-staged/design.json",
+      "rendered_dir": "skill-tester/produced/case-01-medium-staged/.loop",
+      "notes": "Ran all five phases as a fresh executor. Medium staged (3 stages: characterize -> implement -> verify), iteration_first. Linter PASS exit 0. Rendered runbook has the Codex preamble + codex exec, zero banned tokens. Fresh-reader flagged one honest residual: the test-drift gate is git-diff (tracked) only, blind to a new untracked test file."
+    },
+    {
+      "case_id": "case-02-large-fanout",
+      "output_path": "skill-tester/produced/case-02-large-fanout/output.md",
+      "design_path": "skill-tester/produced/case-02-large-fanout/design.json",
+      "rendered_dir": "skill-tester/produced/case-02-large-fanout/.loop",
+      "notes": "Large fan-out (5 stages: characterize -> 3 independent conversion shards -> cutover). Linter PASS exit 0. Rendered runbook has the large orchestration block (concurrent codex exec + git worktrees + on-disk ledger) and the evaluator as a fresh read-only codex exec. DOGFOOD FINDING NB-1 (FIXED pre-release): the renderer's large-altitude preamble used to emit the literal phrase '(Codex has no in-process subagents)', and C42 only rendered flat+medium goldens so the large path was never banned-token-tested. Fixed: the preamble was reworded to carry no banned token, a large-altitude golden was added, and C41/C42 now render it (battery 71/71). This runbook was re-rendered with the fixed renderer; a full banned-token grep over it now returns ZERO hits. SESSION.json case-02's expectation is now a clean zero-banned-token check (no carve-out)."
+    },
+    {
+      "case_id": "case-03-static-fidelity",
+      "output_path": null,
+      "notes": "No skill_tester generation — this case is a static skill-fidelity check the eval_tester runs directly (battery 71/71, cmp linter identity vs sibling, description <=320, codex-runtime.md present, goldens render banned-token-clean). Verified locally by the skill_tester while authoring the session: battery = 71/71 exit 0; cmp = IDENTICAL; description = 295 chars; codex-runtime.md present; flat+medium goldens render with 0 banned tokens."
+    }
+  ],
+  "known_limitations": [
+    "NB-1 (FIXED pre-release): the renderer's large-altitude orchestration preamble used to emit the literal phrase '(Codex has no in-process subagents)', and C42_no_claude_primitives only rendered the flat + medium goldens, so the large render path was never banned-token-tested (its own /subagent/i regex would have matched its own large output). Fixed: the preamble was reworded to carry no banned token, a passing assets/golden-loop-design-large.json was added, and C41/C42 now render all three goldens (battery 71/71, exit 0). No coverage gap remains.",
+    "NB-2 (low): case-01's verify test-drift gate `git diff --exit-code <tag> -- test/` catches tracked test weakening but is blind to a NEW UNTRACKED test file; a stronger machine gate would add `git ls-files -o --exclude-standard -- test/`. The adversarial evaluator mandate compensates. This is a property of the design I wrote, informed by the skill's own D2 anti-proxy guidance, not a skill bug.",
+    "The loop-principle KB was FOUND at skills/loop-constructor/loop-principle (sibling present), so both designs ran in FULL (not KB-degraded) mode.",
+    "Designs are artifacts only; no loop was executed and no target code was run, per the skill's design-only control."
+  ],
+  "ready_for_external_eval": true
+}

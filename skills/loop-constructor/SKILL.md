@@ -1,11 +1,12 @@
 ---
 name: loop-constructor
-version: 0.2.0
 description: >-
   Design the engineered loop for a medium/large (semi-)autonomous AI-coding task by
   decomposing it into gated sub-loops, emitted as a runnable .loop/ runbook. Use-when:
   "design an agent loop", "set up an autonomous / self-running agent workflow",
   "$loop-constructor". It DESIGNS the loop; it does NOT execute it.
+metadata:
+  version: 0.2.0
 ---
 
 # loop-constructor

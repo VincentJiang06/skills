@@ -1,0 +1,197 @@
+{
+  "target": {
+    "type": "product",
+    "name": "model-pyramid skill — scripts/decide.mjs CLI + exported checkAssignment/mapToRuntime + SKILL.md/runtime-mapping.md contract",
+    "version": "0.1.0"
+  },
+  "summary": {
+    "round": 1,
+    "budget_n": 80,
+    "attempts_used": 74,
+    "asr_at_n": 0.027,
+    "unique_finding_count": 2,
+    "by_severity": { "critical": 0, "major": 1, "minor": 1 },
+    "round_verdict": "broke",
+    "stop_reason": "plan_complete",
+    "max_tokens": 60000,
+    "tokens_used": 42000,
+    "carried_from_round": null,
+    "attack_mode": "debug",
+    "context_sources": [
+      "user-provided: build-pipeline handoff (documented CLI entry, checkAssignment surface, declared input domain, doc-claim scope)",
+      "self-researched: SKILL.md rule card + references/runtime-mapping.md (the requirement artifacts; implementation source, evals/, .skill-engineer/ withheld)"
+    ],
+    "scope_change": "initial",
+    "depth": 1,
+    "in_scope": [
+      "decision-rule correctness of the decide.mjs CLI (R1/R2/R2b/R3, precedence, floor, one-knob, layers)",
+      "checkAssignment audit-flag correctness",
+      "input-domain robustness of the documented CLI entry (malformed/boundary/unicode/type-confusion inputs)",
+      "doc-claim coverage: SKILL.md rule card + references/runtime-mapping.md vs implementation behavior",
+      "mapToRuntime runtime-knob mapping"
+    ],
+    "out_of_scope": [
+      "trigger/activation behavior of the skill description (agent-level, not CLI-testable in this battery)",
+      "prose framing discipline outside machine-checkable outputs (e.g. never-pitch-as-cost-reduction in conversation)",
+      "evals/ and .skill-engineer/ content (independence firewall — never opened)"
+    ],
+    "context_digest": "Fresh round-1 battery vs model-pyramid v0.1.0. Requirement = SKILL.md + references/runtime-mapping.md only. Invoked: documented CLI (node scripts/decide.mjs '<json>'), exported checkAssignment(session, assignment), exported mapToRuntime(effort, runtime), decideBatch/decide via module import. Implementation source never read; error output observed as behavior only. 74 probe cases: 62 domain-derived edges + 12 doc-claim coverage checks."
+  },
+  "records": [
+    {
+      "id": "MP-R1-001",
+      "round": 1,
+      "target": {
+        "type": "product",
+        "name": "checkAssignment(session, assignment) — exported audit function of scripts/decide.mjs",
+        "version": "0.1.0",
+        "model": null,
+        "checkpoint": null,
+        "system_prompt_hash": null
+      },
+      "attack_class": "business_logic.justification_flag_scope",
+      "surface_class": "boundary",
+      "oracle": "differential",
+      "attack_scope": "checkAssignment audit-flag correctness",
+      "attack_kind": "debug",
+      "invariant": "SKILL.md ('Verify the pyramid shape'): a needs-justification flag is owed for 'any haiku-tier pick from a HIGHER-TIER session'. A small-tier session assigning its own small tier — including the identity assignment (keep/keep) — is not a pick from a higher-tier session and must not be flagged; decide() itself implements exactly this scoping.",
+      "repro": {
+        "command": "node --input-type=module -e \"import{checkAssignment}from '/Users/vince/playground/skill-developer/skills/model-pyramid/scripts/decide.mjs';console.log(JSON.stringify(checkAssignment({tier:'haiku-tier',effort:'high'},{tier:'haiku-tier',effort:'high'})))\"",
+        "minimized_input": {
+          "session": { "tier": "haiku-tier", "effort": "high" },
+          "assignment": { "tier": "haiku-tier", "effort": "high" }
+        },
+        "seed": null,
+        "temperature": null,
+        "env": { "node": "v24.16.0", "cwd": "any (absolute import path)" },
+        "replayed_ok": true
+      },
+      "baseline": {
+        "metric": "checkAssignment flags for an identity (keep/keep) assignment",
+        "value": "[] — the identity assignment audits clean at opus-tier: checkAssignment({tier:'opus-tier',effort:'max'},{tier:'opus-tier',effort:'max'}) === []; and the documented flag case stays correct: sonnet-tier session -> haiku-tier assignment === ['needs-justification']",
+        "observed_via": "node module import of the exported function (real seam, no mocks)"
+      },
+      "observed": ["needs-justification"],
+      "expected": [],
+      "proven": true,
+      "non_tautology_check": "The probe discriminates a correct implementation: decide() itself, run in the same haiku-tier session (e.g. decide({exploratory:true},{tier:'haiku-tier',effort:'high'}) -> tier 'small', justification_required:false, report without [needs-justification]), returns the docs-conformant answer for the identical (session, assignment) pair — so an implementation that scoped the flag to 'from a higher-tier session' passes this probe, and checkAssignment fails it. Controls: opus identity -> [] (flag CAN be absent); sonnet->haiku -> ['needs-justification'] (flag CAN fire where owed).",
+      "real_collaborator_at_seam": true,
+      "independence_attestation": {
+        "withheld": ["implementation_source", "tdd_suite", "author_framing", "evals_dir", "skill_engineer_dir"],
+        "derived_expected_from": "SKILL.md 'Verify the pyramid shape' ('any haiku-tier pick from a higher-tier session needs an explicit one-line justification') + 'Report & overrides' flag semantics"
+      },
+      "evidence": {
+        "differential_pair": "decide({},{tier:'haiku-tier',effort:'high'}) -> {tier:'small',effort:'medium',justification_required:false} BUT checkAssignment({tier:'haiku-tier',effort:'high'},{tier:'small',effort:'medium'}) -> ['needs-justification'] — decide()'s own emitted assignment fails decide.mjs's own audit for every small-tier session",
+        "blast_radius": "every assignment audited in a small/haiku-tier session is false-positively flagged, including the R1 keep/keep and every R2/R3 output of decide() itself"
+      },
+      "severity": { "level": "major", "cvss_vector": null, "cwe": null },
+      "priority": "P1",
+      "regression_key": "checkassignment-needs-justification-fires-for-small-tier-session-own-tier",
+      "status": "confirmed"
+    },
+    {
+      "id": "MP-R1-002",
+      "round": 1,
+      "target": {
+        "type": "product",
+        "name": "decide.mjs CLI session-intake (tier vs effort enum normalization)",
+        "version": "0.1.0",
+        "model": null,
+        "checkpoint": null,
+        "system_prompt_hash": null
+      },
+      "attack_class": "unicode.case_folding_asymmetry",
+      "surface_class": "unicode",
+      "oracle": "differential",
+      "attack_scope": "input-domain robustness of the documented CLI entry (malformed/boundary/unicode/type-confusion inputs)",
+      "attack_kind": "debug",
+      "invariant": "The two session enum fields are read under one intake discipline: a case-variant of a valid documented notch is either normalized (as the tier field provably does: 'OPUS-TIER'/'Opus-Tier' -> frontier) or rejected loudly (as unknown tiers are: exit 1). An explicitly stated session effort must never be silently replaced with a different notch, and the [assumed-high] flag is documented for 'effort not introspectable' (Preflight 2), not for a stated value.",
+      "repro": {
+        "command": "cd /Users/vince/playground/skill-developer/skills/model-pyramid && node scripts/decide.mjs '{\"session\":{\"tier\":\"OPUS-TIER\",\"effort\":\"MAX\"},\"tasks\":[{\"peer\":true}]}'",
+        "minimized_input": { "session": { "tier": "OPUS-TIER", "effort": "MAX" }, "tasks": [{ "peer": true }] },
+        "seed": null,
+        "temperature": null,
+        "env": { "node": "v24.16.0" },
+        "replayed_ok": true
+      },
+      "baseline": {
+        "metric": "R1 (peer) decision for a max-effort session",
+        "value": "lowercase control: {\"session\":{\"tier\":\"opus-tier\",\"effort\":\"max\"}} -> effort 'max', assumed_effort:false, report 'rule=peer tier=frontier effort=max'; and the tier field under the SAME case perturbation is accepted ('OPUS-TIER' -> frontier, no error)",
+        "observed_via": "documented CLI invocation, stdout JSON"
+      },
+      "observed": { "tier": "frontier", "effort": "high", "assumed_effort": true, "report": "rule=peer tier=frontier effort=high [assumed-high]" },
+      "expected": { "tier": "frontier", "effort": "max", "assumed_effort": false, "report": "rule=peer tier=frontier effort=max" },
+      "proven": true,
+      "non_tautology_check": "A consistent implementation passes this probe two ways: (a) normalize effort case exactly as it already normalizes tier case ('MAX' -> max), or (b) reject unknown effort strings exactly as it rejects unknown tiers (loud exit 1). The shipped code demonstrably contains case normalization (tier path), so the probe is a real path a correct impl would pass — it fails only because R1 'keep' then keeps a silently DOWNGRADED effort (max -> high) for a user who explicitly stated MAX, mislabelled with the not-introspectable flag. Same class re-fires for out-of-vocabulary-but-unambiguous values: effort 'xhigh' (the documented Codex equivalent of max) -> 'high [assumed-high]'.",
+      "real_collaborator_at_seam": true,
+      "independence_attestation": {
+        "withheld": ["implementation_source", "tdd_suite", "author_framing", "evals_dir", "skill_engineer_dir"],
+        "derived_expected_from": "SKILL.md Preflight 1–2 (effort ladder low<medium<high<max; assume-high is scoped to 'effort not introspectable') + references/runtime-mapping.md (codex 'xhigh' ≡ max correspondence) + the product's own tier-intake behavior as differential reference"
+      },
+      "evidence": {
+        "asymmetry": "unknown tier 'gpt-5' -> loud error exit 1; unknown effort 'ultra'/'MAX'/'xhigh' -> silent assumed-high exit 0",
+        "impact": "an R1/R2b 'keep' decision emits one notch below the session's stated effort; the [assumed-high] flag misreports a stated value as not-introspectable"
+      },
+      "severity": { "level": "minor", "cvss_vector": null, "cwe": null },
+      "priority": "P2",
+      "regression_key": "session-effort-intake-case-and-vocab-silently-downgraded-vs-tier-intake",
+      "status": "confirmed"
+    }
+  ],
+  "needs_judgment": [
+    {
+      "id": "MP-NJ-001",
+      "reason": "unresolved_expected",
+      "oracle": null,
+      "observed": "tasks:[null] -> internal TypeError text 'Cannot read properties of null (reading exploratory)' exit 1; tasks:['x'] and tasks:[42] -> silently accepted as R3 default decisions (exit 0)",
+      "expected": "one consistent behavior for the non-object-task class (uniform validation error, or uniform default)",
+      "note": "Three different behaviors for one malformed-input class. The contract never promises non-object task handling, so per anti-vacuity this is not a confirmed finding; the internal-TypeError message is below the CLI's own graceful-error baseline ('unknown capability tier ... (use ...)') but the rejection outcome itself is defensible."
+    },
+    {
+      "id": "MP-NJ-002",
+      "reason": "ambiguous_oracle",
+      "oracle": null,
+      "observed": "checkAssignment maps a MISSING assignment effort and an UNKNOWN effort ('turbo') both to the flag 'below-floor', while unknown tiers get a dedicated 'unknown-tier' flag",
+      "expected": "an unknown/missing effort labelled as unknown (cf. 'unknown-tier'), not asserted to sit below the floor",
+      "note": "Docs define below-floor as effort below medium; 'turbo'/absent is not provably below medium. Fail-closed flagging is defensible advisory behavior, but the label is a misdiagnosis. Docs are silent -> flag, not a proven break."
+    },
+    {
+      "id": "MP-NJ-003",
+      "reason": "ambiguous_oracle",
+      "oracle": null,
+      "observed": "report lines use rule ids 'peer'/'search'/'search-tier-drop'/'default'/'override'; the SKILL.md rule table names the rules R1/R2/R2b/R3",
+      "expected": "rule=<id> resolvable to the documented rule table without guessing (e.g. rule=R2b or a documented id mapping)",
+      "note": "The documented format 'rule=<id> tier=<tier> effort=<notch>' is satisfied shape-wise and the names map 1:1, but nothing in SKILL.md documents the emitted id vocabulary. Naming mismatch, docs ambiguous -> flag."
+    },
+    {
+      "id": "MP-NJ-004",
+      "reason": "other",
+      "oracle": null,
+      "observed": "documented CLI accepts input only as one argv string (stdin prints usage, exit 2); inputs beyond ARG_MAX (~1MB, roughly >40k tasks) cannot be passed through the documented entry point. 5000 tasks complete in ~40ms; empty tasks -> []; idempotent (byte-identical reruns)",
+      "expected": "n/a — scale behavior within the reachable domain is healthy",
+      "note": "Not promised, and decideBatch() covers programmatic large batches; recorded so the 'huge tasks array' scope item is visibly adjudicated rather than skipped."
+    },
+    {
+      "id": "MP-NJ-005",
+      "reason": "unresolved_expected",
+      "oracle": null,
+      "observed": "the override knob is the task key 'user_override' (applied verbatim + floor caveat + report line, exactly as SKILL.md promises); a task key 'override' (and task-level tier/effort) is SILENTLY ignored and falls through to rule=default",
+      "expected": "the override input shape documented somewhere in SKILL.md/runtime-mapping.md, or unknown-looking override keys warned about",
+      "note": "The user-override-wins doc claim IS honored for the right key (verbatim apply, '[caveat: user override low sits below the pyramid's medium floor ...]'). The break-shaped part — a user guessing 'override' gets a silent R3 default — cannot be proven against any documented input contract because the docs never name the key. Doc-coverage gap -> flag."
+    }
+  ],
+  "out_of_scope": [
+    {
+      "id": "MP-OOS-001",
+      "note": "compatibility claim 'node >= 18' untested — battery ran on node v24.16.0 only; no node-18 runtime available in this environment"
+    },
+    {
+      "id": "MP-OOS-002",
+      "note": "SKILL.md metrics line references evals/run_all.mjs and evals/cases/trigger-cases.json — path existence confirmed via directory listing only; contents deliberately never opened (independence firewall), so the 'decision accuracy target 100%' and 'activation precision >= 0.9' metric claims are unadjudicated by this battery"
+    },
+    {
+      "id": "MP-OOS-003",
+      "note": "'at most 3 illustrative model names skill-wide' verified by mechanical pattern-grep over SKILL.md + references/ + scripts/ (exactly 3: claude-opus-4-5, claude-sonnet-4-5, claude-haiku-4-5, all in runtime-mapping.md as documented); evals/ and .skill-* excluded from the sweep by the independence constraint, so 'skill-wide' is confirmed for the shipped contract surface only"
+    }
+  ]
+}

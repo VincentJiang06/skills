@@ -1,0 +1,5 @@
+Microplastics are accumulating in marine sediments, and the benthic zone increasingly looks less like a passage than a destination — a place where plastic debris settles and stays. That persistence is what makes the contamination hard to reverse, and it is what the recent sampling work set out to measure.
+
+A coastal sediment-core campaign put a number on it: a mean of 187 microplastic particles per kilogram of dry sediment, with particles turning up in essentially every core examined rather than in isolated hotspots. The evidence indicates contamination that is pervasive but uneven — present nearly everywhere, yet far from uniform in how densely it has settled. The deposition pattern, not the mere fact of contamination, is the harder thing to explain.
+
+No single intervention will undo this. What the cores show is that sediment functions as a long-term sink: plastic that reaches the seabed largely stays there, so the standing stock will keep climbing as long as loading continues. The source does not quantify how fast, and that gap — the rate, not the presence — is where the next measurements matter most.

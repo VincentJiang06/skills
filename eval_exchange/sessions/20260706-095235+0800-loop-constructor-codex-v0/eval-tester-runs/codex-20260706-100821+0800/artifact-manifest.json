@@ -1,0 +1,22 @@
+{
+  "session_id": "20260706-095235+0800-loop-constructor-codex-v0",
+  "agent_run_id": "codex-20260706-100821+0800",
+  "artifacts": [
+    {
+      "path": "artifacts/extra-cases/probe-01-evaluator-not-separate-context.json",
+      "kind": "extra_probe_input",
+      "description": "Copy of case-01 design with roles.evaluator.separate_context changed to false; linter failed as expected."
+    },
+    {
+      "path": "artifacts/extra-cases/probe-02-stage-cycle.json",
+      "kind": "extra_probe_input",
+      "description": "Copy of case-02 design with a characterize -> cutover dependency cycle; linter failed as expected."
+    }
+  ],
+  "generated_temp_artifacts": [
+    {
+      "kind": "rendered_goldens",
+      "description": "All three golden loop designs were rendered in a temporary directory outside the repo and then deleted after banned-token grep passed."
+    }
+  ]
+}

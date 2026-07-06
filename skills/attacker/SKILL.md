@@ -1,11 +1,12 @@
 ---
 name: attacker
-version: 0.4.0
 description: >-
   Attack a product's observable behavior, or red-team an idea/argument/plan; a FRESH,
   TDD-independent subagent records ONLY proven, reproducible breakages. Use-when:
   "attack/break this feature", "red-team this product / idea", "$attacker". Do-NOT:
   write tests or fix bugs — it only finds breakages, never edits the target.
+metadata:
+  version: 0.4.0
 ---
 
 # attacker

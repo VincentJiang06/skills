@@ -1,0 +1,135 @@
+{
+  "schema_version": "eval-exchange/v0",
+  "session_id": "20260706-095235+0800-loop-constructor-codex-v0",
+  "created_at": "2026-07-06T09:52:35+08:00",
+  "timezone": "Asia/Shanghai",
+  "label": "loop-constructor-codex v0.1.0 external eval (Codex, static/cheap)",
+  "session_root": "/Users/vince/playground/skill-developer/eval_exchange/sessions/20260706-095235+0800-loop-constructor-codex-v0",
+  "repo_root": "/Users/vince/playground/skill-developer",
+  "target": {
+    "skill_dir": "/Users/vince/playground/skill-developer/skills/loop-constructor-codex",
+    "skill_name": "loop-constructor-codex",
+    "candidate_label": "v0.1.0"
+  },
+  "roles": {
+    "skill_tester": "claude",
+    "eval_testers": ["codex"],
+    "human_action": "manual_copy_paste_prompt_once"
+  },
+  "skill_tester_contract": {
+    "produced_dir": "skill-tester/produced",
+    "manifest_path": "skill-tester/manifest.json",
+    "may_modify_target_skill": false,
+    "must_not_write_eval_tester_runs": true
+  },
+  "eval_tester_contract": {
+    "runs_dir": "eval-tester-runs",
+    "must_read": [
+      "SESSION.json",
+      "skill-tester/manifest.json",
+      "skill-tester/produced"
+    ],
+    "must_write": [
+      "status.json",
+      "transcript.md",
+      "score.json",
+      "findings.json",
+      "artifact-manifest.json"
+    ],
+    "may_modify_target_skill": false,
+    "fail_closed": true
+  },
+  "run_environment": {
+    "note": "All commands are deterministic and re-runnable. Run them from repo_root unless the command's own comment says otherwise. Absolute paths are given so cwd only matters where noted. node (>=18) required; the skill is stdlib-only, no npm install.",
+    "banned_claude_primitive_tokens": ["subagent", "Task tool", "CLAUDE.md", "/compact"],
+    "banned_token_note": "These are Claude-runtime primitives. A Codex runbook must not contain them. Match case-insensitively; 'Task tool' as a two-word phrase (a bare word 'task' is fine). No carve-out: finding NB-1 (the renderer's large-altitude preamble used the literal word 'subagents') is FIXED pre-release — the preamble was reworded to carry no banned token and C41/C42 now render the large golden too. Every rendered runbook, including a large-altitude one, must now grep to ZERO banned tokens. See skill-tester/notes.md finding NB-1 (marked FIXED)."
+  },
+  "cases": [
+    {
+      "id": "case-01-medium-staged",
+      "visibility": "skill_tester_visible",
+      "input_path": "inputs/cases/case-01-medium-staged.md",
+      "skill_tester_output_path": "skill-tester/produced/case-01-medium-staged/output.md",
+      "produced_artifacts": {
+        "design_json": "skill-tester/produced/case-01-medium-staged/design.json",
+        "rendered_dir": "skill-tester/produced/case-01-medium-staged/.loop",
+        "summary": "skill-tester/produced/case-01-medium-staged/output.md"
+      },
+      "expected_behavior": [
+        "The design lints PASS reproducibly: `node /Users/vince/playground/skill-developer/skills/loop-constructor-codex/scripts/lint_loop_design.mjs skill-tester/produced/case-01-medium-staged/design.json` prints all PASS and exits 0.",
+        "selection_log covers D0 through D6, each with a non-empty answer and a substantive `why` (not a bare label).",
+        "loop_altitude is 'medium' and the shape is staged (>=2 stages) with acyclic depends_on and a gate check per stage.",
+        "contract.assertions has enough machine-gradable assertions to pin an app/module-sized change (guidepost >=8), each traceable to a stage or 'cross-cutting'.",
+        "roles.evaluator has separate_context:true AND adversarial:true, and the mandate prose describes a fresh context that never saw the impl.",
+        "The rendered runbook (skill-tester/produced/case-01-medium-staged/.loop/*.loop.md) contains the heading 'How to run this loop (Codex CLI)' and at least one literal `codex exec` invocation.",
+        "The rendered runbook contains NONE of the banned Claude-primitive tokens (run_environment.banned_claude_primitive_tokens)."
+      ],
+      "scoring_dimensions": ["correctness", "codex_fidelity", "reproducibility", "design_quality"]
+    },
+    {
+      "id": "case-02-large-fanout",
+      "visibility": "skill_tester_visible",
+      "input_path": "inputs/cases/case-02-large-fanout.md",
+      "skill_tester_output_path": "skill-tester/produced/case-02-large-fanout/output.md",
+      "produced_artifacts": {
+        "design_json": "skill-tester/produced/case-02-large-fanout/design.json",
+        "rendered_dir": "skill-tester/produced/case-02-large-fanout/.loop",
+        "summary": "skill-tester/produced/case-02-large-fanout/output.md"
+      },
+      "expected_behavior": [
+        "The design lints PASS reproducibly: `node /Users/vince/playground/skill-developer/skills/loop-constructor-codex/scripts/lint_loop_design.mjs skill-tester/produced/case-02-large-fanout/design.json` prints all PASS and exits 0.",
+        "selection_log covers D0 through D6; D4 answers 'large' with a justification grounded in independent parallel fan-out over the ~40 modules.",
+        "loop_altitude is 'large'.",
+        "The rendered runbook (skill-tester/produced/case-02-large-fanout/.loop/*.loop.md) describes parallel orchestration: concurrent `codex exec` processes, git worktrees, and an on-disk ledger; and the evaluator realized as a fresh read-only `codex exec`.",
+        "roles.evaluator has separate_context:true AND adversarial:true.",
+        "The rendered runbook contains the heading 'How to run this loop (Codex CLI)' and contains ZERO banned Claude-primitive tokens (run_environment.banned_claude_primitive_tokens): `grep -niE 'subagent|Task tool|CLAUDE\\.md|/compact' skill-tester/produced/case-02-large-fanout/.loop/*.loop.md` returns no matches. (Finding NB-1 — the large-altitude preamble's literal 'subagents' — is FIXED pre-release; this runbook was re-rendered with the fixed renderer.)"
+      ],
+      "scoring_dimensions": ["correctness", "codex_fidelity", "reproducibility", "design_quality"]
+    },
+    {
+      "id": "case-03-static-fidelity",
+      "visibility": "skill_tester_visible",
+      "input_path": null,
+      "skill_tester_output_path": null,
+      "note": "No skill_tester generation. The eval_tester checks the SKILL ITSELF directly with deterministic commands. All commands run from repo_root (/Users/vince/playground/skill-developer).",
+      "expected_behavior": [
+        "The skill's own adversarial battery reproduces green: `node skills/loop-constructor-codex/evals/run_all.mjs` prints '71/71 passed, 0 failed' and exits 0.",
+        "The linter is byte-identical to the sibling's: `cmp skills/loop-constructor-codex/scripts/lint_loop_design.mjs skills/loop-constructor/scripts/lint_loop_design.mjs` exits 0 (no output).",
+        "SKILL.md frontmatter `description` is <=320 chars.",
+        "references/codex-runtime.md exists and maps the four runtime concerns: roles (three `codex exec`), parallelism (worktrees), state (on-disk/AGENTS.md), sandbox/approval. Confirm by reading the file.",
+        "No golden-rendered runbook contains a banned Claude-primitive token. Render ALL THREE goldens to a scratch dir and grep: from a fresh temp dir run `node /ABS/skills/loop-constructor-codex/scripts/render_loop_doc.mjs /ABS/skills/loop-constructor-codex/assets/golden-loop-design.json`, again for `assets/golden-loop-design-medium.json`, and again for `assets/golden-loop-design-large.json` (the large one exercises the Orchestration preamble that was NB-1), then grep -niE 'subagent|Task tool|CLAUDE\\.md|/compact' over the three produced .loop.md files (expect no matches). Do not write into the repo; render into a temp dir."
+      ],
+      "deterministic_commands": [
+        "node skills/loop-constructor-codex/evals/run_all.mjs",
+        "cmp skills/loop-constructor-codex/scripts/lint_loop_design.mjs skills/loop-constructor/scripts/lint_loop_design.mjs",
+        "node -e \"const fs=require('fs');const s=fs.readFileSync('skills/loop-constructor-codex/SKILL.md','utf8');const m=s.match(/description:\\s*>-\\n([\\s\\S]*?)\\n---/);let d=m[1].split('\\n').map(l=>l.trim()).join(' ').trim();console.log(d.length)\"",
+        "test -f skills/loop-constructor-codex/references/codex-runtime.md && echo present"
+      ],
+      "scoring_dimensions": ["reproducibility", "codex_fidelity"]
+    }
+  ],
+  "open_probe_policy": {
+    "enabled": true,
+    "max_extra_cases_per_eval_tester": 2,
+    "extra_cases_dir": "artifacts/extra-cases",
+    "note": "Bounded on purpose: at most 2 extra probes so the Codex run stays small. Prefer probing the linter's discrimination (feed it a knowingly-broken variant of a produced design and confirm it FAILs) over generating new tasks."
+  },
+  "scoring": {
+    "pass_threshold": 0.85,
+    "blocking_finding_severities": ["P0", "P1"],
+    "dimensions": [
+      { "name": "correctness", "weight": 0.35, "desc": "design lints PASS; staged shape; contract traceable; selection_log complete" },
+      { "name": "codex_fidelity", "weight": 0.3, "desc": "runbook targets codex exec; zero Claude primitives; large-case orchestration = worktrees + ledger + concurrent codex exec" },
+      { "name": "reproducibility", "weight": 0.2, "desc": "the declared deterministic commands re-run to the stated result" },
+      { "name": "design_quality", "weight": 0.15, "desc": "checks discriminate, falsifiable_when/passing_but_wrong honest, roles genuinely separate, cadence matches knobs" }
+    ]
+  },
+  "aggregation": {
+    "method": "fail_if_any_blocking_finding",
+    "aggregate_dir": "aggregate"
+  },
+  "next_reader": {
+    "claude_entrypoint": "claude-readme.md",
+    "required_claude_action": "read eval tester outputs before making the next skill change"
+  }
+}

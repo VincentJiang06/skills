@@ -6,7 +6,8 @@ description: >-
   skyline 迁移到 webview", "migrate off Skyline to WebView", "$mp-groundline". NOT
   for live-runtime debugging (mp-cli-sup), Skyline component dev, or
   reverse/non-WeChat work.
-version: 0.1.0
+metadata:
+  version: 0.1.0
 ---
 
 # mp-groundline

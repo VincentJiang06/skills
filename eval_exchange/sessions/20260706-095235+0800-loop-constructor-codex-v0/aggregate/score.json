@@ -1,0 +1,10 @@
+{
+  "session_id": "20260706-095235+0800-loop-constructor-codex-v0",
+  "aggregation_method": "single-run passthrough (1 eval tester); any P0/P1 blocking -> fail, any blocked -> blocked, else average",
+  "runs": ["codex-20260706-100821+0800"],
+  "overall_status": "pass",
+  "overall_score": 0.94,
+  "threshold": 0.85,
+  "blocking_findings_count": 0,
+  "nonblocking_findings_count": 1
+}

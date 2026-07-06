@@ -1,12 +1,13 @@
 ---
 name: reorganize-logic
-version: 0.2.0
 description: >-
   Rebuild a project's DESIGN-CONTRACT layer when docs have rotted past sync:
   re-derive architecture + structure + interface contracts from code, gate-verified.
   Use-when: "rebuild the contracts from scratch", "从代码重新推导契约",
   "$reorganize-logic". Do-NOT use for doc sync / cleanup (this REBUILDS and deletes
   legacy) → neat.
+metadata:
+  version: 0.2.0
 ---
 
 # reorganize-logic

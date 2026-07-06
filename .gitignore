@@ -6,6 +6,10 @@ __pycache__/
 # Machine-local Claude Code config (never publish)
 .claude/settings.local.json
 
+# Machine-local coordination / release artifacts (never publish)
+.WAVE-OWNER.md
+skills/*.zip
+
 # Internal research notes (never publish)
 .research/
 

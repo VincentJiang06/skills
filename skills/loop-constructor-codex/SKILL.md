@@ -1,11 +1,12 @@
 ---
 name: loop-constructor-codex
-version: 0.1.0
 description: >-
   Design an engineered gated loop for a medium/large (semi-)autonomous AI-coding task
   executed with the Codex CLI (single-agent, `codex exec`), emitted as a runnable .loop/
   runbook. Use-when: "design an agent loop for codex", "$loop-constructor-codex". It
   DESIGNS the loop; it does NOT execute it.
+metadata:
+  version: 0.1.0
 ---
 
 # loop-constructor-codex

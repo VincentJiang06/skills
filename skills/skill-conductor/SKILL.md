@@ -1,7 +1,7 @@
 ---
 name: skill-conductor
 description: >
-  ORCHESTRATES the whole skill pipeline end to end (guidance -> engineer ->
+  ORCHESTRATES the whole skill pipeline end to end (guidance to engineer to
   zipper) with gated loops. Use to take a skill from idea to shipped, or improve
   one through all stages: "$skill-conductor". It RUNS THE FULL LOOP, unlike the
   single stages. Not for one stage only or blank scaffolding (skill-creator).

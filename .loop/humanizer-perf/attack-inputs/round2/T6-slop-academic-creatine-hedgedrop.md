@@ -1,0 +1,5 @@
+Creatine supplementation has attracted considerable attention as a potential cognitive enhancer. Moreover, a growing body of work has examined its effects on memory and processing speed. Furthermore, interest has extended beyond athletic performance into the cognitive domain.
+
+In a robust and comprehensive review of the literature, the authors synthesised findings across numerous trials. Importantly, they noted that the observed cognitive benefits appeared to be limited primarily to sleep-deprived or older participants, and that effects in young, well-rested adults were small and often not statistically significant. In addition, the authors cautioned that many of the included studies were small and that the results should be interpreted with caution pending larger replications. On the one hand, the evidence is suggestive; on the other hand, it is far from conclusive.
+
+Ultimately, creatine may hold promise as a cognitive aid. The review reinforces the notion that supplementation could enhance certain aspects of cognition, and it points to a range of promising directions for future inquiry.

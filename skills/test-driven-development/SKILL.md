@@ -1,11 +1,12 @@
 ---
 name: test-driven-development
-version: 0.2.0
 description: >-
   Test-driven development for NON-TRIVIAL behavior — write a failing test FIRST,
   watch it fail, then write minimal code to pass; the suite is a LIVING SPEC you
   EDIT/MERGE/DELETE as the target changes. Use when implementing real logic, fixing
   a bug, or changing tested behavior. Do NOT use for trivial edits or prototypes.
+metadata:
+  version: 0.2.0
 ---
 
 # Test-Driven Development

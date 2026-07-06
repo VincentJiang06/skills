@@ -1,0 +1,57 @@
+{
+  "session_id": "20260706-095235+0800-loop-constructor-codex-v0",
+  "agent_run_id": "codex-20260706-100821+0800",
+  "overall_status": "pass",
+  "overall_score": 0.94,
+  "threshold": 0.85,
+  "case_scores": [
+    {
+      "case_id": "case-01-medium-staged",
+      "status": "pass",
+      "score": 0.91,
+      "dimension_scores": {
+        "correctness": 0.93,
+        "codex_fidelity": 0.96,
+        "reproducibility": 1.0,
+        "design_quality": 0.78
+      },
+      "notes": "Medium staged shape, D0-D6 selection log, roles separation, contract assertions, linter pass, Codex runbook, and banned-token cleanliness all verified. Score is reduced for the known nonblocking design-quality residual: the test-drift gate catches tracked test edits but not new untracked test files."
+    },
+    {
+      "case_id": "case-02-large-fanout",
+      "status": "pass",
+      "score": 0.96,
+      "dimension_scores": {
+        "correctness": 0.96,
+        "codex_fidelity": 0.98,
+        "reproducibility": 1.0,
+        "design_quality": 0.9
+      },
+      "notes": "Large fan-out shape, independent shard dependency graph, D4 large justification, concurrent codex exec/worktree/ledger runbook language, evaluator separation, linter pass, and banned-token cleanliness all verified."
+    },
+    {
+      "case_id": "case-03-static-fidelity",
+      "status": "pass",
+      "score": 0.97,
+      "dimension_scores": {
+        "reproducibility": 1.0,
+        "codex_fidelity": 0.95
+      },
+      "notes": "Battery passed 71/71, sibling linter cmp returned 0, frontmatter description length is 295 chars, codex-runtime.md is present and maps runtime concerns, and all three goldens rendered in a temp directory with no banned tokens in generated runbooks."
+    }
+  ],
+  "extra_probe_scores": [
+    {
+      "probe_id": "probe-01-evaluator-not-separate-context",
+      "status": "pass",
+      "score": 1.0,
+      "notes": "Mutating roles.evaluator.separate_context to false made the linter fail with roles.evaluator.separate_context."
+    },
+    {
+      "probe_id": "probe-02-stage-cycle",
+      "status": "pass",
+      "score": 1.0,
+      "notes": "Adding a dependency cycle made the linter fail with stages.reachability."
+    }
+  ]
+}

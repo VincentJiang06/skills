@@ -1,0 +1,11 @@
+{
+  "what": "Stage harden_eval non-vacuity proof: a fresh blind judge scored 4 fixtures under NEUTRAL labels (item1..item4, no good/bad hint) using the per-mode rubric. Neutral->fixture mapping applied after judging: item1=good_popsci, item2=bad_academic, item3=good_academic, item4=bad_popsci. The judge was maker-independent (a separate agent; the loop owner authored the fixtures).",
+  "rubric": "skills/humanizer-academic/references/blind-judge-rubric.md (per-mode v2)",
+  "results": [
+    { "fixture": "good_popsci", "mode": "popsci", "scores": { "ai_ness": 5, "register": 5, "fidelity": 5, "texture": 5, "language": 5, "completeness": 5 }, "hard_fail": null, "overall_mean": 5.0, "verdict": "pass" },
+    { "fixture": "bad_academic", "mode": "academic", "scores": { "ai_ness": 1, "register": 2, "fidelity": 4, "texture": 1, "language": 4, "completeness": 2 }, "hard_fail": null, "overall_mean": 2.33, "verdict": "fail" },
+    { "fixture": "good_academic", "mode": "academic", "scores": { "ai_ness": 5, "register": 5, "fidelity": 5, "texture": 5, "language": 5, "completeness": 5 }, "hard_fail": null, "overall_mean": 5.0, "verdict": "pass" },
+    { "fixture": "bad_popsci", "mode": "popsci", "scores": { "ai_ness": 1, "register": 1, "fidelity": 1, "texture": 1, "language": 2, "completeness": 1 }, "hard_fail": "Register collapse into clickbait/hype (emoji, ALL-CAPS, listicle shell, like-and-subscribe) + an invented/false claim ('Big Science doesn't want you to know this').", "overall_mean": 0, "verdict": "fail" }
+  ],
+  "discrimination": "good_popsci PASS / bad_popsci FAIL AND good_academic PASS / bad_academic FAIL — the per-mode rubric discriminates BOTH modes. The good_popsci PASS specifically proves the popsci track rewards legitimate craft (it would FAIL under an academic-shaped register dim)."
+}
