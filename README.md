@@ -6,6 +6,8 @@
 
 ## 一句话速览
 
+这里仍只统计 **16 个正式 skill**。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
+
 **成品**
 - **[album-review](skills/album-review/)** —— 「主创署名 + 专辑名」→ 一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。
 - **[hifi-review](skills/hifi-review/)** —— 客观 HiFi 器材评价：风格由频响-对-目标得出、素质由测量得出，每条结论追溯到证据。
@@ -21,8 +23,6 @@
 
 **循环 & 对抗 —— 把中大型任务做成可自主跑的工程**
 - **[loop-constructor](skills/loop-constructor/)** —— 为中大型任务设计工程化*循环*：分解成带 gate 的子循环树，落盘成可直接照跑的 `.loop/` runbook。
-- **[loop-constructor-codex](skills/loop-constructor-codex/)** —— `loop-constructor` 的 Codex CLI 变体：把同一套 loop 工程落到单 agent、多次 `codex exec`、磁盘状态和 fresh evaluator 上。
-- **[model-pyramid](skills/model-pyramid/)** —— fan-out 前给每个 subagent 右配模型层级 + reasoning effort：peer 保持、search 降 effort、大规模廉价查找降一层模型，永远守住 medium floor。
 - **[attacker](skills/attacker/)** —— 攻击产品的*真实可观测行为*（或红队一个想法）：全新、与 TDD 独立的 subagent 只记可复现、已证实的破坏，与 loop-constructor 配对（攻击→修复→再攻击）。
 - **[reorganize-logic](skills/reorganize-logic/)** —— 以**代码为唯一事实源**重建设计契约层（架构 + 结构 + 接口），删除遗留走评审门。
 
@@ -41,9 +41,9 @@
 这不是一堆 prompt 模板，而是一套会自己长牙的技能系统：
 
 - **构建链路已经 v2 化。** guidance / engineer / conductor / zipper 现在共用可执行 gate，spec、build report、trigger eval、held-out、red log 都能被重跑，不靠口头承诺。
-- **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop，`loop-constructor-codex` 把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`。
+- **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop；文末的 `stupidskills` 里另放一个 `loop-constructor-codex`，把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`，但不计入正式 16 个。
 - **独立性成为一等公民。** `attacker`、`reorganize-logic`、`test-driven-development` 都围绕“不要让同一个心智模型同时写答案和判答案”重做过。
-- **模型/effort 选择被显式化。** `model-pyramid` 不做模型购物，也不把右配伪装成省钱；它只在 subagent fan-out 时把工作难度映射成一行可审计的 `rule=<id> tier=<tier> effort=<notch>`。
+- **模型/effort 选择被显式化。** 文末 `stupidskills` 里的 `model-pyramid` 不做模型购物，也不把右配伪装成省钱；它只在 subagent fan-out 时把工作难度映射成一行可审计的 `rule=<id> tier=<tier> effort=<notch>`。
 - **知识库随 skill 走。** `skill-principle` 和 `loop-principle` 都内置到对应 skill，不再要求用户知道旁路复制关系。
 
 ## 安装
@@ -93,12 +93,7 @@ npx skills add VincentJiang06/skills      # 交互式勾选要装的 skill
 > 用 attacker 攻击 <skill/feature> 的可观测行为，scope = 输入解析 + 边界，记录已证实可复现的破坏。
 ```
 
-**⑤ 给 subagent fan-out 右配模型** —— `model-pyramid` 只负责 sizing，不负责 spawn。
-```
-> 我准备并行开 24 个搜索 subagent 和 2 个 peer reviewer，用 model-pyramid 给每个 worker 定 tier/effort。
-```
-
-**⑥ 会话收尾 / 让知识不腐烂** —— `neat` 把文档 + 记忆对着代码对账；`reorganize-logic` 在文档烂到不值得增量同步时推倒重建。
+**⑤ 会话收尾 / 让知识不腐烂** —— `neat` 把文档 + 记忆对着代码对账；`reorganize-logic` 在文档烂到不值得增量同步时推倒重建。
 
 ## 实践建议（开发 skill 时的小 tips）
 
@@ -150,11 +145,18 @@ archive/                                     # 冻结的旧版本（如 pipeline
 - **流水线对「性能/质量类」升级，最终验收可由更强的留出集攻击代替完整 conductor 复审**（humanizer v3.1 即如此）—— 这是有意的工程取舍，已如实记录，非偷工。
 - **trigger 精度依赖可用的真实运行时。** 当本机没有可认证 CLI 时，部分 trigger_eval 会用 live judge panel 代替，并在报告里标清楚；这算可用证据，不伪装成 canonical CLI 结果。
 
+## stupidskills（不计入 16 个正式 skill）
+
+这两张卡放在页面最底部，只作为轻量实验/旁路工具展示，**不计入本仓库的正式 skill 个数记录**。
+
+- **[loop-constructor-codex](skills/loop-constructor-codex/)** —— `loop-constructor` 的 Codex CLI 变体：把同一套 loop 工程落到单 agent、多次 `codex exec`、磁盘状态和 fresh evaluator 上。
+- **[model-pyramid](skills/model-pyramid/)** —— fan-out 前给每个 subagent 右配模型层级 + reasoning effort：peer 保持、search 降 effort、大规模廉价查找降一层模型，永远守住 medium floor。只负责 sizing，不负责 spawn。
+
 ## 更新日志（按日期）
 
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
 
-- **2026-07-06** — humanizer 升到 v3.2（contrast-frame quota、citation-shell rework、frame-first hardening）；两个 principle KB 做 FABLE synthesis；新增 `loop-constructor-codex`；新增 `model-pyramid`，把 subagent 模型/effort 选择做成可测试规则卡。
+- **2026-07-06** — humanizer 升到 v3.2（contrast-frame quota、citation-shell rework、frame-first hardening）；两个 principle KB 做 FABLE synthesis；新增 `loop-constructor-codex` 与 `model-pyramid`，作为文末 `stupidskills` 附录，不计入正式 16 个；`model-pyramid` 把 subagent 模型/effort 选择做成可测试规则卡。
 - **2026-07-02** — skill-building pipeline 升到 v2：G/E gate 可执行化、audit disposition、held-out trigger eval、portable zipper；v1 pipeline 冻结进 `archive/`；新增本地 `eval_exchange` 协议；`attacker` / `loop-constructor` / `reorganize-logic` / `test-driven-development` 做 independence-family 更新。
 - **2026-06-25** — `skill-principle` 和 `loop-principle` 内嵌到对应 skill，安装时随 skill 一起走。
 - **2026-06-24** — 为 ClawHub/SkillHub 发布同步 `.clawhubignore` 与版本信息。

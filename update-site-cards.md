@@ -10,8 +10,12 @@ The page is a **mirror of this repo's README "一句话速览 / Skills at a glan
 section** — that section is the source of truth. The page has:
 
 - Title **"Agent Skills 🧰"** + one install line `npx skills add VincentJiang06/skills`.
-- **Four groups**, in this order: **Finished Products** · **Coding Discipline**
-  · **Loop & Adversarial** · **Meta Pipeline**.
+- **Four official groups**, in this order: **Finished Products** · **Coding Discipline**
+  · **Loop & Adversarial** · **Meta Pipeline**. These remain the **16 counted
+  skills**.
+- A bottom appendix titled **stupidskills** for experimental/sidecar cards. This
+  appendix is visually separated and explicitly says it is **not counted** in the
+  official skill total.
 - One **card per skill**: `name` (links to `https://github.com/VincentJiang06/skills/tree/main/skills/<name>`),
   a 1–2 sentence description, and a `↗` arrow. No version, icon, or per-card
   install text.
@@ -26,10 +30,12 @@ each card's blurb matches the repo one-liner; (3) each link resolves.
    defined: usually a data array/JSON (e.g. `skills.json`, a `cards` array in a
    component) or a repeated HTML/MDX block. Grep the site for a known skill name
    (e.g. `album-review`) to locate it.
-2. **Diff the roster** against `skills/` in this repo (16 skills as of
-   2026-07-02, listed below). Add new skills to the right group; remove deleted
-   ones; rename if a folder was renamed. **Archived versions under `archive/`
-   never get cards** — they aren't installable.
+2. **Diff the official roster** against the counted list below (16 official
+   skills as of 2026-07-06). Add official new skills to the right group; remove
+   deleted ones; rename if a folder was renamed. **Archived versions under
+   `archive/` never get cards** — they aren't installable. If a skill is marked
+   `stupidskills`, put it only in the bottom appendix and do not change the
+   official count.
 3. **Sync each blurb** to the canonical copy below (keep it card-length: 1–2
    sentences — do *not* paste the longer README bullets or the full SKILL.md
    `description`). Match the site's existing language(s); if the site is
@@ -68,10 +74,14 @@ Keep names exactly as the `skills/` folder names.
 - **skill-engineer** — Builds and tests a skill from that spec, red-green-refactor, with an executable report gate that re-runs the harness (stage 2).
 - **skill-zipper** — Restructures an existing skill losslessly for token efficiency, reliability, and trigger accuracy, with a portability checklist.
 
-## What changed in this pass (2026-07-02)
+**stupidskills** (bottom appendix — explicitly not counted in the 16 official skills)
+- **loop-constructor-codex** — Codex CLI variant of loop-constructor: realizes the loop model as single-agent `codex exec` runs, on-disk state, and a fresh evaluator.
+- **model-pyramid** — Right-sizes model tier + reasoning effort before subagent fan-out; it only sizes workers and does not spawn them.
 
-Roster is unchanged (16 skills, same names/groups). The **four Meta Pipeline
-cards' blurbs were refreshed for v2** (executable gates, audit disposition,
-portability). If the site cards still describe the pre-v2 pipeline, update those
-four; the other twelve are unchanged. If you add a `v2`-style suffix anywhere,
-remove it — the pipeline keeps its plain names; v1 lives only in `archive/`.
+## What changed in this pass (2026-07-06)
+
+Official roster remains **16 counted skills**. The two new folders
+`loop-constructor-codex` and `model-pyramid` are published as bottom-page
+**stupidskills** and must be clearly labeled as not counted. The README and site
+copy also now describe the v2 executable-gate pipeline, Codex-realized loop
+variant, and explicit model/effort sizing.
