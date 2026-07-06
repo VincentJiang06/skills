@@ -17,6 +17,7 @@
 
 **Coding discipline — auto-triggered as you build**
 - **[test-driven-development](skills/test-driven-development/)** — TDD for *non-trivial* behavior: a failing test first, the suite kept as a *living spec* of the current target.
+- **[neat](skills/neat/)** — end-of-session reconciliation of docs + cross-session memory against the code, so knowledge doesn't rot.
 
 **Loop & adversary — turn a medium/large task into a runnable engineering loop**
 - **[loop-constructor](skills/loop-constructor/)** — designs the engineered *loop* for a medium/large task: decomposed into gated sub-loops, persisted as a runnable `.loop/` runbook.
@@ -99,7 +100,7 @@ These skills are designed to compose. Here are the common paths + a one-line dem
 > I am about to launch 24 search subagents and 2 peer reviewers; use model-pyramid to assign tier/effort for each worker.
 ```
 
-**⑥ Rebuild design contracts** — `reorganize-logic` rebuilds architecture, structure, and interface docs from code when they have rotted past incremental sync.
+**⑥ End-of-session / keep knowledge fresh** — `neat` reconciles docs + memory against the code; `reorganize-logic` rebuilds from scratch when docs have rotted past incremental sync.
 
 ## Practical tips (when developing skills)
 
@@ -155,7 +156,7 @@ Engineering honesty means writing down what isn't closed — the natural extensi
 
 Daily summaries from git history, limited to structural changes in the skill system.
 
-- **2026-07-06** — humanizer moved to v3.2 (contrast-frame quota, citation-shell rework, frame-first hardening); both principle KBs received a FABLE synthesis pass; `loop-constructor-codex` landed; `model-pyramid` added testable subagent model/effort sizing; the session-end sync skill was removed from public distribution.
+- **2026-07-06** — humanizer moved to v3.2 (contrast-frame quota, citation-shell rework, frame-first hardening); both principle KBs received a FABLE synthesis pass; `loop-constructor-codex` landed; `model-pyramid` added testable subagent model/effort sizing.
 - **2026-07-02** — the skill-building pipeline became v2: executable G/E gates, audit disposition, held-out trigger eval, portable zipper; v1 pipeline archived; local `eval_exchange` protocol added; `attacker` / `loop-constructor` / `reorganize-logic` / `test-driven-development` received the independence-family update.
 - **2026-06-25** — `skill-principle` and `loop-principle` were embedded under their owning skills so installs carry the KBs with them.
 - **2026-06-24** — `.clawhubignore` and version metadata were synced for ClawHub/SkillHub publishing.
@@ -164,13 +165,15 @@ Daily summaries from git history, limited to structural changes in the skill sys
 - **2026-06-21** — `loop-constructor` shifted to SELECT→FILL→VERIFY; `test-driven-development` gained anti-gaming gates; humanizer split into academic / popsci modes with abstain-first behavior.
 - **2026-06-20** — README became Chinese-first; major skills gained bilingual READMEs; public repo skill names dropped the `vince-` prefix.
 - **2026-06-18** — staged `loop-constructor` and `reorganize-logic` landed; `vince-mp` CLI gained camera-less scan; README gained the one-line skill index.
-- **2026-06-15** — `loop-principle` KB + `loop-constructor` landed.
+- **2026-06-15** — `loop-principle` KB + `loop-constructor` landed; `neat` added end-of-session docs/memory reconciliation.
 - **2026-06-11** — `test-driven-development` was redesigned around trigger boundaries, modify mode, and subagent delegation; KB source density improved.
 - **2026-06-05** — repo was reorganized for public release; `skills.sh` install path added; `mp-groundline` landed; `vince-mp` moved into persistent-session + doctor/scan/logs workflow.
 
 ## Acknowledgments
 
 Methodology draws on the wider Agent Skills ecosystem — Anthropic's [skills](https://github.com/anthropics/skills) (spec + `skill-creator`) and obra's [superpowers](https://github.com/obra/superpowers); install is based on vercel-labs' [skills.sh](https://github.com/vercel-labs/skills).
+
+The `neat` skill is adapted from [@KKKKhazix](https://github.com/KKKKhazix)'s [neat-freak（洁癖）](https://github.com/KKKKhazix/khazix-skills#-neat-freak%E6%B4%81%E7%99%96) (MIT).
 
 ## License
 

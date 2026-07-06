@@ -6,7 +6,7 @@ SKILL.md summarizes this; the detail lives here.
 ## Preflight
 
 - Confirm it is a **REBUILD**, not a sync. If the docs are mostly right and just
-  drifted a little → use a lighter incremental sync workflow. This skill is for
+  drifted a little → route to **neat** (incremental sync). This skill is for
   *推倒重建*: the old contracts are untrusted and legacy will be deleted.
 - **Resolve scope.** Whole project (default) or a named module/subsystem/dir. The
   scope bounds every later step — extraction, coverage, and the deletion manifest.

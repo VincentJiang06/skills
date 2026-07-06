@@ -10,10 +10,10 @@
 - 确定性、语言无关的门（`verify_contracts.mjs`）把每个文档化接口绑到真实的 file:line，并证明没有「被识别的导出」被悄悄漏掉。
 - 对模糊的近名匹配只**标记**交 agent 复核，而非盖章放行 —— 杜绝「绿但错」。
 - 删除走 fail-closed：未知一律拦下，绝不静默跳过。
-- 与增量同步区分：轻量同步是*保留并修正*文档，本 skill 是*推倒重建*。
+- 与 neat 区分：neat 是*增量同步*文档，本 skill 是*推倒重建*。
 
 **什么时候用** —— 「reorganize/重写 logic」·「从代码重新推导一套契约」·「重写架构/结构/接口文档」；也可用 `/reorganize-logic` 显式调用。
-**不适用** —— 增量同步 / 会话收尾（最锐的边界：本 skill 会*删*遗留，不是保留并同步）；设计 agent loop（→ loop-constructor）；改实现代码（重建的是契约/文档层，不是逻辑）；没有既有契约的全新项目（无可清理）。
+**不适用** —— 增量同步 / 会话收尾（→ neat，最锐的边界：本 skill 会*删*遗留，不是保留并同步）；设计 agent loop（→ loop-constructor）；改实现代码（重建的是契约/文档层，不是逻辑）；没有既有契约的全新项目（无可清理）。
 
 **安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/reorganize-logic ~/.claude/skills/`）。
 

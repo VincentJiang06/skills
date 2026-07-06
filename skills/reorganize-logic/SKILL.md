@@ -5,7 +5,7 @@ description: >-
   re-derive architecture + structure + interface contracts from code, gate-verified.
   Use-when: "rebuild the contracts from scratch", "从代码重新推导契约",
   "$reorganize-logic". Do-NOT use for doc sync / cleanup (this REBUILDS and deletes
-  legacy); use a lighter incremental docs/memory sync workflow instead.
+  legacy) → neat.
 metadata:
   version: 0.2.1
 ---
@@ -26,16 +26,16 @@ are written *before* anything legacy is deleted. *A contract the gate can't tie 
 real code is a hallucination; the gate rejects it. The gate flags everything
 ambiguous for you to reconcile — it never rubber-stamps.*
 
-## When this fires (vs incremental sync — the key boundary)
+## When this fires (vs neat — the key boundary)
 
 - **reorganize-logic** = deliberate, heavyweight, ground-up REBUILD. Old contracts
   are untrusted; **deleting legacy is a feature.** Use when docs have drifted so far
   that syncing is not worth it.
-- **Incremental sync** = keep what's right, fix drift, and avoid destructive
-  rewrites. Use that lighter path for "tidy up / sync the docs / 同步一下".
+- **neat** = incremental sync at session end; keeps what's right, fixes drift,
+  non-destructive. Route there for "tidy up / sync the docs / 同步一下".
 
-If the docs are mostly right → do an incremental sync. If you'd rather throw
-them out and re-derive from code → this skill.
+If the docs are mostly right → neat. If you'd rather throw them out and
+re-derive from code → this skill.
 
 ## Built for Claude (Claude-native orchestration; the gate stays portable)
 
@@ -128,4 +128,4 @@ responsibilities, and signatures are actually true of the code.
   gate-parseable schema (downstream contracts must be re-authored).
 - **Rollback** = `git restore docs/contracts/`; the deletion-manifest is never
   auto-applied, so a bad run leaves the legacy intact.
-- **Do not use** for the lighter keep-and-sync path; this skill is the rebuild path.
+- **Superseded by** neat for the lighter keep-and-sync path.
