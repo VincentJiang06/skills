@@ -4,8 +4,8 @@
     "knowledge_graph/nodes/*.json",
     "knowledge_graph/edges/*.json"
   ],
-  "node_count": 73,
-  "edge_count": 60,
+  "node_count": 81,
+  "edge_count": 81,
   "adjacency": {
     "anti_pattern.autonomy_maximalism": {
       "type": "anti_pattern",
@@ -195,6 +195,69 @@
         "principle.iterative_refinement"
       ]
     },
+    "anti_pattern.green_but_wrong": {
+      "type": "anti_pattern",
+      "tags": [
+        "anti_pattern",
+        "green_but_wrong",
+        "verification"
+      ],
+      "docs": [
+        "doc.risks.costs_risks_failure_modes"
+      ],
+      "references": [
+        "ref.fable.loop_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "pillar.risks"
+      ],
+      "children": [
+        "anti_pattern.unexercised_self_check"
+      ],
+      "incoming_edges": [
+        {
+          "id": "edge.positivedetect.warns_greenbutwrong",
+          "type": "warns",
+          "node_id": "principle.positive_detection_for_invariants"
+        },
+        {
+          "id": "edge.schemaplaceholder.contextualizes_greenbutwrong",
+          "type": "contextualizes",
+          "node_id": "anti_pattern.schema_terminal_placeholder"
+        },
+        {
+          "id": "edge.unexercisedcheck.extends_greenbutwrong",
+          "type": "extends",
+          "node_id": "anti_pattern.unexercised_self_check"
+        }
+      ],
+      "outgoing_edges": [
+        {
+          "id": "edge.greenbutwrong.contextualizes_rubric",
+          "type": "contextualizes",
+          "node_id": "procedure.loop_quality_rubric"
+        },
+        {
+          "id": "edge.greenbutwrong.supports_makerchecker",
+          "type": "supports",
+          "node_id": "principle.maker_checker_separation"
+        },
+        {
+          "id": "edge.greenbutwrong.warns_bottleneck",
+          "type": "warns",
+          "node_id": "concept.verification_bottleneck"
+        }
+      ],
+      "neighbors": [
+        "anti_pattern.schema_terminal_placeholder",
+        "anti_pattern.unexercised_self_check",
+        "concept.verification_bottleneck",
+        "pillar.risks",
+        "principle.maker_checker_separation",
+        "principle.positive_detection_for_invariants",
+        "procedure.loop_quality_rubric"
+      ]
+    },
     "anti_pattern.loop_is_a_while_loop": {
       "type": "anti_pattern",
       "tags": [
@@ -292,7 +355,8 @@
       "references": [
         "ref.metr.reward_hacking",
         "ref.impossiblebench",
-        "ref.reflexion"
+        "ref.reflexion",
+        "ref.specbench.reward_hacking_scales_with_size"
       ],
       "parents": [
         "concept.reflexion",
@@ -331,6 +395,42 @@
         "principle.maker_checker_separation"
       ]
     },
+    "anti_pattern.schema_terminal_placeholder": {
+      "type": "anti_pattern",
+      "tags": [
+        "anti_pattern",
+        "structured_output",
+        "placeholder"
+      ],
+      "docs": [
+        "doc.risks.costs_risks_failure_modes"
+      ],
+      "references": [
+        "ref.fable.loop_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "pillar.risks"
+      ],
+      "children": [],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        {
+          "id": "edge.schemaplaceholder.contextualizes_greenbutwrong",
+          "type": "contextualizes",
+          "node_id": "anti_pattern.green_but_wrong"
+        },
+        {
+          "id": "edge.schemaplaceholder.warns_spectrum",
+          "type": "warns",
+          "node_id": "concept.feedback_signal_spectrum"
+        }
+      ],
+      "neighbors": [
+        "anti_pattern.green_but_wrong",
+        "concept.feedback_signal_spectrum",
+        "pillar.risks"
+      ]
+    },
     "anti_pattern.token_blowup": {
       "type": "anti_pattern",
       "tags": [
@@ -342,7 +442,8 @@
       ],
       "references": [
         "ref.osmani.loop_engineering",
-        "ref.mindstudio.token_budget"
+        "ref.mindstudio.token_budget",
+        "ref.anthropic.agent_sdk_budget_caps"
       ],
       "parents": [
         "pattern.multi_agent_orchestra",
@@ -357,6 +458,11 @@
           "node_id": "metric.cost_per_resolution"
         },
         {
+          "id": "edge.loopuntildry.warns_tokenblowup",
+          "type": "warns",
+          "node_id": "technique.loop_until_dry"
+        },
+        {
           "id": "edge.subagent.warns_tokenblowup",
           "type": "warns",
           "node_id": "technique.subagent_split"
@@ -367,7 +473,45 @@
         "metric.cost_per_resolution",
         "pattern.multi_agent_orchestra",
         "pillar.risks",
+        "technique.loop_until_dry",
         "technique.subagent_split"
+      ]
+    },
+    "anti_pattern.unexercised_self_check": {
+      "type": "anti_pattern",
+      "tags": [
+        "anti_pattern",
+        "self_check",
+        "coverage"
+      ],
+      "docs": [
+        "doc.risks.costs_risks_failure_modes"
+      ],
+      "references": [
+        "ref.fable.loop_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "anti_pattern.green_but_wrong",
+        "pillar.risks"
+      ],
+      "children": [],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        {
+          "id": "edge.unexercisedcheck.contextualizes_stopgate",
+          "type": "contextualizes",
+          "node_id": "procedure.stop_gate"
+        },
+        {
+          "id": "edge.unexercisedcheck.extends_greenbutwrong",
+          "type": "extends",
+          "node_id": "anti_pattern.green_but_wrong"
+        }
+      ],
+      "neighbors": [
+        "anti_pattern.green_but_wrong",
+        "pillar.risks",
+        "procedure.stop_gate"
       ]
     },
     "concept.agent_loop_microcycle": {
@@ -439,7 +583,9 @@
       ],
       "references": [
         "ref.osmani.loop_engineering",
-        "ref.reflexion"
+        "ref.reflexion",
+        "ref.anthropic.effective_harnesses_long_running",
+        "ref.huntley.ralph_loop"
       ],
       "parents": [
         "concept.loop_primitives",
@@ -493,6 +639,11 @@
           "id": "edge.check.uses_spectrum",
           "type": "uses",
           "node_id": "principle.closed_loop_needs_a_check"
+        },
+        {
+          "id": "edge.schemaplaceholder.warns_spectrum",
+          "type": "warns",
+          "node_id": "anti_pattern.schema_terminal_placeholder"
         }
       ],
       "outgoing_edges": [
@@ -503,6 +654,7 @@
         }
       ],
       "neighbors": [
+        "anti_pattern.schema_terminal_placeholder",
         "pattern.production_observability_loop",
         "pillar.feedback",
         "principle.closed_loop_needs_a_check"
@@ -849,6 +1001,16 @@
           "id": "edge.escape_metric.measures_bottleneck",
           "type": "measures",
           "node_id": "metric.regression_escape_rate"
+        },
+        {
+          "id": "edge.greenbutwrong.warns_bottleneck",
+          "type": "warns",
+          "node_id": "anti_pattern.green_but_wrong"
+        },
+        {
+          "id": "edge.verifierasym.depends_bottleneck",
+          "type": "depends_on",
+          "node_id": "principle.verifier_asymmetry"
         }
       ],
       "outgoing_edges": [
@@ -864,10 +1026,12 @@
         }
       ],
       "neighbors": [
+        "anti_pattern.green_but_wrong",
         "anti_pattern.reward_hacking",
         "metric.regression_escape_rate",
         "pattern.production_observability_loop",
-        "pillar.feedback"
+        "pillar.feedback",
+        "principle.verifier_asymmetry"
       ]
     },
     "metric.autonomous_resolution_rate": {
@@ -953,9 +1117,19 @@
       "children": [],
       "incoming_edges": [
         {
+          "id": "edge.effortrouting.contextualizes_costper",
+          "type": "contextualizes",
+          "node_id": "principle.effort_routing"
+        },
+        {
           "id": "edge.measurement.measures_cost",
           "type": "measures",
           "node_id": "pillar.measurement"
+        },
+        {
+          "id": "edge.pipelinenobarrier.supports_costper",
+          "type": "supports",
+          "node_id": "technique.pipeline_no_barrier"
         }
       ],
       "outgoing_edges": [
@@ -967,7 +1141,9 @@
       ],
       "neighbors": [
         "anti_pattern.token_blowup",
-        "pillar.measurement"
+        "pillar.measurement",
+        "principle.effort_routing",
+        "technique.pipeline_no_barrier"
       ]
     },
     "metric.human_intervention_rate": {
@@ -1330,6 +1506,11 @@
       ],
       "incoming_edges": [
         {
+          "id": "edge.pipelinenobarrier.contextualizes_orchestra",
+          "type": "contextualizes",
+          "node_id": "technique.pipeline_no_barrier"
+        },
+        {
           "id": "edge.worktree.enables_orchestra",
           "type": "enables",
           "node_id": "technique.git_worktree_isolation"
@@ -1339,7 +1520,8 @@
       "neighbors": [
         "anti_pattern.token_blowup",
         "pillar.governance",
-        "technique.git_worktree_isolation"
+        "technique.git_worktree_isolation",
+        "technique.pipeline_no_barrier"
       ]
     },
     "pattern.plan_execute_verify": {
@@ -1450,7 +1632,13 @@
         "principle.adversarial_review_subagent",
         "principle.maker_checker_separation"
       ],
-      "incoming_edges": [],
+      "incoming_edges": [
+        {
+          "id": "edge.loopuntildry.supports_reviewloop",
+          "type": "supports",
+          "node_id": "technique.loop_until_dry"
+        }
+      ],
       "outgoing_edges": [
         {
           "id": "edge.review.uses_makerchecker",
@@ -1461,7 +1649,8 @@
       "neighbors": [
         "pillar.anatomy",
         "principle.adversarial_review_subagent",
-        "principle.maker_checker_separation"
+        "principle.maker_checker_separation",
+        "technique.loop_until_dry"
       ]
     },
     "pillar.anatomy": {
@@ -1487,7 +1676,9 @@
         "pattern.review_loop",
         "principle.separate_planning_from_execution",
         "procedure.canonical_loop",
-        "procedure.explore_plan_implement_commit"
+        "procedure.explore_plan_implement_commit",
+        "technique.loop_until_dry",
+        "technique.pipeline_no_barrier"
       ],
       "incoming_edges": [],
       "outgoing_edges": [],
@@ -1499,7 +1690,9 @@
         "pattern.review_loop",
         "principle.separate_planning_from_execution",
         "procedure.canonical_loop",
-        "procedure.explore_plan_implement_commit"
+        "procedure.explore_plan_implement_commit",
+        "technique.loop_until_dry",
+        "technique.pipeline_no_barrier"
       ]
     },
     "pillar.feedback": {
@@ -1524,7 +1717,9 @@
         "concept.verification_bottleneck",
         "pattern.production_observability_loop",
         "principle.closed_loop_needs_a_check",
-        "principle.machine_verifiable_dod"
+        "principle.machine_verifiable_dod",
+        "principle.positive_detection_for_invariants",
+        "principle.verifier_asymmetry"
       ],
       "incoming_edges": [],
       "outgoing_edges": [],
@@ -1534,7 +1729,9 @@
         "concept.verification_bottleneck",
         "pattern.production_observability_loop",
         "principle.closed_loop_needs_a_check",
-        "principle.machine_verifiable_dod"
+        "principle.machine_verifiable_dod",
+        "principle.positive_detection_for_invariants",
+        "principle.verifier_asymmetry"
       ]
     },
     "pillar.foundations": {
@@ -1643,6 +1840,7 @@
         "concept.loop_primitives",
         "concept.skill_as_memory",
         "pattern.cdp_per_worktree_loop",
+        "principle.effort_routing",
         "technique.git_worktree_isolation",
         "technique.hooks_as_deterministic_gate",
         "technique.scheduled_automation",
@@ -1662,6 +1860,7 @@
         "concept.loop_primitives",
         "concept.skill_as_memory",
         "pattern.cdp_per_worktree_loop",
+        "principle.effort_routing",
         "technique.git_worktree_isolation",
         "technique.hooks_as_deterministic_gate",
         "technique.scheduled_automation",
@@ -1848,10 +2047,13 @@
         "anti_pattern.comprehension_debt",
         "anti_pattern.context_drift",
         "anti_pattern.error_amplification",
+        "anti_pattern.green_but_wrong",
         "anti_pattern.permission_blast_radius",
         "anti_pattern.premature_over_delegation",
         "anti_pattern.reward_hacking",
+        "anti_pattern.schema_terminal_placeholder",
         "anti_pattern.token_blowup",
+        "anti_pattern.unexercised_self_check",
         "principle.context_window_management",
         "principle.infra_prerequisite"
       ],
@@ -1862,10 +2064,13 @@
         "anti_pattern.comprehension_debt",
         "anti_pattern.context_drift",
         "anti_pattern.error_amplification",
+        "anti_pattern.green_but_wrong",
         "anti_pattern.permission_blast_radius",
         "anti_pattern.premature_over_delegation",
         "anti_pattern.reward_hacking",
+        "anti_pattern.schema_terminal_placeholder",
         "anti_pattern.token_blowup",
+        "anti_pattern.unexercised_self_check",
         "principle.context_window_management",
         "principle.infra_prerequisite"
       ]
@@ -1970,6 +2175,11 @@
           "id": "edge.success_metric.measures_check",
           "type": "measures",
           "node_id": "metric.task_success_rate"
+        },
+        {
+          "id": "edge.verifierasym.supports_check",
+          "type": "supports",
+          "node_id": "principle.verifier_asymmetry"
         }
       ],
       "outgoing_edges": [
@@ -1989,6 +2199,7 @@
         "metric.task_success_rate",
         "pillar.feedback",
         "principle.machine_verifiable_dod",
+        "principle.verifier_asymmetry",
         "procedure.canonical_loop",
         "technique.hooks_as_deterministic_gate"
       ]
@@ -2029,6 +2240,48 @@
         "anti_pattern.context_drift",
         "concept.agent_loop_microcycle",
         "pillar.risks"
+      ]
+    },
+    "principle.effort_routing": {
+      "type": "principle",
+      "tags": [
+        "harness",
+        "effort",
+        "cost"
+      ],
+      "docs": [
+        "doc.harness.harness_and_tooling_layer"
+      ],
+      "references": [
+        "ref.fable.loop_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "pillar.harness"
+      ],
+      "children": [],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        {
+          "id": "edge.effortrouting.contextualizes_costper",
+          "type": "contextualizes",
+          "node_id": "metric.cost_per_resolution"
+        },
+        {
+          "id": "edge.effortrouting.supports_makerchecker",
+          "type": "supports",
+          "node_id": "principle.maker_checker_separation"
+        },
+        {
+          "id": "edge.effortrouting.uses_subagentsplit",
+          "type": "uses",
+          "node_id": "technique.subagent_split"
+        }
+      ],
+      "neighbors": [
+        "metric.cost_per_resolution",
+        "pillar.harness",
+        "principle.maker_checker_separation",
+        "technique.subagent_split"
       ]
     },
     "principle.engineering_stack_progression": {
@@ -2094,6 +2347,11 @@
           "id": "edge.intervention_metric.measures_humanloop",
           "type": "measures",
           "node_id": "metric.human_intervention_rate"
+        },
+        {
+          "id": "edge.verifierasym.motivates_humanplacement",
+          "type": "motivates",
+          "node_id": "principle.verifier_asymmetry"
         }
       ],
       "outgoing_edges": [],
@@ -2103,6 +2361,7 @@
         "pillar.governance",
         "principle.autonomy_by_blast_radius",
         "principle.replace_the_prompter",
+        "principle.verifier_asymmetry",
         "procedure.escalation_triggers"
       ]
     },
@@ -2200,6 +2459,11 @@
           "id": "edge.check.requires_dod",
           "type": "uses",
           "node_id": "principle.closed_loop_needs_a_check"
+        },
+        {
+          "id": "edge.positivedetect.supports_dod",
+          "type": "supports",
+          "node_id": "principle.positive_detection_for_invariants"
         }
       ],
       "outgoing_edges": [
@@ -2213,6 +2477,7 @@
         "anti_pattern.diligent_wrong_goal",
         "pillar.feedback",
         "principle.closed_loop_needs_a_check",
+        "principle.positive_detection_for_invariants",
         "procedure.stop_gate"
       ]
     },
@@ -2237,6 +2502,16 @@
         "principle.adversarial_review_subagent"
       ],
       "incoming_edges": [
+        {
+          "id": "edge.effortrouting.supports_makerchecker",
+          "type": "supports",
+          "node_id": "principle.effort_routing"
+        },
+        {
+          "id": "edge.greenbutwrong.supports_makerchecker",
+          "type": "supports",
+          "node_id": "anti_pattern.green_but_wrong"
+        },
         {
           "id": "edge.review.uses_makerchecker",
           "type": "uses",
@@ -2271,13 +2546,51 @@
         }
       ],
       "neighbors": [
+        "anti_pattern.green_but_wrong",
         "anti_pattern.reward_hacking",
         "concept.self_refine",
         "metric.reviewer_catch_rate",
         "pattern.review_loop",
         "pillar.governance",
         "principle.adversarial_review_subagent",
+        "principle.effort_routing",
         "technique.subagent_split"
+      ]
+    },
+    "principle.positive_detection_for_invariants": {
+      "type": "principle",
+      "tags": [
+        "verification",
+        "invariants",
+        "positive_detection"
+      ],
+      "docs": [
+        "doc.feedback.feedback_verification_observability"
+      ],
+      "references": [
+        "ref.fable.loop_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "pillar.feedback"
+      ],
+      "children": [],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        {
+          "id": "edge.positivedetect.supports_dod",
+          "type": "supports",
+          "node_id": "principle.machine_verifiable_dod"
+        },
+        {
+          "id": "edge.positivedetect.warns_greenbutwrong",
+          "type": "warns",
+          "node_id": "anti_pattern.green_but_wrong"
+        }
+      ],
+      "neighbors": [
+        "anti_pattern.green_but_wrong",
+        "pillar.feedback",
+        "principle.machine_verifiable_dod"
       ]
     },
     "principle.replace_the_prompter": {
@@ -2351,6 +2664,48 @@
         "anti_pattern.diligent_wrong_goal",
         "pillar.anatomy",
         "procedure.explore_plan_implement_commit"
+      ]
+    },
+    "principle.verifier_asymmetry": {
+      "type": "principle",
+      "tags": [
+        "verification",
+        "asymmetry",
+        "loop_design"
+      ],
+      "docs": [
+        "doc.feedback.feedback_verification_observability"
+      ],
+      "references": [
+        "ref.fable.loop_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "pillar.feedback"
+      ],
+      "children": [],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        {
+          "id": "edge.verifierasym.depends_bottleneck",
+          "type": "depends_on",
+          "node_id": "concept.verification_bottleneck"
+        },
+        {
+          "id": "edge.verifierasym.motivates_humanplacement",
+          "type": "motivates",
+          "node_id": "principle.human_on_vs_in_loop"
+        },
+        {
+          "id": "edge.verifierasym.supports_check",
+          "type": "supports",
+          "node_id": "principle.closed_loop_needs_a_check"
+        }
+      ],
+      "neighbors": [
+        "concept.verification_bottleneck",
+        "pillar.feedback",
+        "principle.closed_loop_needs_a_check",
+        "principle.human_on_vs_in_loop"
       ]
     },
     "procedure.adoption_roadmap": {
@@ -2515,7 +2870,13 @@
         "pillar.practice"
       ],
       "children": [],
-      "incoming_edges": [],
+      "incoming_edges": [
+        {
+          "id": "edge.greenbutwrong.contextualizes_rubric",
+          "type": "contextualizes",
+          "node_id": "anti_pattern.green_but_wrong"
+        }
+      ],
       "outgoing_edges": [
         {
           "id": "edge.rubric.measures_le",
@@ -2524,6 +2885,7 @@
         }
       ],
       "neighbors": [
+        "anti_pattern.green_but_wrong",
         "concept.loop_engineering",
         "pillar.practice"
       ]
@@ -2560,6 +2922,11 @@
           "node_id": "principle.iterative_refinement"
         },
         {
+          "id": "edge.loopuntildry.uses_stopgate",
+          "type": "uses",
+          "node_id": "technique.loop_until_dry"
+        },
+        {
           "id": "edge.retry.needs_stopgate",
           "type": "depends_on",
           "node_id": "pattern.retry_loop"
@@ -2568,6 +2935,11 @@
           "id": "edge.stopgate_metric.measures_gate",
           "type": "measures",
           "node_id": "metric.stop_gate_trigger_rate"
+        },
+        {
+          "id": "edge.unexercisedcheck.contextualizes_stopgate",
+          "type": "contextualizes",
+          "node_id": "anti_pattern.unexercised_self_check"
         }
       ],
       "outgoing_edges": [
@@ -2578,13 +2950,15 @@
         }
       ],
       "neighbors": [
+        "anti_pattern.unexercised_self_check",
         "metric.stop_gate_trigger_rate",
         "pattern.retry_loop",
         "pillar.governance",
         "principle.iterative_refinement",
         "principle.machine_verifiable_dod",
         "procedure.escalation_triggers",
-        "technique.hooks_as_deterministic_gate"
+        "technique.hooks_as_deterministic_gate",
+        "technique.loop_until_dry"
       ]
     },
     "technique.git_worktree_isolation": {
@@ -2666,6 +3040,90 @@
         "procedure.stop_gate"
       ]
     },
+    "technique.loop_until_dry": {
+      "type": "technique",
+      "tags": [
+        "convergence",
+        "stop_condition",
+        "discovery"
+      ],
+      "docs": [
+        "doc.anatomy.loop_anatomy_and_patterns"
+      ],
+      "references": [
+        "ref.fable.loop_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "pillar.anatomy"
+      ],
+      "children": [],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        {
+          "id": "edge.loopuntildry.supports_reviewloop",
+          "type": "supports",
+          "node_id": "pattern.review_loop"
+        },
+        {
+          "id": "edge.loopuntildry.uses_stopgate",
+          "type": "uses",
+          "node_id": "procedure.stop_gate"
+        },
+        {
+          "id": "edge.loopuntildry.warns_tokenblowup",
+          "type": "warns",
+          "node_id": "anti_pattern.token_blowup"
+        }
+      ],
+      "neighbors": [
+        "anti_pattern.token_blowup",
+        "pattern.review_loop",
+        "pillar.anatomy",
+        "procedure.stop_gate"
+      ]
+    },
+    "technique.pipeline_no_barrier": {
+      "type": "technique",
+      "tags": [
+        "fan_out",
+        "pipeline",
+        "orchestration"
+      ],
+      "docs": [
+        "doc.anatomy.loop_anatomy_and_patterns"
+      ],
+      "references": [
+        "ref.fable.loop_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "pillar.anatomy"
+      ],
+      "children": [],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        {
+          "id": "edge.pipelinenobarrier.contextualizes_orchestra",
+          "type": "contextualizes",
+          "node_id": "pattern.multi_agent_orchestra"
+        },
+        {
+          "id": "edge.pipelinenobarrier.supports_costper",
+          "type": "supports",
+          "node_id": "metric.cost_per_resolution"
+        },
+        {
+          "id": "edge.pipelinenobarrier.uses_subagentsplit",
+          "type": "uses",
+          "node_id": "technique.subagent_split"
+        }
+      ],
+      "neighbors": [
+        "metric.cost_per_resolution",
+        "pattern.multi_agent_orchestra",
+        "pillar.anatomy",
+        "technique.subagent_split"
+      ]
+    },
     "technique.scheduled_automation": {
       "type": "technique",
       "tags": [
@@ -2711,6 +3169,16 @@
       ],
       "incoming_edges": [
         {
+          "id": "edge.effortrouting.uses_subagentsplit",
+          "type": "uses",
+          "node_id": "principle.effort_routing"
+        },
+        {
+          "id": "edge.pipelinenobarrier.uses_subagentsplit",
+          "type": "uses",
+          "node_id": "technique.pipeline_no_barrier"
+        },
+        {
           "id": "edge.primitives.use_subagent",
           "type": "contains",
           "node_id": "concept.loop_primitives"
@@ -2732,7 +3200,9 @@
         "anti_pattern.token_blowup",
         "concept.loop_primitives",
         "pillar.harness",
-        "principle.maker_checker_separation"
+        "principle.effort_routing",
+        "principle.maker_checker_separation",
+        "technique.pipeline_no_barrier"
       ]
     }
   }

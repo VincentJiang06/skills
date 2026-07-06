@@ -27,6 +27,23 @@
     {"id": "edge.paired_eval.supports_lift", "source_id": "procedure.paired_skill_eval", "target_id": "metric.marginal_lift", "type": "supports"},
     {"id": "edge.lifecycle.uses_release_gate", "source_id": "pillar.lifecycle", "target_id": "procedure.release_gate", "type": "uses"},
     {"id": "edge.lifecycle.uses_feedback", "source_id": "pillar.lifecycle", "target_id": "procedure.production_feedback_loop", "type": "uses"},
-    {"id": "edge.lifecycle.uses_deprecation", "source_id": "pillar.lifecycle", "target_id": "procedure.skill_deprecation", "type": "uses"}
+    {"id": "edge.lifecycle.uses_deprecation", "source_id": "pillar.lifecycle", "target_id": "procedure.skill_deprecation", "type": "uses"},
+    {"id": "edge.design.contains_description_index", "source_id": "pillar.design", "target_id": "principle.description_is_the_index", "type": "contains"},
+    {"id": "edge.description_index.supports_trigger", "source_id": "principle.description_is_the_index", "target_id": "concept.trigger", "type": "supports"},
+    {"id": "edge.description_index.supports_activation", "source_id": "principle.description_is_the_index", "target_id": "metric.activation_precision", "type": "supports"},
+    {"id": "edge.description_index.depends_on_disclosure", "source_id": "principle.description_is_the_index", "target_id": "principle.progressive_disclosure", "type": "depends_on"},
+    {"id": "edge.design.contains_sibling_overlap", "source_id": "pillar.design", "target_id": "anti_pattern.sibling_trigger_overlap", "type": "contains"},
+    {"id": "edge.sibling_overlap.contradicts_trigger", "source_id": "anti_pattern.sibling_trigger_overlap", "target_id": "concept.trigger", "type": "contradicts"},
+    {"id": "edge.sibling_overlap.measures_false_positive", "source_id": "anti_pattern.sibling_trigger_overlap", "target_id": "metric.false_positive_rate", "type": "measures"},
+    {"id": "edge.sibling_overlap.supports_description_index", "source_id": "anti_pattern.sibling_trigger_overlap", "target_id": "principle.description_is_the_index", "type": "supports"},
+    {"id": "edge.design.contains_rule_at_use", "source_id": "pillar.design", "target_id": "principle.rule_at_point_of_use", "type": "contains"},
+    {"id": "edge.rule_at_use.supports_protocol", "source_id": "principle.rule_at_point_of_use", "target_id": "concept.execution_protocol", "type": "supports"},
+    {"id": "edge.rule_at_use.supports_disclosure", "source_id": "principle.rule_at_point_of_use", "target_id": "principle.progressive_disclosure", "type": "supports"},
+    {"id": "edge.kb.contains_scripts_execute", "source_id": "pillar.kb_architecture", "target_id": "principle.scripts_execute_dont_load", "type": "contains"},
+    {"id": "edge.scripts_execute.supports_disclosure", "source_id": "principle.scripts_execute_dont_load", "target_id": "principle.progressive_disclosure", "type": "supports"},
+    {"id": "edge.scripts_execute.measures_context", "source_id": "principle.scripts_execute_dont_load", "target_id": "metric.loaded_context_tokens", "type": "measures"},
+    {"id": "edge.testing.contains_import_validator", "source_id": "pillar.testing", "target_id": "technique.import_the_validator", "type": "contains"},
+    {"id": "edge.import_validator.supports_regression", "source_id": "technique.import_the_validator", "target_id": "procedure.regression_suite", "type": "supports"},
+    {"id": "edge.import_validator.supports_contract", "source_id": "technique.import_the_validator", "target_id": "technique.contract_test", "type": "supports"}
   ]
 }

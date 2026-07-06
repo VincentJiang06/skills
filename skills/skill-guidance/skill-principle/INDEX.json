@@ -1064,6 +1064,18 @@
       ]
     },
     {
+      "id": "decision.0002",
+      "path": "decisions/0002-model-synthesis-source.md",
+      "kind": "decision_record",
+      "tags": [
+        "decision",
+        "sourcing",
+        "model_synthesis",
+        "governance",
+        "index"
+      ]
+    },
+    {
       "id": "doc.operations.kb_update_runbook",
       "path": "UPDATE.md",
       "kind": "long_doc",

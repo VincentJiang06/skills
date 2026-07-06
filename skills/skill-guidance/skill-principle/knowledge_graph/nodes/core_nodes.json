@@ -865,6 +865,132 @@
         "ref.owasp.agentic_skills_top10",
         "ref.slsa"
       ]
+    },
+    {
+      "id": "principle.description_is_the_index",
+      "type": "principle",
+      "tier": 1,
+      "title_zh": "description 即检索索引",
+      "title_en": "The Description Is the Index",
+      "summary_zh": "frontmatter description 是技能唯一常驻上下文的文本，它就是检索索引项，触发是一个 IR 问题。按 what + when/触发词 + 一条关键 do-NOT 来写；正文再好也救不了永不命中的 description。具体字符/token 上限见 Fact Registry（单一事实源）。",
+      "summary_en": "The frontmatter description is the only skill text always in context — it IS the retrieval-index entry, so triggering is an information-retrieval problem, not a prose one. Write it as what + when/trigger phrases + one key do-NOT, inside the listing budget; no body quality rescues a description that never fires. Char/token limits live in the Fact Registry.",
+      "tags": [
+        "description",
+        "retrieval",
+        "trigger"
+      ],
+      "parent_ids": [
+        "pillar.design"
+      ],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "reference_ids": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.claude_code.skill_listing_lifecycle",
+        "ref.tool_registry_design"
+      ]
+    },
+    {
+      "id": "anti_pattern.sibling_trigger_overlap",
+      "type": "anti_pattern",
+      "tier": 1,
+      "title_zh": "同族触发抢占",
+      "title_en": "Sibling Trigger Interference",
+      "summary_zh": "同一族技能会互相抢触发：过触发常常不是噪声乱触发，而是族内错的那个成员接走了请求。对策：每条 description 写明负向路由（NOT for X → 交给 sibling-Y），并用含近邻请求的 holdout 集测精确率——族内混淆矩阵比单技能命中率更能暴露问题。",
+      "summary_en": "Skills in a family steal each other's activations: over-triggering usually surfaces not as random noise but as the WRONG family member taking the request. Give every description negative routing (NOT for X -> sibling-Y), and measure precision on a holdout of near-neighbor requests — the within-family confusion matrix exposes what per-skill hit-rate hides.",
+      "tags": [
+        "activation",
+        "anti_pattern",
+        "routing"
+      ],
+      "parent_ids": [
+        "pillar.design"
+      ],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "reference_ids": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.claude_code.invocation_controls"
+      ]
+    },
+    {
+      "id": "principle.rule_at_point_of_use",
+      "type": "principle",
+      "tier": 1,
+      "title_zh": "规则贴着使用点放",
+      "title_en": "Rule at the Point of Use",
+      "summary_zh": "指令的约束力随离动作的距离衰减：写在开头的规则，到几千 token 后的执行点常输给局部上下文。把规则放在它管辖的步骤旁边（rule-then-rationale：先规则、后其防止的故障），序言只放全局不变量。判据：执行某步时，管它的规则应就在同屏。",
+      "summary_en": "An instruction's grip decays with distance from the action it governs: a preamble rule loses to local context by the time execution reaches it thousands of tokens later. Place each rule next to the step it governs (rule-then-rationale: rule first, then the failure it prevents); keep the preamble for global invariants only.",
+      "tags": [
+        "instruction",
+        "prompt_structure",
+        "protocol"
+      ],
+      "parent_ids": [
+        "pillar.design"
+      ],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "reference_ids": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.anthropic.context_engineering"
+      ]
+    },
+    {
+      "id": "principle.scripts_execute_dont_load",
+      "type": "principle",
+      "tier": 2,
+      "title_zh": "脚本执行不加载",
+      "title_en": "Scripts Execute, They Don't Load",
+      "summary_zh": "上下文记账里捆绑脚本近似零成本——它们被执行而非被读入。因此把一切确定性工作（校验、测量、渲染、门）从散文挪进脚本，散文只留给需要判断处。一段描述确定性流程的长散文，就是一个还没写成脚本的脚本：每次加载都花上下文，还会漂移。",
+      "summary_en": "In context accounting, bundled scripts are near-free — executed, not loaded into the window. So move every deterministic behavior (validation, measurement, rendering, gates) out of prose into scripts, spending prose only where judgment is required. A long passage describing a deterministic procedure is a script not yet written — it costs context each load.",
+      "tags": [
+        "context",
+        "scripts",
+        "determinism"
+      ],
+      "parent_ids": [
+        "pillar.kb_architecture"
+      ],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.operations.knowledge_base_architecture"
+      ],
+      "reference_ids": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.anthropic.context_engineering"
+      ]
+    },
+    {
+      "id": "technique.import_the_validator",
+      "type": "technique",
+      "tier": 2,
+      "title_zh": "harness 必须 import 校验器",
+      "title_en": "Import the Shipped Validator",
+      "summary_zh": "评测 harness 必须 import 实际随技能发布的那个校验器，绝不重新实现\"等价\"逻辑——重实现必然漂移，最终 harness 绿、发布物红。同一纪律适用于阈值与常量：单点定义、处处引用（Fact Registry 原则的代码形态）。若 harness 无法 import，那是需修的打包缺陷，不是抄一份的理由。",
+      "summary_en": "An eval harness must import the exact validator that ships with the skill, never reimplement 'equivalent' logic — reimplementations drift, ending in a green harness over a red artifact. Same discipline for thresholds and constants: define once, reference everywhere. If the harness can't import it, that is a packaging bug to fix, not a reason to copy.",
+      "tags": [
+        "harness",
+        "testing",
+        "single_source_of_truth"
+      ],
+      "parent_ids": [
+        "pillar.testing"
+      ],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.testing.skill_testing_process"
+      ],
+      "reference_ids": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.agentassay"
+      ]
     }
   ]
 }

@@ -11,6 +11,17 @@
     {"id": "edge.review.uses_makerchecker", "source_id": "pattern.review_loop", "target_id": "principle.maker_checker_separation", "type": "uses"},
     {"id": "edge.bottleneck.supports_observability", "source_id": "concept.verification_bottleneck", "target_id": "pattern.production_observability_loop", "type": "supports"},
     {"id": "edge.spectrum.tops_observability", "source_id": "concept.feedback_signal_spectrum", "target_id": "pattern.production_observability_loop", "type": "contains"},
-    {"id": "edge.hitl.supports_placement", "source_id": "pattern.human_in_the_loop", "target_id": "principle.human_on_vs_in_loop", "type": "supports"}
+    {"id": "edge.hitl.supports_placement", "source_id": "pattern.human_in_the_loop", "target_id": "principle.human_on_vs_in_loop", "type": "supports"},
+    {"id": "edge.verifierasym.depends_bottleneck", "source_id": "principle.verifier_asymmetry", "target_id": "concept.verification_bottleneck", "type": "depends_on"},
+    {"id": "edge.verifierasym.supports_check", "source_id": "principle.verifier_asymmetry", "target_id": "principle.closed_loop_needs_a_check", "type": "supports"},
+    {"id": "edge.verifierasym.motivates_humanplacement", "source_id": "principle.verifier_asymmetry", "target_id": "principle.human_on_vs_in_loop", "type": "motivates"},
+    {"id": "edge.positivedetect.supports_dod", "source_id": "principle.positive_detection_for_invariants", "target_id": "principle.machine_verifiable_dod", "type": "supports"},
+    {"id": "edge.positivedetect.warns_greenbutwrong", "source_id": "principle.positive_detection_for_invariants", "target_id": "anti_pattern.green_but_wrong", "type": "warns"},
+    {"id": "edge.loopuntildry.uses_stopgate", "source_id": "technique.loop_until_dry", "target_id": "procedure.stop_gate", "type": "uses"},
+    {"id": "edge.loopuntildry.supports_reviewloop", "source_id": "technique.loop_until_dry", "target_id": "pattern.review_loop", "type": "supports"},
+    {"id": "edge.loopuntildry.warns_tokenblowup", "source_id": "technique.loop_until_dry", "target_id": "anti_pattern.token_blowup", "type": "warns"},
+    {"id": "edge.pipelinenobarrier.contextualizes_orchestra", "source_id": "technique.pipeline_no_barrier", "target_id": "pattern.multi_agent_orchestra", "type": "contextualizes"},
+    {"id": "edge.pipelinenobarrier.uses_subagentsplit", "source_id": "technique.pipeline_no_barrier", "target_id": "technique.subagent_split", "type": "uses"},
+    {"id": "edge.pipelinenobarrier.supports_costper", "source_id": "technique.pipeline_no_barrier", "target_id": "metric.cost_per_resolution", "type": "supports"}
   ]
 }

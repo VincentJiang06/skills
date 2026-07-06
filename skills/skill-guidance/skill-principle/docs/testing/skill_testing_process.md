@@ -4,9 +4,9 @@ machine_summary_zh: Skill 测试应使用分层结构：结构检查、契约测
 
 machine_summary_en: Skill testing should be layered: structural checks, contract tests, component tests, trajectory evals, real-task evals, paired evals, and continuous regression. Do not rely on one final-output sample.
 
-reference_ids: `ref.openai.eval_best_practices`, `ref.anthropic.agent_evals`, `ref.promptfoo.test_agent_skills`, `ref.google.adk.evaluate_agents`, `ref.martinfowler.test_pyramid`, `ref.stable_toolbench`, `ref.langchain.agent_evals`, `ref.google.adk.criteria`, `ref.promptfoo.agent_skill_integration`, `ref.promptfoo.tracing`
+reference_ids: `ref.openai.eval_best_practices`, `ref.anthropic.agent_evals`, `ref.promptfoo.test_agent_skills`, `ref.google.adk.evaluate_agents`, `ref.martinfowler.test_pyramid`, `ref.stable_toolbench`, `ref.langchain.agent_evals`, `ref.google.adk.criteria`, `ref.promptfoo.agent_skill_integration`, `ref.promptfoo.tracing`, `ref.fable.skill_engineering_synthesis_2026_07`
 
-node_ids: `pillar.testing`, `procedure.test_pyramid`, `procedure.trajectory_eval`, `procedure.paired_skill_eval`, `procedure.regression_suite`
+node_ids: `pillar.testing`, `procedure.test_pyramid`, `procedure.trajectory_eval`, `procedure.paired_skill_eval`, `procedure.regression_suite`, `technique.import_the_validator`
 
 ## 1. 测试目标
 
@@ -111,3 +111,9 @@ compare: success, quality, trajectory, cost, latency, risk
 - 有 with/without 或 old/new 对照。
 - 有成本和稳定性记录。
 - 失败样例进入回归套件。
+
+## 9. harness 必须 import 校验器 / Import the shipped validator
+
+`technique.import_the_validator`（来源 `ref.fable.skill_engineering_synthesis_2026_07`）：评测 harness 必须 import 实际随技能发布的那个校验器，绝不重新实现"等价"逻辑——重实现必然漂移，最终 harness 绿而发布物红。同一纪律适用于阈值与常量：单点定义、处处引用（Fact Registry 原则的代码形态）。若 harness 无法 import 校验器，那是需要修的打包缺陷，不是抄一份的理由。本 KB 的 `tools/run_all_checks.mjs` 即直接调用真实的 `tools/validate_kb.mjs`，而不是复制其检查。
+
+An eval harness must import the exact validator that ships with the skill, never a reimplemented 'equivalent' — reimplementations drift and end in a green harness over a red artifact. Define thresholds and constants once and reference them everywhere. If the harness can't import the validator, fix the packaging; don't copy it.

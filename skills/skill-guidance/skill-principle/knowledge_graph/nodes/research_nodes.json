@@ -15,6 +15,7 @@
         "metric.claim_traceability_rate",
         "metric.source_coverage",
         "principle.claim_evidence_traceability",
+        "procedure.model_knowledge_sourcing",
         "procedure.iterative_deepening",
         "procedure.search_fan_out",
         "procedure.source_reliability_grading",
@@ -180,6 +181,30 @@
       "reference_ids": [
         "ref.arxiv.claimaudit",
         "ref.w3c.prov_overview"
+      ]
+    },
+    {
+      "id": "procedure.model_knowledge_sourcing",
+      "type": "procedure",
+      "tier": 3,
+      "title_zh": "模型内生知识入库纪律",
+      "title_en": "Sourcing Model-Internal Knowledge",
+      "summary_zh": "用前沿模型自身知识作为 KB 信源的纪律：source_type 标 model_synthesis、写明模型名与日期、owner 显式授权、reliability_notes 如实声明未经外部独立验证；机制性知识可定 tier-2，具体数字一律用时再核（defer to Fact Registry）；当某条主张变成 load-bearing 时，回头找 tier-1 一手源交叉印证再收紧门。",
+      "summary_en": "Discipline for using a frontier model's own knowledge as a KB source: mark source_type model_synthesis, name the model and date, require owner authorization, and state in reliability_notes that it is not independently web-verified. Mechanism knowledge may be tier-2; numbers defer to the Fact Registry. A load-bearing claim is upgraded to tier-1 first.",
+      "tags": [
+        "sourcing",
+        "model_synthesis",
+        "reliability"
+      ],
+      "parent_ids": [
+        "pillar.research"
+      ],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.research.evidence_driven_skill_research"
+      ],
+      "reference_ids": [
+        "ref.fable.skill_engineering_synthesis_2026_07"
       ]
     }
   ]

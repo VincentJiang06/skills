@@ -243,6 +243,31 @@
       "reference_ids": [
         "ref.open_agent_skills.specification"
       ]
+    },
+    {
+      "id": "pattern.runtime_adapter_variant",
+      "type": "pattern",
+      "tier": 1,
+      "title_zh": "运行时适配层变体",
+      "title_en": "Runtime-Adapter Variant",
+      "summary_zh": "跨 agent 运行时移植技能：契约、schema、校验器逐字节复用，运行时词汇（角色如何落地、并行怎么实现、状态放哪）全部隔离进一个 adapter 参考文件。变体因此便宜、产物跨运行时互认、整套测试电池原样迁移。同日实证：loop-constructor→Codex 移植，linter 字节相同，外部评测 PASS。",
+      "summary_en": "To port a skill across agent runtimes, keep contracts, schemas, and validators byte-identical and quarantine ALL runtime vocabulary (how roles are realized, how parallelism runs, where state lives) into one adapter. Variants become cheap, artifacts stay cross-runtime compatible, the test battery transfers unchanged. Validated: a loop-constructor->Codex port.",
+      "tags": [
+        "portability",
+        "runtime",
+        "variant"
+      ],
+      "parent_ids": [
+        "pillar.lifecycle"
+      ],
+      "child_ids": [],
+      "doc_ids": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "reference_ids": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.agentskills.open_standard_2025_12"
+      ]
     }
   ]
 }

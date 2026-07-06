@@ -261,6 +261,71 @@
       "summary_en": "Meta's ACH system combines mutation testing with LLM test generation at scale (10,795 classes, 73% engineer approval). Demonstrates industrial mutation-guided testing applicable to skill regression pipelines.",
       "reuse_notes": ["mutation_testing", "llm_test_generation", "regression_pipeline"],
       "reliability_notes": "arXiv 2501.12862; FSE 2025 industry track peer-reviewed; Meta-internal system."
+    },
+    {
+      "id": "ref.fable.skill_engineering_synthesis_2026_07",
+      "tier": 2,
+      "title_en": "Skill-engineering synthesis from model-internal knowledge (Claude Fable 5, 2026-07)",
+      "title_zh": "模型内生知识的技能工程综合（Claude Fable 5，2026-07）",
+      "authors_or_org": "Claude Fable 5 (Anthropic frontier model), authored in-session at owner request",
+      "source_type": "model_synthesis",
+      "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5",
+      "summary_zh": "由 Claude Fable 5 于 2026-07-06 现场撰写的技能工程知识：runtime-adapter 变体模式、description 即检索索引、同族触发相互抢占、规则贴近使用点、脚本执行不加载、harness 必须 import 校验器、模型内生知识入库纪律。",
+      "summary_en": "Skill-engineering knowledge authored in-repo by Claude Fable 5 on 2026-07-06: the runtime-adapter variant pattern, description-is-the-index, sibling trigger interference, rule-at-point-of-use, scripts-execute-don't-load context accounting, import-the-shipped-validator, and a sourcing discipline for model-internal knowledge itself. The adapter pattern was validated the same day by porting loop-constructor to Codex with a byte-identical linter and an externally judged PASS.",
+      "reuse_notes": ["runtime_adapter_variant", "description_is_the_index", "sibling_trigger_overlap", "rule_at_point_of_use", "scripts_execute_dont_load", "import_the_validator", "model_knowledge_sourcing"],
+      "reliability_notes": "Model-internal synthesis, owner-approved as a source (2026-07-06); admitted per decisions/0002-model-synthesis-source.md. URL identifies the authoring model, not an external write-up of the claims. Mechanism-level guidance; where it touches numbers (context budgets, char limits) defer to the Fact Registry, which stays the single source for load-bearing numbers."
+    },
+    {
+      "id": "ref.agentskills.open_standard_2025_12",
+      "tier": 1,
+      "title_en": "Agent Skills as a cross-vendor open standard (Anthropic, Dec 2025)",
+      "title_zh": "Agent Skills 成为跨厂商开放标准（Anthropic，2025-12）",
+      "authors_or_org": "Anthropic (Agent Skills / agentskills.io)",
+      "source_type": "official_doc",
+      "url": "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills",
+      "summary_zh": "2025-12-18 Anthropic 将 Agent Skills（SKILL.md + frontmatter 目录）发布为跨平台开放标准；至 2026 年中 agentskills.io 列出约 40 个兼容产品（Codex、Copilot、Cursor、Gemini CLI、VS Code）。一次编写、跨 agent 可移植是核心含义，直接支撑可移植性支柱。",
+      "summary_en": "On 2025-12-18 Anthropic published Agent Skills (directory + SKILL.md + frontmatter) as a cross-platform open standard; by mid-2026 agentskills.io lists ~40 compatible products (Codex, Copilot, Cursor, Gemini CLI, VS Code). Confirms a shared-core-plus-vendor-extensions model — a skill built once is portable across agents. Underpins the KB's cross-runtime/portability stance.",
+      "reuse_notes": ["open_standard", "cross_vendor_portability", "shared_core_vendor_extensions"],
+      "reliability_notes": "First-party Anthropic engineering post (Oct 16 2025, updated Dec 18 2025) + agentskills.io; the ~40-product count is directory-reported, treat as approximate."
+    },
+    {
+      "id": "ref.claude_code.skill_listing_lifecycle",
+      "tier": 1,
+      "title_en": "Claude Code skill-listing budget, degradation, and compaction re-attach mechanics",
+      "title_zh": "Claude Code 技能列表预算、降级与压缩重挂载机制",
+      "authors_or_org": "Anthropic (Claude Code documentation)",
+      "source_type": "official_doc",
+      "url": "https://code.claude.com/docs/en/skills",
+      "summary_zh": "官方文档细化渐进披露的承重数字：listing 中 description+when_to_use 每技能上限 1,536 字符；整份 listing 预算约为上下文窗口的 1%，溢出时按最少调用优先丢弃（非均匀截断）；已调用的 SKILL.md 成为常驻消息，压缩时按最近优先重挂载，每技能保留前 5,000 token、合计 25,000 token 预算。",
+      "summary_en": "Official docs give sharp load-bearing numbers for progressive disclosure: per-skill description+when_to_use is capped at 1,536 chars in the listing; the whole listing is budgeted at ~1% of the context window and on overflow the least-invoked skills' descriptions are DROPPED first (not evenly truncated); an invoked SKILL.md becomes a standing message and on compaction is re-attached newest-first, keeping the first 5,000 tokens each under a combined 25,000-token budget. Matches the Fact Registry values (no delta).",
+      "reuse_notes": ["listing_budget", "usage_weighted_degradation", "compaction_reattach", "standing_instructions"],
+      "reliability_notes": "First-party Claude Code docs, fetched 2026-07-06. All four numbers (1,536 / ~1% / 5k / 25k) re-confirmed against the current Fact Registry — no change. The usage-weighted DROP order is the newly sharpened mechanism vs. the earlier two-tier disclosure model."
+    },
+    {
+      "id": "ref.claude_code.invocation_controls",
+      "tier": 1,
+      "title_en": "Decoupling who-invokes from does-the-model-see-it (disable-model-invocation / user-invocable)",
+      "title_zh": "解耦触发权与可见性（disable-model-invocation / user-invocable）",
+      "authors_or_org": "Anthropic (Claude Code documentation)",
+      "source_type": "official_doc",
+      "url": "https://code.claude.com/docs/en/skills",
+      "summary_zh": "两个正交 frontmatter 字段把\"谁能触发\"与\"模型是否看见\"分开：disable-model-invocation:true 从模型上下文隐藏描述、仅限 /name 用户触发（适合 deploy/commit 等副作用工作流）；user-invocable:false 反之，从 / 菜单隐藏但对模型可见（适合后台参考知识）。二者与 allowed-tools 权限范围正交。是治理过触发的精确机制。",
+      "summary_en": "Two orthogonal frontmatter fields separate who-can-invoke from whether-the-model-sees-it: disable-model-invocation:true hides the description from the model's context and restricts triggering to the user's /name (for side-effectful deploy/commit workflows); user-invocable:false does the opposite (hidden from the / menu, still model-visible, for background reference knowledge). Both are orthogonal to allowed-tools scoping. A precise lever for the over-triggering anti-pattern — some skills should simply never be model-triggered.",
+      "reuse_notes": ["invocation_control", "trigger_vs_context_budget", "over_triggering_mitigation"],
+      "reliability_notes": "First-party Claude Code docs (section 'Control who invokes a skill'), fetched 2026-07-06. Claude-Code-specific frontmatter — not part of the portable open-standard core, so it does not travel to Codex (which uses allow_implicit_invocation instead)."
+    },
+    {
+      "id": "ref.snyk.toxicskills_2026_02",
+      "tier": 2,
+      "title_en": "ToxicSkills: a large-scale malicious agent-skill audit (Snyk, Feb 2026)",
+      "title_zh": "ToxicSkills：大规模恶意技能供应链审计（Snyk，2026-02）",
+      "authors_or_org": "Snyk",
+      "source_type": "security_report",
+      "url": "https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/",
+      "summary_zh": "Snyk 于 2026-02-05 用 mcp-scan（确定性规则 + 多模型分析）扫描 ClawHub 与 skills.sh 上 3,984 个技能：13.4%（534）含至少一个严重缺陷、36.82%（1,467）含任意严重度缺陷、人工确认 76 个恶意载荷、发布时仍有 8 个存活；91% 恶意技能将提示注入与传统恶意软件结合。定义 8 类漏洞分类。为\"只安装可信来源\"给出基线数字与核对清单。",
+      "summary_en": "Snyk scanned 3,984 skills from ClawHub + skills.sh (as of 2026-02-05) with an mcp-scan engine (deterministic rules + multi-model analysis): 13.4% (534) had ≥1 critical flaw, 36.82% (1,467) had a flaw at any severity, 76 confirmed-malicious payloads via human review, 8 still live at publication; 91% of malicious skills combined prompt injection with traditional malware. Defines an 8-class vulnerability taxonomy. Gives base-rate numbers and a checklist for the 'install only from trusted sources' guidance. Matches the Fact Registry security stats (36.8%/13.4%).",
+      "reuse_notes": ["supply_chain_security", "skill_vulnerability_taxonomy", "install_trust"],
+      "reliability_notes": "Vendor security report (Snyk did the scan; some incentive to alarm). Numbers re-confirmed against Fact Registry (36.8%/13.4%) — no change. Primary source fetched 2026-07-06."
     }
   ]
 }

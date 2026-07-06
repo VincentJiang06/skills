@@ -39,7 +39,7 @@
       "summary_en": "The canonical loop Intent→Plan→Context→Act→Observe→Adjust→Stop (mapped to Explore→Plan→Implement→Commit) plus concrete patterns: retry, plan-execute-verify, explore-narrow, review, and human-in-the-loop.",
       "tags": ["anatomy", "patterns"],
       "parent_ids": [],
-      "child_ids": ["pattern.explore_narrow_debug", "pattern.human_in_the_loop", "pattern.plan_execute_verify", "pattern.retry_loop", "pattern.review_loop", "principle.separate_planning_from_execution", "procedure.canonical_loop", "procedure.explore_plan_implement_commit"],
+      "child_ids": ["pattern.explore_narrow_debug", "pattern.human_in_the_loop", "pattern.plan_execute_verify", "pattern.retry_loop", "pattern.review_loop", "principle.separate_planning_from_execution", "procedure.canonical_loop", "procedure.explore_plan_implement_commit", "technique.loop_until_dry", "technique.pipeline_no_barrier"],
       "doc_ids": ["doc.anatomy.loop_anatomy_and_patterns"],
       "reference_ids": ["ref.anthropic.claude_code_best_practices", "ref.osmani.loop_engineering", "ref.agentic_reasoning_survey"]
     },
@@ -53,7 +53,7 @@
       "summary_en": "A fast runnable check is the mechanism that closes the loop autonomously; without it you become the verification loop. Covers the feedback-signal spectrum, machine-verifiable DoD, the verification bottleneck, and production observability as the outermost loop (contested).",
       "tags": ["feedback", "verification"],
       "parent_ids": [],
-      "child_ids": ["anti_pattern.diligent_wrong_goal", "concept.feedback_signal_spectrum", "concept.verification_bottleneck", "pattern.production_observability_loop", "principle.closed_loop_needs_a_check", "principle.machine_verifiable_dod"],
+      "child_ids": ["anti_pattern.diligent_wrong_goal", "concept.feedback_signal_spectrum", "concept.verification_bottleneck", "pattern.production_observability_loop", "principle.closed_loop_needs_a_check", "principle.machine_verifiable_dod", "principle.positive_detection_for_invariants", "principle.verifier_asymmetry"],
       "doc_ids": ["doc.feedback.feedback_verification_observability"],
       "reference_ids": ["ref.anthropic.claude_code_best_practices", "ref.datadog.harness_first_agents", "ref.demmel.feedback_loop_engineering", "ref.openai.harness_engineering"]
     },
@@ -67,7 +67,7 @@
       "summary_en": "The concrete building blocks of a loop: scheduled automation, git-worktree isolation, hooks as deterministic gates, subagent splitting, skills as knowledge memory, external state memory, connectors/MCP, and the CDP-per-worktree fix-restart-revalidate loop.",
       "tags": ["harness", "tooling"],
       "parent_ids": [],
-      "child_ids": ["concept.connectors_mcp", "concept.external_state_memory", "concept.loop_primitives", "concept.skill_as_memory", "pattern.cdp_per_worktree_loop", "technique.git_worktree_isolation", "technique.hooks_as_deterministic_gate", "technique.scheduled_automation", "technique.subagent_split"],
+      "child_ids": ["concept.connectors_mcp", "concept.external_state_memory", "concept.loop_primitives", "concept.skill_as_memory", "pattern.cdp_per_worktree_loop", "principle.effort_routing", "technique.git_worktree_isolation", "technique.hooks_as_deterministic_gate", "technique.scheduled_automation", "technique.subagent_split"],
       "doc_ids": ["doc.harness.harness_and_tooling_layer"],
       "reference_ids": ["ref.osmani.loop_engineering", "ref.anthropic.claude_code_hooks", "ref.openai.harness_engineering", "ref.anthropic.agent_skills", "ref.oreilly.agent_harness_engineering"]
     },
@@ -95,7 +95,7 @@
       "summary_en": "Where loops bite: error amplification, reward hacking / test overfitting, comprehension debt, cognitive surrender, context drift, permission blast radius, infrastructure prerequisites, token blowup, and premature over-delegation.",
       "tags": ["risks", "failure_modes"],
       "parent_ids": [],
-      "child_ids": ["anti_pattern.cognitive_surrender", "anti_pattern.comprehension_debt", "anti_pattern.context_drift", "anti_pattern.error_amplification", "anti_pattern.permission_blast_radius", "anti_pattern.premature_over_delegation", "anti_pattern.reward_hacking", "anti_pattern.token_blowup", "principle.context_window_management", "principle.infra_prerequisite"],
+      "child_ids": ["anti_pattern.cognitive_surrender", "anti_pattern.comprehension_debt", "anti_pattern.context_drift", "anti_pattern.error_amplification", "anti_pattern.green_but_wrong", "anti_pattern.permission_blast_radius", "anti_pattern.premature_over_delegation", "anti_pattern.reward_hacking", "anti_pattern.schema_terminal_placeholder", "anti_pattern.token_blowup", "anti_pattern.unexercised_self_check", "principle.context_window_management", "principle.infra_prerequisite"],
       "doc_ids": ["doc.risks.costs_risks_failure_modes"],
       "reference_ids": ["ref.osmani.loop_engineering", "ref.metr.reward_hacking", "ref.impossiblebench", "ref.docker.coding_agent_security", "ref.schneier.agentic_ooda_loop", "ref.mindstudio.token_budget", "ref.openai.unrolling_codex_agent_loop"]
     },

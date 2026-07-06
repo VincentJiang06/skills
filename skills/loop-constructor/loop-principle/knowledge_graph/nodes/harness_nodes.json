@@ -97,7 +97,7 @@
       "parent_ids": ["pillar.harness", "concept.loop_primitives"],
       "child_ids": ["anti_pattern.context_drift"],
       "doc_ids": ["doc.harness.harness_and_tooling_layer", "doc.reading.context_and_lineage"],
-      "reference_ids": ["ref.osmani.loop_engineering", "ref.reflexion"]
+      "reference_ids": ["ref.osmani.loop_engineering", "ref.reflexion", "ref.anthropic.effective_harnesses_long_running", "ref.huntley.ralph_loop"]
     },
     {
       "id": "concept.connectors_mcp",
@@ -224,6 +224,20 @@
       "child_ids": ["anti_pattern.token_blowup"],
       "doc_ids": ["doc.governance.stop_conditions_and_multi_agent"],
       "reference_ids": ["ref.osmani.code_agent_orchestra", "ref.osmani.loop_engineering"]
+    },
+    {
+      "id": "principle.effort_routing",
+      "type": "principle",
+      "tier": 1,
+      "title_zh": "算力按角色路由",
+      "title_en": "Effort Routing",
+      "summary_zh": "按阶段角色分配模型档位与推理力度：机械阶段（格式化、脚手架、批量编辑）用便宜低档，对抗验证与评审阶段用能负担的最高档。均匀分配既烧预算又欠验证——生成端省下的钱应花在评审端。实践中这是 cost_per_resolution 的第一杠杆，先于缓存或批处理。",
+      "summary_en": "Route model tier and reasoning effort by stage role: mechanical stages (formatting, scaffolding, bulk edits) run cheap and low; adversarial verification and judging run at the highest tier you can afford. Uniform effort burns budget and under-verifies — money saved on the generator belongs on the evaluator. First lever on cost_per_resolution.",
+      "tags": ["harness", "effort", "cost"],
+      "parent_ids": ["pillar.harness"],
+      "child_ids": [],
+      "doc_ids": ["doc.harness.harness_and_tooling_layer"],
+      "reference_ids": ["ref.fable.loop_engineering_synthesis_2026_07"]
     }
   ]
 }

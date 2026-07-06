@@ -12,6 +12,9 @@
     {"id": "edge.extmemory.mitigates_drift", "source_id": "concept.external_state_memory", "target_id": "anti_pattern.context_drift", "type": "mitigates"},
     {"id": "edge.skills.warns_blastradius", "source_id": "concept.skill_as_memory", "target_id": "anti_pattern.permission_blast_radius", "type": "warns"},
     {"id": "edge.stopgate.contains_escalation", "source_id": "procedure.stop_gate", "target_id": "procedure.escalation_triggers", "type": "contains"},
-    {"id": "edge.makerchecker.uses_adversarial", "source_id": "principle.maker_checker_separation", "target_id": "principle.adversarial_review_subagent", "type": "uses"}
+    {"id": "edge.makerchecker.uses_adversarial", "source_id": "principle.maker_checker_separation", "target_id": "principle.adversarial_review_subagent", "type": "uses"},
+    {"id": "edge.effortrouting.supports_makerchecker", "source_id": "principle.effort_routing", "target_id": "principle.maker_checker_separation", "type": "supports"},
+    {"id": "edge.effortrouting.contextualizes_costper", "source_id": "principle.effort_routing", "target_id": "metric.cost_per_resolution", "type": "contextualizes"},
+    {"id": "edge.effortrouting.uses_subagentsplit", "source_id": "principle.effort_routing", "target_id": "technique.subagent_split", "type": "uses"}
   ]
 }

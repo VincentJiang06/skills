@@ -4,9 +4,9 @@ machine_summary_zh: 一个可运行的快速检查是循环自主闭合的机制
 
 machine_summary_en: A fast runnable check is the mechanism that closes the loop autonomously; without it 'looks done' is the only signal and you become the verification loop. Covers the feedback-signal spectrum (lint→…→production telemetry), machine-verifiable DoD, the bottleneck shift from writing to trusting code, and production observability as the outermost loop (contested: observability vs harness as the control layer).
 
-reference_ids: `ref.anthropic.claude_code_best_practices`, `ref.datadog.harness_first_agents`, `ref.demmel.feedback_loop_engineering`, `ref.openai.harness_engineering`
+reference_ids: `ref.anthropic.claude_code_best_practices`, `ref.datadog.harness_first_agents`, `ref.demmel.feedback_loop_engineering`, `ref.openai.harness_engineering`, `ref.fable.loop_engineering_synthesis_2026_07`
 
-node_ids: `principle.closed_loop_needs_a_check`, `concept.feedback_signal_spectrum`, `principle.machine_verifiable_dod`, `concept.verification_bottleneck`, `pattern.production_observability_loop`, `anti_pattern.diligent_wrong_goal`
+node_ids: `principle.closed_loop_needs_a_check`, `concept.feedback_signal_spectrum`, `principle.machine_verifiable_dod`, `concept.verification_bottleneck`, `pattern.production_observability_loop`, `anti_pattern.diligent_wrong_goal`, `principle.verifier_asymmetry`, `principle.positive_detection_for_invariants`
 
 ## 1. The load-bearing principle ✓✓
 
@@ -27,6 +27,13 @@ Write the DoD as **predicates, not prose**. OpenAI: *"The loop runs until object
 ## 4. The verification bottleneck (industry consensus) ✓✓
 
 Datadog: *"AI agents can now produce software faster than any team can verify it. The bottleneck has moved from writing code to trusting what was written"* and *"code reviews become bloom filters — a fast gate, not the source of correctness."* Corroborated by Sonar's 2026 State of Code, AWS CTO Werner Vogels' "verification debt," OpenAI, and Anthropic. **This is why loop engineering = verification engineering.**
+
+### 4a. Two design corollaries ◐
+
+Model-synthesized, owner-authorized (`ref.fable.loop_engineering_synthesis_2026_07`, tier-2):
+
+- **Verifier asymmetry** (`principle.verifier_asymmetry`) — a loop closes autonomously *only where checking is much cheaper than making*. Decompose and order stages by the verification-cost gradient: cheap-to-verify stages close first and autonomously; a stage where verification ≈ generation cost **is** the bottleneck (find a cheaper signal, or put the human there). Draw the per-stage gradient before choosing loop shape — it predicts where the loop stalls. *验证不对称：循环只在检查远比生成便宜处闭合；验证≈生成的阶段即瓶颈所在。*
+- **Positive detection for never-lose invariants** (`principle.positive_detection_for_invariants`) — for "never-drop / never-miss" invariants, prove each item that *should* be present *is* present, rather than checking for the absence of error markers. A negative check passes silently on exactly the drop it exists to catch (a dropped record raises no error and leaves nothing to match); the strongest form is a conservation assertion — N in ⇒ N traceably out, by id, not by count. *不丢失不变量用正向检测：逐项证明应在者在，而非"没看到错误"；守恒断言按 id 核对最强。*
 
 ## 5. Production observability as the outermost loop ✓ (contested)
 

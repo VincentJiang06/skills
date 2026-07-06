@@ -196,6 +196,62 @@
       "child_ids": [],
       "doc_ids": ["doc.feedback.feedback_verification_observability"],
       "reference_ids": ["ref.anthropic.claude_code_best_practices"]
+    },
+    {
+      "id": "principle.verifier_asymmetry",
+      "type": "principle",
+      "tier": 1,
+      "title_zh": "验证不对称",
+      "title_en": "Verifier Asymmetry",
+      "summary_zh": "循环只在『检查远比生成便宜』的地方闭合。设计时按验证成本给阶段排序与拆分：验证便宜的先自治闭环；验证≈生成成本的阶段就是瓶颈所在，要么换更便宜的检查信号，要么放人。选 loop 形状前先画每阶段的验证成本梯度，它能预测循环会在哪里卡住。",
+      "summary_en": "A loop closes autonomously only where checking is much cheaper than making. Order stages by the verification-cost gradient so cheap-to-verify ones close first; a stage where verification costs as much as generation IS the bottleneck — find a cheaper signal or put the human there. Draw the gradient before choosing loop shape.",
+      "tags": ["verification", "asymmetry", "loop_design"],
+      "parent_ids": ["pillar.feedback"],
+      "child_ids": [],
+      "doc_ids": ["doc.feedback.feedback_verification_observability"],
+      "reference_ids": ["ref.fable.loop_engineering_synthesis_2026_07"]
+    },
+    {
+      "id": "principle.positive_detection_for_invariants",
+      "type": "principle",
+      "tier": 2,
+      "title_zh": "不丢失不变量用正向检测",
+      "title_en": "Positive Detection for Never-Lose Invariants",
+      "summary_zh": "对『绝不丢失/绝不遗漏』类不变量，用正向检测（逐项证明每个应在的东西确实在）而不是负向启发（没看到错误迹象）。负向检查恰恰在它要抓的故障上静默通过：掉记录时既没有报错、也没有可匹配的痕迹。守恒式断言（输入 N 条 ⇒ 输出可追 N 条，按 id 核对而非仅计数）是最强形态。",
+      "summary_en": "For never-lose / never-drop invariants, verify by positive detection — prove each item that should be present IS present — not by negative heuristics (absence of error markers). A negative check passes silently on the very drop it should catch: a dropped record raises no error. Strongest form: a conservation assertion, N in => N out by id.",
+      "tags": ["verification", "invariants", "positive_detection"],
+      "parent_ids": ["pillar.feedback"],
+      "child_ids": [],
+      "doc_ids": ["doc.feedback.feedback_verification_observability"],
+      "reference_ids": ["ref.fable.loop_engineering_synthesis_2026_07"]
+    },
+    {
+      "id": "technique.loop_until_dry",
+      "type": "technique",
+      "tier": 1,
+      "title_zh": "打空即停收敛",
+      "title_en": "Loop-Until-Dry Convergence",
+      "summary_zh": "对规模未知的发现类任务（找 bug、审计、边界枚举），停机条件是『连续 K 轮零新发现』，不是固定条数——定额会漏尾部。两个必配细节：新发现要与『已见全集』去重（含已被评审否决的，否则被拒项每轮复活、永不收敛）；严格 N 连清门是渐近的，按边际产出而非清洁连击定预算。",
+      "summary_en": "For unknown-size discovery work (bug hunts, audits, edge-case enumeration) the stop condition is K consecutive fruitless rounds, not a fixed count. Two details: dedup findings against everything SEEN (including judge-rejected items, else they resurface and never converge), and treat strict N-consecutive-clean gates as asymptotic — budget by marginal yield.",
+      "tags": ["convergence", "stop_condition", "discovery"],
+      "parent_ids": ["pillar.anatomy"],
+      "child_ids": [],
+      "doc_ids": ["doc.anatomy.loop_anatomy_and_patterns"],
+      "reference_ids": ["ref.fable.loop_engineering_synthesis_2026_07"]
+    },
+    {
+      "id": "technique.pipeline_no_barrier",
+      "type": "technique",
+      "tier": 1,
+      "title_zh": "默认流水线，慎用屏障",
+      "title_en": "Pipeline Over Barrier",
+      "summary_zh": "多阶段扇出默认按条目走独立流水线（A 在第 3 阶段时 B 可以还在第 1 阶段），墙钟成本等于最慢单条目链、而非各阶段最慢之和；只有当第 N 阶段真的需要跨条目上下文（全集去重、合并、总数为零则提前退出）才设屏障。『阶段在概念上分开』不构成同步的理由；屏障延迟真实且逐阶段累加。",
+      "summary_en": "In multi-stage fan-out, default to per-item pipelines with no barrier — A can be in stage 3 while B is in stage 1; wall-clock cost is the slowest single-item chain, not the sum of slowest-per-stage. Add a barrier only when stage N truly needs cross-item context: full-set dedup, merge, or zero-total early-exit. Conceptual separation is no reason to sync.",
+      "tags": ["fan_out", "pipeline", "orchestration"],
+      "parent_ids": ["pillar.anatomy"],
+      "child_ids": [],
+      "doc_ids": ["doc.anatomy.loop_anatomy_and_patterns"],
+      "reference_ids": ["ref.fable.loop_engineering_synthesis_2026_07"]
     }
   ]
 }

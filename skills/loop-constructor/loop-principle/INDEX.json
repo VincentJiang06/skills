@@ -50,7 +50,9 @@
         "procedure.explore_plan_implement_commit",
         "pattern.retry_loop",
         "pattern.review_loop",
-        "pattern.human_in_the_loop"
+        "pattern.human_in_the_loop",
+        "technique.loop_until_dry",
+        "technique.pipeline_no_barrier"
       ]
     },
     {
@@ -64,7 +66,9 @@
         "concept.feedback_signal_spectrum",
         "principle.machine_verifiable_dod",
         "concept.verification_bottleneck",
-        "pattern.production_observability_loop"
+        "pattern.production_observability_loop",
+        "principle.verifier_asymmetry",
+        "principle.positive_detection_for_invariants"
       ]
     },
     {
@@ -78,7 +82,8 @@
         "technique.hooks_as_deterministic_gate",
         "technique.git_worktree_isolation",
         "technique.subagent_split",
-        "concept.external_state_memory"
+        "concept.external_state_memory",
+        "principle.effort_routing"
       ]
     },
     {
@@ -110,7 +115,10 @@
         "anti_pattern.context_drift",
         "anti_pattern.permission_blast_radius",
         "anti_pattern.token_blowup",
-        "principle.infra_prerequisite"
+        "principle.infra_prerequisite",
+        "anti_pattern.green_but_wrong",
+        "anti_pattern.unexercised_self_check",
+        "anti_pattern.schema_terminal_placeholder"
       ]
     },
     {
@@ -410,6 +418,11 @@
       "kind": "reference_file"
     },
     {
+      "id": "refs.fable",
+      "path": "references/fable.references.json",
+      "kind": "reference_file"
+    },
+    {
       "id": "metrics.catalog",
       "path": "metrics/metric_catalog.json",
       "kind": "metric_file",
@@ -435,6 +448,16 @@
         "coverage",
         "graph",
         "gate"
+      ]
+    },
+    {
+      "id": "report.update_log",
+      "path": "reports/update-log.md",
+      "kind": "report_file",
+      "tags": [
+        "report",
+        "update",
+        "log"
       ]
     },
     {

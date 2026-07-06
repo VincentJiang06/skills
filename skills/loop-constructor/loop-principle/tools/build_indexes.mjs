@@ -89,7 +89,9 @@ function docSummaryCard(file) {
 }
 
 function addToken(index, token, kind, id) {
-  index[token] ??= { docs: [], nodes: [], assets: [], references: [] };
+  if (!Object.prototype.hasOwnProperty.call(index, token)) {
+    index[token] = { docs: [], nodes: [], assets: [], references: [] };
+  }
   index[token][kind].push(id);
 }
 

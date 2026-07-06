@@ -4,8 +4,8 @@
     "knowledge_graph/nodes/*.json",
     "knowledge_graph/edges/*.json"
   ],
-  "node_count": 57,
-  "edge_count": 50,
+  "node_count": 64,
+  "edge_count": 74,
   "adjacency": {
     "anti_pattern.prompted_architecture": {
       "type": "anti_pattern",
@@ -37,6 +37,55 @@
         "principle.executable_acceptance"
       ]
     },
+    "anti_pattern.sibling_trigger_overlap": {
+      "type": "anti_pattern",
+      "tags": [
+        "activation",
+        "anti_pattern",
+        "routing"
+      ],
+      "docs": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "references": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.claude_code.invocation_controls"
+      ],
+      "parents": [
+        "pillar.design"
+      ],
+      "children": [],
+      "incoming_edges": [
+        {
+          "id": "edge.design.contains_sibling_overlap",
+          "type": "contains",
+          "node_id": "pillar.design"
+        }
+      ],
+      "outgoing_edges": [
+        {
+          "id": "edge.sibling_overlap.contradicts_trigger",
+          "type": "contradicts",
+          "node_id": "concept.trigger"
+        },
+        {
+          "id": "edge.sibling_overlap.measures_false_positive",
+          "type": "measures",
+          "node_id": "metric.false_positive_rate"
+        },
+        {
+          "id": "edge.sibling_overlap.supports_description_index",
+          "type": "supports",
+          "node_id": "principle.description_is_the_index"
+        }
+      ],
+      "neighbors": [
+        "concept.trigger",
+        "metric.false_positive_rate",
+        "pillar.design",
+        "principle.description_is_the_index"
+      ]
+    },
     "concept.execution_protocol": {
       "type": "concept",
       "tags": [
@@ -60,6 +109,11 @@
       ],
       "incoming_edges": [
         {
+          "id": "edge.rule_at_use.supports_protocol",
+          "type": "supports",
+          "node_id": "principle.rule_at_point_of_use"
+        },
+        {
           "id": "edge.skill.has_protocol",
           "type": "contains",
           "node_id": "concept.skill"
@@ -68,6 +122,7 @@
       "outgoing_edges": [],
       "neighbors": [
         "concept.skill",
+        "principle.rule_at_point_of_use",
         "procedure.trajectory_eval",
         "technique.contract_test"
       ]
@@ -225,6 +280,16 @@
       ],
       "incoming_edges": [
         {
+          "id": "edge.description_index.supports_trigger",
+          "type": "supports",
+          "node_id": "principle.description_is_the_index"
+        },
+        {
+          "id": "edge.sibling_overlap.contradicts_trigger",
+          "type": "contradicts",
+          "node_id": "anti_pattern.sibling_trigger_overlap"
+        },
+        {
           "id": "edge.skill.has_trigger",
           "type": "contains",
           "node_id": "concept.skill"
@@ -232,9 +297,11 @@
       ],
       "outgoing_edges": [],
       "neighbors": [
+        "anti_pattern.sibling_trigger_overlap",
         "concept.skill",
         "metric.activation_precision",
-        "metric.false_positive_rate"
+        "metric.false_positive_rate",
+        "principle.description_is_the_index"
       ]
     },
     "metric.activation_precision": {
@@ -260,6 +327,11 @@
       ],
       "incoming_edges": [
         {
+          "id": "edge.description_index.supports_activation",
+          "type": "supports",
+          "node_id": "principle.description_is_the_index"
+        },
+        {
           "id": "edge.metrics.measures_activation",
           "type": "measures",
           "node_id": "pillar.metrics"
@@ -281,7 +353,8 @@
         "concept.trigger",
         "metric.false_negative_rate",
         "metric.false_positive_rate",
-        "pillar.metrics"
+        "pillar.metrics",
+        "principle.description_is_the_index"
       ]
     },
     "metric.claim_traceability_rate": {
@@ -404,10 +477,16 @@
           "id": "edge.activation.has_false_positive",
           "type": "decomposes_to",
           "node_id": "metric.activation_precision"
+        },
+        {
+          "id": "edge.sibling_overlap.measures_false_positive",
+          "type": "measures",
+          "node_id": "anti_pattern.sibling_trigger_overlap"
         }
       ],
       "outgoing_edges": [],
       "neighbors": [
+        "anti_pattern.sibling_trigger_overlap",
         "concept.trigger",
         "metric.activation_precision"
       ]
@@ -471,12 +550,18 @@
           "id": "edge.metrics.measures_context",
           "type": "measures",
           "node_id": "pillar.metrics"
+        },
+        {
+          "id": "edge.scripts_execute.measures_context",
+          "type": "measures",
+          "node_id": "principle.scripts_execute_dont_load"
         }
       ],
       "outgoing_edges": [],
       "neighbors": [
         "pillar.kb_architecture",
-        "pillar.metrics"
+        "pillar.metrics",
+        "principle.scripts_execute_dont_load"
       ]
     },
     "metric.marginal_lift": {
@@ -843,6 +928,55 @@
         "principle.progressive_disclosure"
       ]
     },
+    "pattern.runtime_adapter_variant": {
+      "type": "pattern",
+      "tags": [
+        "portability",
+        "runtime",
+        "variant"
+      ],
+      "docs": [
+        "doc.operations.skill_lifecycle_management"
+      ],
+      "references": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.agentskills.open_standard_2025_12"
+      ],
+      "parents": [
+        "pillar.lifecycle"
+      ],
+      "children": [],
+      "incoming_edges": [
+        {
+          "id": "edge.lifecycle.uses_runtime_adapter",
+          "type": "uses",
+          "node_id": "pillar.lifecycle"
+        }
+      ],
+      "outgoing_edges": [
+        {
+          "id": "edge.runtime_adapter.supports_registry",
+          "type": "supports",
+          "node_id": "pattern.skill_registry"
+        },
+        {
+          "id": "edge.runtime_adapter.supports_release_gate",
+          "type": "supports",
+          "node_id": "procedure.release_gate"
+        },
+        {
+          "id": "edge.runtime_adapter.uses_disclosure",
+          "type": "uses",
+          "node_id": "principle.progressive_disclosure"
+        }
+      ],
+      "neighbors": [
+        "pattern.skill_registry",
+        "pillar.lifecycle",
+        "principle.progressive_disclosure",
+        "procedure.release_gate"
+      ]
+    },
     "pattern.skill_registry": {
       "type": "pattern",
       "tags": [
@@ -869,6 +1003,11 @@
           "id": "edge.lifecycle.uses_registry",
           "type": "uses",
           "node_id": "pillar.lifecycle"
+        },
+        {
+          "id": "edge.runtime_adapter.supports_registry",
+          "type": "supports",
+          "node_id": "pattern.runtime_adapter_variant"
         }
       ],
       "outgoing_edges": [
@@ -880,6 +1019,7 @@
       ],
       "neighbors": [
         "concept.skill_release_manifest",
+        "pattern.runtime_adapter_variant",
         "pillar.lifecycle"
       ]
     },
@@ -902,13 +1042,31 @@
       "parents": [],
       "children": [
         "anti_pattern.prompted_architecture",
+        "anti_pattern.sibling_trigger_overlap",
         "concept.skill",
         "principle.claim_evidence_traceability",
+        "principle.description_is_the_index",
         "principle.executable_acceptance",
-        "principle.progressive_disclosure"
+        "principle.progressive_disclosure",
+        "principle.rule_at_point_of_use"
       ],
       "incoming_edges": [],
       "outgoing_edges": [
+        {
+          "id": "edge.design.contains_description_index",
+          "type": "contains",
+          "node_id": "principle.description_is_the_index"
+        },
+        {
+          "id": "edge.design.contains_rule_at_use",
+          "type": "contains",
+          "node_id": "principle.rule_at_point_of_use"
+        },
+        {
+          "id": "edge.design.contains_sibling_overlap",
+          "type": "contains",
+          "node_id": "anti_pattern.sibling_trigger_overlap"
+        },
         {
           "id": "edge.design.defines_skill",
           "type": "defines",
@@ -927,11 +1085,14 @@
       ],
       "neighbors": [
         "anti_pattern.prompted_architecture",
+        "anti_pattern.sibling_trigger_overlap",
         "concept.skill",
         "pillar.research",
         "principle.claim_evidence_traceability",
+        "principle.description_is_the_index",
         "principle.executable_acceptance",
-        "principle.progressive_disclosure"
+        "principle.progressive_disclosure",
+        "principle.rule_at_point_of_use"
       ]
     },
     "pillar.kb_architecture": {
@@ -957,10 +1118,16 @@
         "pattern.progressive_loading",
         "principle.id_references",
         "principle.progressive_disclosure",
+        "principle.scripts_execute_dont_load",
         "principle.short_node_budget"
       ],
       "incoming_edges": [],
       "outgoing_edges": [
+        {
+          "id": "edge.kb.contains_scripts_execute",
+          "type": "contains",
+          "node_id": "principle.scripts_execute_dont_load"
+        },
         {
           "id": "edge.kb.uses_id_refs",
           "type": "uses",
@@ -977,6 +1144,7 @@
         "pattern.progressive_loading",
         "principle.id_references",
         "principle.progressive_disclosure",
+        "principle.scripts_execute_dont_load",
         "principle.short_node_budget"
       ]
     },
@@ -1004,6 +1172,7 @@
         "metric.lifecycle_trace_coverage",
         "metric.release_gate_pass_rate",
         "metric.rollback_readiness",
+        "pattern.runtime_adapter_variant",
         "pattern.skill_registry",
         "procedure.deprecation_policy",
         "procedure.evidence_gated_update",
@@ -1060,6 +1229,11 @@
           "node_id": "procedure.rollback_plan"
         },
         {
+          "id": "edge.lifecycle.uses_runtime_adapter",
+          "type": "uses",
+          "node_id": "pattern.runtime_adapter_variant"
+        },
+        {
           "id": "edge.observability.measures_trace_coverage",
           "type": "measures",
           "node_id": "metric.lifecycle_trace_coverage"
@@ -1070,6 +1244,7 @@
         "metric.lifecycle_trace_coverage",
         "metric.release_gate_pass_rate",
         "metric.rollback_readiness",
+        "pattern.runtime_adapter_variant",
         "pattern.skill_registry",
         "procedure.deprecation_policy",
         "procedure.evidence_gated_update",
@@ -1191,6 +1366,7 @@
         "metric.source_coverage",
         "principle.claim_evidence_traceability",
         "procedure.iterative_deepening",
+        "procedure.model_knowledge_sourcing",
         "procedure.search_fan_out",
         "procedure.source_reliability_grading",
         "procedure.source_roster",
@@ -1204,6 +1380,11 @@
         }
       ],
       "outgoing_edges": [
+        {
+          "id": "edge.research.contains_model_sourcing",
+          "type": "contains",
+          "node_id": "procedure.model_knowledge_sourcing"
+        },
         {
           "id": "edge.research.measures_coverage",
           "type": "measures",
@@ -1251,6 +1432,7 @@
         "pillar.design",
         "principle.claim_evidence_traceability",
         "procedure.iterative_deepening",
+        "procedure.model_knowledge_sourcing",
         "procedure.search_fan_out",
         "procedure.source_reliability_grading",
         "procedure.source_roster",
@@ -1319,7 +1501,8 @@
         "procedure.paired_skill_eval",
         "procedure.regression_suite",
         "procedure.test_pyramid",
-        "procedure.trajectory_eval"
+        "procedure.trajectory_eval",
+        "technique.import_the_validator"
       ],
       "incoming_edges": [
         {
@@ -1329,6 +1512,11 @@
         }
       ],
       "outgoing_edges": [
+        {
+          "id": "edge.testing.contains_import_validator",
+          "type": "contains",
+          "node_id": "technique.import_the_validator"
+        },
         {
           "id": "edge.testing.uses_paired_eval",
           "type": "uses",
@@ -1352,7 +1540,8 @@
         "procedure.regression_suite",
         "procedure.release_gate",
         "procedure.test_pyramid",
-        "procedure.trajectory_eval"
+        "procedure.trajectory_eval",
+        "technique.import_the_validator"
       ]
     },
     "principle.claim_evidence_traceability": {
@@ -1378,6 +1567,11 @@
       "children": [],
       "incoming_edges": [
         {
+          "id": "edge.model_sourcing.supports_traceability",
+          "type": "supports",
+          "node_id": "procedure.model_knowledge_sourcing"
+        },
+        {
           "id": "edge.research.requires_traceability",
           "type": "contains",
           "node_id": "pillar.research"
@@ -1393,7 +1587,64 @@
       "neighbors": [
         "metric.claim_traceability_rate",
         "pillar.design",
-        "pillar.research"
+        "pillar.research",
+        "procedure.model_knowledge_sourcing"
+      ]
+    },
+    "principle.description_is_the_index": {
+      "type": "principle",
+      "tags": [
+        "description",
+        "retrieval",
+        "trigger"
+      ],
+      "docs": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "references": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.claude_code.skill_listing_lifecycle",
+        "ref.tool_registry_design"
+      ],
+      "parents": [
+        "pillar.design"
+      ],
+      "children": [],
+      "incoming_edges": [
+        {
+          "id": "edge.design.contains_description_index",
+          "type": "contains",
+          "node_id": "pillar.design"
+        },
+        {
+          "id": "edge.sibling_overlap.supports_description_index",
+          "type": "supports",
+          "node_id": "anti_pattern.sibling_trigger_overlap"
+        }
+      ],
+      "outgoing_edges": [
+        {
+          "id": "edge.description_index.depends_on_disclosure",
+          "type": "depends_on",
+          "node_id": "principle.progressive_disclosure"
+        },
+        {
+          "id": "edge.description_index.supports_activation",
+          "type": "supports",
+          "node_id": "metric.activation_precision"
+        },
+        {
+          "id": "edge.description_index.supports_trigger",
+          "type": "supports",
+          "node_id": "concept.trigger"
+        }
+      ],
+      "neighbors": [
+        "anti_pattern.sibling_trigger_overlap",
+        "concept.trigger",
+        "metric.activation_precision",
+        "pillar.design",
+        "principle.progressive_disclosure"
       ]
     },
     "principle.executable_acceptance": {
@@ -1488,16 +1739,126 @@
       ],
       "incoming_edges": [
         {
+          "id": "edge.description_index.depends_on_disclosure",
+          "type": "depends_on",
+          "node_id": "principle.description_is_the_index"
+        },
+        {
           "id": "edge.design.uses_progressive_disclosure",
           "type": "uses",
           "node_id": "pillar.design"
+        },
+        {
+          "id": "edge.rule_at_use.supports_disclosure",
+          "type": "supports",
+          "node_id": "principle.rule_at_point_of_use"
+        },
+        {
+          "id": "edge.runtime_adapter.uses_disclosure",
+          "type": "uses",
+          "node_id": "pattern.runtime_adapter_variant"
+        },
+        {
+          "id": "edge.scripts_execute.supports_disclosure",
+          "type": "supports",
+          "node_id": "principle.scripts_execute_dont_load"
         }
       ],
       "outgoing_edges": [],
       "neighbors": [
         "pattern.progressive_loading",
+        "pattern.runtime_adapter_variant",
         "pillar.design",
+        "pillar.kb_architecture",
+        "principle.description_is_the_index",
+        "principle.rule_at_point_of_use",
+        "principle.scripts_execute_dont_load"
+      ]
+    },
+    "principle.rule_at_point_of_use": {
+      "type": "principle",
+      "tags": [
+        "instruction",
+        "prompt_structure",
+        "protocol"
+      ],
+      "docs": [
+        "doc.architecture.industrial_skill_design"
+      ],
+      "references": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.anthropic.context_engineering"
+      ],
+      "parents": [
+        "pillar.design"
+      ],
+      "children": [],
+      "incoming_edges": [
+        {
+          "id": "edge.design.contains_rule_at_use",
+          "type": "contains",
+          "node_id": "pillar.design"
+        }
+      ],
+      "outgoing_edges": [
+        {
+          "id": "edge.rule_at_use.supports_disclosure",
+          "type": "supports",
+          "node_id": "principle.progressive_disclosure"
+        },
+        {
+          "id": "edge.rule_at_use.supports_protocol",
+          "type": "supports",
+          "node_id": "concept.execution_protocol"
+        }
+      ],
+      "neighbors": [
+        "concept.execution_protocol",
+        "pillar.design",
+        "principle.progressive_disclosure"
+      ]
+    },
+    "principle.scripts_execute_dont_load": {
+      "type": "principle",
+      "tags": [
+        "context",
+        "scripts",
+        "determinism"
+      ],
+      "docs": [
+        "doc.operations.knowledge_base_architecture"
+      ],
+      "references": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.anthropic.context_engineering"
+      ],
+      "parents": [
         "pillar.kb_architecture"
+      ],
+      "children": [],
+      "incoming_edges": [
+        {
+          "id": "edge.kb.contains_scripts_execute",
+          "type": "contains",
+          "node_id": "pillar.kb_architecture"
+        }
+      ],
+      "outgoing_edges": [
+        {
+          "id": "edge.scripts_execute.measures_context",
+          "type": "measures",
+          "node_id": "metric.loaded_context_tokens"
+        },
+        {
+          "id": "edge.scripts_execute.supports_disclosure",
+          "type": "supports",
+          "node_id": "principle.progressive_disclosure"
+        }
+      ],
+      "neighbors": [
+        "metric.loaded_context_tokens",
+        "pillar.kb_architecture",
+        "principle.progressive_disclosure"
       ]
     },
     "principle.short_node_budget": {
@@ -1620,6 +1981,48 @@
       "outgoing_edges": [],
       "neighbors": [
         "pillar.research"
+      ]
+    },
+    "procedure.model_knowledge_sourcing": {
+      "type": "procedure",
+      "tags": [
+        "sourcing",
+        "model_synthesis",
+        "reliability"
+      ],
+      "docs": [
+        "doc.research.evidence_driven_skill_research"
+      ],
+      "references": [
+        "ref.fable.skill_engineering_synthesis_2026_07"
+      ],
+      "parents": [
+        "pillar.research"
+      ],
+      "children": [],
+      "incoming_edges": [
+        {
+          "id": "edge.research.contains_model_sourcing",
+          "type": "contains",
+          "node_id": "pillar.research"
+        }
+      ],
+      "outgoing_edges": [
+        {
+          "id": "edge.model_sourcing.supports_traceability",
+          "type": "supports",
+          "node_id": "principle.claim_evidence_traceability"
+        },
+        {
+          "id": "edge.model_sourcing.uses_grading",
+          "type": "uses",
+          "node_id": "procedure.source_reliability_grading"
+        }
+      ],
+      "neighbors": [
+        "pillar.research",
+        "principle.claim_evidence_traceability",
+        "procedure.source_reliability_grading"
       ]
     },
     "procedure.paired_skill_eval": {
@@ -1754,13 +2157,20 @@
       "children": [
         "metric.regression_escape_rate"
       ],
-      "incoming_edges": [],
+      "incoming_edges": [
+        {
+          "id": "edge.import_validator.supports_regression",
+          "type": "supports",
+          "node_id": "technique.import_the_validator"
+        }
+      ],
       "outgoing_edges": [],
       "neighbors": [
         "concept.test_asset",
         "metric.regression_escape_rate",
         "pillar.testing",
-        "procedure.test_pyramid"
+        "procedure.test_pyramid",
+        "technique.import_the_validator"
       ]
     },
     "procedure.release_gate": {
@@ -1795,6 +2205,11 @@
           "id": "edge.lifecycle.uses_release_gate",
           "type": "uses",
           "node_id": "pillar.lifecycle"
+        },
+        {
+          "id": "edge.runtime_adapter.supports_release_gate",
+          "type": "supports",
+          "node_id": "pattern.runtime_adapter_variant"
         }
       ],
       "outgoing_edges": [
@@ -1818,6 +2233,7 @@
         "concept.skill_release_manifest",
         "metric.release_gate_pass_rate",
         "metric.rollback_readiness",
+        "pattern.runtime_adapter_variant",
         "pillar.lifecycle",
         "pillar.metrics",
         "pillar.testing"
@@ -1949,6 +2365,11 @@
       "children": [],
       "incoming_edges": [
         {
+          "id": "edge.model_sourcing.uses_grading",
+          "type": "uses",
+          "node_id": "procedure.model_knowledge_sourcing"
+        },
+        {
           "id": "edge.research.uses_grading",
           "type": "contains",
           "node_id": "pillar.research"
@@ -1956,7 +2377,8 @@
       ],
       "outgoing_edges": [],
       "neighbors": [
-        "pillar.research"
+        "pillar.research",
+        "procedure.model_knowledge_sourcing"
       ]
     },
     "procedure.source_roster": {
@@ -2122,6 +2544,11 @@
       "children": [],
       "incoming_edges": [
         {
+          "id": "edge.import_validator.supports_contract",
+          "type": "supports",
+          "node_id": "technique.import_the_validator"
+        },
+        {
           "id": "edge.tdd.uses_contract",
           "type": "uses",
           "node_id": "pillar.tdd"
@@ -2131,7 +2558,51 @@
       "neighbors": [
         "concept.execution_protocol",
         "pillar.tdd",
-        "procedure.red_green_refactor_for_skill"
+        "procedure.red_green_refactor_for_skill",
+        "technique.import_the_validator"
+      ]
+    },
+    "technique.import_the_validator": {
+      "type": "technique",
+      "tags": [
+        "harness",
+        "testing",
+        "single_source_of_truth"
+      ],
+      "docs": [
+        "doc.testing.skill_testing_process"
+      ],
+      "references": [
+        "ref.fable.skill_engineering_synthesis_2026_07",
+        "ref.agentassay"
+      ],
+      "parents": [
+        "pillar.testing"
+      ],
+      "children": [],
+      "incoming_edges": [
+        {
+          "id": "edge.testing.contains_import_validator",
+          "type": "contains",
+          "node_id": "pillar.testing"
+        }
+      ],
+      "outgoing_edges": [
+        {
+          "id": "edge.import_validator.supports_contract",
+          "type": "supports",
+          "node_id": "technique.contract_test"
+        },
+        {
+          "id": "edge.import_validator.supports_regression",
+          "type": "supports",
+          "node_id": "procedure.regression_suite"
+        }
+      ],
+      "neighbors": [
+        "pillar.testing",
+        "procedure.regression_suite",
+        "technique.contract_test"
       ]
     },
     "technique.metamorphic_test": {

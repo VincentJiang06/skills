@@ -16,10 +16,13 @@
       "parent_ids": [],
       "child_ids": [
         "anti_pattern.prompted_architecture",
+        "anti_pattern.sibling_trigger_overlap",
         "concept.skill",
         "principle.claim_evidence_traceability",
+        "principle.description_is_the_index",
         "principle.executable_acceptance",
-        "principle.progressive_disclosure"
+        "principle.progressive_disclosure",
+        "principle.rule_at_point_of_use"
       ],
       "doc_ids": [
         "doc.architecture.industrial_skill_design",
@@ -51,7 +54,8 @@
         "procedure.paired_skill_eval",
         "procedure.regression_suite",
         "procedure.test_pyramid",
-        "procedure.trajectory_eval"
+        "procedure.trajectory_eval",
+        "technique.import_the_validator"
       ],
       "doc_ids": [
         "doc.testing.skill_testing_process"
@@ -149,6 +153,7 @@
         "pattern.progressive_loading",
         "principle.id_references",
         "principle.progressive_disclosure",
+        "principle.scripts_execute_dont_load",
         "principle.short_node_budget"
       ],
       "doc_ids": [
@@ -181,6 +186,7 @@
         "metric.lifecycle_trace_coverage",
         "metric.release_gate_pass_rate",
         "metric.rollback_readiness",
+        "pattern.runtime_adapter_variant",
         "pattern.skill_registry",
         "procedure.deprecation_policy",
         "procedure.evidence_gated_update",

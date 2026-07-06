@@ -12,6 +12,10 @@
     {"id": "edge.observability.measures_trace_coverage", "source_id": "pillar.lifecycle", "target_id": "metric.lifecycle_trace_coverage", "type": "measures"},
     {"id": "edge.registry.contains_manifest", "source_id": "pattern.skill_registry", "target_id": "concept.skill_release_manifest", "type": "contains"},
     {"id": "edge.release_gate.depends_testing", "source_id": "procedure.release_gate", "target_id": "pillar.testing", "type": "depends_on"},
-    {"id": "edge.release_gate.depends_metrics", "source_id": "procedure.release_gate", "target_id": "pillar.metrics", "type": "depends_on"}
+    {"id": "edge.release_gate.depends_metrics", "source_id": "procedure.release_gate", "target_id": "pillar.metrics", "type": "depends_on"},
+    {"id": "edge.lifecycle.uses_runtime_adapter", "source_id": "pillar.lifecycle", "target_id": "pattern.runtime_adapter_variant", "type": "uses"},
+    {"id": "edge.runtime_adapter.uses_disclosure", "source_id": "pattern.runtime_adapter_variant", "target_id": "principle.progressive_disclosure", "type": "uses"},
+    {"id": "edge.runtime_adapter.supports_release_gate", "source_id": "pattern.runtime_adapter_variant", "target_id": "procedure.release_gate", "type": "supports"},
+    {"id": "edge.runtime_adapter.supports_registry", "source_id": "pattern.runtime_adapter_variant", "target_id": "pattern.skill_registry", "type": "supports"}
   ]
 }

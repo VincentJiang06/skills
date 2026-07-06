@@ -27,7 +27,7 @@
       "parent_ids": ["pillar.risks", "concept.verification_bottleneck", "concept.reflexion"],
       "child_ids": [],
       "doc_ids": ["doc.risks.costs_risks_failure_modes"],
-      "reference_ids": ["ref.metr.reward_hacking", "ref.impossiblebench", "ref.reflexion"]
+      "reference_ids": ["ref.metr.reward_hacking", "ref.impossiblebench", "ref.reflexion", "ref.specbench.reward_hacking_scales_with_size"]
     },
     {
       "id": "anti_pattern.comprehension_debt",
@@ -139,7 +139,7 @@
       "parent_ids": ["pillar.risks", "technique.subagent_split", "pattern.multi_agent_orchestra"],
       "child_ids": [],
       "doc_ids": ["doc.risks.costs_risks_failure_modes"],
-      "reference_ids": ["ref.osmani.loop_engineering", "ref.mindstudio.token_budget"]
+      "reference_ids": ["ref.osmani.loop_engineering", "ref.mindstudio.token_budget", "ref.anthropic.agent_sdk_budget_caps"]
     },
     {
       "id": "procedure.adoption_roadmap",
@@ -196,6 +196,48 @@
       "child_ids": [],
       "doc_ids": ["doc.practice.adoption_rubric_misconceptions"],
       "reference_ids": ["ref.osmani.loop_engineering", "ref.schneier.agentic_ooda_loop"]
+    },
+    {
+      "id": "anti_pattern.green_but_wrong",
+      "type": "anti_pattern",
+      "tier": 1,
+      "title_zh": "绿而错",
+      "title_en": "Green-but-Wrong",
+      "summary_zh": "所有校验门全绿，产物实质却是错的。结构性门（linter、正则、schema）只证形状不证含义：正则会被不可见标记绕过，schema-valid ≠ true。对策：给每道门问『什么样的坏产物能骗过它』，并保留一个从未见过实现的对抗评审者。最贵的循环失败都是从绿门发出去的。",
+      "summary_en": "Every gate is green yet the artifact is substantively wrong. Structural gates (linters, regex, schemas) prove shape, not meaning: a regex is defeated by content it never sees; schema-valid isn't true. Counter-move: for each gate, name the bad artifact that would still pass it, and keep one reviewer who never saw the build.",
+      "tags": ["anti_pattern", "green_but_wrong", "verification"],
+      "parent_ids": ["pillar.risks"],
+      "child_ids": ["anti_pattern.unexercised_self_check"],
+      "doc_ids": ["doc.risks.costs_risks_failure_modes"],
+      "reference_ids": ["ref.fable.loop_engineering_synthesis_2026_07"]
+    },
+    {
+      "id": "anti_pattern.unexercised_self_check",
+      "type": "anti_pattern",
+      "tier": 1,
+      "title_zh": "自检盲区",
+      "title_en": "Unexercised Self-Check",
+      "summary_zh": "自检从不执行它所管辖的代码路径：禁词门只渲染 3 条路径中的 2 条，而第 3 条恰好产出禁词——检查全绿，违规照常发生。对策：为每个自检枚举『它管辖哪些路径』并断言覆盖；自检的覆盖率与被测物的覆盖率一样会腐烂。本仓库亲历并修复（loop-constructor-codex NB-1，2026-07-06）。",
+      "summary_en": "A self-check that never executes the path it polices. Instance: a banned-token gate rendered two of three paths while the third emitted the banned token — check green, violation shipped. Counter-move: enumerate the paths each self-check claims to police and assert it exercises every one; self-check coverage rots like target coverage. Fixed here (codex NB-1).",
+      "tags": ["anti_pattern", "self_check", "coverage"],
+      "parent_ids": ["pillar.risks", "anti_pattern.green_but_wrong"],
+      "child_ids": [],
+      "doc_ids": ["doc.risks.costs_risks_failure_modes"],
+      "reference_ids": ["ref.fable.loop_engineering_synthesis_2026_07"]
+    },
+    {
+      "id": "anti_pattern.schema_terminal_placeholder",
+      "type": "anti_pattern",
+      "tier": 2,
+      "title_zh": "结构化输出的终局占位符",
+      "title_en": "Schema-Terminal Placeholder",
+      "summary_zh": "强制结构化输出下，第一次 schema 合法的产出即是终局——赶工或弱模型会交出能过校验的占位符（如 'test'、近空数组），循环便在垃圾上继续。防线：给关键字段加 minLength/内容约束、在提示里立输出协议（先干活后一次性交付），对顽固情形干脆去掉 schema 改收纯文本再下游解析。",
+      "summary_en": "Under forced structured output the first schema-valid emission is terminal — no second draft — so a rushed or weak agent returns a placeholder that validates ('test', empty-ish arrays) and the loop runs on garbage. Defenses: minLength/content constraints on load-bearing fields, an output protocol (work first, emit once), or drop the schema for free text.",
+      "tags": ["anti_pattern", "structured_output", "placeholder"],
+      "parent_ids": ["pillar.risks"],
+      "child_ids": [],
+      "doc_ids": ["doc.risks.costs_risks_failure_modes"],
+      "reference_ids": ["ref.fable.loop_engineering_synthesis_2026_07"]
     }
   ]
 }

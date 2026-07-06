@@ -12,22 +12,22 @@
     "testing/template_contracts.json"
   ],
   "counts": {
-    "indexed_files": 83,
+    "indexed_files": 85,
     "coverage_goals": 9,
     "long_docs": 13,
     "json_template_files": 4,
-    "nodes": 73,
-    "edges": 60,
-    "references": 88,
+    "nodes": 81,
+    "edges": 81,
+    "references": 93,
     "metrics": 10,
     "template_contracts": 4,
-    "search_tokens": 26505,
+    "search_tokens": 29309,
     "route_goals": 9,
     "route_query_cases": 21,
     "compact_query_limit": 12,
     "compact_query_cases": 21,
     "summary_doc_cards": 13,
-    "summary_node_cards": 73
+    "summary_node_cards": 81
   },
   "distributions": {
     "file_kinds": {
@@ -37,8 +37,8 @@
       "long_doc": 13,
       "metric_file": 1,
       "node_file": 6,
-      "reference_file": 12,
-      "report_file": 1,
+      "reference_file": 13,
+      "report_file": 2,
       "runbook_file": 1,
       "schema_file": 13,
       "search_index": 4,
@@ -47,28 +47,28 @@
       "validation_tool": 8
     },
     "node_types": {
-      "anti_pattern": 11,
+      "anti_pattern": 14,
       "concept": 13,
       "metric": 10,
       "pattern": 8,
       "pillar": 9,
-      "principle": 12,
+      "principle": 15,
       "procedure": 6,
-      "technique": 4
+      "technique": 6
     },
     "reference_tiers": {
-      "tier_1": 37,
-      "tier_2": 38,
-      "tier_3": 9,
+      "tier_1": 38,
+      "tier_2": 41,
+      "tier_3": 10,
       "tier_4": 4
     }
   },
   "graph": {
     "connected_component_sizes": [
-      73
+      81
     ],
-    "adjacency_nodes": 73,
-    "adjacency_edges": 60
+    "adjacency_nodes": 81,
+    "adjacency_edges": 81
   },
   "coverage": {
     "long_docs_referenced_by_nodes": [
@@ -87,9 +87,9 @@
       "doc.risks.costs_risks_failure_modes"
     ],
     "long_docs_without_node_reference": [],
-    "references_used_by_nodes": 25,
-    "references_used_outside_reference_db": 88,
-    "references_total": 88,
+    "references_used_by_nodes": 30,
+    "references_used_outside_reference_db": 93,
+    "references_total": 93,
     "references_without_external_use": []
   },
   "quality_gates": {
@@ -106,9 +106,9 @@
         "passed": true,
         "metric_path": "graph.connected_component_sizes",
         "actual": [
-          73
+          81
         ],
-        "expected": 73
+        "expected": 81
       },
       {
         "id": "quality.no_orphan_long_docs",
@@ -131,16 +131,16 @@
         "required": true,
         "passed": true,
         "metric_path": "graph.adjacency_nodes",
-        "actual": 73,
-        "expected": 73
+        "actual": 81,
+        "expected": 81
       },
       {
         "id": "quality.generated_index_edge_count",
         "required": true,
         "passed": true,
         "metric_path": "graph.adjacency_edges",
-        "actual": 60,
-        "expected": 60
+        "actual": 81,
+        "expected": 81
       },
       {
         "id": "quality.summary_doc_cards_cover_long_docs",
@@ -155,8 +155,8 @@
         "required": true,
         "passed": true,
         "metric_path": "counts.summary_node_cards",
-        "actual": 73,
-        "expected": 73
+        "actual": 81,
+        "expected": 81
       },
       {
         "id": "quality.template_contracts_cover_json_templates",
@@ -187,7 +187,7 @@
         "required": true,
         "passed": true,
         "metric_path": "counts.search_tokens",
-        "actual": 26505,
+        "actual": 29309,
         "expected": 1000
       }
     ]

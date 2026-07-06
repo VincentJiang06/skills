@@ -11,6 +11,9 @@
     {"id": "edge.research.measures_traceability", "source_id": "pillar.research", "target_id": "metric.claim_traceability_rate", "type": "measures"},
     {"id": "edge.design.requires_research", "source_id": "pillar.design", "target_id": "pillar.research", "type": "uses"},
     {"id": "edge.fan_out.supports_coverage", "source_id": "procedure.search_fan_out", "target_id": "metric.source_coverage", "type": "supports"},
-    {"id": "edge.traceability.supports_trace_metric", "source_id": "principle.claim_evidence_traceability", "target_id": "metric.claim_traceability_rate", "type": "supports"}
+    {"id": "edge.traceability.supports_trace_metric", "source_id": "principle.claim_evidence_traceability", "target_id": "metric.claim_traceability_rate", "type": "supports"},
+    {"id": "edge.research.contains_model_sourcing", "source_id": "pillar.research", "target_id": "procedure.model_knowledge_sourcing", "type": "contains"},
+    {"id": "edge.model_sourcing.uses_grading", "source_id": "procedure.model_knowledge_sourcing", "target_id": "procedure.source_reliability_grading", "type": "uses"},
+    {"id": "edge.model_sourcing.supports_traceability", "source_id": "procedure.model_knowledge_sourcing", "target_id": "principle.claim_evidence_traceability", "type": "supports"}
   ]
 }
