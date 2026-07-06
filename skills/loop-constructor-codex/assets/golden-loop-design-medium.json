@@ -1,0 +1,139 @@
+{
+  "task": "Add rate limiting to the public API and prove it holds under load without breaking existing endpoints",
+  "loop_altitude": "medium",
+  "loop_altitude_rationale": "Multi-module change (middleware + load harness) touching a public surface, but reversible and single-agent — sequential gated stages, no parallel fan-out needed.",
+  "selection_log": [
+    { "decision": "D0", "answer": "loop", "why": "runnable checks exist (contract suite, ratelimit test, load harness exit code) — done is machine-decidable" },
+    { "decision": "D1", "answer": "staged (2 seams)", "why": "captured baseline is handed characterize->implement; a green 429 middleware is handed implement->load_verify; each seam is a stable checkable artifact" },
+    { "decision": "D2", "answer": "explore_narrow / plan_execute_verify / retry", "why": "characterize searches the existing contract; implement is risky middleware needing mid-flight correction; load_verify is a retryable assertion" },
+    { "decision": "D3", "answer": "on_the_loop", "why": "reversible dev-only change, checks discriminate well — human reviews at gates, not each iteration" },
+    { "decision": "D4", "answer": "medium", "why": "stages are strictly sequential (each depends on the prior); no independent fan-out work" },
+    { "decision": "D5", "answer": "caps + loopback routing", "why": "per-stage caps; load_verify loops back to implement, implement loops back to characterize; escalate on any public-API change" },
+    { "decision": "D6", "answer": "iteration_first", "why": "the contract/ratelimit checks are fast and cheap (npm test in seconds), so frequent small passes (implement cap 8) beat few long ones — tuned: higher caps, retry acceptable on the load stage" }
+  ],
+  "stages": [
+    {
+      "id": "characterize",
+      "definition_of_done": {
+        "goal": "the existing public-endpoint contract suite passes and is captured as the regression set the later stages must keep green",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "explore_narrow",
+      "feedback_signal": {
+        "check": "npm test api:contract",
+        "expect": "pass",
+        "falsifiable_when": "any existing endpoint returns a different status/body than the captured baseline — the suite goes red",
+        "passing_but_wrong": "a stale/empty contract suite that vacuously passes with zero assertions — ruled out: the suite asserts a concrete status+body per endpoint and fails if the captured baseline file is empty"
+      },
+      "stop_conditions": {
+        "failure": ["contract suite cannot be made green on the untouched baseline (environment broken, not our change)"],
+        "max_iterations": 3,
+        "on_failure": { "action": "escalate" }
+      },
+      "depends_on": []
+    },
+    {
+      "id": "implement_rate_limit",
+      "definition_of_done": {
+        "goal": "rate-limit middleware returns HTTP 429 past the configured threshold and the contract regression set still passes",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "plan_execute_verify",
+      "feedback_signal": {
+        "check": "npm test api:ratelimit && npm test api:contract",
+        "expect": "pass",
+        "falsifiable_when": "the 101st request inside the window still returns 200 (no 429), or any contract test regresses",
+        "passing_but_wrong": "middleware returns 429 for EVERY request (even below the threshold), passing a naive 'a 429 appeared' test — ruled out: the ratelimit test asserts 200 below the threshold AND 429 only above it"
+      },
+      "stop_conditions": {
+        "failure": [
+          "3 consecutive same-type failures",
+          "the contract regression set goes red (behavior change leaked)"
+        ],
+        "max_iterations": 8,
+        "on_failure": { "action": "loopback", "to": "characterize" }
+      },
+      "depends_on": ["characterize"]
+    },
+    {
+      "id": "load_verify",
+      "definition_of_done": {
+        "goal": "p99 latency stays under budget at the target RPS with zero 5xx, asserted by the load harness exit code",
+        "machine_verifiable": true
+      },
+      "loop_pattern": "retry",
+      "feedback_signal": {
+        "check": "node scripts/loadtest.mjs --rps 200 --assert",
+        "expect": "pass",
+        "falsifiable_when": "p99 exceeds the budget or any 5xx is observed at the target RPS — the harness exits non-zero",
+        "passing_but_wrong": "the harness reports green because it never actually reached the target RPS (connection-capped) — ruled out: the harness asserts achieved RPS >= target before it judges p99/5xx, exiting non-zero otherwise"
+      },
+      "stop_conditions": {
+        "failure": [
+          "load target unreachable after 3 retries",
+          "p99 budget cannot be met without a public-API change"
+        ],
+        "max_iterations": 5,
+        "on_failure": { "action": "loopback", "to": "implement_rate_limit" }
+      },
+      "depends_on": ["implement_rate_limit"]
+    }
+  ],
+  "human_placement": "on_the_loop",
+  "maker_checker": {
+    "separate_checker": true,
+    "scope": "fresh-context reviewer sees only the diff + the per-stage acceptance checks; flags correctness / stated-requirement gaps only, especially any behavior change to existing endpoints"
+  },
+  "roles": {
+    "planner": { "mandate": "turn the goal into the staged spec + the contract; never write middleware or test code" },
+    "generator": { "mandate": "write the middleware + load harness to satisfy the contract; may NOT weaken a test or grade its own output" },
+    "evaluator": {
+      "separate_context": true,
+      "adversarial": true,
+      "mandate": "a fresh context that never saw the impl or the generator's reasoning; assume the rate limiter is broken and try to prove it — bypass the window, race the counter, regress an existing endpoint"
+    }
+  },
+  "contract": {
+    "negotiated_by": ["generator", "evaluator"],
+    "assertions": [
+      { "id": "A1", "must": "every pre-existing public endpoint returns its captured baseline status + body (no regression)", "check": "npm test api:contract", "stage": "characterize" },
+      { "id": "A2", "must": "the (threshold+1)th request inside the window returns HTTP 429, and every request at or below the threshold returns 200", "check": "npm test api:ratelimit -- -t threshold-boundary", "stage": "implement_rate_limit" },
+      { "id": "A3", "must": "the 429 response carries a Retry-After header with a positive integer seconds value", "check": "npm test api:ratelimit -- -t retry-after", "stage": "implement_rate_limit" },
+      { "id": "A4", "must": "the limiter is keyed per client, so one client cannot exhaust another client's quota", "check": "npm test api:ratelimit -- -t per-client-isolation", "stage": "implement_rate_limit" },
+      { "id": "A5", "must": "p99 latency stays under budget with zero 5xx at the target RPS, and the harness first proves it achieved the target RPS", "check": "node scripts/loadtest.mjs --rps 200 --assert", "stage": "load_verify" },
+      { "id": "A6", "must": "no test assertion is weakened relative to the pre-change baseline over the whole run", "check": "human-verify: the evaluator diffs test/ against the baseline tag captured in stage 1 and confirms no assertion was loosened", "stage": "cross-cutting" }
+    ]
+  },
+  "harness_primitives": [
+    "git worktree isolation for reversible work",
+    "external scratch ledger (.loop/run-state.md) holding which stage is done and what's next across context resets",
+    "pre-commit hook runs the current stage's check as a deterministic gate"
+  ],
+  "stop_conditions": {
+    "success": "every stage's check passes in dependency order and the diff stays within the rate-limit middleware + load harness",
+    "failure": [
+      "any stage exhausts its max_iterations without passing its check",
+      "a downstream stage forces a redesign of an already-accepted upstream stage twice"
+    ],
+    "escalate": [
+      "a public-API/response-schema change becomes necessary",
+      "production permission or real traffic is required to verify",
+      "the load target only reproduces against prod"
+    ],
+    "max_iterations": 4
+  },
+  "risk_guards": [
+    {
+      "risk": "reward hacking / test overfitting (agent weakens the rate-limit test to pass)",
+      "mitigation": "the load_verify stage's check is independent of the unit tests; the checker diffs test files"
+    },
+    {
+      "risk": "error amplification across stages (a wrong characterize baseline poisons later gates)",
+      "mitigation": "stage gates run in dependency order; a downstream failure that implicates an upstream gate loops back rather than head-banging in place"
+    },
+    {
+      "risk": "permission blast radius",
+      "mitigation": "no production resources; load test runs against an isolated dev target with least-privilege tokens"
+    }
+  ]
+}
