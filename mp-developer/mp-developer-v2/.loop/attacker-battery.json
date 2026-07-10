@@ -1,0 +1,87 @@
+{
+  "rounds": [
+    {
+      "round": 1,
+      "context_hash": "r1-cold-48attacks-lint-doctor-version",
+      "attempted_breaks": [
+        "lint scope-out routing",
+        "lint discipline flags",
+        "lint tool-name validation",
+        "lint empty/unicode/idempotency",
+        "doctor malformed configs",
+        "check_skill_version drift/unknown",
+        "doc-claim coverage"
+      ],
+      "confirmed_defects": [
+        {
+          "regression_key": "f1-version-override-fallback-false-insync"
+        }
+      ],
+      "clean": false
+    },
+    {
+      "round": 2,
+      "context_hash": "r2-regress-f1-deepen-version-strings",
+      "attempted_breaks": [
+        "F1 regression",
+        "version-string quotes/whitespace/trailing/4-part/empty-override",
+        "lint out-vs-in precedence",
+        "doctor null/array/number config"
+      ],
+      "confirmed_defects": [
+        {
+          "regression_key": "f2-null-config-crash"
+        }
+      ],
+      "clean": false
+    },
+    {
+      "round": 3,
+      "context_hash": "r3-regress-f1f2-deepen-config-values",
+      "attempted_breaks": [
+        "F1+F2 regression",
+        "doctor non-string miniprogramRoot (number/array/object)",
+        "empty-string config",
+        "symlink-loop root",
+        "deep nesting",
+        "path traversal",
+        "multi-version yaml",
+        "real-but-wrong tool"
+      ],
+      "confirmed_defects": [
+        {
+          "regression_key": "f3-nonstring-miniprogramroot-crash"
+        }
+      ],
+      "clean": false
+    },
+    {
+      "round": 4,
+      "context_hash": "r4-regress-all-config-family-convergence",
+      "attempted_breaks": [
+        "F1+F2+F3 regression",
+        "7 non-string miniprogramRoot types (number/array/object/true/false/null/0)",
+        "adjacent fields non-string appid/setting/pluginRoot/compileType",
+        "empty-string root",
+        "{} default",
+        "valid config"
+      ],
+      "confirmed_defects": [],
+      "clean": true
+    },
+    {
+      "round": 5,
+      "context_hash": "r5-guardrail-layer-coverage-accuracy",
+      "attempted_breaks": [
+        "41-tool guardrail coverage (all fields)",
+        "guardrail content vs live wechatide --help (10-tool sample)",
+        "side_effect classification",
+        "tool-guardrails.json structure/dup keys",
+        "--tool robustness empty/unicode/nonexistent",
+        "F1+F2+F3 regression"
+      ],
+      "confirmed_defects": [],
+      "clean": true
+    }
+  ]
+}

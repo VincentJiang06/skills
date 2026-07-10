@@ -1,0 +1,289 @@
+{
+  "check_devtools_status": {
+    "side_effect": "read",
+    "preconditions": ["call ONCE at session start; if it returns openid and no warning, don't call it again", "pass `--skill-version` = the vendored skill.yaml `version` (0.2.5) so it can reconcile vendored-vs-IDE"],
+    "common_mistakes": ["re-polling it repeatedly during a session — it's a one-time gate, not a heartbeat", "hardcoding a version string instead of reading the actual `version` field from the vendored skill.yaml", "ignoring `warning` (vendored copy stale vs IDE — must re-sync) or treating no-openid as a transient error instead of not-logged-in"],
+    "verify": ["has `openid` and no `warning` → ready to proceed", "`warning` present → vendored skill copy is stale vs the IDE; re-sync (SKILL.md version reconciliation) before relying on tools", "no `openid` → not logged in; run scan_login then re-check for openid"],
+    "failure": ["on CONNECT_ERROR/AUTH it already auto-runs `auth -c <clientName>` once and retries — do NOT manually loop auth on top; if a login/auth popup is pending, stop-and-wait (approval-policy.md)"]
+  },
+  "get_user_appids": {
+    "side_effect": "read",
+    "preconditions": ["user must be logged in (check_devtools_status shows openid) — the list is scoped to the logged-in account", "no parameters"],
+    "common_mistakes": ["calling it while logged out → no/empty AppID list; run scan_login first", "passing params — it takes none"],
+    "verify": ["use a returned AppID to populate/complete project.config.json (open-project-window flow, initializer SKILL.md)"],
+    "failure": ["empty or error → confirm login state via check_devtools_status before retrying"]
+  },
+  "scan_login": {
+    "side_effect": "confirm",
+    "preconditions": ["only when check_devtools_status shows no openid (or login is a required precondition for the next step)", "no parameters — it opens the QR and WAITS for the user to scan"],
+    "common_mistakes": ["reporting \"waiting for scan\" as \"logged in\" — the call returns while a scan is still pending; login is NOT complete on return (approval-policy.md)", "proceeding to open_project_window / other tools before the scan actually completes"],
+    "verify": ["after the user scans, re-run check_devtools_status and confirm `openid` is present — that, not scan_login's return, is proof of login"],
+    "failure": ["stop-and-wait: state which step you're paused on, that you're waiting for the user to scan, and how to continue (approval-policy.md); if openid still absent after scan, re-issue scan_login"]
+  },
+  "quit": {
+    "side_effect": "confirm",
+    "preconditions": ["explicit user request to quit DevTools only — it closes the ENTIRE application, not just a project window", "no parameters"],
+    "common_mistakes": ["using quit to close a single project window — use close_project_window for that; quit kills all windows/sessions", "quitting as implicit cleanup at end of task — never close the tool unless asked"],
+    "verify": ["DevTools process is gone; a subsequent tool call would need the IDE reopened + re-auth"],
+    "failure": ["destructive/irreversible for the session — confirm intent before calling; do not auto-invoke"]
+  },
+  "open_project_window": {
+    "side_effect": "write",
+    "preconditions": ["MANDATORY precheck: read <project>/project.config.json and confirm `appid` exists and is valid (`\"\"` and `\"touristappid\"` are invalid) BEFORE calling", "if missing/invalid appid: get_user_appids → user picks → create/complete project.config.json (open-project-window-guide.md) before opening", "logged in (check_devtools_status openid, no warning); `--project` = local absolute path with project.config.json at root"],
+    "common_mistakes": ["calling it directly without the appid precheck — a missing/invalid appid makes DevTools fail to identify the project", "picking an appid yourself instead of get_user_appids → user choice; only skip get_user_appids if the user gave an explicit appid", "using it to merely register a path in the list — that is project_import (this one opens the simulator window)"],
+    "verify": ["returns the opened window id; if a window was already open it reuses it (no new window) and returns that same id", "confirm the runtime with automation_runtime_info --action currentPage before handing off to automator/debugger"],
+    "failure": ["appid property precheck failure → trigger scan_login / re-login, confirm login state, then retry (do not blind-retry)", "missing/invalid project.config.json → do NOT retry; complete the appid-completion flow first"]
+  },
+  "close_project_window": {
+    "side_effect": "write",
+    "preconditions": ["`--project` = the local absolute path of a currently-open window", "only when the intent is to close the simulator window, not to quit DevTools"],
+    "common_mistakes": ["confusing it with quit — this closes only the window; DevTools keeps running", "expecting the list entry to disappear — the project stays in the list (use project_remove to delist)"],
+    "verify": ["the window closes but the list entry remains; project_list still shows the project"],
+    "failure": ["if no window was open for that path it is effectively a no-op — check the path is the one actually open"]
+  },
+  "project_list": {
+    "side_effect": "read",
+    "preconditions": ["logged in (check_devtools_status openid, no warning)", "optional `--scope`: miniprogram (default) | other | all"],
+    "common_mistakes": ["assuming the default returns everything — default is `miniprogram` only; pass --scope all for the merged set", "passing an unsupported scope value — only miniprogram/other/all are valid"],
+    "verify": ["returns a `projects` array; each entry has projectId, projectPath, projectName, appId — match on projectPath"],
+    "failure": ["an expected project absent → it may live under `other` scope, or was never imported; retry with --scope all"]
+  },
+  "project_import": {
+    "side_effect": "write",
+    "preconditions": ["`--project` = local absolute path of a real project directory", "logged in (check_devtools_status openid, no warning)"],
+    "common_mistakes": ["expecting an appid permission precheck — import does NOT validate appid (unlike open_project_window); an invalid dir only errors from the underlying importProject", "assuming import lets you develop — it only writes the list entry; you still need open_project_window to develop"],
+    "verify": ["path already in the list returns `alreadyImported: true` — treat as success, not an error", "confirm with project_list that the projectPath now appears"],
+    "failure": ["invalid/non-project directory → error from the underlying importProject; fix the path, do not blind-retry"]
+  },
+  "project_remove": {
+    "side_effect": "confirm",
+    "preconditions": ["explicit user intent to delist (it pops a DevTools mcp_action_auth confirmation the user must allow)", "`--project` = the exact list path (get it from project_list first)"],
+    "common_mistakes": ["expecting it to delete files on disk — it removes only the LIST entry, disk files are untouched", "using it to just close a window — that is close_project_window; remove additionally closes the window if open"],
+    "verify": ["re-run project_list (--scope all) — the projectPath should be gone; any open window for it is also closed"],
+    "failure": ["user denies the confirmation popup → returns `User denied`; surface it, do not retry silently", "cloud-storage project → `CLOUD_PROJECT_NOT_SUPPORTED`; it cannot be removed this way"]
+  },
+  "buildnpm": {
+    "side_effect": "write",
+    "preconditions": ["explicit build intent — it MODIFIES local build output; never run it during passive/read-only diagnosis", "`--project` = local absolute path; project has an npm dependency (package.json / miniprogram_npm target)", "optional `--compile-type`: miniprogram (default) | plugin"],
+    "common_mistakes": ["running it as a harmless status check — it writes build artifacts (miniprogram_npm), it is a side-effecting op", "passing a wrong compile-type — only miniprogram (default) or plugin are valid"],
+    "verify": ["check the returned build result/output path; a compile of pages still needs the compiler tools, buildnpm only produces the npm bundle"],
+    "failure": ["build error (missing/broken deps) → fix package.json / install deps first, do not blind-retry"]
+  },
+  "project_setting_get": {
+    "side_effect": "read",
+    "preconditions": ["`--project` = local absolute path of the target project"],
+    "common_mistakes": ["using it to change settings — this is read-only; writes go through project_setting_update"],
+    "verify": ["returns the current settings object; read the specific key you care about before deciding to update"],
+    "failure": ["returns an error / empty for a bad path — confirm the project path"]
+  },
+  "project_setting_update": {
+    "side_effect": "write",
+    "preconditions": ["`--project` = local absolute path; the `settings` object passed via `--settings-file <path>` pointing at a JSON file", "read current state first with project_setting_get so you send a correct delta"],
+    "common_mistakes": ["trying to pass settings inline instead of `--settings-file` — the CLI requires a JSON file path", "sending a malformed/partial settings JSON — it writes immediately and takes effect, so a bad value lands live"],
+    "verify": ["changes are written to project config and take effect immediately; confirm with project_setting_get that the keys now hold the new values"],
+    "failure": ["invalid settings JSON or bad path → error / no-op; fix the file, re-read with project_setting_get before retrying"]
+  },
+  "automation_runtime_info": {
+    "side_effect": "read",
+    "preconditions": ["app running in the simulator (this is the cheap-state tool — call it first, before element enumeration/screenshots)", "action is pageStack | currentPage | systemInfo (required); use `currentPage` before acting on a page"],
+    "common_mistakes": ["guessing the current route instead of reading `currentPage` first", "expecting page data or elements here — it returns only route/stack/systemInfo; use automation_page_action for page data"],
+    "verify": ["this IS a verify tool — cross-check `pageStack` depth / `currentPage` after a navigate to confirm you landed", "read `systemInfo` rendering-backend fields to know the renderer before automating (renderer-awareness.md)"],
+    "failure": ["a read that is slow or never returns usually means the app is not running (build/startup error) — investigate the build, don't retry (debug-discipline.md)"]
+  },
+  "automation_navigate": {
+    "side_effect": "write",
+    "preconditions": ["app running; `url` = a page path registered in app.json (no domain, e.g. `pages/index/index`)", "`switchTab` only for tabBar pages; `navigateBack` takes `delta` (not `url`); `reLaunch` resets the whole page stack", "side effect — do not navigate unless the request asks for it (non-invasive-no-side-effect, debug-discipline.md)"],
+    "common_mistakes": ["using `navigateTo`/`redirectTo` for a tabBar page — those fail; tabBar pages need `switchTab`", "passing `url` to `navigateBack` — it uses `delta`, not `url`", "reusing selectors/element handles across a navigate — navigation invalidates prior element references; re-query after"],
+    "verify": ["automation_runtime_info `currentPage`/`pageStack` to confirm the target route is now active"],
+    "failure": ["invalid/unregistered `url` → error or no-op, not a nav — check the path against app.json", "`reLaunch` wipes the stack (loses prior pages) — don't use it just to 'go to a page'"]
+  },
+  "automation_viewport_action": {
+    "side_effect": "write",
+    "preconditions": ["app running + on the target page; this tool does viewport/global ops only — NO tap/input", "`action=screenshot` REQUIRES `waitForSelector` OR `waitSeconds` (0-10) — prefer `waitForSelector` at a selector that proves the page rendered", "`screenshot` is simulator-only; `remote` switches to real-device debug, `close` closes the window; also hosts `pageScrollTo`/`testAccounts`/`stopAudits`/ticket ops"],
+    "common_mistakes": ["using this for tap/input — it has no such action; element interaction is automation_element_action", "calling `screenshot` with neither `waitForSelector` nor `waitSeconds` — the call is rejected", "expecting `screenshot` on a real device — it is simulator-only (renderer-awareness.md)"],
+    "verify": ["read the produced image file at `path`; confirm a scroll via automation_page_action `scrollTop` or runtime state"],
+    "failure": ["blank screenshot / 'client unavailable' = Skyline not yet rendered or a real device — wait for a real selector; on device capture via app-side canvas export (renderer-awareness.md)"]
+  },
+  "automation_page_action": {
+    "side_effect": "write",
+    "preconditions": ["app running + on the target page (automation_runtime_info `currentPage` first)", "read actions: `getData`/`querySelector`/`querySelectorAll`/`size`/`scrollTop`; write actions: `setData` (mutates page state), `callMethod`", "`setData` `patch` is a JSON string; `callMethod` args go via `--args-file`; `waitFor` takes a `condition`"],
+    "common_mistakes": ["guessing a selector — `querySelectorAll` to list elements before targeting", "using `setData` to 'fix' the UI casually — it mutates page state (side effect); only when asked", "using this for tap/input — that is automation_element_action"],
+    "verify": ["re-read with `getData` / re-query after `setData` or `callMethod` — a returned call is not proof of effect", "`waitFor` before reading effects of an async handler (dispatched ≠ landed; debug-discipline.md async-settle)"],
+    "failure": ["empty `querySelectorAll` on Skyline is usually a custom-component boundary or query-before-render, not a bad selector — `waitFor` + scope into the component host (renderer-awareness.md)"]
+  },
+  "automation_element_action": {
+    "side_effect": "write",
+    "preconditions": ["app running + on the target page (automation_runtime_info currentPage first)", "a valid CSS `selector`; if unsure, list first with automation_page_action querySelectorAll", "tap/longpress/input/trigger/touch ALL go through THIS tool (not automation_viewport_action)"],
+    "common_mistakes": ["using automation_viewport_action for tap/input — it has no such action; element interaction is here", "input on a non input/textarea element — input only works on form controls; use `value`/`trigger` otherwise", "selector cannot cross a custom-component boundary (esp. Skyline) — scope to the component host first"],
+    "verify": ["read the effect back (automation_page_action getData / the changed element text) — a returned call is not proof", "the handler may do async work (wx.request→setData); waitFor before reading (async-settle, see debug-discipline.md)"],
+    "failure": ["empty/no-match selector → error or no-op, not a tap; re-list elements", "on Skyline, an empty query is usually boundary/timing, not a wrong selector (renderer-awareness.md)"]
+  },
+  "automation_evaluate": {
+    "side_effect": "read",
+    "preconditions": ["app running; `fnSource` (a function source string) is REQUIRED; `args` via `--args-file`", "`action` is fixed to `evaluate` (CLI auto-injects it — do not pass it)", "keep `fnSource` a read-only probe unless a mutation was requested (a mutating fn is a side effect)"],
+    "common_mistakes": ["omitting `fnSource` (required) or hand-passing `action`", "returning a huge object — large returns are truncated (~200KB); narrow the expression to the field you need", "reaching for this when a typed tool exists (page data → getData, element text → element_action)"],
+    "verify": ["inspect the returned value; if the fn mutated state, re-read it via automation_page_action `getData`"],
+    "failure": ["truncated / oversized return → narrow the expression and re-run", "a throwing `fnSource` surfaces as an error — quote it verbatim, don't guess (debug-discipline.md)"]
+  },
+  "automation_wx_api": {
+    "side_effect": "write",
+    "preconditions": ["app running; `action` is call | mock | restore; `method` REQUIRED (bare wx API name, e.g. `getSystemInfo`, no `wx.` prefix)", "`mock` supplies `result` via `--result-file` or a `functionDeclaration`; a mock is a side effect — plan the `restore`"],
+    "common_mistakes": ["mocking without restoring — the mock leaks into later steps; `restore` the method after", "trying to mock `<camera>` / `CameraContext.takePhoto()` — those are native-component/context methods, not `wx.*`, so NOT mockable; mock the picker instead (renderer-awareness.md)", "forgetting that mocking `wx.*` pickers (`chooseMedia`/`chooseImage`/`chooseVideo`) is the supported way to fake media selection"],
+    "verify": ["after `mock`, drive the flow and read the effect back; confirm `restore` re-exposed the real API (call it and check)"],
+    "failure": ["`call` on a fee-bearing/permission-gated wx API can trigger a real request or a user popup — surface it, don't auto-run", "state left mocked after the turn silently poisons later reads — always restore"]
+  },
+  "automation_generate_script": {
+    "side_effect": "read",
+    "preconditions": ["prior automation calls must have been recorded this session (nothing to generate otherwise)", "no `project` param — it operates on the recorded call history, not a live page"],
+    "common_mistakes": ["using the output as-is — it is a DRAFT; human-review the selectors/steps before running it", "passing `clearHistory` when you may still need the history — it wipes the recorded calls (can't regenerate after)", "forgetting `includeFailed` also pulls failed calls into the script"],
+    "verify": ["read the generated script and sanity-check each step/selector before executing it as an automator script"],
+    "failure": ["empty or thin script = little/nothing recorded yet — run the automation flow first, then generate"]
+  },
+  "get_app_console_content": {
+    "side_effect": "read",
+    "preconditions": ["app running in the simulator (a never-returning read usually means the app isn't running — investigate the build, don't retry)", "`project` = project absolute path; `command` = a grep command STRING with no filename (e.g. \"grep -i error\", \"grep -n .\" for all)"],
+    "common_mistakes": ["passing an enum like \"all\"/\"error\" as `command` — it must be a real grep invocation; use \"grep -n .\" to get everything", "reading an empty result as \"console is empty\" — empty means NO MATCH against your grep, the buffer may still hold lines; widen with \"grep -n .\"", "omitting `command` (required) or including a filename in it"],
+    "verify": ["if a filtered grep returns nothing, re-run with \"grep -n .\" to confirm whether the buffer is truly empty vs just no match", "async-settle: a handler's log may not be flushed yet — waitFor/re-poll before concluding a log is absent (debug-discipline.md)"],
+    "failure": ["quote CONNECT_ERROR/MCP_TOOL_ERROR verbatim, don't paraphrase (debug-discipline.md failure table)", "read hangs / never returns → app likely not running in simulator; check startup/build rather than re-issuing the read"]
+  },
+  "get_app_network_content": {
+    "side_effect": "read",
+    "preconditions": ["app running in the simulator with the request(s) already issued (network is a buffer — a request made after the grep won't appear)", "`project` = project absolute path; `command` = a grep command STRING with no filename (e.g. \"grep -i fail\", \"grep -n .\" for all)"],
+    "common_mistakes": ["passing \"all\"/\"fail\" as an enum — `command` must be a grep invocation; \"grep -n .\" returns every record", "treating an empty result as \"no requests\" — empty means no line MATCHED the grep; re-run with \"grep -n .\"", "grepping for a request before it has fired (dispatched ≠ landed) — settle first"],
+    "verify": ["widen to \"grep -n .\" to distinguish a buffer with no match from an empty buffer", "for a request triggered by an action, waitFor/re-poll before asserting it failed or is missing (async-settle, debug-discipline.md)"],
+    "failure": ["quote the real error code verbatim (CONNECT_ERROR/MCP_TOOL_ERROR); do not guess", "persistently empty despite traffic → confirm the app is actually running and the request path executed, not a wrong grep"]
+  },
+  "debug_clear_cache": {
+    "side_effect": "write",
+    "preconditions": ["explicit user request to clear cache — NOT a passive-diagnosis default (safe-defaults, debug-discipline.md)", "`project` = project absolute path; `action` required (e.g. \"cleanAll\")"],
+    "common_mistakes": ["running it as part of read-only triage — it mutates project cache; keep diagnosis read-only unless clearing is the ask", "omitting `action` (required) — there is no default; pass e.g. \"cleanAll\"", "expecting it to fix a compile/runtime bug — clearing cache is a recovery step, then RE-collect evidence"],
+    "verify": ["after clearing, re-collect evidence (automation_runtime_info / a fresh console or network grep) to see whether the symptom changed", "a returned call is not proof the symptom is resolved — re-observe state (debug-discipline.md evidence-first)"],
+    "failure": ["returns an error / no-op → quote the message, don't blind-retry; confirm `action` value and that a project window is open"]
+  },
+  "compile_wxml": {
+    "side_effect": "read",
+    "preconditions": ["project window open (open_project_window first if needed)", "`filePath` is RELATIVE to miniprogramRoot / pluginRoot (e.g. pages/index/index.wxml), not an absolute path", "use ONLY to diagnose one template's compile product — not a whole-project build or preview"],
+    "common_mistakes": ["passing an absolute path or a path relative to project root instead of miniprogramRoot/pluginRoot", "setting isPlugin/isLazyLoad manually — the tool auto-infers them from project config; only override intent via compileType (miniprogram|plugin)", "using it to 'see the page render' — it returns a compile-result summary, not a rendered page (that's simulator_open_page)"],
+    "verify": ["read the returned compile-result summary for the errors/warnings — a returned call is not proof the WXML is clean"],
+    "failure": ["wrong/absent filePath → error or empty summary, not a compile pass; re-check the path is relative to miniprogramRoot/pluginRoot", "for plugin files pass compileType=plugin; a miniprogram-typed compile of a plugin file can misreport"]
+  },
+  "compile_wxss": {
+    "side_effect": "read",
+    "preconditions": ["project window open (open_project_window first if needed)", "`filePath` is RELATIVE to miniprogramRoot / pluginRoot (e.g. pages/index/index.wxss), not an absolute path", "use ONLY to diagnose one style file's compile product — not a whole-project build or preview"],
+    "common_mistakes": ["passing an absolute path or a path relative to project root instead of miniprogramRoot/pluginRoot", "setting isPlugin/isLazyLoad manually — auto-inferred from project config; only compileType (miniprogram|plugin) is a real knob", "treating a clean single-file WXSS compile as proof the whole project builds — it only covers this file"],
+    "verify": ["read the returned compile-result summary for style errors/warnings — a returned call alone is not proof"],
+    "failure": ["wrong/absent filePath → error or empty summary; re-check it is relative to miniprogramRoot/pluginRoot", "for plugin styles pass compileType=plugin"]
+  },
+  "simulator_open_page": {
+    "side_effect": "write",
+    "preconditions": ["project window open (open_project_window first if needed)", "`page` is a page ROUTE without extension (e.g. pages/index/index), not a .wxml file path", "only when the user wants to jump to / view a specific page in the simulator"],
+    "common_mistakes": ["expecting full compile-error reporting — it does NOT promise complete compile errors; to validate a file use compile_wxml/compile_wxss/compile_js", "passing a file path (…/index.wxml) instead of the page route (…/index)", "putting page params in `page` — use the separate `query` string (id=1&type=test); `scene` here is a NUMBER (default 1001)"],
+    "verify": ["confirm the target page via automation_runtime_info currentPage — a success return only means the open/compile was TRIGGERED", "to actually validate compilation, call compile_wxml/compile_wxss; open success != compile pass"],
+    "failure": ["success:true but page looks stale/wrong → investigate the build with the single-file compile tools, don't re-open blindly", "handler/data may settle async; waitFor before reading page state (async-settle, see debug-discipline.md)"]
+  },
+  "simulator_refresh": {
+    "side_effect": "write",
+    "preconditions": ["project window open", "only when the user asked to refresh / suspects a stuck runtime"],
+    "common_mistakes": ["treating success:true as a compile pass — it only means the refresh TRIGGERED"],
+    "verify": ["to confirm compilation, call compile_js/compile_wxml/compile_wxss — refresh success ≠ compile pass", "re-read automation_runtime_info / page state after"],
+    "failure": ["do not spam it; if the page still looks stale, investigate the build, not repeated refreshes"]
+  },
+  "create_preview_qrcode": {
+    "side_effect": "write",
+    "preconditions": ["project window open and DevTools logged in (check_devtools_status)", "prefer qr-format=window (pops the QR inside DevTools, auto-closes ~120s) — no local output path needed", "only supply qr-output when the user explicitly wants the QR written to a file"],
+    "common_mistakes": ["defaulting to a qr-output file path — causes path-permission issues; use qr-format=window instead", "reaching for this when the user just said 'send it to my phone' — that's auto_preview (no QR file at all)", "`scene` here is a STRING (e.g. 1001); page route goes in page-path, params in query (a=b&c=d)"],
+    "verify": ["with qr-format=window, confirm the QR window popped in DevTools; the user scans it — a return is not proof they previewed"],
+    "failure": ["not logged in → no valid preview QR; run check_devtools_status / scan_login first", "qr-output write fails on a permission-restricted path → switch to qr-format=window"]
+  },
+  "auto_preview": {
+    "side_effect": "write",
+    "preconditions": ["project window open and the developer's WeChat logged in (check_devtools_status) — preview is pushed straight to that logged-in developer's phone", "the DEFAULT preview choice; pass ONLY project (+ optional page-path / scene / query)"],
+    "common_mistakes": ["passing info-output / qr-output or any local-output path — this tool takes none; use create_preview_qrcode if a file is wanted", "using create_preview_qrcode when the user just wants it on their phone — auto_preview needs no QR file", "`scene` is a STRING; page route goes in page-path, params in query (a=b&c=d)"],
+    "verify": ["confirm the push succeeded in the return; actual on-phone preview is user-side and cannot be read back"],
+    "failure": ["not logged in / no bound developer WeChat → nothing arrives on the phone; run check_devtools_status / scan_login first, don't retry blindly"]
+  },
+  "miniprogram_upload": {
+    "side_effect": "confirm",
+    "preconditions": ["ONLY when the user explicitly asks to 上传代码 / 发布体验版 — never auto-upload", "`version` is REQUIRED (e.g. 1.0.0); desc optional", "project window open and logged in (check_devtools_status)"],
+    "common_mistakes": ["invoking it for a plain preview — preview is auto_preview/create_preview_qrcode; this publishes a 体验版", "the schema field is `version` but the live CLI flag is `--upload-version` — using `--version` will not set the version", "uploading without an explicit user request, or omitting the required version"],
+    "verify": ["check the return for upload success + the echoed version/desc; treat a mixed/partial result as not-fully-done, don't claim success"],
+    "failure": ["if the code package is already selected as 体验版, it needs manual user confirmation to upload — surface that prompt, don't retry", "fee/publish-class write op behind a confirmation — keep the real return; if User denied / no confirmation, stop, don't loop"]
+  },
+  "cloud_env_list": {
+    "side_effect": "read",
+    "preconditions": ["run this FIRST when env is unknown — every cloud_db_*/cloud_stor_* call needs the env ID it returns", "optional appid/project narrow the result; neither is required"],
+    "common_mistakes": ["auto-picking one env when multiple candidates come back — ask the user, never guess", "treating the returned name as the env ID — pass the environment ID downstream, not the display name", "skipping it and hardcoding an env into a db/storage call"],
+    "verify": ["read the returned list; confirm exactly one env before proceeding, else stop and ask"],
+    "failure": ["some ops on a cloud-storage/cloud project are unsupported — expect CLOUD_PROJECT_NOT_SUPPORTED; do not retry, surface it (debug-discipline.md)"]
+  },
+  "cloud_fn_list": {
+    "side_effect": "read",
+    "preconditions": ["both --env and --appid are required (env via cloud_env_list first; never guess)"],
+    "common_mistakes": ["omitting env or appid — both required, unlike cloud_env_list where they are optional", "using it to inspect one function's status/timeout — that is cloud_fn_info (--names)"],
+    "verify": ["read the returned function list; use a name from it as input to cloud_fn_info/inc_deploy"],
+    "failure": ["empty list = no deployed functions in that env, not an error; re-confirm env is the intended one"]
+  },
+  "cloud_fn_info": {
+    "side_effect": "read",
+    "preconditions": ["--env, --appid, and --names all required (env via cloud_env_list first)", "--names is a comma-separated string of function names (get exact names from cloud_fn_list)"],
+    "common_mistakes": ["passing a function directory path instead of the bare function name(s) in --names", "passing an array/JSON for names — it is one comma-separated string", "using it to browse all functions — that is cloud_fn_list (no names param)"],
+    "verify": ["read status/timeout/runtime from the JSON; after a deploy, re-poll here to confirm updated status"],
+    "failure": ["an unknown/misspelled name returns no info for it — cross-check against cloud_fn_list rather than retrying"]
+  },
+  "cloud_fn_deploy": {
+    "side_effect": "confirm",
+    "preconditions": ["explicit user request to deploy (never auto-deploy)", "appid + env both required (env via cloud_env_list first; never guess)", "`paths` = absolute cloud-function dir(s); the folder name IS the function name"],
+    "common_mistakes": ["omitting env or guessing it — resolve with cloud_env_list first", "using cloud_fn_deploy for a one-file change — use cloud_fn_inc_deploy (code-only, faster)", "forgetting --remote-npm-install when the function has deps"],
+    "verify": ["cloud_fn_info on the function name → check status/updated after deploy"],
+    "failure": ["fee-bearing/write op — surface the confirmation; on partial/mixed result keep the real return, don't claim full success"]
+  },
+  "cloud_fn_inc_deploy": {
+    "side_effect": "confirm",
+    "preconditions": ["explicit user request to deploy (never auto-deploy — cloud-write-gate, debug-discipline.md)", "--appid + --env + --path (function dir absolute path; dir name IS the function name) + --file all required", "--file must be RELATIVE to that function dir (e.g. index.js), not an absolute path"],
+    "common_mistakes": ["using cloud_fn_deploy for a one-file change — inc_deploy is code-only and faster", "passing an absolute or out-of-dir --file — it must be relative to --path", "expecting --remote-npm-install here — that flag belongs to cloud_fn_deploy; inc_deploy is code-only, no dependency install"],
+    "verify": ["cloud_fn_info on the function name → check status/updated timestamp after deploy"],
+    "failure": ["write/fee-bearing op — surface the confirmation gate; on User denied do not retry; on partial/mixed result keep the real return, don't claim full success"]
+  },
+  "cloud_db_read_struct": {
+    "side_effect": "read",
+    "preconditions": ["--appid + --env both required (env via cloud_env_list first; never guess)", "--action one of listCollections | describeCollection | checkCollection | listIndexes | checkIndex", "--collection-name needed for describeCollection/checkCollection/listIndexes/checkIndex; --index-name for checkIndex"],
+    "common_mistakes": ["calling describeCollection/listIndexes without --collection-name", "using it to read documents/rows — this reads collection & index STRUCTURE only; use cloud_db_read_doc for docs", "passing an invalid --action value (must be one of the five enum strings)"],
+    "verify": ["read the returned collections/indexes JSON; use a real collection name from listCollections before doc/write ops"],
+    "failure": ["missing collection → error/empty; confirm the name via listCollections rather than retrying"]
+  },
+  "cloud_db_write_struct": {
+    "side_effect": "confirm",
+    "preconditions": ["explicit user request (write op, confirmation gate — cloud-write-gate, debug-discipline.md)", "--appid + --env + --collection-name + --action (createCollection | updateCollection | deleteCollection) all required", "index management goes through --update-options-file (a JSON file path: CreateIndexes to add, DropIndexes to drop) on updateCollection"],
+    "common_mistakes": ["passing updateOptions inline — it is a FILE path (--update-options-file), not an inline object", "deleteCollection on the wrong/over-broad collection — verify the exact name via cloud_db_read_struct listCollections first", "confusing structure ops with document writes — inserting/updating rows is cloud_db_write_doc"],
+    "verify": ["cloud_db_read_struct (listCollections / listIndexes) to confirm the collection/index now exists or is gone"],
+    "failure": ["write op — surface the confirmation; on User denied/timeout do not retry the destructive op; keep the real return on partial results"]
+  },
+  "cloud_db_read_doc": {
+    "side_effect": "read",
+    "preconditions": ["--appid + --env + --collection-name all required (env via cloud_env_list first)", "object/array args are FILE paths: --query-file, --projection-file, --sort-file (JSON files), not inline JSON"],
+    "common_mistakes": ["passing query/projection/sort as inline strings instead of --*-file JSON files", "sort must be an ARRAY like [{\"key\":\"createdAt\",\"direction\":-1}] — not an object", "omitting --limit on a large collection and reading far more than needed"],
+    "verify": ["read the returned documents; use a returned _id in a query file if a follow-up write targets specific rows"],
+    "failure": ["empty result = no docs matched the query (not an error) — relax the query file or confirm the collection via read_struct"]
+  },
+  "cloud_db_write_doc": {
+    "side_effect": "confirm",
+    "preconditions": ["explicit user request (write op, confirmation gate — cloud-write-gate, debug-discipline.md)", "--appid + --env + --collection-name + --action (insert | update | delete) all required", "insert → --documents-file (JSON ARRAY); update → --query-file + --update-file; delete → --query-file", "row-level security may require _openid in inserted documents / query"],
+    "common_mistakes": ["update-file containing query conditions or a bare replacement doc — it must describe the change with $set/$inc/$unset operators only", "insert with a single object instead of an array in --documents-file", "update/delete without --query-file (nothing to target), or omitting --is-multi when intending to hit multiple rows", "passing documents/query/update inline instead of via --*-file paths"],
+    "verify": ["cloud_db_read_doc with the same query → confirm the doc was inserted/updated/removed as intended"],
+    "failure": ["write op — surface the confirmation; on User denied do not retry; a query matching 0 docs is a no-op (update/delete silently affect nothing) — verify the query first; keep real return on partial/mixed results"]
+  },
+  "cloud_stor_read": {
+    "side_effect": "read",
+    "preconditions": ["--appid + --env + --cloud-path all required (env via cloud_env_list first)", "--action one of list | info | url | read; --cloud-path can be a file (files/data.txt) or a dir prefix (files/) for list"],
+    "common_mistakes": ["treating action=url output as a permanent public link — it is a TEMPORARY signed temporaryUrl that expires by expireTime (default maxAge 3600s); use only for the current task, never persist it", "expecting publicUrl/note in the result — they are intentionally hidden; do not build follow-up logic on them", "using action=read on a binary file — read is for text content"],
+    "verify": ["for list/info, read the returned entries; for url, note it is short-lived and re-fetch if expired rather than caching"],
+    "failure": ["missing path → error/empty; on a cloud-storage/cloud project some ops raise CLOUD_PROJECT_NOT_SUPPORTED — surface it, do not retry"]
+  },
+  "cloud_stor_write": {
+    "side_effect": "confirm",
+    "preconditions": ["explicit user request for upload/delete (write ops, confirmation gate); download does NOT confirm", "--appid + --env + --cloud-path all required; --local-path required for upload/download", "delete needs --force true AND a precise --cloud-path; --is-directory for a directory op"],
+    "common_mistakes": ["delete with an empty or over-broad --cloud-path prefix — always target a precise path; scope directory deletes with --is-directory and confirm the range", "upload/download without --local-path", "treating the upload result's temporaryUrl/expireTime as a permanent public URL (publicUrl/note are hidden — do not depend on them)", "auto-running delete/upload without surfacing the confirmation gate"],
+    "verify": ["cloud_stor_read (list/info) on the cloudPath → confirm the file now exists (upload) or is gone (delete)"],
+    "failure": ["upload/delete are write ops — surface the confirmation; on User denied do not retry the destructive op; keep the real return on partial/mixed results; download failing usually means wrong cloudPath, not a permission gate"]
+  }
+}

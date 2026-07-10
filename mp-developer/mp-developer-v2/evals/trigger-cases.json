@@ -1,0 +1,16 @@
+{
+  "cases": [
+    { "id": "p1", "prompt": "帮我调试一下微信小程序，看看 console 里有没有报错", "should_trigger": true, "holdout": true },
+    { "id": "p2", "prompt": "连上微信开发者工具，读一下当前页面的 pageData", "should_trigger": true },
+    { "id": "p3", "prompt": "把这个小程序预览到我手机上看看", "should_trigger": true, "holdout": true },
+    { "id": "p4", "prompt": "部署一下小程序的云函数到测试环境", "should_trigger": true },
+    { "id": "p5", "prompt": "点一下小程序页面里的提交按钮然后截个图", "should_trigger": true, "holdout": true },
+    { "id": "p6", "prompt": "检查一下微信开发者工具现在的登录状态和 openid", "should_trigger": true },
+    { "id": "p7", "prompt": "automate a WeChat mini program: navigate to the cart page and assert the total", "should_trigger": true },
+    { "id": "n1", "prompt": "把这个小程序从 skyline 渲染器迁移到 webview", "should_trigger": false, "holdout": true },
+    { "id": "n2", "prompt": "用 wx.modelContext 给我的小程序做一个 AI 技能卡片", "should_trigger": false },
+    { "id": "n3", "prompt": "帮我用浏览器自动化在 Chrome 里填一个网页表单", "should_trigger": false, "holdout": true },
+    { "id": "n4", "prompt": "写一篇介绍微信小程序云开发的博客文章", "should_trigger": false },
+    { "id": "n5", "prompt": "review 我的 React 组件代码有没有性能问题", "should_trigger": false }
+  ]
+}
