@@ -36,6 +36,9 @@
 
 > 想让 Opus 持续把 principle KB 与这条流水线追到生态最新，见 [`skills/skill-guidance/skill-principle/UPDATE.md`](skills/skill-guidance/skill-principle/UPDATE.md)（含承重数字的 Fact Registry + 质量杆）。上一代 v1 冻结在 [`archive/`](archive/)。
 
+**下一代（草案，不计入正式 16 个）**
+- **[skill-creator-max](skills/skill-creator-max/)** —— 把上面五个职能收进**一个** skill：SKILL.md 本体是一个**薄指挥官**，自己不做任何职能，只**逐角色派出全新子代理、按类型化工件把关、逐门路由**。扎根 `skill-philosophy` 三层哲学 KB（每条规则引锚点；该 KB 为**仓库外本地**资产，不随仓库分发——role-pack 已把规则操作化并内联锚点，运行时不依赖它）；薄常驻体 + 五个按需 role-pack（只进被派子代理上下文）+ 五份六厂交集工件 schema + 只查结构的 L0 门 + 自含的 O5 独立电池（从 vince-attacker 五镜头蒸馏，高风险改派不同厂商攻击者）。用**编排解构**关掉旧四 skill 的坑（跨 skill 交接摩擦、同作者相关性、臃肿、绿而错、渐近电池误编、触发/移植）。**v0.1.0-draft**：一次 dogfood 真造小 skill 端到端过全部 L0 门、trigger holdout 0/12 误触；但每角色真独立性与跨厂商电池尚未演练 → 自评 `candidate` 而非 `industrial`，暂不部署、不取代已装的四 skill。
+
 ## 当前这版的重点
 
 这不是一堆 prompt 模板，而是一套会自己长牙的技能系统：
@@ -157,6 +160,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
 
 - **2026-07-06** — humanizer 升到 v3.2（contrast-frame quota、citation-shell rework、frame-first hardening）；两个 principle KB 做 FABLE synthesis；新增 `loop-constructor-codex` 与 `model-pyramid`，作为文末 `stupidskills` 附录，不计入正式 16 个；`model-pyramid` 把 subagent 模型/effort 选择做成可测试规则卡。
+- **2026-07-14** — 新建 `skill-philosophy` 三层哲学 KB（principle→guideline→rule，五本 C/S/E/Z/O 系；**仓库外本地**资产，不随仓库分发）+ 下一代 [`skill-creator-max`](skills/skill-creator-max/) **v0.1.0-draft**：把 composer/guidance/engineer/zipper/conductor 五职能收进**一个薄指挥官 skill**（逐角色派全新子代理、只认类型化工件、逐门把关），扎根该 KB。dogfood 真造小 skill 过全部 L0 门（判别性自测全绿）、trigger holdout 0/12 误触；诚实注记：一 agent 分饰全角色、跨厂商电池未跑 → 自评 candidate，暂不部署、不取代已装四 skill。
 - **2026-07-14** — `attacker` 从头重写为 **v0.5.0**：以新建的 skill-design 哲学知识库为根，把机制压到极简（fork 新脑子 → 一个镜头 → 只留能证明的），换成**五镜头固定轮转** + SEED 反假阴性门 + 确定性影子地图提取；**全模型可用**成为设计约束零，换厂商模型即换更强独立性；删掉 `rules/` / `agents/` / 多个 `.mjs` 装置，总重量约为旧版 1/4。诚实注记：塑造它的每一轮都是同族 `instance` 级攻击，跨厂商验收测试尚未跑。
 - **2026-07-02** — skill-building pipeline 升到 v2：G/E gate 可执行化、audit disposition、held-out trigger eval、portable zipper；v1 pipeline 冻结进 `archive/`；新增本地 `eval_exchange` 协议；`attacker` / `loop-constructor` / `reorganize-logic` / `test-driven-development` 做 independence-family 更新。
 - **2026-06-25** — `skill-principle` 和 `loop-principle` 内嵌到对应 skill，安装时随 skill 一起走。

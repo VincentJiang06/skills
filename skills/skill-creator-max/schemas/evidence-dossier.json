@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvidenceDossier — engineer artifact (E-series)",
+  "description": "Institutionalized doubt, layered. Six-vendor-intersection JSON. The L0 script validate_report RE-RUNS the harness (stale command_output fails) and checks every layer verdict + evaluator calibration record + red-light artifact exist. Anchors: E1 six layers, E2 pressure layer, E3 capability/regression split, E6 evaluator audit, E9 pre-registered stop.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_type", "target", "produced_by_role", "layers", "evaluator_calibration", "red_light_history", "pressure_sentinels", "stop_conditions", "verification"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "artifact_type": {"type": "string", "enum": ["evidence_dossier"]},
+    "target": {"type": "string"},
+    "produced_by_role": {"type": "string", "enum": ["engineer"]},
+    "layers": {
+      "type": "array",
+      "description": "E1: every eval case tags its layer; a release decision cites at least one of E-L0..E-L4.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["layer", "eval_kind", "cases_total", "cases_passed", "verdict", "notes"],
+        "properties": {
+          "layer": {"type": "string", "enum": ["E-L0", "E-L1", "E-L2", "E-L3", "E-L4", "E-L5"], "description": "syntax / single-case / module / under-pressure / workflow / institutional"},
+          "eval_kind": {"type": "string", "enum": ["capability", "regression"], "description": "E3: capability and regression have different lifecycles; graduating a saturated capability set into regression is legal"},
+          "cases_total": {"type": "integer"},
+          "cases_passed": {"type": "integer"},
+          "verdict": {"type": "string", "enum": ["green", "partial", "red", "not_run"]},
+          "notes": {"type": "string", "description": "for partial/red: which failures, whether known-class; E-L5 = online rework signal collection point status"}
+        }
+      }
+    },
+    "evaluator_calibration": {
+      "type": "array",
+      "description": "E6: every judge/linter carries a golden-sample alignment record. Uncalibrated evaluator = the green-but-wrong source. Sample-selection authority belongs to the gate/battery, must include historical-misjudgment hard cases + negatives.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evaluator", "evaluator_kind", "golden_sample_count", "alignment_rate", "model_baseline", "unknown_rate", "has_unknown_exit", "different_source_from_builder", "audit_dimensions"],
+        "properties": {
+          "evaluator": {"type": "string"},
+          "evaluator_kind": {"type": "string", "enum": ["deterministic", "llm_judge"], "description": "C5 objective/subjective fork. deterministic = a byte/numeric comparator (no self-preference, no style bias, no Unknown exit) — validate_report EXEMPTS it from the judge-bias fields (fill them with honest neutral values). llm_judge = the E6 discipline applies in full."},
+          "golden_sample_count": {"type": "integer", "description": "for deterministic = the test-case count; for llm_judge = the calibrated golden set"},
+          "alignment_rate": {"type": "number"},
+          "model_baseline": {"type": "string", "description": "E6/A37: re-verify on base-model change; prior record auto-expires"},
+          "unknown_rate": {"type": "number", "description": "capped; a judge forced to score is suspect"},
+          "has_unknown_exit": {"type": "boolean"},
+          "different_source_from_builder": {"type": "boolean", "description": "A31: judge must not share source with builder or the evaluated output"},
+          "audit_dimensions": {"type": "array", "items": {"type": "string"}, "description": "must include style/verbosity bias (2026 #1 bias 0.10-0.76), not just position/exact-match"}
+        }
+      }
+    },
+    "red_light_history": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The RED artifact: tests failed BEFORE the fix (anti-vacuity). For prose skills, a behavioral baseline of the prompt without the skill.",
+      "required": ["red_artifact_path", "red_before_green", "kind"],
+      "properties": {
+        "red_artifact_path": {"type": "string"},
+        "red_before_green": {"type": "boolean", "description": "red log timestamp precedes first green commit (E5 state assertion)"},
+        "kind": {"type": "string", "enum": ["failing_test_log", "behavioral_baseline"]}
+      }
+    },
+    "pressure_sentinels": {
+      "type": "array",
+      "description": "E2: >=1 mid-position x high-distractor x 64K sentinel per key module. Distractors must be same-domain-but-stale/wrong, not neutral filler.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["module", "position", "distractor_kind", "total_length", "verdict"],
+        "properties": {
+          "module": {"type": "string"},
+          "position": {"type": "string", "enum": ["head", "middle", "tail"]},
+          "distractor_kind": {"type": "string", "description": "e.g. same-domain stale-version doc; neutral filler is BAD"},
+          "total_length": {"type": "string", "enum": ["32K", "64K", "128K"]},
+          "verdict": {"type": "string", "enum": ["green", "red", "not_run"]}
+        }
+      }
+    },
+    "stop_conditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "E9: pre-registered BEFORE the loop. Adversarial stops are budget/marginal, never absolute-zero. Strictness scales with spec.failure_cost.",
+      "required": ["hypothesis", "pass_when", "abandon_when", "budget", "marginal_threshold"],
+      "properties": {
+        "hypothesis": {"type": "string"},
+        "pass_when": {"type": "string"},
+        "abandon_when": {"type": "string"},
+        "budget": {"type": "string", "description": "rounds / tokens cap"},
+        "marginal_threshold": {"type": "string", "description": "e.g. N consecutive rounds no new P1/P2"}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The L0 script re-runs this; a stale command_output fails the gate.",
+      "required": ["harness_ran", "harness_path", "all_required_passed", "command_output", "exit_code"],
+      "properties": {
+        "harness_ran": {"type": "boolean"},
+        "harness_path": {"type": "string"},
+        "all_required_passed": {"type": "boolean"},
+        "command_output": {"type": "string"},
+        "exit_code": {"type": "integer"}
+      }
+    }
+  }
+}

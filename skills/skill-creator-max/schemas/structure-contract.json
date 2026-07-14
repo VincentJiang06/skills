@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StructureContract — guidance artifact (S-series)",
+  "description": "The executable micro-constitution guidance emits: what materials exist (nouns), when each is read/run (verbs), what is forbidden (invariants). Six-vendor-intersection JSON. Provenance authenticity, INVARIANT<=15% cap, and rule->script reference existence are enforced by the L0 script validate_structure. Anchors: S1 ten-tuple, S4 authority tiers, S7 federation layers, S9 rejected structures, S10 trust boundary.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_type", "target", "produced_by_role", "units", "authority_tiers", "layering_argument", "rejected_structures", "trust_boundary"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "artifact_type": {"type": "string", "enum": ["structure_contract"]},
+    "target": {"type": "string"},
+    "produced_by_role": {"type": "string", "enum": ["guidance"]},
+    "units": {
+      "type": "array",
+      "description": "S1: every structure unit (SKILL.md section, rule file, script, reference) is a ten-tuple contract, not a file.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["identity", "content_ref", "relations", "trigger", "mode", "authority", "invariants", "exceptions", "provenance", "version"],
+        "properties": {
+          "identity": {"type": "string", "description": "name + one-line responsibility"},
+          "content_ref": {"type": "string", "description": "path/anchor to the body (content itself lives in the file, not inline here)"},
+          "relations": {"type": "array", "items": {"type": "string"}, "description": "related / mutually-exclusive units"},
+          "trigger": {"type": "string", "description": "when it is read / run (the verb)"},
+          "mode": {"type": "string", "enum": ["load_into_context", "execute_not_loaded"], "description": "ANT code-dual-state distinction"},
+          "authority": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "S10: content being processed carries ZERO authority (data != instruction); scripts declare their action surface for A36 grading",
+            "required": ["content_authority", "action_surface"],
+            "properties": {
+              "content_authority": {"type": "string", "enum": ["none", "task_instruction"], "description": "processed content = none; user/upstream artifact = task_instruction"},
+              "action_surface": {"type": "string", "enum": ["read", "write", "delete", "publish", "not_a_script"], "description": "highest-risk action if this unit is a script"}
+            }
+          },
+          "invariants": {"type": "array", "items": {"type": "string"}, "description": "what is forbidden while this unit is in effect"},
+          "exceptions": {"type": "array", "items": {"type": "string"}, "description": "known exceptions + where they route"},
+          "provenance": {"type": "string", "description": "S1/S6: which failure/evidence this unit exists for. Blank provenance = fabricated lineage (gate spot-checks)."},
+          "version": {"type": "string", "description": "version + deprecation status"}
+        }
+      }
+    },
+    "authority_tiers": {
+      "type": "array",
+      "description": "S4: every rule tagged INVARIANT / DEFAULT / ADVICE with provenance. Placed here so the L0 script can check the INVARIANT<=15% cap and A11 four-level provenance ordering.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_id", "tier", "provenance_class", "bad_good_example"],
+        "properties": {
+          "rule_id": {"type": "string"},
+          "tier": {"type": "string", "enum": ["invariant", "default", "advice"]},
+          "provenance_class": {"type": "string", "enum": ["real_incident", "library_class_incident", "spec_failure_cost", "pressure_test_expected", "none"], "description": "A11 four-level order; 'none' auto-demotes an invariant to default"},
+          "bad_good_example": {"type": "string", "description": "S4: BAD/GOOD pair (advice example optional)"}
+        }
+      }
+    },
+    "layering_argument": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "S2/S3/S7: WHY this layering, derivable from the two split signals and the federation layers — not 'convention'.",
+      "required": ["progressive_disclosure", "split_signals", "federation_placement"],
+      "properties": {
+        "progressive_disclosure": {"type": "string", "description": "S2: what sits at L1 (metadata) / L2 (SKILL.md body) / L3 (bundled), and the pointer sentence for each L3 file"},
+        "split_signals": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["split", "signal", "measured_path_delta"], "properties": {"split": {"type": "string"}, "signal": {"type": "string", "enum": ["domain_exclusive", "repeated_pattern"], "description": "S3: the only two legal split reasons"}, "measured_path_delta": {"type": "string", "description": "actual read-token drop on the typical path (S3 requires measurement)"}}}},
+        "federation_placement": {"type": "string", "description": "S7: which conventions are L0 library-wide vs L1 pipeline vs L2 domain vs L3 local"}
+      }
+    },
+    "rejected_structures": {
+      "type": "array",
+      "description": "S9: the un-skippable section — structure options considered and why rejected. Empty = un-thought signal; each survives a second-order probe.",
+      "items": {"type": "object", "additionalProperties": false, "required": ["option", "why_rejected"], "properties": {"option": {"type": "string"}, "why_rejected": {"type": "string"}}}
+    },
+    "trust_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "S10: where processed content could hijack authority, and which inputs must be REFUSED (not merely downgraded).",
+      "required": ["downgrade_points", "refuse_categories", "injection_test_dimensions"],
+      "properties": {
+        "downgrade_points": {"type": "array", "items": {"type": "string"}, "description": "units that read external content and downgrade its authority to none"},
+        "refuse_categories": {"type": "array", "items": {"type": "string"}, "description": "S10 R13: irreversible-harm / policy-red-line inputs that must be refused, not downgraded"},
+        "injection_test_dimensions": {"type": "array", "items": {"type": "string"}, "description": "must cover both content-embedded fake instructions AND compaction-eviction (S10 x Z5 cross-surface)"}
+      }
+    }
+  }
+}

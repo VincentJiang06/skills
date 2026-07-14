@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CompressionReport — zipper artifact (Z-series)",
+  "description": "Compression's object is BEHAVIOR, not text. Six-vendor-intersection JSON. Verdict is LEXICOGRAPHIC (R11): gate 1 = behavioral equivalence (regression not-down AND probes not-down); only then gate 2 compares token gain vs exception cost. Literal-lossless-but-behavior-degraded is a negative asset. Anchors: Z1 three ledgers + lexicographic verdict, Z2 dual acceptance, Z5 incompressible list, Z6 cache prefix, Z7 description polish.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_type", "target", "produced_by_role", "skipped", "per_path_token_delta", "behavioral_equivalence_gate", "three_ledgers", "probe_scores", "incompressible_check", "cache_prefix_check", "importance_ranking", "lexicographic_verdict"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "artifact_type": {"type": "string", "enum": ["compression_report"]},
+    "target": {"type": "string"},
+    "produced_by_role": {"type": "string", "enum": ["zipper"]},
+    "skipped": {"type": "boolean", "description": "Z is the one optional stage; a declared skip does not block final_verdict=done. When true the other fields may be empty."},
+    "per_path_token_delta": {
+      "type": "array",
+      "description": "Z2: per typical-trigger-path before/after actual read-token. Paths come from spec.trigger_tests positives, NOT zipper's own choosing.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "tokens_before", "tokens_after"],
+        "properties": {"path": {"type": "string"}, "tokens_before": {"type": "integer"}, "tokens_after": {"type": "integer"}}
+      }
+    },
+    "behavioral_equivalence_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Z1 gate 1 (the VETO): behavior degraded => roll back regardless of token gain.",
+      "required": ["regression_not_down", "probes_not_down", "passed"],
+      "properties": {
+        "regression_not_down": {"type": "boolean"},
+        "probes_not_down": {"type": "boolean", "description": "omission_loss <= 0"},
+        "passed": {"type": "boolean"}
+      }
+    },
+    "three_ledgers": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Z1: three incommensurable ledgers. token_gain & exception_cost share token/period units; omission_loss is probe-quality x failure-cost weight.",
+      "required": ["token_gain", "omission_loss", "exception_cost"],
+      "properties": {
+        "token_gain": {"type": "string", "description": "net token/period saved on typical paths"},
+        "omission_loss": {"type": "string", "description": "measured by E7 probes, NOT 'I looked and nothing dropped'"},
+        "exception_cost": {"type": "string", "description": "frequency x cost of newly-created exception paths"}
+      }
+    },
+    "probe_scores": {
+      "type": "array",
+      "description": "E7: only APPLICABLE probes. For static skill-text compression only Recall & Decision map; do NOT fill Artifact/Continuation to satisfy the schema (that is the schema-valid!=true shadow).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["probe_type", "applicable", "score"],
+        "properties": {
+          "probe_type": {"type": "string", "enum": ["recall", "artifact", "continuation", "decision"]},
+          "applicable": {"type": "boolean"},
+          "score": {"type": "string", "description": "blind-judge rubric score, or 'n/a' when not applicable"}
+        }
+      }
+    },
+    "incompressible_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Z5: reasoning traces, file/artifact-state info, and INVARIANT rules + their examples are NEVER compressed. Governance constraints need structural Constraint Pinning, not 'tell the summarizer to keep them'.",
+      "required": ["blacklist_checked", "invariants_pinned", "reasoning_preserved"],
+      "properties": {
+        "blacklist_checked": {"type": "boolean"},
+        "invariants_pinned": {"type": "boolean"},
+        "reasoning_preserved": {"type": "boolean"}
+      }
+    },
+    "cache_prefix_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Z6: head zero-dynamic (no date/version/random id in the prefix), static-first load order.",
+      "required": ["head_zero_dynamic", "static_first"],
+      "properties": {"head_zero_dynamic": {"type": "boolean"}, "static_first": {"type": "boolean"}}
+    },
+    "importance_ranking": {"type": "string", "description": "Z3: the explicit importance ordering; rare-but-fatal Gotchas promoted to INVARIANT, not squeezed out by length. Moved-out content each carries a move-out reason."},
+    "lexicographic_verdict": {"type": "string", "enum": ["pass", "roll_back", "skipped"], "description": "Z1: pass only if gate 1 passed AND net token gain > exception cost"}
+  }
+}

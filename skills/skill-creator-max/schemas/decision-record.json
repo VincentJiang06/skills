@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DecisionRecord + LearningRecord — conductor artifact (O-series)",
+  "description": "The conductor's own artifact and tamper-evident ledger. Every gate verdict is a COMPLETE decision object (O2): a PASS with no rejected options is an un-thought signal. Six-vendor-intersection JSON. The conductor is the single writer (A35). Anchors: O2 complete decision object, O3 min() routing, O4 gate leverage, O5 battery + min-fold, O7 capability ladder, O8 learning record three destinations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_type", "target", "produced_by_role", "capability_level", "gates", "acceptance", "final_verdict", "blocking_gaps", "learning_record"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "artifact_type": {"type": "string", "enum": ["decision_record"]},
+    "target": {"type": "string"},
+    "produced_by_role": {"type": "string", "enum": ["conductor"]},
+    "capability_level": {"type": "string", "enum": ["O-L0", "O-L1", "O-L2", "O-L3", "O-L4"], "description": "O7: ships at O-L0 (every gate human-judged); upgrades pre-registered, a serious incident auto-demotes one level"},
+    "gates": {
+      "type": "array",
+      "description": "O2: one complete decision object per gate crossing. O4: each gate is high-leverage or routine.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage", "iteration", "artifact_ref", "leverage", "question", "evidence", "options_considered", "options_rejected", "uncertainty", "adjudicator", "verdict", "routing_hypothesis", "remediation_path"],
+        "properties": {
+          "stage": {"type": "string", "enum": ["composer", "guidance", "engineer", "zipper", "battery", "final_acceptance"]},
+          "iteration": {"type": "integer"},
+          "artifact_ref": {"type": "string", "description": "pointer to the judged artifact + entries (O1: judge the artifact, not the chat)"},
+          "leverage": {"type": "string", "enum": ["high_leverage", "routine"], "description": "O4: high-leverage => independent veto battery; routine => machine checklist, no queued battery"},
+          "question": {"type": "string"},
+          "evidence": {"type": "array", "items": {"type": "string"}, "description": "pointers into the artifact's entries"},
+          "options_considered": {"type": "array", "items": {"type": "string"}},
+          "options_rejected": {"type": "array", "description": "O2: empty rejected list = un-thought signal", "items": {"type": "object", "additionalProperties": false, "required": ["option", "why"], "properties": {"option": {"type": "string"}, "why": {"type": "string"}}}},
+          "uncertainty": {"type": "string"},
+          "adjudicator": {"type": "string", "enum": ["human", "machine"], "description": "O7: which the capability level allows"},
+          "verdict": {"type": "string", "enum": ["pass", "fail", "loopback"]},
+          "routing_hypothesis": {"type": "string", "description": "O3 min(): on failure, which upstream artifact/field is the SMALLEST term (not where it alarmed). Void if a repair there doesn't clear the failure."},
+          "remediation_path": {"type": "string"}
+        }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "O5: builder's green light is not the end of evidence. effective_verdict = min(re_audit, battery); the written verdict may never exceed battery_verdict.",
+      "required": ["re_audit_verdict", "battery_verdict", "battery_independence_tier", "battery_stop_reason", "effective_verdict"],
+      "properties": {
+        "re_audit_verdict": {"type": "string", "enum": ["draft", "candidate", "industrial"]},
+        "battery_verdict": {"type": "string", "enum": ["clean", "breaches_found", "not_run"], "description": "a 'green but visibly wrong' output is a FAILURE, not a pass"},
+        "battery_independence_tier": {"type": "string", "enum": ["none", "instance", "model", "human"], "description": "O5/A33: high stakes require model-tier (different-vendor attacker); 'none' only when battery_verdict=not_run"},
+        "battery_stop_reason": {"type": "string", "description": "E9 pre-registered condition that fired; never 'N clean rounds'"},
+        "effective_verdict": {"type": "string", "enum": ["draft", "candidate", "industrial"], "description": "= min(re_audit, battery-capped)"}
+      }
+    },
+    "final_verdict": {"type": "string", "enum": ["done", "stopped_unmet"], "description": "on loop-budget exhaustion, honest stopped_unmet with named blocking_gaps; never relax a gate to force a pass"},
+    "blocking_gaps": {"type": "array", "items": {"type": "string"}},
+    "learning_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "O8: emitted on pipeline close. Three FIXED destinations, each with an actual write (diff-checkable). A long stretch with zero KB weakening = reflux dead.",
+      "required": ["results", "failures", "root_cause_routing_verified", "evaluator_audit_findings", "battery_breaches", "destinations"],
+      "properties": {
+        "results": {"type": "string"},
+        "failures": {"type": "string"},
+        "root_cause_routing_verified": {"type": "string", "description": "O3: did the min() routing hypotheses hold? update the failure-mode->stage map"},
+        "evaluator_audit_findings": {"type": "string", "description": "E6"},
+        "battery_breaches": {"type": "string", "description": "O5: gaps the battery punched through"},
+        "destinations": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "O8 three destinations",
+          "required": ["checklist_entry", "gotcha_backfill", "kb_revision"],
+          "properties": {
+            "checklist_entry": {"type": "string", "description": "O4 supply line"},
+            "gotcha_backfill": {"type": "string", "description": "S6 supply line"},
+            "kb_revision": {"type": "string", "description": "may weaken/overturn an existing article; long-term none = reflux dead"}
+          }
+        }
+      }
+    }
+  }
+}

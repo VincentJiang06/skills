@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SkillSpec — composer artifact (C-series)",
+  "description": "The decision object composer emits. Six-vendor-intersection JSON: object root, all required, no min* constraints, snake_case, English. Tri-state (filled / explicit-unknown / explicit-dispute) and build-vs-reject consistency are enforced by the L0 script validate_spec, NOT by this schema. Anchors: C2 fifteen-field object, C7 reject branch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_type", "target", "produced_by_role", "verdict", "rejection", "build_spec"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "artifact_type": {"type": "string", "enum": ["skill_spec"]},
+    "target": {"type": "string", "description": "skill name or path this spec is for"},
+    "produced_by_role": {"type": "string", "enum": ["composer"]},
+    "verdict": {"type": "string", "enum": ["build", "reject"], "description": "C7: 'reject' (not-a-skill) is a legal, successful output"},
+    "rejection": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Populated when verdict=reject (C7 requires a VERIFIED alternative, not a verbal dismissal). When verdict=build, still emit this object with empty-string fields — it is only enforced on reject; it may also carry the reject-first triage's alternative-run evidence.",
+      "required": ["reason", "alternative", "alternative_evidence"],
+      "properties": {
+        "reason": {"type": "string"},
+        "alternative": {"type": "string", "description": "bare model / one prompt / existing skill that already does it"},
+        "alternative_evidence": {"type": "string", "description": "record of actually running the task the alternative way (C7: no verbal reject)"}
+      }
+    },
+    "build_spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The C2 fifteen-field decision object. When verdict=reject this may be skeletal (script relaxes the completeness check).",
+      "required": ["task", "trigger", "users", "baseline", "success", "failure_cost", "materials", "dependencies", "rejected", "unknowns", "disputes", "stop", "narratives", "faq", "trigger_tests"],
+      "properties": {
+        "task": {"type": "string", "description": "C1 narrative: who, at what moment, blocked by what, cost of failure"},
+        "trigger": {"type": "string", "description": "trigger + anti-trigger conditions (C6)"},
+        "users": {"type": "string", "description": "who uses it, expertise, failure tolerance"},
+        "baseline": {"type": "string", "description": "current process + current cost"},
+        "success": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "C5 objective/subjective fork declared per dimension",
+          "required": ["dimensions"],
+          "properties": {
+            "dimensions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name", "kind", "criterion"],
+                "properties": {
+                  "name": {"type": "string"},
+                  "kind": {"type": "string", "enum": ["objective", "subjective"]},
+                  "criterion": {"type": "string", "description": "objective=deterministic check; subjective=rubric + calibration samples"}
+                }
+              }
+            }
+          }
+        },
+        "failure_cost": {"type": "string", "description": "failure modes + each cost, incl. unacceptable failures; feeds E9 stop strictness"},
+        "materials": {"type": "string", "description": "docs/scripts/data to carry + provenance"},
+        "dependencies": {"type": "string", "description": "external deps + assumptions, explicitly listed"},
+        "rejected": {
+          "type": "array",
+          "description": "considered-and-rejected approaches + reasons. Empty = strong un-thought signal (gate spot-checks).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["option", "why_rejected"],
+            "properties": {"option": {"type": "string"}, "why_rejected": {"type": "string"}}
+          }
+        },
+        "unknowns": {
+          "type": "array",
+          "description": "explicit unknowns, EACH with a discovery plan (C2). A dimension is legally blank only if it appears here.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "unknown", "discovery_plan"],
+            "properties": {"id": {"type": "string"}, "unknown": {"type": "string"}, "discovery_plan": {"type": "string", "description": "when + how it gets resolved"}}
+          }
+        },
+        "disputes": {
+          "type": "array",
+          "description": "explicit disputes; candidates kept, not force-unified (C2)",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "dispute", "candidates"],
+            "properties": {"id": {"type": "string"}, "dispute": {"type": "string"}, "candidates": {"type": "array", "items": {"type": "string"}}}
+          }
+        },
+        "stop": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "C2: BOTH a done-criterion AND an abandon-criterion",
+          "required": ["done_when", "abandon_when"],
+          "properties": {"done_when": {"type": "string"}, "abandon_when": {"type": "string"}}
+        },
+        "narratives": {
+          "type": "array",
+          "description": "C1/C4: >=2 usage narratives, >=1 adversarial/out-of-bounds. Script enforces the counts + adversarial flag.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["scenario", "adversarial", "author"],
+            "properties": {
+              "scenario": {"type": "string", "description": "concrete story with real detail (file paths, values); each 'skill should do X' maps back to a spec field"},
+              "adversarial": {"type": "boolean"},
+              "author": {"type": "string", "description": "C4 recommends a non-author subagent for the adversarial one"}
+            }
+          }
+        },
+        "faq": {
+          "type": "array",
+          "description": "C3 six forced-rebuttal questions, each with a substantive answer or a pointer into unknowns. Minimum set, may grow not shrink.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["question", "answer"],
+            "properties": {"question": {"type": "string"}, "answer": {"type": "string"}}
+          }
+        },
+        "trigger_tests": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "C6: positives, near-miss negatives (shared keyword, wrong intent), nearest-neighbor boundary sentences. Each case carries an expected_frequency tier.",
+          "required": ["positives", "near_miss_negatives", "nearest_neighbors"],
+          "properties": {
+            "positives": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["query", "expected_frequency"], "properties": {"query": {"type": "string"}, "expected_frequency": {"type": "string", "enum": ["high", "medium", "low"]}}}},
+            "near_miss_negatives": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["query", "why_not"], "properties": {"query": {"type": "string"}, "why_not": {"type": "string", "description": "shares keywords but should NOT trigger"}}}},
+            "nearest_neighbors": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["neighbor_skill", "boundary_sentence"], "properties": {"neighbor_skill": {"type": "string"}, "boundary_sentence": {"type": "string"}}}}
+          }
+        }
+      }
+    }
+  }
+}
