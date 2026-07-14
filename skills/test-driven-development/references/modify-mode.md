@@ -5,6 +5,9 @@ decide edit vs merge vs delete vs add, to consolidate micro-tests into one
 parametrized test, and to get the native-collector commands for the inventory
 subagent.
 
+Lineage anchor [P4]: the whole mode instantiates [P2] — the spec is a living,
+decision-first artifact you edit, not a log you append to.
+
 The principle: **the suite tracks the *current* target.** When code changes, the
 test count for that feature-group should **not** grow just because you touched it.
 You change the spec, you don't append to it.
@@ -23,9 +26,8 @@ and prefer to change it:
 | Genuinely new feature-group, nothing covers it | **Add ONE** group test | A test per assertion |
 
 Net rule: for the same feature-group, the test count should **not** grow just
-because the code changed. Worked examples + per-stack consolidation patterns:
-[references/modify-mode.md](references/modify-mode.md).
-(That pointer is from SKILL.md; the worked examples + per-stack patterns are in Step 3 below.)
+because the code changed. Worked examples + per-stack consolidation patterns
+are in Step 3 below.
 
 ---
 

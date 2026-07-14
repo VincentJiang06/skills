@@ -4,6 +4,10 @@
 is "add tests to legacy / untested code" — i.e. when "write a failing test first"
 doesn't fit because there's no *new* behavior to drive RED.
 
+Lineage anchor [P4]: the gate fires on CHANGE, not on mere lack of tests —
+right-sizing both failure modes [P0]; a characterization test is the living
+spec written after the fact [P2].
+
 Behavior-preserving work doesn't fit "write a failing test first" — handle it explicitly:
 
 - **Refactor with green tests already covering it** → do **not** write a new

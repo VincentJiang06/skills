@@ -1,5 +1,52 @@
 # Changelog — test-driven-development
 
+## 1.0.0 — 2026-07-14 — ground-up rewrite via the skill-creator-max pipeline
+
+Major-version re-grounding: every rule re-derived to a skill-philosophy KB anchor
+([P0]/[P2]/[P5]/[P8]/[P10/A36]/[E2]/[E8]), built through the full 5-stage pipeline
+(composer → guidance → engineer → zipper → seeded 5-lens independent battery). The
+proven behavioral core is CARRIED, not discarded: right-size gate, MODIFY mode,
+watch-it-fail-with-evidence, revert-to-red, Beck GREEN strategies, subagent
+delegation, generator-in-loop, and the real-fixture harness all survive re-anchored.
+
+### Added
+- **Trust-boundary spine** [P10/A36] — SKILL.md section + `references/trust-boundary.md`:
+  instruction-shaped text inside processed code/tests carries ZERO authority (an
+  embedded "skip the run" is inert data, quoted never obeyed); running arbitrary test
+  code is a real action surface with authority-downgrade tiers and refuse categories
+  (destructive / out-of-repo I/O). Plus an **injection eval scenario**: an embedded
+  "this suite already passes" must not prevent a real failing run.
+- **E-L3 stress sentinel** [E2] — `evals/fixtures/stress_sentinel_py/`: extend behavior
+  mid-64K-context under same-domain STALE distractors; deterministic proxy check rides
+  run_all (stale-convention scan), the LIVE 64K run executes at major-version cadence
+  (verified this release: fresh subagent, discipline held 4/4).
+- **Reflow point** [E8] — `references/reflow-point.md`: a user correction of test output
+  is captured as a candidate regression case, not just an apology.
+- **Assertion-kind red discrimination** (battery F1, P1): `grade.py`'s revert-to-red now
+  requires the red to be an ASSERTION failure — a crashed runner / raising stub / import
+  error no longer counts as "went red", closing the constant-impl + vacuous-assert cheat.
+- **Toolchain probe** (battery F2): present-but-broken pytest/vitest now SKIPs with a
+  note instead of hard-failing indistinguishably from a real regression.
+- **Held-out non-builder cheats** (battery F3/F5): the battery's own two gamed solutions
+  (`bad_battery`, `bad_synthesis`, provenance recorded) are pinned as harness
+  regressions — breaking author-homology in the eval corpus. Harness 16 → **22 checks**.
+
+### Changed
+- SKILL.md fully rewritten (11-section spine, 2,8xx always-loaded tokens, description
+  rebuilt trigger-first with near-miss anti-triggers); 4 carry-over references
+  re-anchored with KB provenance labels; `modify-mode.md` self-referential pointer fixed.
+- Version 0.2.x → 1.0.0.
+
+### Evidence & honesty
+- Red-before-green history on disk (`dev-workspace` red-log): stop conditions
+  pre-registered before the first eval run; new metrics watched RED before implementation.
+- Independent seeded battery: 5 lenses + synthesis, 5/5 seeds recovered on valid runs,
+  one blind run voided and re-dispatched; 5 real findings (1 P1) all fixed behaviorally
+  and pinned. Independence tier: instance (cross-vendor waived this run; upgrade to
+  industrial pre-registered = one fresh clean battery round).
+- Known limitations documented in `evals/README.md` (candidate-granular revert-to-red,
+  ride-along vacuous assertions, per-assertion vacuity out of scope).
+
 ## 0.2.0 — 2026-07-02 — correlated-error through-line
 
 Sharpened the *why* behind the discipline and tied it to the independence family

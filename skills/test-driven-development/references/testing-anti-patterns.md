@@ -3,6 +3,9 @@
 **Load this when** writing or changing tests, adding mocks, or tempted to add
 test-only methods to production code.
 
+Lineage anchor [P4]: domain-convention gotchas with real BAD/GOOD pairs [S6];
+an assert-on-mock test is a vacuous evaluator — the green-but-wrong shape [P5].
+
 **Core principle:** test what the code *does*, not what the mocks do. Mocks
 isolate; they are not the thing under test. Strict TDD (watch a real failure
 first) prevents every pattern below.

@@ -7,6 +7,11 @@ those guard *intent*; these guard *behavior*.
 
 Load this when you're in a RED/GREEN cycle, fixing a bug, or about to claim done.
 
+Lineage anchors [P4]: §1 evidence [P5 institutionalized doubt]; §2 revert-to-red
+[P5/E6 the evaluator (your test) is audited first]; §3 Beck strategies [YAGNI];
+§4–§5 role isolation [P5 correlated error, Knight–Leveson]; §7 generator role
+[P8 externalized artifact interface].
+
 ---
 
 ## 1. Verification-evidence gate
