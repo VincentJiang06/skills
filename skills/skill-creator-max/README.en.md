@@ -4,7 +4,7 @@
 
 **English** · [简体中文](README.md)
 
-**What it does** — Folds the five skill-building functions — composer (decision spec) / guidance (structure contract) / engineer (red-green build) / zipper (lossless compression) / conductor — into **one** skill. The SKILL.md body is a **thin conductor**: it performs none of the functions itself; it **dispatches one fresh subagent per role, monitors the returned typed artifact, validates it against a deterministic gate, and routes the next move**. All of the conductor's power comes from artifacts, never from reading a subagent's process. Replaces the old four-skill architecture (guidance / engineer / zipper / conductor as separate skills).
+**What it does** — Folds the five skill-building functions — composer (decision spec) / guidance (structure contract) / engineer (red-green build) / zipper (lossless compression) / conductor — into **one** skill. The SKILL.md body is a **thin conductor**: it performs none of the functions itself; it **dispatches one fresh subagent per role, monitors the returned typed artifact, validates it against a deterministic gate, and routes the next move**. All of the conductor's power comes from artifacts, never from reading a subagent's process. **This IS the repo's skill-building pipeline now**: it replaces the retired four-skill architecture (skill-guidance / skill-engineer / skill-zipper / skill-conductor — removed from the repo).
 
 **The architecture** —
 
@@ -12,6 +12,7 @@
 - **Five artifact JSON schemas**: SkillSpec / StructureContract / EvidenceDossier / CompressionReport / DecisionRecord — all written to the six-vendor intersection, portable.
 - **Deterministic L0 gate scripts** (`scripts/validate_*`): **structure-only** — passing a gate is never evidence the content is right (schema-valid ≠ true). Substance is bought by the battery.
 - **O5 independent adversarial battery**: `roles/battery.md` is self-contained (distilled from the vince-attacker five lenses), no external skill needed; at high stakes, dispatch a **different-vendor attacker** for model-tier independence.
+- **Runs fully standalone**: the `skill-philosophy` KB is design-time provenance kept **outside the repo** — NOT shipped, NOT read at runtime. The role-packs operationalize its rules and inline the anchors as citation labels, so no KB needs to be present to run the pipeline.
 
 **Why it's good (the six pits it closes)** —
 
@@ -34,6 +35,8 @@
 
 **Install** — `cp -R skills/skill-creator-max ~/.claude/skills/skill-creator-max` (or via `npx skills add VincentJiang06/skills`).
 
-**Honest coverage note (0.1.0-draft)** — A dogfood run went end-to-end: it built a real tiny skill and passed all five L0 gates on **genuine (non-fixture) artifacts**, with a real RED→GREEN harness; every gate script's `--selftest` proved discrimination (all traps caught). BUT: (a) the dogfood was **one agent playing all roles** — true fresh-context per-role independence, the entire point of O5, was **not exercised**; (b) the independent battery has **not yet been run cross-vendor**. So the pipeline is proven to *produce passing artifacts*, not yet proven *under real multi-agent independence* — it self-rates `candidate`, not `industrial`.
+**Live-test record (v1.0.0)** — The pipeline has now been exercised on two real builds: (1) it built a brand-new skill (`paper-writer`) end-to-end from nothing; (2) it rebuilt `humanizer-academic` to v4.0.0 through the pipeline. Both runs used **genuine per-role fresh-context independence** (a separate dispatched subagent per role — not one agent playing all roles), which closes the biggest coverage gap of the 0.1.0-draft era. The independent battery also earned its keep: it caught real defects that the builders' own green test suites missed (a paper-writer P1 integrity gap; the humanizer hemoglobin fact-invention).
+
+**Honest residual** — the **cross-vendor (model-tier) battery has still not been run**: every battery round to date was instance-tier independence within the same model family. That is the one remaining independence gap. Self-rated strong-candidate / 1.0, with that caveat stated.
 
 Full mechanism in [SKILL.md](SKILL.md).

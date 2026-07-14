@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.0] — 2026-07-14
+
+Promotion from draft to **the** skill-building pipeline. skill-creator-max now REPLACES the retired four-skill pipeline (skill-guidance / skill-engineer / skill-zipper / skill-conductor — removed from the repo).
+
+- **Standalone confirmed**: the `skill-philosophy` KB is design-time provenance kept outside the repo — not shipped, not read at runtime. The role-packs operationalize the rules and inline the anchors as citation labels; no KB needs to be present to run.
+- **Live-tested this session**: built a new skill (`paper-writer`) end-to-end AND rebuilt `humanizer-academic` to v4.0.0 through the pipeline — both with genuine per-role fresh-context independence (a separate subagent per role). This CLOSES the 0.1.0-draft "one agent played all roles" coverage gap.
+- **The independent battery caught real defects** the builders' own green test suites missed: a paper-writer P1 integrity gap and the humanizer hemoglobin fact-invention.
+- **Honest residual**: the cross-vendor (model-tier) battery has still not been run — the one remaining independence gap. Self-rated strong-candidate / 1.0 with that caveat.
+
 ## [0.1.0-draft] — 2026-07-14
 
 Ground-up build. One skill replaces the old four-skill pipeline (guidance / engineer / zipper / conductor), re-derived from the `skill-philosophy` KB — every rule cites a KB anchor.

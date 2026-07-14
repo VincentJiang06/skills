@@ -6,14 +6,15 @@
 
 ## Skills at a glance
 
-This section still counts only the **16 official skills**. A `stupidskills` appendix lives near the bottom for experimental/sidecar tools and **does not count toward the skill-count record**.
+This section counts only the **14 official skills** (as of 2026-07-14: the old four-skill pipeline is retired and removed; `skill-creator-max` and `paper-writer` are now counted). A `stupidskills` appendix lives near the bottom for experimental/sidecar tools and **does not count toward the skill-count record**.
 
 **Product**
 - **[album-review](skills/album-review/)** — artist + album → one 10,000–15,000-字 source-traced Chinese 乐评 across every musical dimension.
 - **[hifi-review](skills/hifi-review/)** — objective HiFi-gear evaluation: signature from FR-vs-target, competence from measurements, every claim traced to evidence.
 - **[course-study](skills/course-study/)** — course materials → complete-coverage, Feynman-explained, exam-ready notes.
 - **[fact-check](skills/fact-check/)** — a fast, citation-backed BLUF answer to a factual question (≤2 / ≤5 min).
-- **[humanizer-academic](skills/humanizer-academic/)** — rewrites AI-generated serious prose (EN / ZH / mixed) in two modes (academic / popsci); abstain-first, strips AI signals while keeping each genre's register.
+- **[humanizer-academic](skills/humanizer-academic/)** — rewrites AI-generated serious prose (EN / ZH / mixed) in two modes (academic / popsci); abstain-first, strips AI signals while keeping each genre's register. **v4.0.0 is a mode-split structural rebuild** (references re-carved into per-mode/per-language packs, loaded on demand; always-loaded −15%, common paths ~−35%; quality held rather than jumped).
+- **[paper-writer](skills/paper-writer/)** — authors a **new**, complete, spec-compliant paper from a requirement (word count / citation style / sections) and/or a topic; two integrity invariants: never fabricate a citation, never plagiarize — an unverifiable source is marked `[SOURCE NEEDED]`, never invented.
 - **[mp-cli-sup](skills/mp-cli-sup/)** — debugs a *live* WeChat Mini Program via the `vince-mp` CLI: one persistent session, stable uids, camera-less scan.
 - **[mp-groundline](skills/mp-groundline/)** — WeChat Mini Program Skyline→WebView migration, consistency-first, with a read-only scanner + migration map.
 
@@ -26,30 +27,18 @@ This section still counts only the **16 official skills**. A `stupidskills` appe
 - **[attacker](skills/attacker/)** — a fresh, independent attacker hits *any target* (skill / design / argument / code / KB) through **five philosophy-derived lenses** (coherence / gaming / evidence / reality / foundation), recording only proven, reproducible breakages, never fixing. **Model-agnostic** — a different-vendor attacker buys stronger independence; pairs with loop-constructor (attack→fix→re-attack). **v0.5.0 is a ground-up rewrite from the philosophy, ~1/4 the old weight.**
 - **[reorganize-logic](skills/reorganize-logic/)** — rebuilds the design-contract layer (architecture + structure + interfaces) with the code as the single source of truth, behind a review gate.
 
-**The skill-building pipeline — skills that build skills (v2)**
-
-A four-stage pipeline whose **gates are executable scripts**: the script a stage
-self-gates with is the *same* script the conductor re-runs to gate it — builder
-and gatekeeper share one ruler, zero room to copy a command wrong.
-- **[skill-conductor](skills/skill-conductor/)** — drives guidance → engineer → zipper end to end; gates by running the stage scripts, anti-inflation final acceptance on `min(re-audit, independent battery)`, prefix-tolerant sibling resolution (repo + installed names).
-- **[skill-guidance](skills/skill-guidance/)** — audits a skill/repo, emits the handoff spec, and self-gates with `validate_spec.mjs` (7 pillars, score↔status, verdict vs cap, gap→action); three dispositions (plan-interactive / plan-pipeline / audit), audit writes `post-build-audit.json` without clobbering the build spec.
-- **[skill-engineer](skills/skill-engineer/)** — builds + tests red-green-refactor, self-gates with `validate_report.mjs` (P0 / adversarial-checklist joins, harness **re-run on the spot**, red-log check); trigger_eval with 3-vote majority + held-out anti-overfitting; behavioral RED = baseline-without-skill; pre-ship security lint.
-- **[skill-zipper](skills/skill-zipper/)** — restructures losslessly for token efficiency, reliability, and trigger accuracy, with a portability checklist (open-standard 6-field core vs Claude-Code-only fields) and description guidance aligned to mid-2026.
-
-> To keep Opus continuously syncing the principle KB + this pipeline to the latest ecosystem, see [`skills/skill-guidance/skill-principle/UPDATE.md`](skills/skill-guidance/skill-principle/UPDATE.md) (a Fact Registry of load-bearing numbers + a quality bar). The previous v1 is frozen in [`archive/`](archive/).
-
-**Next generation (draft, not counted in the 16)**
-- **[skill-creator-max](skills/skill-creator-max/)** — folds all five functions above into **one** skill: the SKILL.md body is a **thin conductor** that does no function itself, only **dispatches a fresh subagent per role, gates on the returned typed artifact, and routes**. Grounded in the `skill-philosophy` three-layer KB (every rule cites an anchor; the KB is a **local asset kept outside the repo**, not shipped with it — the role-packs already operationalize the rules and inline the anchors, so runtime does not depend on it); thin always-loaded body + five on-demand role-packs (loaded only into the dispatched subagent) + five six-vendor-intersection artifact schemas + structure-only L0 gates + a self-contained O5 battery (distilled from the vince-attacker five lenses; a different-vendor attacker at high stakes). It closes the old four-skill pipeline's pits by **de-composing the orchestration** (handoff friction, correlated authorship, bloat, green-but-wrong, asymptotic-battery miscoding, trigger/portability). **v0.1.0-draft**: a dogfood built a real tiny skill end-to-end through all L0 gates with a 0/12 trigger holdout, but true per-role independence and a cross-vendor battery are not yet exercised → self-rated `candidate`, not deployed, does not replace the four installed skills.
+**The skill-building pipeline — a skill that builds skills**
+- **[skill-creator-max](skills/skill-creator-max/)** — **the repo's skill-building pipeline (v1.0.0)**, the whole chain in one skill: the SKILL.md body is a **thin conductor** that does no function itself, only **dispatches a fresh subagent per role, gates on the returned typed artifact, and routes** (thin always-loaded body + five on-demand role-packs + six-vendor-intersection artifact schemas + structure-only L0 gates + a self-contained O5 independent battery). **Runs fully standalone**: the `skill-philosophy` KB is design-time provenance kept outside the repo — not shipped, not read at runtime. Live-tested: it built `paper-writer` end-to-end and rebuilt `humanizer-academic` to v4.0.0 through the pipeline, with genuine per-role fresh-context independence; the independent battery caught real defects the builders' own green test suites missed. Replaces the retired-and-removed four-skill pipeline (skill-conductor / skill-guidance / skill-engineer / skill-zipper; earlier generations frozen in [`archive/`](archive/)). Honest residual: the cross-vendor battery has not yet been run.
 
 ## What this generation adds
 
 This is not a pile of prompt templates. It is a skill system with teeth:
 
-- **The build pipeline is now v2.** guidance / engineer / conductor / zipper share executable gates; specs, build reports, trigger evals, held-out cases, and red logs can be re-run instead of trusted by narration.
-- **Loop engineering is split into runtime-neutral and Codex-realized layers.** `loop-constructor` designs the general loop; the bottom `stupidskills` appendix includes `loop-constructor-codex`, which maps role separation, disk state, and fan-out onto `codex exec` without counting as one of the official 16.
+- **The build pipeline is now one skill.** `skill-creator-max` v1.0.0 replaces the old four-skill pipeline: a thin conductor dispatches a fresh subagent per role, judges only typed artifacts, and gates with deterministic L0 scripts + an independent battery; specs, trigger holdouts, and red-green harnesses can be re-run instead of trusted by narration.
+- **Loop engineering is split into runtime-neutral and Codex-realized layers.** `loop-constructor` designs the general loop; the bottom `stupidskills` appendix includes `loop-constructor-codex`, which maps role separation, disk state, and fan-out onto `codex exec` without counting as one of the official 14.
 - **Independence is first-class.** `attacker`, `reorganize-logic`, and `test-driven-development` were all reworked around the rule that the same mental model should not both produce and grade the answer.
 - **Model/effort sizing is explicit.** The bottom `stupidskills` appendix includes `model-pyramid`: not model shopping, not cost rhetoric; at subagent fan-out time it emits an auditable `rule=<id> tier=<tier> effort=<notch>` line.
-- **The KBs travel with the skills.** `skill-principle` and `loop-principle` are embedded under their owning skills instead of requiring a sibling copy ritual.
+- **The KBs travel with the skills — or aren't needed at all.** `loop-principle` is embedded under `loop-constructor` and installs with it; the new pipeline `skill-creator-max` has **no runtime KB dependency** (`skill-philosophy` is design-time provenance kept outside the repo).
 
 ## Install
 
@@ -63,10 +52,10 @@ Manual alternative: `cp -R skills/<name> ~/.claude/skills/`. Public repo skill n
 
 **Dependencies & "installing everything":**
 - **Runtime**: `node` (≥18) for the `.mjs` validators, `python3` for the `.py` scripts. **Both use only the standard library — no `npm install` / `pip install` needed.**
-- **The two principle KBs now install with their corresponding skills.** `loop-principle/` is embedded at [`skills/loop-constructor/loop-principle/`](skills/loop-constructor/loop-principle/); `skill-principle/` is embedded at [`skills/skill-guidance/skill-principle/`](skills/skill-guidance/skill-principle/). Selecting `loop-constructor` or `skill-guidance` installs the matching KB as part of that skill folder.
-- **For the full pipeline**, `skill-engineer` and `skill-conductor` reuse `skill-guidance/skill-principle/`, so install `skill-guidance` alongside them. You no longer need to copy the KBs as siblings of the agent home's `skills/` directory.
+- **The `loop-principle` KB installs with its skill**: embedded at [`skills/loop-constructor/loop-principle/`](skills/loop-constructor/loop-principle/), it travels as a subdirectory when you install `loop-constructor`.
+- **The skill-building pipeline has zero external dependencies**: `skill-creator-max` is self-contained (role-packs / schemas / gate scripts) and **needs no KB present at runtime** (the `skill-philosophy` KB is design-time provenance kept outside the repo, not shipped).
 - **`mp-cli-sup`** also needs [`tools/vince-mp-cli/`](tools/vince-mp-cli/) (a Node CLI).
-- To get everything at once (skills + both KBs + CLI), just `git clone` the whole repo.
+- To get everything at once (skills + KB + CLI), just `git clone` the whole repo.
 
 Then ask in natural language (Claude Code auto-triggers from the description) or call `/<skill-name>` explicitly:
 
@@ -78,9 +67,9 @@ Then ask in natural language (Claude Code auto-triggers from the description) or
 
 These skills are designed to compose. Here are the common paths + a one-line demo prompt each.
 
-**① Build a new skill (end to end)** — use `skill-conductor`; it drives guidance (audit + scope) → engineer (red-green build) → zipper (compress) → final acceptance (wiring in `attacker` against inflation).
+**① Build a new skill (end to end)** — use `skill-creator-max`; its thin conductor dispatches a fresh subagent per role through composer (decision spec) → guidance (structure contract) → engineer (red-green build) → zipper (compress) → O5 independent-battery acceptance.
 ```
-> Use skill-conductor to turn this idea into an industrial skill: a skill that converts meeting notes into an action-item list, traceable to the source.
+> Use skill-creator-max to turn this idea into an industrial skill: a skill that converts meeting notes into an action-item list, traceable to the source.
 ```
 
 **② Design a loop for a medium/large task** — use `loop-constructor` to decompose into gated sub-loops, persist a `.loop/` runbook, then run it.
@@ -105,7 +94,7 @@ These skills are designed to compose. Here are the common paths + a one-line dem
 Hard-won, reusable on your next skill:
 
 - **Decide "what check proves it's done?" before designing.** Loop engineering ≈ verification engineering — no runnable check means it isn't a loop. Let `loop-constructor`'s linter reject hollow designs.
-- **Let the conductor drive; don't hand-roll the pipeline.** guidance scopes, engineer builds red-green, zipper compresses, final acceptance gates on `min(re-audit, independent battery)` — far more reliable than "looks good to me."
+- **Let `skill-creator-max`'s conductor drive; don't hand-roll the pipeline.** composer specs, guidance contracts, engineer builds red-green, zipper compresses, the independent battery accepts — one fresh subagent per role, typed artifacts only — far more reliable than "looks good to me."
 - **Treat `attacker` as the enforcement arm of "the closed loop lies."** A skill's own tests are green-but-wrong by default; have a fresh agent (blind to the build rules) attack on a **held-out** set (not the training corpus) to prove it generalizes.
 - **Freeze the ruler before you improve.** To lift a metric, first harden the eval (corpus + rubric) until it discriminates good from bad — then touch the skill. Don't change the ruler and the measured thing together. Capture a baseline first.
 - **Beware a saturated metric.** If the baseline is already near-perfect, your cases are too easy / the judge too lenient — add harder cases (long-form, edges, mixed-language) + a stricter judge to reveal real headroom.
@@ -118,7 +107,7 @@ Hard-won, reusable on your next skill:
 
 ```
 skills/                                      # install-ready skills (one folder each, with its own README)
-skills/skill-guidance/skill-principle/       # embedded skill principle KB, installed with skill-guidance (incl. UPDATE.md refresh runbook)
+skills/skill-creator-max/                    # the skill-building pipeline (thin conductor + role-packs + schemas + gate scripts, self-contained)
 skills/loop-constructor/loop-principle/      # embedded loop-engineering KB, installed with loop-constructor
 tools/vince-mp-cli/                          # Node CLI that mp-cli-sup drives
 tools/deploy_pipeline_skills.mjs             # deploy pipeline or all skills to local installs (vince- prefix, byte-verified)
@@ -136,7 +125,7 @@ A few principles, hardened by building these skills one at a time and then polis
 3. **Accuracy over speed.** Crude buckets mislabel every edge case. Classify from **rich per-item descriptors + judgment at runtime**, not a hard enum. The one deliberate exception is `fact-check` (speed-first) — and even it is never confident-and-wrong.
 4. **Sharp scope, no creep.** "More features = better" is a trap. Each skill does **one job well**: thin `SKILL.md`, progressive disclosure, low always-loaded cost.
 5. **Every claim has a receipt.** Source-traceability is machine-checked; thin inputs **degrade honestly** instead of fabricating; the build **never fakes a pass**.
-6. **Self-building, self-validating.** Almost every skill here was produced by the repo's own pipeline (`skill-conductor`) + loop engine (`loop-constructor`), grounded in two self-checked KBs — and the repo ships that pipeline too.
+6. **Self-building, self-validating.** Almost every skill here was produced by the repo's own pipeline (now `skill-creator-max`; earlier ones by the retired four-skill pipeline) + loop engine (`loop-constructor`) — and the repo ships that pipeline too.
 
 ## Known limitations (honest)
 
@@ -144,13 +133,12 @@ Engineering honesty means writing down what isn't closed — the natural extensi
 
 - **Verification is asymptotic, not a proof.** The independent battery can still surface a green-but-wrong each round; we stop after closing every *proven* hole, not at perfection (e.g. humanizer v3.1's held-out attack "2/2 clean" = no proven break within budget, ≠ proven correct).
 - **The two KBs are larger than ordinary skill support files, but now install with their corresponding skills** (see [Install](#install)). This is deliberate: a slightly larger install gives users full retrieval, templates, checklists, and self-checks immediately.
-- **The conductor's "attacker only after a passing re-audit" gate is convention- + invariant-checked, not yet runtime-interlocked.** It holds via the rule prose + the `min(re-audit, battery)` invariant; not yet a hard machine gate (a noted follow-up).
-- **Guidance's context-sufficiency detector is a seed, not an oracle.** The keyword detector that triggers elicitation can be fooled both ways; by design the agent's judgment of *substance* is the oracle, but it isn't deterministically closed.
+- **`skill-creator-max`'s cross-vendor (model-tier) battery has not yet been run.** Every battery round to date was instance-tier independence within the same model family — the pipeline's one remaining independence gap, stated honestly alongside its strong-candidate / 1.0 self-rating.
 - **loop-constructor's D6 cadence (completeness-first / iteration-first) is guidance, not linter-enforced.** A design can claim one cadence while carrying the opposite knobs — the linter can't catch it; the fresh-reader cadence box + the maker/checker are the gate.
 - **For performance/quality upgrades, final acceptance may be a stronger held-out attack instead of a full conductor re-audit** (as in humanizer v3.1) — a deliberate engineering trade-off, recorded honestly rather than cut silently.
 - **Trigger precision depends on a real runtime being available.** When an authenticated CLI is unavailable, some trigger evals use a live judge panel and say so in the report; that is usable evidence, not a disguised canonical CLI result.
 
-## stupidskills (not counted in the 16 official skills)
+## stupidskills (not counted in the 14 official skills)
 
 These two cards live at the very bottom of the public page. They are lightweight experimental/sidecar tools and **do not count toward this repo's official skill-count record**.
 
@@ -161,6 +149,7 @@ These two cards live at the very bottom of the public page. They are lightweight
 
 Daily summaries from git history, limited to structural changes in the skill system.
 
+- **2026-07-14** — the old four-skill pipeline (skill-conductor / skill-guidance / skill-engineer / skill-zipper) was **retired and removed from the repo**; [`skill-creator-max`](skills/skill-creator-max/) was promoted to **v1.0.0** as the single-skill pipeline (thin conductor, one fresh subagent per role; **runs standalone** — the `skill-philosophy` KB is external design-time provenance). Live-tested: built `paper-writer` end-to-end and rebuilt `humanizer-academic` to **v4.0.0** (mode-split structural rebuild: per-mode/per-language reference packs, always-loaded −15%, common paths ~−35%, quality held rather than jumped); the independent battery caught real defects the builders' green suites missed. Official skill count 16 → **14**. Residual: the cross-vendor battery has not been run.
 - **2026-07-06** — humanizer moved to v3.2 (contrast-frame quota, citation-shell rework, frame-first hardening); both principle KBs received a FABLE synthesis pass; `loop-constructor-codex` and `model-pyramid` landed as bottom-page `stupidskills`, not counted in the official 16; `model-pyramid` added testable subagent model/effort sizing.
 - **2026-07-14** — built the `skill-philosophy` three-layer KB (principle→guideline→rule, five books C/S/E/Z/O; a **local asset kept outside the repo**, not shipped with it) + next-gen [`skill-creator-max`](skills/skill-creator-max/) **v0.1.0-draft**: the five pipeline functions (composer/guidance/engineer/zipper/conductor) folded into **one thin-conductor skill** (dispatches a fresh subagent per role, judges typed artifacts, gates each), grounded in that KB. A dogfood built a real tiny skill through all L0 gates (selftests green) with 0/12 trigger-holdout false-fires; honest note: one agent played all roles and the cross-vendor battery is not yet run → self-rated candidate, not deployed, does not replace the four installed skills.
 - **2026-07-14** — `attacker` was rewritten ground-up as **v0.5.0**: re-derived from the new skill-design philosophy KB, the mechanism is stripped to the minimum (fork a fresh mind → one lens → keep only the provable), rebuilt as a **five-lens fixed rotation** + a SEED anti-false-negative gate + a deterministic shadow-map extractor; **model-agnostic** is now design constraint zero (a different-vendor attacker buys stronger independence); `rules/` / `agents/` / the `.mjs` rigs were removed, landing at ~1/4 the old weight. Honest note: every shaping round was same-family `instance`-tier; the cross-vendor acceptance run is not yet done.

@@ -1,7 +1,10 @@
 # Orchestration anchors + conventions (O-series, on-demand)
 
 The conductor loads this only when it needs routing detail, gate classification, ladder conditions,
-or ship conventions. It keeps SKILL.md thin. Every claim ties to a `skill-philosophy/` anchor.
+or ship conventions. It keeps SKILL.md thin. Every claim cites a `skill-philosophy` anchor as
+**design-time provenance** — that KB is a separate local asset kept OUTSIDE the repo, NOT shipped and
+NOT read at runtime. The rules are operationalized inline in the role-packs; the anchors are citation
+labels, so this skill runs fully standalone (no KB present required).
 
 ---
 

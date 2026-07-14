@@ -4,7 +4,7 @@
 
 [English](README.en.md) · **简体中文**
 
-**做什么** —— 把造 skill 的五个职能 —— composer（决策规格）/ guidance（结构契约）/ engineer（红绿构建）/ zipper（无损压缩）/ conductor（指挥）—— 收进**一个** skill。SKILL.md 本体是一个**薄指挥官**：它自己不做任何一项职能，只**为每个角色派出一个全新子代理、监视其回传的类型化工件、拿确定性门校验、再决定下一步路由**。指挥官的全部权力来自工件，从不来自读子代理的过程。取代旧的四 skill 架构（guidance / engineer / zipper / conductor 各自为政）。
+**做什么** —— 把造 skill 的五个职能 —— composer（决策规格）/ guidance（结构契约）/ engineer（红绿构建）/ zipper（无损压缩）/ conductor（指挥）—— 收进**一个** skill。SKILL.md 本体是一个**薄指挥官**：它自己不做任何一项职能，只**为每个角色派出一个全新子代理、监视其回传的类型化工件、拿确定性门校验、再决定下一步路由**。指挥官的全部权力来自工件，从不来自读子代理的过程。**它就是本仓库现行的造 skill 流水线**：取代并已下线旧的四 skill 架构（skill-guidance / skill-engineer / skill-zipper / skill-conductor，已从仓库移除）。
 
 **架构** ——
 
@@ -12,6 +12,7 @@
 - **五份工件 JSON schema**：SkillSpec / StructureContract / EvidenceDossier / CompressionReport / DecisionRecord —— 全部走六厂交集写法，可移植。
 - **确定性 L0 门脚本**（`scripts/validate_*`）：**只查结构** —— 过门永远不是「内容对了」的证据（schema-valid ≠ true）。实质由电池买单。
 - **O5 独立对抗电池**：`roles/battery.md` 自含（从 vince-attacker 五镜头蒸馏而来），无需外部 skill；高风险时改派**不同厂商的攻击者**换取模型级独立性。
+- **完全独立运行（standalone）**：`skill-philosophy` KB 只是设计期出处（design-time provenance），保存在**仓库外**——不随仓库分发、运行时也不读取。role-pack 已把 KB 规则操作化、锚点作为引用标签内联，跑整条流水线不需要任何 KB 在场。
 
 **好在哪（它关掉的六个坑）** ——
 
@@ -34,6 +35,8 @@
 
 **安装** —— `cp -R skills/skill-creator-max ~/.claude/skills/skill-creator-max`（或经 `npx skills add VincentJiang06/skills`）。
 
-**诚实的覆盖注记（0.1.0-draft）** —— 一次 dogfood 跑通了端到端：真造了一个小 skill，五个 L0 门在**真实（非 fixture）工件**上全过，带真实的 RED→GREEN harness；每个门脚本的 `--selftest` 都证明了判别力（陷阱全被抓住）。但是：(a) dogfood 是**一个 agent 分饰全部角色** —— 每角色真新鲜上下文的独立性（O5 的全部意义所在）**没有被演练**；(b) 独立电池**尚未跨厂商跑过**。所以这条流水线目前被证明「能产出过门的工件」，尚未被证明「在真实多代理独立性下成立」—— 它给自己的评级是 `candidate`，不是 `industrial`。
+**实测记录（v1.0.0）** —— 这条流水线已在真实构建中跑通两次：(1) 从零端到端造出一个新 skill（`paper-writer`）；(2) 把 `humanizer-academic` 经流水线重建到 v4.0.0。两次都是**真·逐角色新鲜上下文独立**（每个角色一个单独派出的子代理，不是一个 agent 分饰全角色）——这补上了 0.1.0-draft 时期最大的覆盖缺口。独立电池也证明了自己的价值：它抓到了构建者自家全绿测试套件漏掉的真缺陷（paper-writer 的一处 P1 完整性缺口、humanizer 的血红蛋白事实编造）。
+
+**诚实的残留缺口** —— **跨厂商（模型级）电池仍未跑过**：迄今所有电池轮都是同族模型的实例级独立。这是剩下的唯一独立性缺口。自评 strong-candidate / 1.0，但带着这条注记。
 
 完整机制见 [SKILL.md](SKILL.md)。

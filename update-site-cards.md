@@ -11,7 +11,7 @@ section** — that section is the source of truth. The page has:
 
 - Title **"Agent Skills 🧰"** + one install line `npx skills add VincentJiang06/skills`.
 - **Four official groups**, in this order: **Finished Products** · **Coding Discipline**
-  · **Loop & Adversarial** · **Meta Pipeline**. These remain the **16 counted
+  · **Loop & Adversarial** · **Meta Pipeline**. These are the **14 counted
   skills**.
 - A bottom appendix titled **stupidskills** for experimental/sidecar cards. This
   appendix is visually separated and explicitly says it is **not counted** in the
@@ -30,8 +30,8 @@ each card's blurb matches the repo one-liner; (3) each link resolves.
    defined: usually a data array/JSON (e.g. `skills.json`, a `cards` array in a
    component) or a repeated HTML/MDX block. Grep the site for a known skill name
    (e.g. `album-review`) to locate it.
-2. **Diff the official roster** against the counted list below (16 official
-   skills as of 2026-07-06). Add official new skills to the right group; remove
+2. **Diff the official roster** against the counted list below (14 official
+   skills as of 2026-07-14). Add official new skills to the right group; remove
    deleted ones; rename if a folder was renamed. **Archived versions under
    `archive/` never get cards** — they aren't installable. If a skill is marked
    `stupidskills`, put it only in the bottom appendix and do not change the
@@ -55,7 +55,8 @@ Keep names exactly as the `skills/` folder names.
 - **hifi-review** — Objective HiFi-gear evaluation: signature from FR-vs-target, competence from measurements, every claim traced to evidence.
 - **course-study** — Course materials → complete-coverage, Feynman-explained, exam-ready revision notes.
 - **fact-check** — A fast, citation-backed BLUF answer to a factual question or "is it true…" claim (≤2 / ≤5 min).
-- **humanizer-academic** — Rewrites AI-generated serious prose (EN/ZH) in two modes (academic / popsci); abstain-first — leaves it alone if it already reads human.
+- **humanizer-academic** — Rewrites AI-generated serious prose (EN/ZH) in two modes (academic / popsci); abstain-first — leaves it alone if it already reads human. v4.0.0: mode-split structural rebuild (per-mode/per-language packs, loaded on demand).
+- **paper-writer** — Authors a new, complete, spec-compliant paper from a requirement and/or topic; never fabricates a citation, never plagiarizes — unverifiable sources are marked `[SOURCE NEEDED]`.
 - **mp-cli-sup** — Debugs a live WeChat Mini Program via the `vince-mp` CLI: one persistent session, stable uids, camera-less scan.
 - **mp-groundline** — WeChat Mini Program Skyline→WebView migration, consistency-first, with a read-only scanner + migration map.
 
@@ -68,20 +69,19 @@ Keep names exactly as the `skills/` folder names.
 - **attacker** — Attacks a product's observable behavior (or red-teams an idea): a fresh, TDD-independent subagent records only proven, reproducible breakages.
 - **reorganize-logic** — Rebuilds the design-contract layer (architecture + structure + interfaces) with the code as the single source of truth, behind a review gate.
 
-**Meta Pipeline** (skills that build skills — **v2**)
-- **skill-conductor** — Drives guidance → engineer → zipper end to end; gates by running each stage's own script; anti-inflation final acceptance on `min(re-audit, independent battery)`.
-- **skill-guidance** — Audits a skill/repo and emits a schema-validated handoff spec, self-gated by an executable consistency check (stage 1: plan/audit only).
-- **skill-engineer** — Builds and tests a skill from that spec, red-green-refactor, with an executable report gate that re-runs the harness (stage 2).
-- **skill-zipper** — Restructures an existing skill losslessly for token efficiency, reliability, and trigger accuracy, with a portability checklist.
+**Meta Pipeline** (the skill that builds skills)
+- **skill-creator-max** — The whole skill-building pipeline in one skill (v1.0.0): a thin conductor dispatches a fresh subagent per role (composer / guidance / engineer / zipper / battery), gates on typed artifacts only, and runs fully standalone. Replaces the retired skill-conductor / skill-guidance / skill-engineer / skill-zipper.
 
-**stupidskills** (bottom appendix — explicitly not counted in the 16 official skills)
+**stupidskills** (bottom appendix — explicitly not counted in the 14 official skills)
 - **loop-constructor-codex** — Codex CLI variant of loop-constructor: realizes the loop model as single-agent `codex exec` runs, on-disk state, and a fresh evaluator.
 - **model-pyramid** — Right-sizes model tier + reasoning effort before subagent fan-out; it only sizes workers and does not spawn them.
 
-## What changed in this pass (2026-07-06)
+## What changed in this pass (2026-07-14)
 
-Official roster remains **16 counted skills**. The two new folders
-`loop-constructor-codex` and `model-pyramid` are published as bottom-page
-**stupidskills** and must be clearly labeled as not counted. The README and site
-copy also now describe the v2 executable-gate pipeline, Codex-realized loop
-variant, and explicit model/effort sizing.
+Official roster is now **14 counted skills** (was 16). The four Meta Pipeline
+cards (`skill-conductor`, `skill-guidance`, `skill-engineer`, `skill-zipper`)
+are **retired and removed** — replace them with a single **skill-creator-max**
+card (v1.0.0, the one-skill pipeline). `paper-writer` is a new Finished
+Products card. The `humanizer-academic` blurb notes the v4.0.0 mode-split
+structural rebuild. The bottom-page **stupidskills** appendix
+(`loop-constructor-codex`, `model-pyramid`) is unchanged and still not counted.

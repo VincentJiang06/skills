@@ -22,7 +22,9 @@ import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "..");
-const DEFAULT_NAMES = ["skill-guidance", "skill-engineer", "skill-zipper", "skill-conductor"];
+// The skill-building pipeline is now the single skill-creator-max (the old four-skill
+// pipeline guidance/engineer/zipper/conductor was retired 2026-07-14).
+const DEFAULT_NAMES = ["skill-creator-max"];
 const INSTALL_NAME_ALIASES = {
   "test-driven-development": "tdd",
 };

@@ -4,6 +4,48 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
+## 4.0.0 — Mode-split structural rebuild (2026-07-14)
+
+**Major** — but NOT for the usual reason: the rewrite behavior, default
+aggressiveness, and register floors are all unchanged. The major bump marks a
+**ground-up structural rebuild** of the skill's load architecture, scope frozen
+(same two modes academic/popsci, abstain-first, detector-as-diagnostic,
+independent blind-judge oracle, zero net-new facts, EN/ZH). Built via the
+skill-creator-max pipeline.
+
+### Changed
+- **Mode-split load architecture** (the win): the old 7 tangled reference files
+  were re-carved along the exclusivity axis — mode-primary →
+  `references/academic-pack.md` + `references/popsci-pack.md` (each
+  self-contained), language-secondary → `references/lexical-en.md` +
+  `references/lexical-zh.md`, shared non-exclusive →
+  `references/structural-signals.md`; the blind-judge rubric stays standalone.
+  Content was **losslessly absorbed** (32/32 coverage check; the detector script
+  and the rubric are byte-identical to v3.2.0).
+- **Measured token wins**: always-loaded SKILL.md 2,868 → 2,432 tok (−15%); the
+  abstain path (the most common invocation) ~−35%; the academic-EN rewrite path
+  ~−39% — an academic job no longer loads popsci content or the Chinese lexicon.
+
+### Added / hardened
+- **Fact-fidelity guard**: two worked NEGATIVES (a behavioral-inference
+  "octopuses prefer to crawl" case + a named-entity-parallel "iron-based
+  hemoglobin" case) + a sharpened Step-5 no-new-facts scan. Notably, the rebuild
+  process found that the shipped v3.2.0 **itself** carried the hemoglobin
+  fact-invention undetected — v4.0.0 catches it.
+
+### Measured (blind-judge A/B vs v3.2.0, 12 files)
+- **Quality held ≥ the prior version** — honest note: the win is structural,
+  quality held rather than jumped. False-positive **0**, fact-invention **0**,
+  ai_ness lift ≥ baseline.
+- **Academic completeness genuinely improved**: one longform earned 4→5;
+  +0.25 mean. Popsci quality unchanged (equal).
+- Deterministic evals stay green: detector 129/129, calibrate strong-FP 0/27 +
+  slop 4/4, behavioral 22/22.
+
+### Unchanged (the load-bearing invariants)
+- Abstain-first FP guard; zero net-new facts (hard fail); register floors; two
+  modes; detector = diagnostic-only, blind judge = oracle.
+
 ## 3.2.0 — Contrast-frame quota + citation-shell rework + frame-first hardening (2026-07-06)
 
 **Minor** (abstain-first and the register floors unchanged; SUBTRACT gains one

@@ -6,14 +6,15 @@
 
 ## 一句话速览
 
-这里仍只统计 **16 个正式 skill**。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
+这里只统计 **14 个正式 skill**（2026-07-14 起：旧四 skill 流水线退役移除，`skill-creator-max` 与 `paper-writer` 计入）。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
 
 **成品**
 - **[album-review](skills/album-review/)** —— 「主创署名 + 专辑名」→ 一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。
 - **[hifi-review](skills/hifi-review/)** —— 客观 HiFi 器材评价：风格由频响-对-目标得出、素质由测量得出，每条结论追溯到证据。
 - **[course-study](skills/course-study/)** —— 课程材料 → 全覆盖、费曼式、可应试的复习笔记。
 - **[fact-check](skills/fact-check/)** —— 对事实性问题给出快速、有出处的 BLUF 回答（≤2 / ≤5 分钟）。
-- **[humanizer-academic](skills/humanizer-academic/)** —— 重写 AI 生成的严肃文本（中 / 英 / 混合），两模式（学术 / 科普）；先判定、读着像人就不动，去 AI 痕迹同时保留体裁腔调。
+- **[humanizer-academic](skills/humanizer-academic/)** —— 重写 AI 生成的严肃文本（中 / 英 / 混合），两模式（学术 / 科普）；先判定、读着像人就不动，去 AI 痕迹同时保留体裁腔调。**v4.0.0 完成模式切分结构重建**（按模式/语言拆参考包、按需加载，常驻 −15%、常见路径约 −35%；质量守住而非跃升）。
+- **[paper-writer](skills/paper-writer/)** —— 从需求（字数 / 引用风格 / 章节）和/或选题写出一篇**新的**、完整合规的论文；两条完整性铁律：绝不编造引用、绝不抄袭，查不到的来源标 `[SOURCE NEEDED]` 而非发明。
 - **[mp-cli-sup](skills/mp-cli-sup/)** —— 通过 `vince-mp` CLI 调试*实时*运行的微信小程序：一次持久会话、uid 稳定、免相机 scan。
 - **[mp-groundline](skills/mp-groundline/)** —— 微信小程序 Skyline→WebView 迁移，一致性优先，配只读扫描器 + 迁移地图。
 
@@ -26,28 +27,18 @@
 - **[attacker](skills/attacker/)** —— 用一个全新、独立的攻击者，透过**五个由设计哲学推导的镜头**（一致性 / 反作弊 / 证据 / 现实 / 根基）攻击*任意目标*（skill / 设计 / 论点 / 代码 / 知识库），只记已证实、可复现的破坏，永不修复。**全模型可用**、换厂商模型即换来更强独立性；与 loop-constructor 配对（攻击→修复→再攻击）。**v0.5.0 从哲学重写，约为旧版 1/4 重量。**
 - **[reorganize-logic](skills/reorganize-logic/)** —— 以**代码为唯一事实源**重建设计契约层（架构 + 结构 + 接口），删除遗留走评审门。
 
-**造 skill 的流水线 —— 造 skill 的 skill（v2）**
-
-四阶段流水线，**门禁本身是可执行脚本**：每个阶段自校验用的脚本，就是 conductor 把关时重跑的同一个脚本——builder 与 gatekeeper 共用一把尺，抄错命令的空间为零。
-- **[skill-conductor](skills/skill-conductor/)** —— 端到端驱动 guidance → engineer → zipper；门禁直接跑阶段脚本，最终验收 `min(复审, 独立测试组)` 防注水，sibling 名前缀容忍（repo 名与装机名通吃）。
-- **[skill-guidance](skills/skill-guidance/)** —— 审计 skill/仓库、产出 handoff spec，并用 `validate_spec.mjs` 自 gate（7 支柱、评分↔状态、verdict vs cap、缺口→动作全查）；三种 disposition（交互规划 / 管道规划 / 审计），审计写 `post-build-audit.json` 不覆写构建 spec。
-- **[skill-engineer](skills/skill-engineer/)** —— 从 spec 红-绿-重构构建并测试，用 `validate_report.mjs` 自 gate（P0/对抗清单 join、**harness 当场重跑**、红日志校验）；trigger_eval 3 次投票 + held-out 防过拟合；行为类 skill 的红阶段 = 无技能基线；发布前安全 lint。
-- **[skill-zipper](skills/skill-zipper/)** —— 为 token 效率、可靠性、触发准确度无损重构；带可移植性清单（开放标准 6 字段核 vs Claude-Code-only 字段）与对齐 2026 的描述指南。
-
-> 想让 Opus 持续把 principle KB 与这条流水线追到生态最新，见 [`skills/skill-guidance/skill-principle/UPDATE.md`](skills/skill-guidance/skill-principle/UPDATE.md)（含承重数字的 Fact Registry + 质量杆）。上一代 v1 冻结在 [`archive/`](archive/)。
-
-**下一代（草案，不计入正式 16 个）**
-- **[skill-creator-max](skills/skill-creator-max/)** —— 把上面五个职能收进**一个** skill：SKILL.md 本体是一个**薄指挥官**，自己不做任何职能，只**逐角色派出全新子代理、按类型化工件把关、逐门路由**。扎根 `skill-philosophy` 三层哲学 KB（每条规则引锚点；该 KB 为**仓库外本地**资产，不随仓库分发——role-pack 已把规则操作化并内联锚点，运行时不依赖它）；薄常驻体 + 五个按需 role-pack（只进被派子代理上下文）+ 五份六厂交集工件 schema + 只查结构的 L0 门 + 自含的 O5 独立电池（从 vince-attacker 五镜头蒸馏，高风险改派不同厂商攻击者）。用**编排解构**关掉旧四 skill 的坑（跨 skill 交接摩擦、同作者相关性、臃肿、绿而错、渐近电池误编、触发/移植）。**v0.1.0-draft**：一次 dogfood 真造小 skill 端到端过全部 L0 门、trigger holdout 0/12 误触；但每角色真独立性与跨厂商电池尚未演练 → 自评 `candidate` 而非 `industrial`，暂不部署、不取代已装的四 skill。
+**造 skill 的流水线 —— 造 skill 的 skill**
+- **[skill-creator-max](skills/skill-creator-max/)** —— **本仓库现行的造 skill 流水线（v1.0.0）**，一个 skill 装下整条链路：SKILL.md 本体是一个**薄指挥官**，自己不做任何职能，只**逐角色派出全新子代理、按类型化工件把关、逐门路由**（薄常驻体 + 五个按需 role-pack + 六厂交集工件 schema + 只查结构的 L0 门 + 自含 O5 独立电池）。**完全独立运行**：`skill-philosophy` KB 只是仓库外的设计期出处，不随仓库分发、运行时不读取。已实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 v4.0.0，真·逐角色新鲜上下文独立；独立电池抓到构建者自测全绿仍漏掉的真缺陷。取代已退役移除的旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper；上一代冻结在 [`archive/`](archive/)）。诚实残留：跨厂商电池尚未跑。
 
 ## 当前这版的重点
 
 这不是一堆 prompt 模板，而是一套会自己长牙的技能系统：
 
-- **构建链路已经 v2 化。** guidance / engineer / conductor / zipper 现在共用可执行 gate，spec、build report、trigger eval、held-out、red log 都能被重跑，不靠口头承诺。
-- **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop；文末的 `stupidskills` 里另放一个 `loop-constructor-codex`，把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`，但不计入正式 16 个。
+- **构建链路收进一个 skill。** `skill-creator-max` v1.0.0 取代旧四 skill 流水线：薄指挥官逐角色派全新子代理、只认类型化工件、确定性 L0 门 + 独立电池，spec、trigger holdout、红绿 harness 都能被重跑，不靠口头承诺。
+- **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop；文末的 `stupidskills` 里另放一个 `loop-constructor-codex`，把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`，但不计入正式 14 个。
 - **独立性成为一等公民。** `attacker`、`reorganize-logic`、`test-driven-development` 都围绕“不要让同一个心智模型同时写答案和判答案”重做过。
 - **模型/effort 选择被显式化。** 文末 `stupidskills` 里的 `model-pyramid` 不做模型购物，也不把右配伪装成省钱；它只在 subagent fan-out 时把工作难度映射成一行可审计的 `rule=<id> tier=<tier> effort=<notch>`。
-- **知识库随 skill 走。** `skill-principle` 和 `loop-principle` 都内置到对应 skill，不再要求用户知道旁路复制关系。
+- **知识库随 skill 走 —— 或干脆不需要。** `loop-principle` 内置在 `loop-constructor` 里随装随走；新流水线 `skill-creator-max` 则**运行时不依赖任何 KB**（`skill-philosophy` 是仓库外的设计期出处）。
 
 ## 安装
 
@@ -61,10 +52,10 @@ npx skills add VincentJiang06/skills      # 交互式勾选要装的 skill
 
 **依赖与「装全」注意事项：**
 - **运行时**：`node`（≥18）跑 `.mjs` 校验器、`python3` 跑 `.py` 脚本。**两者都只用标准库 —— 无需 `npm install` / `pip install`。**
-- **两个 principle KB 现在随对应 skill 一起安装。** `loop-principle/` 内置在 [`skills/loop-constructor/loop-principle/`](skills/loop-constructor/loop-principle/)；`skill-principle/` 内置在 [`skills/skill-guidance/skill-principle/`](skills/skill-guidance/skill-principle/)。选择安装 `loop-constructor` 或 `skill-guidance` 时，知识库会作为该 skill 的子目录一起带上。
-- **流水线全功能安装**：`skill-engineer` 与 `skill-conductor` 复用 `skill-guidance/skill-principle/`，所以跑完整 guidance → engineer → conductor 流水线时，请一并安装 `skill-guidance`。不用再把两个 KB 额外拷到 agent home 的同级目录。
+- **`loop-principle` KB 随 skill 一起安装**：内置在 [`skills/loop-constructor/loop-principle/`](skills/loop-constructor/loop-principle/)，选择安装 `loop-constructor` 时作为子目录一起带上。
+- **造 skill 流水线零外部依赖**：`skill-creator-max` 自含 role-pack / schema / 门脚本，**运行时不需要任何 KB 在场**（`skill-philosophy` KB 是仓库外的设计期出处，不随仓库分发）。
 - **`mp-cli-sup`** 还需要 [`tools/vince-mp-cli/`](tools/vince-mp-cli/)（Node CLI）。
-- 想一次拿全（skills + 两个 KB + CLI），直接 `git clone` 整个仓库最省事。
+- 想一次拿全（skills + KB + CLI），直接 `git clone` 整个仓库最省事。
 
 装好后用自然语言提问，Claude Code 按描述自动触发；也可 `/<skill-name>` 显式调用：
 
@@ -76,9 +67,9 @@ npx skills add VincentJiang06/skills      # 交互式勾选要装的 skill
 
 这些 skill 最常组合使用。下面是几条典型路径 + 一句话示范提示词。
 
-**① 造一个新 skill（端到端）** —— 用 `skill-conductor` 把想法变成工业级 skill；它内部驱动 guidance（审计+定范围）→ engineer（红绿构建）→ zipper（压缩）→ 最终验收（接入 `attacker` 防注水）。
+**① 造一个新 skill（端到端）** —— 用 `skill-creator-max` 把想法变成工业级 skill；薄指挥官逐角色派全新子代理跑 composer（决策规格）→ guidance（结构契约）→ engineer（红绿构建）→ zipper（压缩）→ O5 独立电池验收。
 ```
-> 用 skill-conductor 把这个想法做成工业级 skill：一个把会议纪要转成行动项清单的 skill，要能溯源到原文。
+> 用 skill-creator-max 把这个想法做成工业级 skill：一个把会议纪要转成行动项清单的 skill，要能溯源到原文。
 ```
 
 **② 为中大型任务设计循环** —— 用 `loop-constructor` 先把任务分解成带 gate 的子循环，落盘 `.loop/` runbook，再照着跑。
@@ -103,7 +94,7 @@ npx skills add VincentJiang06/skills      # 交互式勾选要装的 skill
 踩出来的经验，做新 skill 时照着省事：
 
 - **先想清楚「什么 check 能证明它做好了」，再设计。** 循环工程 ≈ 验证工程 —— 没有可运行的 check 就不是循环。让 `loop-constructor` 的 linter 帮你拒掉空壳设计。
-- **让 conductor 驱动，别手搓流水线。** guidance 定范围、engineer 红绿构建、zipper 压缩、最终验收用 `min(复审, 独立测试组)` 把关 —— 这套比「我看着行」可靠得多。
+- **让 `skill-creator-max` 的指挥官驱动，别手搓流水线。** composer 定规格、guidance 定契约、engineer 红绿构建、zipper 压缩、独立电池验收 —— 每个角色一个全新子代理、只认类型化工件，这套比「我看着行」可靠得多。
 - **把 `attacker` 当成「闭环会骗人」的执行臂。** skill 自己的测试默认「绿而错」；务必让一个对构建规则一无所知的新 agent 在**留出集**（不是训练语料）上攻击，证明它泛化、没过拟合。
 - **改进前先冻结标尺。** 想提升某个指标，先把 eval（语料 + 评分标尺）做硬、做到能区分好坏，再动 skill —— 别一边改标尺一边改被测物。先建 baseline 再改。
 - **当心「饱和的指标」。** 如果 baseline 一上来就接近满分，多半是用例太容易 / 评分太松 —— 加更难的用例（长文、边界、混合语言）+ 更严的判官，露出真正的提升空间。
@@ -116,7 +107,7 @@ npx skills add VincentJiang06/skills      # 交互式勾选要装的 skill
 
 ```
 skills/                                      # 开箱即用的 skill（各一个文件夹，含各自 README —— 细节看那里）
-skills/skill-guidance/skill-principle/       # 内置 skill principle KB，随 skill-guidance 一起安装（含 UPDATE.md 更新 runbook）
+skills/skill-creator-max/                    # 现行造 skill 流水线（薄指挥官 + role-pack + schema + 门脚本，自含）
 skills/loop-constructor/loop-principle/      # 内置 loop engineering KB，随 loop-constructor 一起安装
 tools/vince-mp-cli/                          # mp-cli-sup 驱动的 Node CLI
 tools/deploy_pipeline_skills.mjs             # 把 pipeline / 全量 skill 部署到本地安装（vince- 前缀，逐字节校验）
@@ -134,7 +125,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 3. **准确 ≫ 速度。** 粗暴分桶把每个边缘情况贴错标签。用**丰富的逐项描述符 + 运行时判断**分类，而非硬枚举。唯一刻意例外是 `fact-check`（速度优先）—— 但它也绝不「自信地答错」。
 4. **范围锋利，绝不蔓延。** 「功能越多越好」是陷阱。每个 skill 只把**一件事做好**：瘦 `SKILL.md`、渐进披露、低常驻开销。
 5. **每个结论都有凭证。** 来源可追溯是机器校验的；材料不足就**诚实降级**而非杜撰；构建过程**绝不假装通过**。
-6. **自我构建、自我验证。** 仓库里几乎每个 skill 都由自带的流水线（`skill-conductor`）+ 循环（`loop-constructor`）造出，扎根两个自校验的知识库。这条流水线本身也一并带上了。
+6. **自我构建、自我验证。** 仓库里几乎每个 skill 都由自带的流水线（现为 `skill-creator-max`，早期版本用已退役的四 skill 流水线）+ 循环（`loop-constructor`）造出。这条流水线本身也一并带上了。
 
 ## 已知局限（坦诚）
 
@@ -142,13 +133,12 @@ archive/                                     # 冻结的旧版本（如 pipeline
 
 - **验证是渐近的，不是证明。** 独立对抗组每轮仍可能再揪出一个「绿但错」；我们在堵死所有「已证实」的漏洞后收手，而非宣称完美（如 humanizer v3.1 的留出集攻击「2 轮全 clean」= 预算内无可证破坏，≠ 证明无误）。
 - **两个知识库体量较大，但会随对应 skill 一起安装**（见[安装](#安装)）。这是有意取舍：牺牲一点安装体积，换取用户一键安装后即可获得完整检索、模板、清单和自校验。
-- **conductor 的「attacker 须在复审通过后才触发」是约定 + 不变量校验，尚未运行时硬联锁。** 由规则文本 + `min(复审, 测试组)` 不变量保证，尚未做成硬性机器门（后续项）。
-- **guidance 的上下文充分性探测器是「种子」，不是「裁判」。** 触发提问的关键词探测两个方向都可能被骗；按设计由 agent 对「实质内容」的判断作最终裁判，但并非确定性堵死。
+- **`skill-creator-max` 的跨厂商（模型级）电池尚未跑过。** 迄今所有电池轮都是同族模型的实例级独立 —— 这是流水线剩下的唯一独立性缺口，自评 strong-candidate / 1.0 时已如实注记。
 - **loop-constructor 的 D6 节奏（完成度优先 / 迭代优先）是「指南」，非 linter 强制。** 设计可声称一种节奏却配反的旋钮 —— linter 抓不到，由 fresh-reader 的 cadence 框 + maker/checker 把关。
 - **流水线对「性能/质量类」升级，最终验收可由更强的留出集攻击代替完整 conductor 复审**（humanizer v3.1 即如此）—— 这是有意的工程取舍，已如实记录，非偷工。
 - **trigger 精度依赖可用的真实运行时。** 当本机没有可认证 CLI 时，部分 trigger_eval 会用 live judge panel 代替，并在报告里标清楚；这算可用证据，不伪装成 canonical CLI 结果。
 
-## stupidskills（不计入 16 个正式 skill）
+## stupidskills（不计入 14 个正式 skill）
 
 这两张卡放在页面最底部，只作为轻量实验/旁路工具展示，**不计入本仓库的正式 skill 个数记录**。
 
@@ -159,6 +149,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
 
+- **2026-07-14** — 旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper）**退役并从仓库移除**；[`skill-creator-max`](skills/skill-creator-max/) 升为 **v1.0.0**，成为唯一的造 skill 流水线（单 skill、薄指挥官逐角色派全新子代理；**完全独立运行**，`skill-philosophy` KB 只是仓库外的设计期出处）。实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 **v4.0.0**（模式切分结构重建：按模式/语言拆参考包、常驻 −15%、常见路径约 −35%，质量守住而非跃升）；独立电池抓到构建者自测全绿仍漏掉的真缺陷。正式 skill 计数 16 → **14**。残留：跨厂商电池未跑。
 - **2026-07-06** — humanizer 升到 v3.2（contrast-frame quota、citation-shell rework、frame-first hardening）；两个 principle KB 做 FABLE synthesis；新增 `loop-constructor-codex` 与 `model-pyramid`，作为文末 `stupidskills` 附录，不计入正式 16 个；`model-pyramid` 把 subagent 模型/effort 选择做成可测试规则卡。
 - **2026-07-14** — 新建 `skill-philosophy` 三层哲学 KB（principle→guideline→rule，五本 C/S/E/Z/O 系；**仓库外本地**资产，不随仓库分发）+ 下一代 [`skill-creator-max`](skills/skill-creator-max/) **v0.1.0-draft**：把 composer/guidance/engineer/zipper/conductor 五职能收进**一个薄指挥官 skill**（逐角色派全新子代理、只认类型化工件、逐门把关），扎根该 KB。dogfood 真造小 skill 过全部 L0 门（判别性自测全绿）、trigger holdout 0/12 误触；诚实注记：一 agent 分饰全角色、跨厂商电池未跑 → 自评 candidate，暂不部署、不取代已装四 skill。
 - **2026-07-14** — `attacker` 从头重写为 **v0.5.0**：以新建的 skill-design 哲学知识库为根，把机制压到极简（fork 新脑子 → 一个镜头 → 只留能证明的），换成**五镜头固定轮转** + SEED 反假阴性门 + 确定性影子地图提取；**全模型可用**成为设计约束零，换厂商模型即换更强独立性；删掉 `rules/` / `agents/` / 多个 `.mjs` 装置，总重量约为旧版 1/4。诚实注记：塑造它的每一轮都是同族 `instance` 级攻击，跨厂商验收测试尚未跑。
