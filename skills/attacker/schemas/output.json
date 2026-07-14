@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "attacker output",
+  "description": "Six-vendor-intersection JSON: object root, all properties required, no minLength/minItems/maxItems, snake_case. Runs on DeepSeek strict, GLM, Kimi, Qwen, GPT, Claude alike.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findings", "flags", "stop_reason", "coverage_gaps"],
+  "properties": {
+    "findings": {
+      "type": "array",
+      "description": "Proven, reproducible breakages only.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lens", "location", "claim", "reproduction", "severity", "independence_tier"],
+        "properties": {
+          "lens": {"type": "string", "enum": ["coherence", "gaming", "evidence", "reality", "foundation", "synthesis"]},
+          "location": {"type": "string", "description": "file + line/section"},
+          "claim": {"type": "string", "description": "one-sentence statement of the defect"},
+          "reproduction": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["steps", "expected", "observed"],
+            "properties": {
+              "steps": {"type": "string"},
+              "expected": {"type": "string"},
+              "observed": {"type": "string"}
+            }
+          },
+          "severity": {"type": "string", "enum": ["P1", "P2", "P3"]},
+          "independence_tier": {"type": "string", "enum": ["instance", "model", "human"]}
+        }
+      }
+    },
+    "flags": {
+      "type": "array",
+      "description": "Unproven suspicions, kept separate — never counted as findings.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["lens", "location", "suspicion"],
+        "properties": {
+          "lens": {"type": "string"},
+          "location": {"type": "string"},
+          "suspicion": {"type": "string"}
+        }
+      }
+    },
+    "stop_reason": {"type": "string", "description": "which pre-registered E9 condition fired"},
+    "coverage_gaps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lenses_not_run", "independence_reached", "battery_grade", "notes"],
+      "properties": {
+        "lenses_not_run": {"type": "array", "items": {"type": "string"}},
+        "independence_reached": {"type": "string", "enum": ["instance", "model", "human"]},
+        "battery_grade": {"type": "string", "enum": ["smoke-only", "standard", "high"]},
+        "notes": {"type": "string", "description": "honest confession of what was NOT covered"}
+      }
+    }
+  }
+}

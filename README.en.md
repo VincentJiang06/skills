@@ -23,7 +23,7 @@ This section still counts only the **16 official skills**. A `stupidskills` appe
 
 **Loop & adversary — turn a medium/large task into a runnable engineering loop**
 - **[loop-constructor](skills/loop-constructor/)** — designs the engineered *loop* for a medium/large task: decomposed into gated sub-loops, persisted as a runnable `.loop/` runbook.
-- **[attacker](skills/attacker/)** — attacks a product's *actual observable behavior* (or red-teams an idea): a fresh, TDD-independent subagent records only proven, reproducible breakages; pairs with loop-constructor (attack→fix→re-attack).
+- **[attacker](skills/attacker/)** — a fresh, independent attacker hits *any target* (skill / design / argument / code / KB) through **five philosophy-derived lenses** (coherence / gaming / evidence / reality / foundation), recording only proven, reproducible breakages, never fixing. **Model-agnostic** — a different-vendor attacker buys stronger independence; pairs with loop-constructor (attack→fix→re-attack). **v0.5.0 is a ground-up rewrite from the philosophy, ~1/4 the old weight.**
 - **[reorganize-logic](skills/reorganize-logic/)** — rebuilds the design-contract layer (architecture + structure + interfaces) with the code as the single source of truth, behind a review gate.
 
 **The skill-building pipeline — skills that build skills (v2)**
@@ -159,6 +159,7 @@ These two cards live at the very bottom of the public page. They are lightweight
 Daily summaries from git history, limited to structural changes in the skill system.
 
 - **2026-07-06** — humanizer moved to v3.2 (contrast-frame quota, citation-shell rework, frame-first hardening); both principle KBs received a FABLE synthesis pass; `loop-constructor-codex` and `model-pyramid` landed as bottom-page `stupidskills`, not counted in the official 16; `model-pyramid` added testable subagent model/effort sizing.
+- **2026-07-14** — `attacker` was rewritten ground-up as **v0.5.0**: re-derived from the new skill-design philosophy KB, the mechanism is stripped to the minimum (fork a fresh mind → one lens → keep only the provable), rebuilt as a **five-lens fixed rotation** + a SEED anti-false-negative gate + a deterministic shadow-map extractor; **model-agnostic** is now design constraint zero (a different-vendor attacker buys stronger independence); `rules/` / `agents/` / the `.mjs` rigs were removed, landing at ~1/4 the old weight. Honest note: every shaping round was same-family `instance`-tier; the cross-vendor acceptance run is not yet done.
 - **2026-07-02** — the skill-building pipeline became v2: executable G/E gates, audit disposition, held-out trigger eval, portable zipper; v1 pipeline archived; local `eval_exchange` protocol added; `attacker` / `loop-constructor` / `reorganize-logic` / `test-driven-development` received the independence-family update.
 - **2026-06-25** — `skill-principle` and `loop-principle` were embedded under their owning skills so installs carry the KBs with them.
 - **2026-06-24** — `.clawhubignore` and version metadata were synced for ClawHub/SkillHub publishing.

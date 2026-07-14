@@ -23,7 +23,7 @@
 
 **循环 & 对抗 —— 把中大型任务做成可自主跑的工程**
 - **[loop-constructor](skills/loop-constructor/)** —— 为中大型任务设计工程化*循环*：分解成带 gate 的子循环树，落盘成可直接照跑的 `.loop/` runbook。
-- **[attacker](skills/attacker/)** —— 攻击产品的*真实可观测行为*（或红队一个想法）：全新、与 TDD 独立的 subagent 只记可复现、已证实的破坏，与 loop-constructor 配对（攻击→修复→再攻击）。
+- **[attacker](skills/attacker/)** —— 用一个全新、独立的攻击者，透过**五个由设计哲学推导的镜头**（一致性 / 反作弊 / 证据 / 现实 / 根基）攻击*任意目标*（skill / 设计 / 论点 / 代码 / 知识库），只记已证实、可复现的破坏，永不修复。**全模型可用**、换厂商模型即换来更强独立性；与 loop-constructor 配对（攻击→修复→再攻击）。**v0.5.0 从哲学重写，约为旧版 1/4 重量。**
 - **[reorganize-logic](skills/reorganize-logic/)** —— 以**代码为唯一事实源**重建设计契约层（架构 + 结构 + 接口），删除遗留走评审门。
 
 **造 skill 的流水线 —— 造 skill 的 skill（v2）**
@@ -157,6 +157,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
 
 - **2026-07-06** — humanizer 升到 v3.2（contrast-frame quota、citation-shell rework、frame-first hardening）；两个 principle KB 做 FABLE synthesis；新增 `loop-constructor-codex` 与 `model-pyramid`，作为文末 `stupidskills` 附录，不计入正式 16 个；`model-pyramid` 把 subagent 模型/effort 选择做成可测试规则卡。
+- **2026-07-14** — `attacker` 从头重写为 **v0.5.0**：以新建的 skill-design 哲学知识库为根，把机制压到极简（fork 新脑子 → 一个镜头 → 只留能证明的），换成**五镜头固定轮转** + SEED 反假阴性门 + 确定性影子地图提取；**全模型可用**成为设计约束零，换厂商模型即换更强独立性；删掉 `rules/` / `agents/` / 多个 `.mjs` 装置，总重量约为旧版 1/4。诚实注记：塑造它的每一轮都是同族 `instance` 级攻击，跨厂商验收测试尚未跑。
 - **2026-07-02** — skill-building pipeline 升到 v2：G/E gate 可执行化、audit disposition、held-out trigger eval、portable zipper；v1 pipeline 冻结进 `archive/`；新增本地 `eval_exchange` 协议；`attacker` / `loop-constructor` / `reorganize-logic` / `test-driven-development` 做 independence-family 更新。
 - **2026-06-25** — `skill-principle` 和 `loop-principle` 内嵌到对应 skill，安装时随 skill 一起走。
 - **2026-06-24** — 为 ClawHub/SkillHub 发布同步 `.clawhubignore` 与版本信息。
