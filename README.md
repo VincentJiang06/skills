@@ -6,7 +6,7 @@
 
 ## 一句话速览
 
-这里只统计 **14 个正式 skill**（2026-07-14 起：旧四 skill 流水线退役移除，`skill-creator-max` 与 `paper-writer` 计入）。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
+这里只统计 **15 个正式 skill**（2026-07-22 起：新增 `logic-pacer`；2026-07-14 起：旧四 skill 流水线退役移除，`skill-creator-max` 与 `paper-writer` 计入）。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
 
 **成品**
 - **[album-review](skills/album-review/)** —— 「主创署名 + 专辑名」→ 一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。
@@ -15,6 +15,7 @@
 - **[fact-check](skills/fact-check/)** —— 对事实性问题给出快速、有出处的 BLUF 回答（≤2 / ≤5 分钟）。
 - **[humanizer-academic](skills/humanizer-academic/)** —— 重写 AI 生成的严肃文本（中 / 英 / 混合），两模式（学术 / 科普）；先判定、读着像人就不动，去 AI 痕迹同时保留体裁腔调。**v4.0.0 完成模式切分结构重建**（按模式/语言拆参考包、按需加载，常驻 −15%、常见路径约 −35%；质量守住而非跃升）。
 - **[paper-writer](skills/paper-writer/)** —— 从需求（字数 / 引用风格 / 章节）和/或选题写出一篇**新的**、完整合规的论文；两条完整性铁律：绝不编造引用、绝不抄袭，查不到的来源标 `[SOURCE NEEDED]` 而非发明。
+- **[logic-pacer](skills/logic-pacer/)** —— 把**已经写好、你也喜欢**的中文（/英文）说理文改得**逻辑推进慢一点、每步都跟得上**：缩小推理**步长**、每步落在读者刚站稳处（given-new），但**不动文风、不降词汇（绝不对齐词汇）、不改事实/立场、保持干练**（净长 ≤~1.3x）。方法=找 ≥2 步跳跃→展开成最小中间链→减赘饰。区别于 `humanizer-academic`（那是去 AI 味、已像人就 abstain）。保真=模型级不变量 + 独立盲审探针，脚本特意不把「立场反转」降级成可脚本化检查。**v1.0.0 经 skill-creator-max 流水线端到端建成，独立电池抓到并修掉构建者自测漏掉的一处真缺陷。**
 - **[mp-cli-sup](skills/mp-cli-sup/)** —— 通过 `vince-mp` CLI 调试*实时*运行的微信小程序：一次持久会话、uid 稳定、免相机 scan。
 - **[mp-groundline](skills/mp-groundline/)** —— 微信小程序 Skyline→WebView 迁移，一致性优先，配只读扫描器 + 迁移地图。
 
@@ -149,6 +150,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
 
+- **2026-07-22** — 新增 [`logic-pacer`](skills/logic-pacer/) **v1.0.0**（正式 skill 计数 14 → **15**），经 `skill-creator-max` 全流水线端到端建成（composer→guidance→engineer→zipper→battery，逐角色新鲜上下文）。用途：把**已写好且作者喜欢**的说理文改得**逻辑步长更小、每步都跟得上**（inferential distance / given-new / topic-stress / chunking / hinge-only 五机制落地），**不动文风、绝不对齐词汇、不改事实立场、净长 ≤~1.3x**。保真=模型级不变量 + 独立盲审探针（脚本特意不把「立场反转」降级成可脚本化检查）。埋种子五镜头独立电池五 seed 全命中并抓到构建者自测漏掉的一处真缺陷（P2：确定性词汇/保真闸门被硬编码到 Quetelet 语料 → 换段即空转、误报 all clean），已按 min() 路由回 engineer 修好并由指挥官独立复现验证（改为通用人名/数字保真 + 无词表时诚实报 "not checked"）。effective verdict = candidate（instance-tier 电池、盲审探针未在验收时实跑、跨厂商未跑；作者逐段人读为 O-L0 签核）。
 - **2026-07-14** — `test-driven-development` 经 `skill-creator-max` 全流水线从头重写为 **v1.0.0**：全规则重接地到 skill-philosophy KB 锚点，保留已验证行为核心（适度门 / modify mode / watch-it-fail / revert-to-red / harness），新增**信任边界脊柱**（内容内指令零权威 + 注入 eval）、E-L3 压力哨兵（64K 实况跑通过 4/4）与 E8 回流点；埋种子五镜头独立电池抓到 5 个真缺陷（1 P1：崩溃被当成红）全部行为级修复并钉成 held-out 回归，harness 16 → **22 检查**。诚实注记：跨厂商轮本次弃用（用户裁定），effective verdict = candidate，预注册一轮干净电池即升 industrial。
 - **2026-07-14** — 旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper）**退役并从仓库移除**；[`skill-creator-max`](skills/skill-creator-max/) 升为 **v1.0.0**，成为唯一的造 skill 流水线（单 skill、薄指挥官逐角色派全新子代理；**完全独立运行**，`skill-philosophy` KB 只是仓库外的设计期出处）。实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 **v4.0.0**（模式切分结构重建：按模式/语言拆参考包、常驻 −15%、常见路径约 −35%，质量守住而非跃升）；独立电池抓到构建者自测全绿仍漏掉的真缺陷。正式 skill 计数 16 → **14**。残留：跨厂商电池未跑。
 - **2026-07-06** — humanizer 升到 v3.2（contrast-frame quota、citation-shell rework、frame-first hardening）；两个 principle KB 做 FABLE synthesis；新增 `loop-constructor-codex` 与 `model-pyramid`，作为文末 `stupidskills` 附录，不计入正式 16 个；`model-pyramid` 把 subagent 模型/effort 选择做成可测试规则卡。
