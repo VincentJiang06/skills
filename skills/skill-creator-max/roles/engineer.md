@@ -92,6 +92,16 @@ nothing — this is the vacuity every green-but-wrong incident traces back to [S
 - [ ] Early effect sizes are large; a small hard corpus detects them reliably. But note in the
       dossier that a corpus stuck at ~20 cases is FALSE maturity for an industrial-tier skill
       [SELF-harness规模] — record the growth debt honestly.
+- [ ] **Baseline-delta arms (E11/A44 — the anti-vacuity instrument).** Run the harness in TWO
+      arms: with-skill and without-skill (bare model, same cases, isolated contexts), and report
+      the triple delta (pass rate / tokens / wall-clock) in the dossier. An assertion that passes
+      in BOTH arms measures the model, not the skill — delete it (zero information). A green
+      suite with no baseline arm only proves the tasks are easy [ANT-SkillBench].
+- [ ] Classify the skill `capability-uplift` (produces better-than-baseline output; the baseline
+      arm is its expiry detector — delta→0 means retirement review) or `encoded-preference`
+      (encodes team-specific workflow/taste; verify FIDELITY, not uplift). The classification is
+      gate-confirmed, not self-declared (M3). If pass rate plateaus while rules keep growing, the
+      skill is over-constrained: delete rules and re-test BEFORE adding more.
 
 ---
 

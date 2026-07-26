@@ -22,6 +22,9 @@ whether they survive reality (the Reality lens) — hunt only for the target con
 
 ## PROVE-OR-FLAG
 
+- **Coverage first (classify, don't delete):** report every anomaly you noticed — your job at
+  this pass is coverage and labeling, not filtering; an item you drop is unrecoverable, an item
+  you mislabel is. The adjudicator filters.
 - **finding** = you can exhibit the contradiction concretely: quote both sides (file+location),
   and give the state/inputs where obeying both is impossible. For arithmetic, show the numbers.
 - **flag** = you suspect a tension but cannot exhibit a concrete double-bind (maybe it is a governed

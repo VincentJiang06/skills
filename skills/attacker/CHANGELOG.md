@@ -2,6 +2,24 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.6.0] — 2026-07-26
+
+**R16 alignment (Claude 5 generation settlement, from the philosophy KB's P11/ADC2).** Frontier
+models follow "only report proven/severe" instructions literally — recall dies silently at the
+discovery pass. Anthropic's own Claude 5 model docs prescribe the fix: full-coverage report first,
+independent filtering second.
+
+### Changed
+- **PROVE-OR-FLAG is now explicitly classify-not-delete.** The striking mind reports EVERY anomaly
+  it noticed and only *proposes* labels (finding vs flag + severity); deletion authority sits
+  solely with the adjudicating judge. Wording fixed at every site that primed suppression:
+  `description` ("records ONLY proven…" → coverage-first + adjudication), SKILL.md intro and step 4,
+  `references/prove-or-flag.md` judge topology, and a "Coverage first" rule in all five lens files.
+- **Golden sample 13 (★ suppression case) added** to the rubric: a noticed anomaly absent from the
+  report "because it couldn't be proven" is a report-defect — it must surface as a FLAG.
+- The findings/flags two-channel output contract is unchanged; what changed is *who* filters, and
+  *when*.
+
 ## [0.5.0] — 2026-07-14
 
 **Ground-up rewrite, re-derived from the skill-design philosophy KB.** Supersedes the 0.4.x

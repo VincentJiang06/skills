@@ -1,18 +1,19 @@
 ---
 name: attacker
 description: >-
-  Attack any target (skill, design, argument, code, KB) with a FRESH, independent attacker
-  rotating five lenses; records ONLY proven, reproducible breakages, never fixes.
-  Model-agnostic — a different-vendor attacker buys stronger independence. Use-when:
+  Attack any target (skill, design, argument, code, KB) with a FRESH independent attacker
+  rotating five lenses; coverage-first strike, then PROVE-OR-FLAG adjudication (findings vs
+  flags); never fixes. A different-vendor attacker buys stronger independence. Use-when:
   "red-team/break this", "$attacker". Do-NOT: fix or edit the target.
 metadata:
-  version: 0.5.0
+  version: 0.6.0
   model_agnostic: true
 ---
 
 # attacker
 
-Fork a fresh mind, point it at the target through one lens, keep only what it can prove.
+Fork a fresh mind, point it at the target through one lens, collect everything it notices, and
+let an independent adjudicator decide what survives the proof bar.
 The mechanism is trivial on purpose. The power is not in the mechanism — it is in **what the
 fresh mind is handed**: a fixed rotation of five lenses, and (when the target is
 philosophy-grounded) the target's own shadow-principles as a pre-drawn map of where to strike.
@@ -66,11 +67,16 @@ Load `lenses/<lens>.md` for the chosen lens(es). Run each lens in its OWN fresh 
    `needs_human`.
 3. **STRIKE.** Attack the target's observable behavior / claims / internal coherence, through
    this one lens only.
-4. **PROVE-OR-FLAG.** A finding needs `reproduction = {steps, expected, observed}`; a
-   thought-experiment counts only if an **independent, non-author rerunner** can rerun it. The
-   rubric (`references/prove-or-flag.md`) is itself an evaluator, so it carries golden samples
-   inline (§Golden samples, ≥12, incl. the hard case "a suspicion dressed as a thought
-   experiment"). **Judge topology:** the attacker model self-screens; final adjudication is by a
+4. **PROVE-OR-FLAG (classify, don't delete).** The striker reports EVERY anomaly it noticed —
+   self-screening only proposes the label (finding vs flag + severity), it never drops an item:
+   deletion authority belongs solely to the adjudicating judge. (Frontier models obey "only
+   report proven/severe" literally and silently under-report — recall dies at discovery, so the
+   discovery pass is coverage-first by construction.) A finding needs
+   `reproduction = {steps, expected, observed}`; a thought-experiment counts only if an
+   **independent, non-author rerunner** can rerun it. The rubric (`references/prove-or-flag.md`)
+   is itself an evaluator, so it carries golden samples inline (§Golden samples, ≥13, incl. the
+   hard cases "a suspicion dressed as a thought experiment" and "a noticed anomaly silently
+   dropped"). **Judge topology:** the attacker model self-labels; final adjudication is by a
    judge that is **different-vendor from the target's author** (closes model-level self-preference,
    not just author-level A31). Judge golden samples carry a `model_baseline` stamp and re-verify
    on model change.

@@ -29,6 +29,9 @@ This is the lens that questions what everyone else takes for granted.
 
 ## PROVE-OR-FLAG
 
+- **Coverage first (classify, don't delete):** report every anomaly you noticed — your job at
+  this pass is coverage and labeling, not filtering; an item you drop is unrecoverable, an item
+  you mislabel is. The adjudicator filters.
 - **finding** = a concrete counter-example to the axiom, OR a demonstrated circular dependency with
   the named shared blind spot, OR a counted rot metric (additions:deletions ratio, N orphan
   references, M un-clocked v0 params). Evidence, not assertion.

@@ -26,7 +26,10 @@ dressed up in finding language.
 
 ## Judge topology (closes model-level self-preference, not just author-level)
 
-- The **attacker model self-screens** its own items against this bar first.
+- The **attacker model self-LABELS** its items against this bar — classify-not-delete: it
+  proposes finding/flag + severity and may NOT drop an item it noticed. Frontier models obey
+  "only report proven/severe" literally and silently under-report; a suppressed candidate is
+  unrecoverable, a mislabeled one is. Deletion authority sits solely with the adjudicator.
 - **Final adjudication** is by a judge that is **different-vendor from the target's author**
   (self-preference bias is model-level; a same-family judge quietly passes same-family work). At
   A33 high stakes this is mandatory; at low stakes, note in coverage_gaps that adjudication was
@@ -56,6 +59,9 @@ hard cases marked ★:
     (check the target's revision lineage first).
 11. Counted rot metric (additions:deletions = 70:1, N orphan refs) → **FINDING**.
 12. ★ A P1-worded item whose consequence is actually cosmetic → downgrade to **P3** (severity inflation).
+13. ★ An anomaly the striker demonstrably noticed (present in its working notes/draft) but absent
+    from the report "because it couldn't be proven" → **report-defect** (coverage violation): it
+    must appear as a FLAG; dropping is the adjudicator's power, never the striker's.
 
 ## Rubric budgets (anti-bloat, A41 reflexive)
 

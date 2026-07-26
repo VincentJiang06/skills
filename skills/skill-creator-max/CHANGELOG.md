@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0] — 2026-07-26
+
+**R16 alignment (Claude 5 generation settlement, from the philosophy KB's P11/E11/A44/ADC2).**
+
+- **battery: PROVE-OR-FLAG is now classify-not-delete.** The striking subagent reports EVERY
+  noticed anomaly and only proposes labels (finding/flag + severity); deletion authority sits
+  solely with the adjudicating judge. Rationale: frontier models obey "only report proven/severe"
+  literally and silently under-report — recall dies at discovery (Anthropic's Claude 5 model docs
+  prescribe full-coverage report + independent filter). Wording fixed in the charter, mechanism
+  step 4, judge topology, and the SKILL.md battery gate description.
+- **engineer: baseline-delta arms (E11/A44).** The day-one harness now runs with-skill vs
+  without-skill arms and reports the triple delta (pass/token/wall-clock); assertions passing in
+  both arms are deleted (anti-vacuity); the skill is classified capability-uplift (baseline arm =
+  expiry detector) vs encoded-preference (fidelity, not uplift), gate-confirmed; pass-rate
+  plateau ⇒ delete rules and re-test before adding more.
+
 ## [1.0.0] — 2026-07-14
 
 Promotion from draft to **the** skill-building pipeline. skill-creator-max now REPLACES the retired four-skill pipeline (skill-guidance / skill-engineer / skill-zipper / skill-conductor — removed from the repo).

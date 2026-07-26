@@ -25,6 +25,9 @@ checks to pass with minimum effort while the thing they protect quietly fails. A
 
 ## PROVE-OR-FLAG
 
+- **Coverage first (classify, don't delete):** report every anomaly you noticed — your job at
+  this pass is coverage and labeling, not filtering; an item you drop is unrecoverable, an item
+  you mislabel is. The adjudicator filters.
 - **finding** = a concrete, executable cheat script: the exact steps that pass the check while the
   spirit fails, AND why the existing defenses (independence rules, machine-checks, verification)
   don't catch it. If you cannot write the runnable cheat, it is a flag.

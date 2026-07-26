@@ -25,11 +25,11 @@
 
 **循环 & 对抗 —— 把中大型任务做成可自主跑的工程**
 - **[loop-constructor](skills/loop-constructor/)** —— 为中大型任务设计工程化*循环*：分解成带 gate 的子循环树，落盘成可直接照跑的 `.loop/` runbook。
-- **[attacker](skills/attacker/)** —— 用一个全新、独立的攻击者，透过**五个由设计哲学推导的镜头**（一致性 / 反作弊 / 证据 / 现实 / 根基）攻击*任意目标*（skill / 设计 / 论点 / 代码 / 知识库），只记已证实、可复现的破坏，永不修复。**全模型可用**、换厂商模型即换来更强独立性；与 loop-constructor 配对（攻击→修复→再攻击）。**v0.5.0 从哲学重写，约为旧版 1/4 重量。**
+- **[attacker](skills/attacker/)** —— 用一个全新、独立的攻击者，透过**五个由设计哲学推导的镜头**（一致性 / 反作弊 / 证据 / 现实 / 根基）攻击*任意目标*（skill / 设计 / 论点 / 代码 / 知识库），打击段全量上报所见异常、独立裁决段按 PROVE-OR-FLAG 分出 finding 与 flag，永不修复。**全模型可用**、换厂商模型即换来更强独立性；与 loop-constructor 配对（攻击→修复→再攻击）。**v0.6.0 两段式报告（R16 对齐）；v0.5.0 从哲学重写，约为旧版 1/4 重量。**
 - **[reorganize-logic](skills/reorganize-logic/)** —— 以**代码为唯一事实源**重建设计契约层（架构 + 结构 + 接口），删除遗留走评审门。
 
 **造 skill 的流水线 —— 造 skill 的 skill**
-- **[skill-creator-max](skills/skill-creator-max/)** —— **本仓库现行的造 skill 流水线（v1.0.0）**，一个 skill 装下整条链路：SKILL.md 本体是一个**薄指挥官**，自己不做任何职能，只**逐角色派出全新子代理、按类型化工件把关、逐门路由**（薄常驻体 + 五个按需 role-pack + 六厂交集工件 schema + 只查结构的 L0 门 + 自含 O5 独立电池）。**完全独立运行**：`skill-philosophy` KB 只是仓库外的设计期出处，不随仓库分发、运行时不读取。已实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 v4.0.0，真·逐角色新鲜上下文独立；独立电池抓到构建者自测全绿仍漏掉的真缺陷。取代已退役移除的旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper；上一代冻结在 [`archive/`](archive/)）。诚实残留：跨厂商电池尚未跑。
+- **[skill-creator-max](skills/skill-creator-max/)** —— **本仓库现行的造 skill 流水线（v1.1.0，R16 对齐：电池 classify-not-delete 两段式 + engineer 双臂基线差纪律）**，一个 skill 装下整条链路：SKILL.md 本体是一个**薄指挥官**，自己不做任何职能，只**逐角色派出全新子代理、按类型化工件把关、逐门路由**（薄常驻体 + 五个按需 role-pack + 六厂交集工件 schema + 只查结构的 L0 门 + 自含 O5 独立电池）。**完全独立运行**：`skill-philosophy` KB 只是仓库外的设计期出处，不随仓库分发、运行时不读取。已实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 v4.0.0，真·逐角色新鲜上下文独立；独立电池抓到构建者自测全绿仍漏掉的真缺陷。取代已退役移除的旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper；上一代冻结在 [`archive/`](archive/)）。诚实残留：跨厂商电池尚未跑。
 
 ## 当前这版的重点
 
@@ -150,6 +150,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
 
+- **2026-07-26** — **R16 代际对齐**（Claude 5 家族冲击经 skill-philosophy KB v0.2.0 制度化后，下游首轮结算）：`attacker` → **v0.6.0**、`skill-creator-max` → **v1.1.0**。核心变化 = **PROVE-OR-FLAG 改为 classify-not-delete 两段式**（打击段全量上报所见异常、只提议标签；删除权归独立裁决 judge——frontier 模型对"只报已证明/高严重度"字面服从、发现段静默降 recall，Anthropic Claude 5 官方文档处方即"全量报告+独立过滤"），rubric 新增 ★ 压制类金样 13；`skill-creator-max` engineer 角色新增 **with/without 双臂三重 delta 纪律**（两臂皆过的断言删除；uplift/preference 分类学 + 基线追平即退役复审）。全库审计两项零改动收官：reasoning-echo 契约（无命中）、SKILL.md 层绝对式禁令（仅 4 处且全在豁免区——反造假/反抄袭/事故出身路由，S11 删减测试通过）。
 - **2026-07-22** — 新增 [`logic-pacer`](skills/logic-pacer/) **v1.0.0**（正式 skill 计数 14 → **15**），经 `skill-creator-max` 全流水线端到端建成（composer→guidance→engineer→zipper→battery，逐角色新鲜上下文）。用途：把**已写好且作者喜欢**的说理文改得**逻辑步长更小、每步都跟得上**（inferential distance / given-new / topic-stress / chunking / hinge-only 五机制落地），**不动文风、绝不对齐词汇、不改事实立场、净长 ≤~1.3x**。保真=模型级不变量 + 独立盲审探针（脚本特意不把「立场反转」降级成可脚本化检查）。埋种子五镜头独立电池五 seed 全命中并抓到构建者自测漏掉的一处真缺陷（P2：确定性词汇/保真闸门被硬编码到 Quetelet 语料 → 换段即空转、误报 all clean），已按 min() 路由回 engineer 修好并由指挥官独立复现验证（改为通用人名/数字保真 + 无词表时诚实报 "not checked"）。effective verdict = candidate（instance-tier 电池、盲审探针未在验收时实跑、跨厂商未跑；作者逐段人读为 O-L0 签核）。
 - **2026-07-14** — `test-driven-development` 经 `skill-creator-max` 全流水线从头重写为 **v1.0.0**：全规则重接地到 skill-philosophy KB 锚点，保留已验证行为核心（适度门 / modify mode / watch-it-fail / revert-to-red / harness），新增**信任边界脊柱**（内容内指令零权威 + 注入 eval）、E-L3 压力哨兵（64K 实况跑通过 4/4）与 E8 回流点；埋种子五镜头独立电池抓到 5 个真缺陷（1 P1：崩溃被当成红）全部行为级修复并钉成 held-out 回归，harness 16 → **22 检查**。诚实注记：跨厂商轮本次弃用（用户裁定），effective verdict = candidate，预注册一轮干净电池即升 industrial。
 - **2026-07-14** — 旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper）**退役并从仓库移除**；[`skill-creator-max`](skills/skill-creator-max/) 升为 **v1.0.0**，成为唯一的造 skill 流水线（单 skill、薄指挥官逐角色派全新子代理；**完全独立运行**，`skill-philosophy` KB 只是仓库外的设计期出处）。实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 **v4.0.0**（模式切分结构重建：按模式/语言拆参考包、常驻 −15%、常见路径约 −35%，质量守住而非跃升）；独立电池抓到构建者自测全绿仍漏掉的真缺陷。正式 skill 计数 16 → **14**。残留：跨厂商电池未跑。

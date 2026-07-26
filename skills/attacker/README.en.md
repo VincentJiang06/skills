@@ -1,6 +1,6 @@
 # attacker
 
-> Attack any target with a **fresh, independent** attacker through five philosophy-derived lenses — record only proven, reproducible breakages, never fix, never edit the target.
+> Attack any target with a **fresh, independent** attacker through five philosophy-derived lenses — coverage-first strike reports every noticed anomaly, then independent PROVE-OR-FLAG adjudication separates proven findings from honest flags; never fix, never edit the target.
 
 **English** · [简体中文](README.md)
 

@@ -27,6 +27,9 @@ consistency (the Coherence lens) is not your concern — you hunt what only show
 
 ## PROVE-OR-FLAG
 
+- **Coverage first (classify, don't delete):** report every anomaly you noticed — your job at
+  this pass is coverage and labeling, not filtering; an item you drop is unrecoverable, an item
+  you mislabel is. The adjudicator filters.
 - **finding** = you actually tried it on a concrete real instance (name it, quote its real content)
   and exhibited the break: the stuck implementation line, the two real assets scoring identically,
   the absent artifact, the KeyError. A finding cites a real target, not a hypothetical one.

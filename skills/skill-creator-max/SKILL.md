@@ -9,7 +9,7 @@ description: >-
   Do-NOT fire for: summarizing or writing daily/session memory or journaling (incl. Chinese
   "总结/记录今天的记忆"), or any generic "create/make/summarize X" that is not authoring an agent skill.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
   model_agnostic: true
 ---
 
@@ -88,8 +88,9 @@ The failure-mode→owning-stage routing table: `references/orchestration-anchors
 
 The builder's green light is NOT the end of evidence: builder + its own eval share a blind spot. At a
 high-leverage gate the conductor dispatches a **fresh, build-history-blind subagent** that attacks the
-built skill's observable behavior through `roles/battery.md` and records ONLY proven, reproducible
-breakages (PROVE-OR-FLAG). Before dispatch the conductor MUST (a) **pre-register the E9 budget /
+built skill's observable behavior through `roles/battery.md` and reports EVERY noticed anomaly —
+proven breakages as findings, the rest as flags (PROVE-OR-FLAG is classify-not-delete: filtering
+belongs to the adjudicating judge, never to the striker). Before dispatch the conductor MUST (a) **pre-register the E9 budget /
 marginal threshold** (rounds cap + "N consecutive rounds no new P1/P2", scaled to spec.failure_cost)
 and (b) **plant ≥1 seed per lens** (a Coherence arithmetic contradiction, a Gaming existence-check
 cheat, a stale Evidence citation, an un-transcribable Reality rule, an un-clocked Foundation param) —
