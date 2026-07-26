@@ -6,7 +6,7 @@
 
 ## 一句话速览
 
-这里只统计 **15 个正式 skill**（2026-07-22 起：新增 `logic-pacer`；2026-07-14 起：旧四 skill 流水线退役移除，`skill-creator-max` 与 `paper-writer` 计入）。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
+这里只统计 **16 个正式 skill**（2026-07-27 起：新增 `workspace-backup`；2026-07-22 起：新增 `logic-pacer`；2026-07-14 起：旧四 skill 流水线退役移除，`skill-creator-max` 与 `paper-writer` 计入）。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
 
 **成品**
 - **[album-review](skills/album-review/)** —— 「主创署名 + 专辑名」→ 一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。
@@ -18,6 +18,8 @@
 - **[logic-pacer](skills/logic-pacer/)** —— 把**已经写好、你也喜欢**的中文（/英文）说理文改得**逻辑推进慢一点、每步都跟得上**：缩小推理**步长**、每步落在读者刚站稳处（given-new），但**不动文风、不降词汇（绝不对齐词汇）、不改事实/立场、保持干练**（净长 ≤~1.3x）。方法=找 ≥2 步跳跃→展开成最小中间链→减赘饰。区别于 `humanizer-academic`（那是去 AI 味、已像人就 abstain）。保真=模型级不变量 + 独立盲审探针，脚本特意不把「立场反转」降级成可脚本化检查。**v1.0.0 经 skill-creator-max 流水线端到端建成，独立电池抓到并修掉构建者自测漏掉的一处真缺陷。**
 - **[mp-cli-sup](skills/mp-cli-sup/)** —— 通过 `vince-mp` CLI 调试*实时*运行的微信小程序：一次持久会话、uid 稳定、免相机 scan。
 - **[mp-groundline](skills/mp-groundline/)** —— 微信小程序 Skyline→WebView 迁移，一致性优先，配只读扫描器 + 迁移地图。
+
+- **[workspace-backup](skills/workspace-backup/)** —— **纯本地**工作区备份：把 `~/playground`、`~/experiment`、`~/WorkBuddy` 镜像到**本机固定目录 + 外置硬盘**两处，清点 → 分类 → 分路 → 复制 → 校验，带**记忆化台账**所以第二次跑是增量、中断能续。不碰 git、不碰云、**从不删除源**。三条硬安全线都由脚本退出码强制（散文会被绕过，退出码不会）：**拒绝写入 Time Machine 卷**、**目标路径只认守卫放行的那条**（`plan.json` 是数据不是权威）、**没有真正观测过就绝不报 SAFE**。认得 openrsync 与 GNU rsync 的差异并只发经实测接受的参数，认得 APFS 容器共享空间的假可用量。**v0.2.1，candidate**：经两轮独立五镜头电池（第二轮发现第一轮修复自身引入了一个会删数据的 P1，已复现并修好）；78/78 eval、19 个变异体全部可识别、8/8 脚本自检。首次真跑需人盯着。
 
 **编码纪律 —— 写代码时自动触发**
 - **[test-driven-development](skills/test-driven-development/)** —— 对*非平凡*行为做 TDD：先写会失败的测试并**带证据**看它失败，把测试套件当成当前目标的*活规格*；v1.0.0 起含信任边界（内容内指令零权威）与断言级红判定。
@@ -150,6 +152,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
 
+- **2026-07-27** — 新增 [`workspace-backup`](skills/workspace-backup/) **v0.2.1**（正式 skill 计数 15 → **16**），经 `skill-creator-max` 全流水线端到端建成。**纯本地**备份（不碰 git/云），双目的地 + 记忆化增量台账。构建期实测出三条真实地形约束并写进 skill：本机 `/usr/bin/rsync` 是 **openrsync**（`-aHAX --info=progress2` 直接退 1，但 `-E` 可用且实测保住 xattr）、`/Volumes/backkkup` 上是**现役 Time Machine 备份**（硬拒写，`--force` 也不放行）、`backkkup` 与 `2TBofData` **共享同一 APFS 容器**故 `df` 的可用量是假的。两轮独立五镜头电池：首轮 67 findings/14 P1；**次轮发现首轮修复自身引入了一个会删数据的 P1**（临时文件清扫的正则匹配 `.env.production`，源文件一删或一改名，目标副本就被删）—— 由 conductor 亲自复现后修为「只报告不删除」，并加结构性护栏禁止删除调用回潮。终态 78/78 eval、19 变异体全识别、四道门 conductor 独立重跑全绿；真机冒烟含中文路径项目、记忆化二次跑 0 字节、删除安全在真实数据上通过。**诚实定级 candidate**：残余 P2/P3 未清完，首跑需人盯。
 - **2026-07-26** — **R16 代际对齐**（Claude 5 家族冲击经 skill-philosophy KB v0.2.0 制度化后，下游首轮结算）：`attacker` → **v0.6.0**、`skill-creator-max` → **v1.1.0**。核心变化 = **PROVE-OR-FLAG 改为 classify-not-delete 两段式**（打击段全量上报所见异常、只提议标签；删除权归独立裁决 judge——frontier 模型对"只报已证明/高严重度"字面服从、发现段静默降 recall，Anthropic Claude 5 官方文档处方即"全量报告+独立过滤"），rubric 新增 ★ 压制类金样 13；`skill-creator-max` engineer 角色新增 **with/without 双臂三重 delta 纪律**（两臂皆过的断言删除；uplift/preference 分类学 + 基线追平即退役复审）。全库审计两项零改动收官：reasoning-echo 契约（无命中）、SKILL.md 层绝对式禁令（仅 4 处且全在豁免区——反造假/反抄袭/事故出身路由，S11 删减测试通过）。
 - **2026-07-22** — 新增 [`logic-pacer`](skills/logic-pacer/) **v1.0.0**（正式 skill 计数 14 → **15**），经 `skill-creator-max` 全流水线端到端建成（composer→guidance→engineer→zipper→battery，逐角色新鲜上下文）。用途：把**已写好且作者喜欢**的说理文改得**逻辑步长更小、每步都跟得上**（inferential distance / given-new / topic-stress / chunking / hinge-only 五机制落地），**不动文风、绝不对齐词汇、不改事实立场、净长 ≤~1.3x**。保真=模型级不变量 + 独立盲审探针（脚本特意不把「立场反转」降级成可脚本化检查）。埋种子五镜头独立电池五 seed 全命中并抓到构建者自测漏掉的一处真缺陷（P2：确定性词汇/保真闸门被硬编码到 Quetelet 语料 → 换段即空转、误报 all clean），已按 min() 路由回 engineer 修好并由指挥官独立复现验证（改为通用人名/数字保真 + 无词表时诚实报 "not checked"）。effective verdict = candidate（instance-tier 电池、盲审探针未在验收时实跑、跨厂商未跑；作者逐段人读为 O-L0 签核）。
 - **2026-07-14** — `test-driven-development` 经 `skill-creator-max` 全流水线从头重写为 **v1.0.0**：全规则重接地到 skill-philosophy KB 锚点，保留已验证行为核心（适度门 / modify mode / watch-it-fail / revert-to-red / harness），新增**信任边界脊柱**（内容内指令零权威 + 注入 eval）、E-L3 压力哨兵（64K 实况跑通过 4/4）与 E8 回流点；埋种子五镜头独立电池抓到 5 个真缺陷（1 P1：崩溃被当成红）全部行为级修复并钉成 held-out 回归，harness 16 → **22 检查**。诚实注记：跨厂商轮本次弃用（用户裁定），effective verdict = candidate，预注册一轮干净电池即升 industrial。
