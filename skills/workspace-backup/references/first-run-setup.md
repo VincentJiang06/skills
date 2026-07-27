@@ -17,7 +17,11 @@ defaults for this machine and show them for confirmation:
   * `ext-5tb` → `/Volumes/5TBofData/WorkspaceBackup`, `portable: true`,
     `removable: true`, `may_be_offline: true`
 * **exclusions** `node_modules/`, `.next/`, `dist/`, `build/`, `target/`,
-  `.DS_Store`
+  `.DS_Store`, `fsmonitor--daemon.ipc` — the last one is a UNIX SOCKET git's
+  fsmonitor daemon leaves inside `.git/`. openrsync cannot recreate a socket
+  and fails the whole unit with `mkstempsock: Invalid argument` (MEASURED
+  2026-07-27: 4 of them across this workspace killed 2 units outright). A
+  socket carries no data worth copying.
 * **secret patterns** `.env`, `.env.*`, `*.pem`, `*.key`
 * **delete_at_destination** `false`
 * **revalidate_after_days** `0` — 0 means a Class A unit's content is

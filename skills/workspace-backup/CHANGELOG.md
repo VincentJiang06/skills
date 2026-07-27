@@ -3,6 +3,96 @@
 All notable changes to this skill. Dates are the build date on the machine the
 measurements were taken from.
 
+## 0.2.2 — 2026-07-27 (live fire: the first real run, 36 GB, two destinations)
+
+The first run against the real workspace — 29 top-level projects, 36.1 GB, an
+external APFS drive and an iCloud Drive folder — found three defects that every
+prior test had missed. Two for the same reason (**the fixtures were clean and the
+real corpus is not**), and one that the first fix introduced.
+
+24 of 27 units copied; three failed identically at BOTH destinations, landing
+0 bytes: `deepscan-neo-demo`, `研究生`, and `skill-developer` — the last of which
+holds a knowledge base whose only copy is local. The tool did not lie about it
+(each was reported `UNVERIFIED`, "a partial result is never coerced to success"),
+but a backup that reports the failure honestly is still a backup that did not
+happen.
+
+### Fixed — P1: `-E` fails outright on files carrying `com.apple.macl`
+
+MEASURED on the real file that broke the run:
+
+    rsync -a -E <file>   -> exit 1, "openat: Permission denied"
+    rsync -a    <file>   -> exit 0
+
+The file is mode 444, owned by the user, and plainly readable; it carries
+`com.apple.macl` (a macOS mandatory-access-control attribute, set here by a
+WeChat download) which the copier is not entitled to read. One such file fails
+the entire unit.
+
+The deeper fault is methodological and now documented as such: `probe_flag`
+tested `-E` once at startup **against a throwaway file it created itself**, and a
+freshly-created file never carries `com.apple.macl`. The probe proves the binary
+*accepts* the flag; it cannot prove the flag *works on this corpus* — and 0.2.1
+committed the whole run to that inference.
+
+A unit that fails while the xattr flag is in play is now retried **once without
+it** and reported as xattrs-not-preserved: the bytes are worth more than the
+metadata, but the loss is stated, never silent. Guarded by eval `L4-31` and a
+mutant. The regression stub deliberately models *probe-passes / corpus-fails* —
+a first attempt whose stub failed the probe too went green while fixing nothing,
+because it exercised the already-handled probe path.
+
+### Fixed — P2: git's `fsmonitor--daemon.ipc` is a UNIX socket
+
+openrsync cannot recreate a socket and fails the whole unit with
+`mkstempsock: Invalid argument`. Four of them existed across the workspace and
+killed two units outright. A socket carries no data worth copying; it is now in
+the documented default exclusions.
+
+### Known gap, recorded not fixed
+
+The portable-secrets gate blocked the external drive until acknowledged — 27
+secret-bearing files going to a drive that "can be lent, lost, or plugged into
+another machine" — but it did **not** fire for the iCloud destination, because
+iCloud is `portable: false`. The threat model has an axis for *the device leaves
+your hands* and none for *the content leaves your machine*. A cloud destination
+should require its own acknowledgement.
+
+### Fixed — P1 (introduced by the fix above): the fallback and the verifier contradicted each other
+
+The xattr fallback and the xattr verification were each correct alone and wrong
+together. `copy.py` said "the bytes matter more than the metadata — retry
+without `-E` and say the metadata was lost". `verify.py` said "extended
+attributes differ, therefore FAIL". So a unit copied fine, could never pass, was
+re-copied in full every run, and read NOT SAFE for ever.
+
+Observed live: exit 9 at BOTH destinations, on *different* units each time
+(`研究生` externally, `skill-developer` on iCloud) — which unit trips it depends
+on which files the rotating L3 sample happens to draw, so the alarm is not even
+stable. A permanent false alarm is worse than no alarm: it teaches the reader to
+ignore the report, and the report is the entire product.
+
+When the copier could not carry xattrs for a unit, their absence is now an
+EXPECTED, REPORTED condition rather than a mismatch — re-copying cannot repair
+it. The honesty lives on the copy side, which states the loss deterministically
+on every run, rather than on the sampled verify side.
+
+Worth recording how the fix was constrained: the first attempt read
+`unit_copy_result` from the journal and was rejected by `L0-05`, the invariant
+that **verify must never take the copier's word for what landed** — the
+self-agreeing verifier this design exists to prevent. The final version reads
+only the copier's *capability* record (`xattr_flag_failed_on_corpus`): which
+flags the tool managed to use is a fact about the tool, not evidence about the
+destination, and every claim about the destination is still made by walking it.
+Fail-closed — an unreadable journal makes verification stricter, never weaker.
+Guarded by eval `L4-32` and a mutant.
+
+### Result
+
+27/27 units copied AND verified at both destinations, all four exit codes 0.
+80/80 evals, 21 discriminating mutants. The first real run cost three rounds of
+red-green: each fix was reproduced first, and one of them was itself a defect.
+
 ## 0.2.1 — 2026-07-27 (conductor repair after the re-attack round)
 
 Three fresh lenses re-attacked the 0.2.0 repair. They confirmed 39 of the

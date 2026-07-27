@@ -204,6 +204,25 @@ def transferred(stdout_bytes, src):
     return total, names
 
 
+def _is_xattr_permission_failure(stderr):
+    """Does this stderr look like the copier choking on an extended attribute it
+    is not allowed to read, rather than a genuine unreadable file?
+
+    MEASURED 2026-07-27 on a file carrying com.apple.macl:
+        rsync -a -E <file>  -> exit 1, 'error: <name>: openat: Permission denied'
+        rsync -a    <file>  -> exit 0
+    The message names a permission problem on a file the user can plainly read,
+    which is the signature. Kept deliberately narrow: a real EACCES on a file
+    owned by someone else produces the same words, so the caller only consults
+    this AFTER a failure and only when the xattr flag was actually in play — and
+    the retry either succeeds (it was the flag) or fails again (it was real)."""
+    if not stderr:
+        return False
+    low = stderr.lower()
+    return ("permission denied" in low) and ("openat" in low or "xattr" in low
+                                             or "attribute" in low)
+
+
 def sweep_copier_temp_files(src_path, dest_path):
     """REPORT (never delete) the '.NAME.XXXXXXXXXX' files a killed copier leaves.
 
@@ -446,6 +465,28 @@ def main():
                 p = subprocess.run(c["argv"], capture_output=True, timeout=3600)
                 rc, out_b = p.returncode, p.stdout
                 err = (p.stderr or b"").decode("utf-8", "replace")
+                # LIVE-FIRE (2026-07-27): the startup probe proves the BINARY
+                # accepts the xattr flag; it cannot prove the flag works on THIS
+                # corpus. Files carrying com.apple.macl (WeChat/AirDrop/Safari
+                # downloads) make openrsync exit 1 with 'openat: Permission
+                # denied' under -E, while the same file copies fine without it.
+                # Three whole units — one holding an irreplaceable KB — landed
+                # 0 bytes because of this. Metadata is worth less than the
+                # bytes: retry once without the flag and SAY the metadata was
+                # lost, rather than abandoning the unit. (L4-31)
+                if rc != 0 and xattr_flag and _is_xattr_permission_failure(err):
+                    j.append("xattr_flag_failed_on_corpus", unit=u["id"], dest=dest_id,
+                             flag=xattr_flag, stderr=err[-400:],
+                             why="the flag was accepted by the binary but rejected on this "
+                                 "unit's files; retrying without it")
+                    c = build_command(u, route, cfg, copier, rsync_bin, exclude_file, None)
+                    p = subprocess.run(c["argv"], capture_output=True, timeout=3600)
+                    rc, out_b = p.returncode, p.stdout
+                    err = (p.stderr or b"").decode("utf-8", "replace")
+                    if rc == 0:
+                        print(f"       {u['id']}: extended attributes NOT preserved — "
+                              f"{xattr_flag} failed on this unit's files (com.apple.macl or "
+                              f"similar); the bytes are copied, the metadata is not.")
             except OSError as e:
                 # a read-only destination (NTFS by default, or a drive remounted
                 # read-only after I/O errors) must be ONE unit's failure, not the

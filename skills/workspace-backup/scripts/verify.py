@@ -114,8 +114,33 @@ def is_temp_artifact(rel):
     return bool(TEMP_ARTIFACT.match(os.path.basename(rel)))
 
 
+def _copier_could_carry_xattrs(state_dir, unit_id, dest_id):
+    """Could the COPIER carry extended attributes for this (unit, destination)?
+
+    This deliberately reads only the copier's CAPABILITY record
+    (`xattr_flag_failed_on_corpus`), never its result record. The distinction is
+    the architectural one L0-05 defends: verify must never take the copier's
+    word for WHAT LANDED — that is the self-agreeing verifier this whole design
+    exists to prevent — but "which flags did the tool manage to use" is a fact
+    about the tool, not evidence about the destination. Every claim about the
+    destination is still made by walking it.
+
+    Fail-closed: anything unreadable, absent, or ambiguous returns True, so a
+    missing journal can only ever make verification STRICTER, never weaker."""
+    try:
+        events = _state.read_events(state_dir)
+    except Exception:
+        return True
+    for e in events:
+        if (e.get("event") == "xattr_flag_failed_on_corpus"
+                and e.get("unit") == unit_id and e.get("dest") == dest_id):
+            return False
+    return True
+
+
 def verify_unit(src_path, dst_path, exclusions, level, delete_on=False,
-                run_id="", unit_id="", dest_id="", xattr_check=True):
+                run_id="", unit_id="", dest_id="", xattr_check=True,
+                xattrs_expected=True):
     """Both sides are walked here, now, from the filesystem."""
     out = {"level_executed": level, "ok": False, "mismatches": [], "notes": [],
            "sample_rate": None, "checked_files": 0, "src_files": 0, "dst_files": 0,
@@ -235,11 +260,28 @@ def verify_unit(src_path, dst_path, exclusions, level, delete_on=False,
             probed += 1
             xs, xd = xattr_names(s), xattr_names(d)
             if xs is not None and xd is not None and set(xs) - set(xd):
-                out["content_mismatch"] = True
-                out["mismatches"].append(
-                    f"EXTENDED ATTRIBUTES LOST {_state.escape_untrusted(rel)}: "
-                    f"{sorted(set(xs) - set(xd))} present at the source, absent at the "
-                    f"destination (a data-fork checksum cannot see this)")
+                lost = sorted(set(xs) - set(xd))
+                if not xattrs_expected:
+                    # The copier told us, in this run's journal, that it could not
+                    # carry xattrs for this unit (com.apple.macl and friends make
+                    # -E fail outright). Their absence is then the KNOWN, ALREADY
+                    # REPORTED consequence of a deliberate fallback — not a
+                    # difference re-copying could ever repair. Failing it would
+                    # produce a permanent false alarm that re-copies the unit on
+                    # every run and teaches the reader to ignore the report; the
+                    # report is the entire product, so it is stated, not counted.
+                    if len(out["notes"]) < 4:
+                        out["notes"].append(
+                            f"extended attributes not preserved for "
+                            f"{_state.escape_untrusted(rel)}: {lost} — the copier could not "
+                            f"carry them for this unit and said so; the data fork is verified, "
+                            f"the metadata is knowingly not (L4-32)")
+                else:
+                    out["content_mismatch"] = True
+                    out["mismatches"].append(
+                        f"EXTENDED ATTRIBUTES LOST {_state.escape_untrusted(rel)}: "
+                        f"{lost} present at the source, absent at the "
+                        f"destination (a data-fork checksum cannot see this)")
     out["ok"] = not out["mismatches"]
     return out
 
@@ -333,9 +375,15 @@ def main():
                          why=("an operator asked for a level BELOW the one this unit's class "
                               "requires; recorded so a cheap pass can never be mistaken for the "
                               "configured claim"))
+            # Did the copier manage to carry extended attributes for THIS unit?
+            # It records the answer per unit; a fallback copy (see copy.py's
+            # xattr retry) sets it False, and verify must not then fail the unit
+            # for the very loss the copier already reported (L4-32).
+            xattrs_expected = _copier_could_carry_xattrs(state, u["id"], dest_id)
             res = verify_unit(u["path"], dest_path, cfg.get("exclusions", []), level,
                               delete_on=delete_on, run_id=run_id, unit_id=u["id"],
-                              dest_id=dest_id, xattr_check=xattr_check)
+                              dest_id=dest_id, xattr_check=xattr_check,
+                              xattrs_expected=xattrs_expected)
             ok = res["ok"]
             j.append("unit_verify_result", unit=u["id"], dest=dest_id,
                      dest_path=dest_path,
