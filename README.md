@@ -40,7 +40,7 @@
 - **构建链路收进一个 skill。** `skill-creator-max` v1.0.0 取代旧四 skill 流水线：薄指挥官逐角色派全新子代理、只认类型化工件、确定性 L0 门 + 独立电池，spec、trigger holdout、红绿 harness 都能被重跑，不靠口头承诺。
 - **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop；文末的 `stupidskills` 里另放一个 `loop-constructor-codex`，把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`，但不计入正式 14 个。
 - **独立性成为一等公民。** `attacker`、`reorganize-logic`、`test-driven-development` 都围绕“不要让同一个心智模型同时写答案和判答案”重做过。
-- **模型/effort 选择被显式化。** 文末 `stupidskills` 里的 `model-pyramid` 不做模型购物，也不把右配伪装成省钱；它只在 subagent fan-out 时把工作难度映射成一行可审计的 `rule=<id> tier=<tier> effort=<notch>`。
+- **模型/effort 选择被显式化。** 文末 `stupidskills` 里的 `model-pyramid` 不做模型购物，也不把右配伪装成省钱；它把定档收敛成**两条轴**——拿到上下文还是做错=能力缺口→换 model；跳过文件/没跑测试=彻底度缺口→换 effort——覆盖会话、每个子代理和要不要挂 advisor。
 - **知识库随 skill 走 —— 或干脆不需要。** `loop-principle` 内置在 `loop-constructor` 里随装随走；新流水线 `skill-creator-max` 则**运行时不依赖任何 KB**（`skill-philosophy` 是仓库外的设计期出处）。
 
 ## 安装
@@ -146,9 +146,10 @@ archive/                                     # 冻结的旧版本（如 pipeline
 这两张卡放在页面最底部，只作为轻量实验/旁路工具展示，**不计入本仓库的正式 skill 个数记录**。
 
 - **[loop-constructor-codex](skills/loop-constructor-codex/)** —— `loop-constructor` 的 Codex CLI 变体：把同一套 loop 工程落到单 agent、多次 `codex exec`、磁盘状态和 fresh evaluator 上。
-- **[model-pyramid](skills/model-pyramid/)** —— fan-out 前给每个 subagent 右配模型层级 + reasoning effort：peer 保持、search 降 effort、大规模廉价查找降一层模型，永远守住 medium floor。只负责 sizing，不负责 spawn。
+- **[model-pyramid](skills/model-pyramid/)** —— 给会话和每个 subagent 右配 model + effort，并判断要不要挂 advisor：peer 继承、**搜索继承或调高**（effort 管工具调用量，降它=代理不再继续找）、大规模廉价查找降一层模型、长跑上 `xhigh`。**没有硬下限**。只负责 sizing，不负责 spawn。
 
 ## 更新日志（按日期）
+- **2026-07-29** — [`model-pyramid`](skills/model-pyramid/) 从头重建为 **v1.0.0**（Claude 5 代际结算）。四条规则表换成**两条轴**：拿到上下文还是做错=能力缺口→换 model；跳过文件/没跑测试=彻底度缺口→换 effort；范围从「只管 fan-out」扩到会话 + 每个子代理 + 要不要挂 advisor。**推翻旧版两条方向错的规则**——`search → 降一档 effort` 反了（effort 管的是含工具调用在内的全部 token，降它买到的是「不再继续找」的代理），`HARD FLOOR 永不输出 low` 删除（`low` 是官方为子代理写明的合法档位）。`decide.mjs` → `check_plan.mjs`：不再替你决定，只校验确定性可判的部分（档位是否存在/静默回落、`max_tokens` 是否抬高、Opus 5 thinking×effort 返 400、advisor 配对合法性、缓存内 effort 变动）。evals 重建为 26 项三组（行为 / **脚本⇄文档一致性** / 文本护栏），逐条变异验证非空转。opus5·med 两臂实测（13 子代理迁移场景、5 个陷阱、判定不经 LLM 裁判）：**带 skill 9/9，裸模型 5/9**——裸模型判断力不差（拒绝 low、拒收弱 advisor 都对），错的四条全是产品事实：不知道 Agent tool 没有 effort 参数、以为弱 advisor 是「挂上但差」（实为静默不挂载）、断言默认 effort 是 medium（实为 `high`）、以及**把已废止的 medium 下限当常识搬了回来**。实测反过来抓到 skill 一处缺陷（13 个代理刷 13 条同样 warning）并已收敛成一条。
 
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
 
