@@ -20,6 +20,14 @@ independent filtering second.
 - The findings/flags two-channel output contract is unchanged; what changed is *who* filters, and
   *when*.
 
+### Tested (2026-07-29, opus5 · medium, pre-publish gate)
+Double-arm blind test, v0.5.0 wording as control: one seeded target (8 planted defects — 4 provable,
+4 hard-to-prove), identical commissions. **Both arms recalled 8/8** with intact flags-channel
+discipline; no regression from the rewording. The suppression hypothesis itself did **not** reproduce
+in this run — the striker's tool access (script execution, web fetch) turned the "unprovable" seeds
+provable, so the arms never faced a true prove-or-drop dilemma. Classification: harmless alignment
+per vendor guidance, not an empirically demonstrated fix.
+
 ## [0.5.0] — 2026-07-14
 
 **Ground-up rewrite, re-derived from the skill-design philosophy KB.** Supersedes the 0.4.x

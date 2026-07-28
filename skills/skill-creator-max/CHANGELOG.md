@@ -16,6 +16,12 @@
   expiry detector) vs encoded-preference (fidelity, not uplift), gate-confirmed; pass-rate
   plateau ⇒ delete rules and re-test before adding more.
 
+### Tested (2026-07-29, opus5 · medium, pre-publish gate)
+Blind engineer-role run on a toy skill: pre-registered stop conditions, with/without arms with the
+triple delta, anti-vacuity applied (23 zero-information assertions marked for deletion),
+uplift-vs-preference classified, and a NOT-releasable verdict routed upstream instead of chasing
+green — the v1.1.0 protocol was followed end-to-end at the anchor tier.
+
 ## [1.0.0] — 2026-07-14
 
 Promotion from draft to **the** skill-building pipeline. skill-creator-max now REPLACES the retired four-skill pipeline (skill-guidance / skill-engineer / skill-zipper / skill-conductor — removed from the repo).
