@@ -3,6 +3,43 @@
 All notable changes to this skill. Dates are the build date on the machine the
 measurements were taken from.
 
+## 0.2.3 — 2026-07-29 (代际结算两臂实测：一处 fail-open)
+
+跑 Claude 5 代际结算的 with/without 两臂对照时发现的。靶子是一个沙箱工作区
+（两个单元、一个 `.env`、一个 `node_modules`、两个目的地），两臂拿完全相同的靶子，
+裸模型臂显式禁用本 skill。判定不经 LLM 裁判，直接查文件系统。
+
+**结果：带 skill 10/10，裸模型 9/10。** 唯一的差值恰好是这个 skill 存在的理由 ——
+`ext-sim` 在配置里声明 `removable: true`，但那个路径其实是启动盘上的一个普通目录，
+不是挂载点。`guard_destination.py` 判 OFFLINE（退出 10），一个字节都没写。
+裸模型臂**看出来了**那是"模拟的本地目录"，仍然拷了进去，并在自己的报告里写
+「真正的异盘副本依赖 ext-sim」—— 也就是它交付了一份用户会相信、但实际不存在的异盘副本。
+这正是「不是挂载点就是 OFFLINE」这条规则要防的东西。
+
+### Fixed — P1: `inventory.py` 在配置错误时退出 0（静默空备份）
+
+同一次运行里，喂进去一份**手写形状**的配置：用 `sources` 直接列单元目录，
+而脚本读的是 `source_roots`（根）+ `known_units`（根下相对名）。结果是：
+
+```
+inventory: 0 units, 0 B, 0 UNCOVERED, 0 B excluded      # exit 0
+errors: ["known unit 'proj-alpha' names root 'proj-alpha' which is not configured", ...]
+```
+
+**`errors` 数组里有两条配置错误，`units` 为空，退出码仍然是 0。** 链条后续据此
+一路报告"备份成功"——成功地备份了零个东西。这与本 skill 自己的头号规则直接冲突：
+「散文可以被复述、被 `--force` 说服、被上下文压缩挤掉，**非零退出码不能**」——
+那条规则要成立，退出码就必须承载这个信息。
+
+修法（fail-closed，与 reorganize-logic 那次「覆盖率闸门必须 fail-CLOSED」同一条教训）：
+顶层 `errors` 非空 ⇒ 逐条打到 stderr 并 **退出 2**（usage error，按既有退出码表）。
+顶层 `errors` 只会装两类东西——「known unit 指向未配置的根」和「根目录无法列出」——
+两类都意味着这份清单描述的不是操作者以为的那个东西，没有一类是可以带病继续的。
+
+回归用例 `L0-10-inventory-fails-closed-on-config-error` 钉住它，且**自带非空转对照**：
+同一个 harness 里，格式良好的配置必须仍然退出 0，否则判这道门在过度开火。
+已做变异验证（把修复短路掉 → L0-10 变红）。harness 80 → **81/81**。
+
 ## 0.2.2 — 2026-07-27 (live fire: the first real run, 36 GB, two destinations)
 
 The first run against the real workspace — 29 top-level projects, 36.1 GB, an

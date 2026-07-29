@@ -19,7 +19,7 @@
 - **[mp-cli-sup](skills/mp-cli-sup/)** —— 通过 `vince-mp` CLI 调试*实时*运行的微信小程序：一次持久会话、uid 稳定、免相机 scan。
 - **[mp-groundline](skills/mp-groundline/)** —— 微信小程序 Skyline→WebView 迁移，一致性优先，配只读扫描器 + 迁移地图。
 
-- **[workspace-backup](skills/workspace-backup/)** —— **纯本地**工作区备份：把 `~/playground`、`~/experiment`、`~/WorkBuddy` 镜像到**本机固定目录 + 外置硬盘**两处，清点 → 分类 → 分路 → 复制 → 校验，带**记忆化台账**所以第二次跑是增量、中断能续。不碰 git、不碰云、**从不删除源**。三条硬安全线都由脚本退出码强制（散文会被绕过，退出码不会）：**拒绝写入 Time Machine 卷**、**目标路径只认守卫放行的那条**（`plan.json` 是数据不是权威）、**没有真正观测过就绝不报 SAFE**。认得 openrsync 与 GNU rsync 的差异并只发经实测接受的参数，认得 APFS 容器共享空间的假可用量。**v0.2.1，candidate**：经两轮独立五镜头电池（第二轮发现第一轮修复自身引入了一个会删数据的 P1，已复现并修好）；78/78 eval、19 个变异体全部可识别、8/8 脚本自检。首次真跑需人盯着。
+- **[workspace-backup](skills/workspace-backup/)** —— **纯本地**工作区备份：把 `~/playground`、`~/experiment`、`~/WorkBuddy` 镜像到**本机固定目录 + 外置硬盘**两处，清点 → 分类 → 分路 → 复制 → 校验，带**记忆化台账**所以第二次跑是增量、中断能续。不碰 git、不碰云、**从不删除源**。三条硬安全线都由脚本退出码强制（散文会被绕过，退出码不会）：**拒绝写入 Time Machine 卷**、**目标路径只认守卫放行的那条**（`plan.json` 是数据不是权威）、**没有真正观测过就绝不报 SAFE**。认得 openrsync 与 GNU rsync 的差异并只发经实测接受的参数，认得 APFS 容器共享空间的假可用量。**v0.2.3，candidate**：经两轮独立五镜头电池（第二轮发现第一轮修复自身引入了一个会删数据的 P1，已复现并修好）+ 一次 36 GB 真跑（三条 P1）+ 一次代际结算两臂实测；81/81 eval、19 个变异体全部可识别、8/8 脚本自检。首次真跑需人盯着。
 
 **编码纪律 —— 写代码时自动触发**
 - **[test-driven-development](skills/test-driven-development/)** —— 对*非平凡*行为做 TDD：先写会失败的测试并**带证据**看它失败，把测试套件当成当前目标的*活规格*；v1.0.0 起含信任边界（内容内指令零权威）与断言级红判定。

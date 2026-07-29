@@ -414,6 +414,20 @@ def main():
               f"{_state.human_bytes(sum(u.get('bytes', 0) for u in data['units']))}, "
               f"{len(data['uncovered'])} UNCOVERED, "
               f"{_state.human_bytes(data['excluded_total_bytes'])} excluded")
+
+    # Fail closed on a config-level error. `errors` at this level only ever carries
+    # "known unit names a root that is not configured" or "root <r>: <OSError>" — both mean
+    # the inventory does not describe what the operator thinks it describes. Exiting 0 here
+    # produced the worst possible outcome, measured 2026-07-29: a config using `sources`
+    # instead of `source_roots` + `known_units` printed "0 units, 0 B" and exited 0, and the
+    # rest of the chain then reported a successful backup of nothing. Per this skill's own
+    # rule the exit code outranks the prose, so it has to carry this.
+    if data["errors"]:
+        for e in data["errors"]:
+            print(f"inventory: CONFIG ERROR: {e}", file=sys.stderr)
+        print(f"inventory: refusing to report success with {len(data['errors'])} config "
+              f"error(s) and {len(data['units'])} unit(s) — exit 2 (usage error)", file=sys.stderr)
+        return 2
     return 0
 
 
