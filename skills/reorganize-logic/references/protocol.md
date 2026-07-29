@@ -111,8 +111,15 @@ deletions themselves (git is the safety net). Nothing is auto-deleted.
 
 ## Report
 
-Hand back: the written paths, the gate result (PASS + coverage ratio), any flags
-you reconciled and how, and the pending deletion-manifest awaiting approval.
+Hand back **in your reply, never inside the written artifacts**: the written paths,
+the gate result (PASS + coverage ratio), any flags you reconciled and how, and the
+pending deletion-manifest awaiting approval.
+
+A design contract that ends with a `## Gate` section quoting the verify command and a
+`coverage ratio 1.000 PASS` is describing the tool, not the code — the reader has to
+delete it, and it invites self-contradiction (measured 2026-07-29: a contract listed
+`__init__` line by line in its interface tables and then declared it "excluded from
+coverage" three paragraphs later). Coverage is the gate's bookkeeping. Keep it there.
 
 ## Fresh-reader pass (do this — the gate can't)
 

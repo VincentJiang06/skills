@@ -88,8 +88,17 @@ is never skipped, shortened, or self-reported around:
    exit 1 → BLOCK the return and finish the checklist. The green "resolve" report may be
    emitted ONLY after this gate exits 0; a draft cannot forge that exit code.
 
-### compliance report (attach to every returned paper)
-One line. Word the citation clause by what was actually proven:
+### compliance report (in your REPLY — never inside the paper file)
+One line, and it goes in the message you hand back, **not** into the document. A course
+paper carrying a `## 合规报告` section is no longer a course paper: word counts, gate
+exit codes and coverage ratios are evidence for the operator, and the moment they are
+written into the artefact they become something the reader has to delete before
+submitting. (Measured 2026-07-29: a two-arm run judged this the only real blemish on an
+otherwise winning paper.) Same rule for `[需要来源]` markers — they are working
+annotations; either resolve them or convert them to the paper's own `[SOURCE NEEDED]`
+convention before returning.
+
+Word the citation clause by what was actually proven:
 - After the verify gate exits 0 with zero SOURCE_NEEDED → e.g.
   `6000±300 ✓ 5980 (refs=excluded) | sections ✓ | APA ✓ | citations 17/17 verified — resolve, DOIs valid ✓`
 - Before/without the verify gate, or if it did not clear → say **form-checked only**, e.g.
