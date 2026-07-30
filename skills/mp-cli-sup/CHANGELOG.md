@@ -1,5 +1,38 @@
 # Changelog — mp-cli-sup
 
+## 0.2.2
+
+Documentation-only. Closes a one-sided stop condition in the adversarial-hardening
+loop. No runtime-debugging behavior, no script, and no CLI contract changed.
+
+### Fixed
+- **The hardening loop had only a convergence arm.** `check_battery_clean.mjs`
+  answers "are we clean yet?" and nothing else, so read as *the* stop rule it
+  licenses an unbounded fix-the-door / break-the-door race: every round that finds
+  a defect justifies another round. `SKILL.md` now states the stop condition as a
+  **disjunction of four typed sub-conditions, first to fire wins** — `converged`
+  (the gate is GREEN), `cap` (round/budget ceilings written into the condition
+  before round 1; the loop may trigger a cap but never edit one — cap changes
+  happen outside the loop, by a human, with a recorded reason), `no-progress`
+  (a round adds zero `confirmed_defects` **and** zero `added_check`), and
+  `RESTART-ESCALATE` (a confirmed defect regresses against a check the *previous*
+  round added → the fixes have become the defect source: stop, report honestly,
+  do not keep patching). Anchors: **H5** (limits inside the condition, adjusted
+  only outside the loop), **H4** (fix / restart / escalate are three exits with
+  distinct criteria), **A45(iv)** (structured stop conditions may be disjunctive,
+  each sub-condition typed).
+
+### Deliberately NOT done (registered fallback)
+- No machine check was added for the three new arms (no round counter, no
+  no-progress detector, no ledger scan for "this round's defect names last round's
+  `added_check`"). "Did this fix cause that defect" is a semantic judgment, and a
+  loop whose stop rule is enforced by code the same loop keeps editing is the
+  failure being fixed here, not the fix. Prose first; mechanization is the
+  **fallback for when prose demonstrably fails** — i.e. if a future battery run
+  blows through a cap or continues past a fired RESTART-ESCALATE despite the
+  written rule, that observed miss is the evidence needed to justify a
+  ledger-level check, and only the arms it actually missed.
+
 ## 0.2.0
 
 Finalizes the local-JSON-CLI release that was measured industrial on 2026-06-05

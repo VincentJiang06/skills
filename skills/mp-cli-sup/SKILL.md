@@ -7,7 +7,7 @@ description: >-
   "$mp-cli-sup". NOT for browser automation, source-only edits, or non-WeChat
   work.
 metadata:
-  version: 0.2.1
+  version: 0.2.2
 ---
 
 # Vince Mini Program CLI Support
@@ -99,3 +99,35 @@ index; the sections below it are the exact schema).
 - `node scripts/run_all.mjs` — deterministic contract check: every documented command / shorthand / workflow step / error code / version pin is verified against the live `vince-mp capabilities --json`, so the docs can't silently drift from the CLI. `--self-test` proves each check discriminates.
 - `node scripts/check_release_gate.mjs` — closes the release gate only on real evidence (executes each cited command by exit code; requires the harness self-test to still pass).
 - `node scripts/check_battery_clean.mjs` — the stage-3 adversarial-hardening gate: reads the defect ledger (`.loop/mp-cli-sup-battery.json`) and asserts a trailing run of consecutive clean rounds with the required round shape and green regressions (`--consecutive N`). RED when the ledger is absent or has too few clean rounds.
+
+### Stopping the hardening loop (disjunctive — first to fire wins)
+
+The gate above measures **one** arm only: convergence. Run it as the *sole* stop
+rule and "harden until clean" has no exit — a battery that keeps finding defects
+keeps earning another round, which is exactly how a fix-the-door / break-the-door
+arms race is funded. Before starting a battery loop, write down all four
+sub-conditions; stop the loop the moment **any** of them fires:
+
+- **`converged`** — `check_battery_clean.mjs --consecutive N` is GREEN: a trailing
+  run of N clean rounds, each with the required round shape and every prior defect
+  locked by a green regression.
+- **`cap`** — a round cap and a budget cap, fixed **in the stop condition itself**
+  before round 1 (e.g. "≤ 6 rounds"). The loop may *trigger* a cap; it may never
+  *edit* one. Raising a cap is a decision made outside the loop, by a human, with
+  the reason recorded — never a mid-loop "one more round should do it".
+- **`no-progress`** — a round produces zero new entries in `confirmed_defects[]`
+  **and** zero new `added_check` in `ledger.new_checks`. Nothing moved; an
+  identical next round buys nothing. Stop and report, do not re-roll for luck.
+- **`RESTART-ESCALATE`** — a confirmed defect in this round regresses against a
+  check that the **previous** round added (the ledger shows the `added_check` /
+  hardening code from round *k−1* named in a round-*k* defect). The restart
+  criterion has fired: the fixes have become the defect source. **Stop, report
+  honestly to the human, and do not keep patching.** Continuing to harden here is
+  the arms race, not the cure — the legitimate next moves (discard the increment
+  and restart from the last green baseline, or escalate that the contract itself
+  is wrong) are the human's call, not the loop's.
+
+Anchors: H5 (caps live inside the condition; changes happen outside the loop),
+H4 (fix / restart / escalate are three routed exits with distinct criteria, not a
+matter of temperament), A45(iv) (structured stop conditions may be disjunctive —
+each sub-condition typed, any one hit stops).
