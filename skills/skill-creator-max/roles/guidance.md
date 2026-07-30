@@ -235,7 +235,51 @@ nothing will create; every dangling one is debt you are shipping on day one. Anc
 
 --------------------------------------------------------------------------------
 
-## 10. CLOSING GATE 1 — rejected structures (S9, un-skippable)
+## 10. Conditional surface branches — tools (S12) · actions (S13) · memory (A48)
+
+Run a branch ONLY if the spec says the built skill carries that surface. If it does not, write
+one line saying so and move on — a branch answered for a surface the skill lacks is filler.
+
+**(a) Tool surface — the skill exposes tools / an API-shaped interface.** The interface is a
+hyperparameter, not a taste decision: pure interface parameters (view window, verbosity of
+returns, result caps) move behavior by 3–8 absolute points and the curve is non-monotonic —
+too much detail costs as much as too little [WEB-ACIAblation]. Obligations: >30 tools ⇒
+evaluate on-demand loading instead of mounting all of them (selection degrades past ~30–50;
+on-demand loading typically saves ~85% of definition tokens, but is a net loss under ~10 tools
+or when every tool is used every run); every tool gets >=3–4 sentences plus input examples;
+merge related operations into ONE tool with an `action` parameter rather than N near-synonyms
+[ANT-ToolUse2026]. Any knob that decides how much the agent sees is worth calibrating on 2–3
+measured points instead of inheriting a default, and the calibration record carries its
+model_baseline (it expires with the model). Check: for each knob, name the measurement — or say
+honestly that it is an unmeasured default. Both are legal; silence is not.
+
+**(b) Script / action surface — the skill can run scripts or take actions.** Declare the two
+layers separately, because they are not substitutes: the RULE layer (what the skill declares it
+may do — expressive, cheap, and bypassable by the model or by injected content) and the
+ENFORCEMENT layer (what the environment imposes on the running process regardless of what the
+model chose to run) [ANT-Sandbox]. A skill that merely lists allowed commands has a rule layer
+only — say so rather than calling it governed. Confirmation gates are the scarce resource:
+observed approval rates run ~93%, so per-command prompting is not a gate, it is fatigue. Keep
+confirmation for the few genuinely irreversible actions and let the enforcement layer cover the
+rest. And nothing the skill governs may widen its own authority: config the skill can write must
+not be config that grants the skill permissions.
+
+**(c) Persistent memory / state — the skill writes anything that outlives the session.** Extend
+step 2's trust boundary across sessions and declare four things: (i) **write admission** — a
+candidate is stored only if Durable (still true next session) AND Actionable (changes a future
+decision) AND Explicit (stated by the user or directly evidenced — never inferred); (ii)
+**verification anchors** — factual entries (state, test results, env parameters) carry a command
+/ file / hash, and are re-run rather than believed on re-use; a dead anchor downgrades the entry
+instead of silently authorizing it; (iii) **a forgetting obligation** — expired or falsified
+entries are deleted or tombstoned, and a memory that has never deleted anything has a dead
+forgetting mechanism, not a clean history; (iv) **external content is storable as a reference +
+provenance, never as a behavioral instruction** (A48) — a poisoned memory is a persistent
+injection and the defense belongs on the write path, not at the input boundary, because a
+classifier cannot separate a legitimate-looking payload from a legitimate note.
+
+--------------------------------------------------------------------------------
+
+## 11. CLOSING GATE 1 — rejected structures (S9, un-skippable)
 
 `rejected_structures` empty = un-thought signal = gate failure. Record the structure options
 you ACTUALLY weighed — single-file vs split, script vs prose rule, which content at which
@@ -256,7 +300,7 @@ Anchor: S9 [AMZ-Stripe评审][AMZ-6pager][SELF-scorecard].
 
 --------------------------------------------------------------------------------
 
-## 11. CLOSING GATE 2 — the provenance spot-check
+## 12. CLOSING GATE 2 — the provenance spot-check
 
 Before returning the artifact, run the deletion test on THREE randomly chosen entries (mix
 of units and authority_tiers rules):
@@ -277,8 +321,10 @@ Final self-check before emitting:
 - [ ] INVARIANT ratio <= 15%, each with A11-ordered provenance (step 5).
 - [ ] Every external input from the spec is covered by the trust boundary; injection
       dimensions include compaction-eviction (step 2).
-- [ ] rejected_structures non-empty and survived your own second-order probe (step 10).
-- [ ] Three-entry deletion test passed (step 11).
+- [ ] Every conditional surface the spec names (tools / actions / persistent memory) has its
+      branch answered, and the ones it does not name are declared absent (step 10).
+- [ ] rejected_structures non-empty and survived your own second-order probe (step 11).
+- [ ] Three-entry deletion test passed (step 12).
 
 Return ONLY the Structure Contract JSON as your artifact. The conductor judges the artifact,
 not your process.

@@ -214,6 +214,39 @@ live-runtime debugging; this skill only does migration").
 
 ---
 
+## Step 8 — What a spec can and cannot buy (C10)
+
+Three hard edges of spec engineering. All three are judgment calls you make before emitting;
+none of them is a field to fill.
+
+1. **A core clause with no adversarial precedent is not load-bearing.** A precedent is a
+   concrete INPUT built specifically to falsify the clause, plus the verdict it must get —
+   OpenAI ships 596 attack prompts over 225 focus areas against its own Model Spec, i.e. the
+   spec doubles as eval material [OAI-ModelSpecEvals]. Spend it where it is load-bearing:
+   every **subjective** `success.dimensions` entry carries >=1 precedent inside its
+   `criterion` (the boundary case a lazy reading would score the wrong way), and every
+   unacceptable failure in `failure_cost` names the INPUT CLASS that produces it — that is the
+   precedent the downstream INVARIANT is born from (A11 provenance channel). Precedents cost
+   tokens, so tier them: INVARIANT-bound clauses always, DEFAULT-bound by sampling, ADVICE
+   never.
+2. **Refuse the reverse flow.** "Point an agent at the codebase and let it write the spec" is
+   not a spec: repo-level executable-spec generation tops out at 20.2% [WEB-SpecCrit]. Reading
+   the code/docs is legitimate INPUT to Step 1 triage and to `baseline`/`materials`; it is
+   never the author of `success`, `failure_cost` or `stop`. If that is what was asked for, say
+   what the reverse pass can honestly supply and take the decision fields through Steps 1–7
+   anyway.
+3. **Compliance has a ceiling — do not pre-spend the verification budget.** A spec written to
+   the state of the art, with the behavior trained into the weights, still tops out near 89%
+   compliance and is non-monotonic across versions [OAI-ModelSpecEvals]. A complete spec is
+   therefore not a sufficient condition for behavior: nothing you write entitles a downstream
+   stage to shrink its eval budget or skip the battery. Any sentence implying "the spec is
+   complete, so verification can be light" is deleted before emit.
+
+**Check:** name one precedent you could lose an argument with. If every precedent you wrote
+lands comfortably on the side you already prefer, you wrote examples, not precedents.
+
+---
+
 ## Final gate — the C8 externalization test (do this before emitting)
 
 **Rule:** the spec is the composer→guidance contract; its acceptance standard is
@@ -238,6 +271,8 @@ answers no forced-rebuttal question and feeds no narrative is padding — cut it
 - [ ] >=2 narratives, >=1 adversarial, every "should do X" mapped to a field
 - [ ] every success dimension forked objective/subjective with a real criterion
 - [ ] trigger_tests has keyword-sharing negatives and named nearest neighbors
+- [ ] every subjective success dimension carries an adversarial precedent, and nothing in the
+      spec claims or implies that downstream verification can be lighter (C10)
 - [ ] the stranger cold-read yields zero unanswered questions
 - [ ] references in the spec are self-contained (in the artifact or stably anchored) — never
       "as discussed earlier"

@@ -87,6 +87,18 @@
         "marginal_threshold": {"type": "string", "description": "e.g. N consecutive rounds no new P1/P2"}
       }
     },
+    "loop_charter": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A45/H1 CONDITIONAL attachment: present only when the BUILT skill is itself a >1-round autonomous loop. Absent for ordinary skills (it is not in 'required'). Delivered through this artifact channel on purpose — no side channel. The L0 script does not read it; the conductor gates on it at stage 3.",
+      "required": ["runnable_checks", "adjudication_separation", "on_disk_state", "stop_condition"],
+      "properties": {
+        "runnable_checks": {"type": "string", "description": "machine-gradable assertion count + surface tier (function>=8 / module>=12 / application>=20, cap 3x floor) + the pre-loop red-light evidence path"},
+        "adjudication_separation": {"type": "string", "description": "who calls the final verdict (runnable check or independent evaluator; never the generator). If no evaluator was bought: the reason, plus where the check execution and result file live outside the generator's write surface"},
+        "on_disk_state": {"type": "string", "description": "contract / progress / append-only log paths + the cold-restart test result (fresh agent, only these files, can state the next step)"},
+        "stop_condition": {"type": "string", "description": "round/budget cap written INTO the condition + both sides (done AND abandon) + the quantified failure-routing thresholds"}
+      }
+    },
     "verification": {
       "type": "object",
       "additionalProperties": false,

@@ -23,6 +23,38 @@
 5. **Orchestration friction + correlated authorship** — one skill removes the cross-skill handoffs; **fresh-subagent dispatch per role** decorrelates builder from grader by construction.
 6. **Description / portability** — six-vendor-intersection schemas + description-length discipline + hard anti-triggers.
 
+**New in v1.2.0 (aligned to philosophy KB v0.3.0 / R17)** —
+
+- **composer gains a step on what a spec can and cannot buy (C10)**: a core clause is
+  load-bearing only if it carries an **adversarial precedent** (an input built to falsify it) —
+  at least one per subjective success dimension, and every unacceptable failure names the input
+  class that produces it; the **reverse flow** ("let an agent read the codebase and write the
+  spec") is refused as the AUTHOR of the decision fields (repo-level executable-spec generation
+  tops out at 20.2%; it stays legal as baseline/materials input); and **compliance tops out near
+  89%, non-monotonically across versions** — a complete spec never buys a smaller verification
+  budget.
+- **engineer gains three verifier-engineering rules (E12) + a loop branch (A45)**: a 0%-pass
+  wipeout indicts the harness first (prove a known-good input scores green and a degenerate output
+  scores red before touching the skill); judge **one case per call** — batch scoring has a measured
+  accuracy cost; **non-overlapping rubric items** are the first principle of false-positive control
+  and agreement rates are blind to manipulability. If the BUILT skill is itself a **>1-round
+  autonomous loop**, its Evidence Dossier must carry a **loop-charter** (runnable checks run red
+  first · adjudication separated from the generator · on-disk state passing a cold restart · a
+  structured stop condition with the cap inside it and both stop sides).
+- **guidance gains three conditional branches (S12/S13/A48)**: **tool surface** — the interface is
+  a hyperparameter (3–8pp, non-monotonic): >30 tools ⇒ evaluate on-demand loading, >=3–4 sentences
+  + input examples per tool, merge related operations behind an `action` parameter, calibrate the
+  visibility knobs with a model_baseline stamp; **action surface** — declare the rule layer and the
+  enforcement layer separately (a command allowlist is a rule layer only), keep confirmation gates
+  few and real (~93% approval rates make per-command prompting fatigue, not governance), and never
+  let the governed widen its own authority; **memory surface** — write admission is Durable ∧
+  Actionable ∧ Explicit, factual entries carry verification anchors that are re-run rather than
+  believed, forgetting is an obligation (delete or tombstone), and external content is storable
+  only as reference + provenance, never as a behavioral instruction.
+- **The conductor gained exactly one conditional paragraph** routing those branches into existing
+  gates — **gate order and the min() adjudication are unchanged**, and no semantic judgment was
+  mechanized.
+
 **Trigger discipline (important)** — This skill is **EXPENSIVE** (large token cost). It fires ONLY on an explicit user request to **author/build/create an agent skill** ("build me a skill", "create a new skill", "$skill-creator-max"), with hard anti-triggers against daily-memory-summary / journaling / any generic "create/make/summarize X". Trigger holdout eval: **0/12 false-fires**. If intent is ambiguous, it asks one question rather than betting the pipeline on a guess.
 
 **When to use** — "build me a skill" · "create a new skill for X" · "package this repeated workflow so it triggers automatically" · "$skill-creator-max".

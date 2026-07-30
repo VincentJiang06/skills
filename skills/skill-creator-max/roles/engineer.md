@@ -217,6 +217,23 @@ For an llm_judge:
 - Regress cutoff (don't spiral into auditing the audit): evaluator ← golden samples ← two experts
   independently reproducing the same pass/fail. Stop there [ANT-Demystify].
 
+**E12 — three operating rules for the verifier layer itself:**
+
+- [ ] **Total wipeout indicts the target first.** A 0%-pass suite (the pass@100 shape) most
+      commonly means the harness/fixture is broken, not that the skill is weak [ANT-Demystify].
+      Before changing one line of the skill, prove the harness can score a KNOWN-GOOD input green
+      and that a degenerate output (empty string, no-op) scores RED — the "empty answer counted as
+      success" bug is the same family. Only then read the failures as evidence about the skill.
+- [ ] **Judge one case per call.** Handing a judge N outputs to score in one batch is the default
+      token-saving move and it has a measured accuracy cost [WEB-RubricAudit]. Score case-by-case
+      (one judgment card, one call); if cost forces batching, record it in the layer notes as a
+      known accuracy discount, don't hide it.
+- [ ] **Non-overlapping rubric items are the first principle of false-positive control**
+      [WEB-VerifierEng]: two items that can both fire on one defect double-count it and manufacture
+      FPs. Audit overlap BEFORE reporting agreement — inter-judge agreement is blind to
+      manipulability (exploit rate can drop 10pp with the agreement coefficient unmoved
+      [WEB-RubricAudit]), so "our judge agrees with humans at 0.85" is not rubric validation.
+
 ---
 
 ## 10. Probe slices are an OPTIONAL technique, not a dossier field — E7
@@ -232,6 +249,36 @@ For an llm_judge:
       absent from the notes (schema-valid ≠ true).
 - Shadow: probes test retention, not task completion — they replace re-runs done FOR retention,
   never §8's checkpoint assertions.
+
+---
+
+## 10b. Conditional — if the BUILT skill is itself a >1-round autonomous loop (A45/H1)
+
+Fires only when the skill you just built runs more than one self-directed round (a runbook that
+iterates, a self-restarting agent, a "keep going until done" workflow). If it does not, skip this
+section — do not fabricate a charter.
+
+- [ ] Ship a **loop-charter attachment** with the dossier (`loop_charter` in
+      `schemas/evidence-dossier.json`; the conductor gates on it at stage 3). Four items, all four
+      or the loop does not get to run autonomously:
+      (i) **runnable checks** — machine-gradable assertions sized to the surface (function/endpoint
+      >=8, module >=12, application >=20; upper bound 3x the floor so nobody pads), and they were
+      RUN before the loop, producing red. A check that judges a proxy ("the SQL contains LIMIT")
+      instead of the result is not a check;
+      (ii) **adjudication separation** — name who calls the final verdict: a runnable check or an
+      independent evaluator, never the generator. If no separate evaluator is bought, say why, and
+      then the check's execution and its result file must sit OUTSIDE the generator's write surface
+      (otherwise the generator can fix the door instead of the defect);
+      (iii) **on-disk state** — contract / progress / append-only log, passing a cold-restart test:
+      delete the session, hand a fresh agent only those files, and it can say what to do next;
+      (iv) **structured stop condition** — a round/budget cap written INTO the condition plus both
+      stop sides (done AND abandon); multiple sub-conditions are legal if each is typed and any one
+      firing stops the loop. Quantify the failure-routing thresholds up front ("N consecutive rounds
+      of the same failure class ⇒ restart or escalate") instead of judging staleness by feel each
+      round.
+- Shadow: the existence of a check is forgeable (a human-verify rubber stamp padding the assertion
+  floor). The count is machine-checkable; whether the checks discriminate is not — expect the
+  battery to probe exactly that.
 
 ---
 

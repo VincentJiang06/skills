@@ -9,7 +9,7 @@ description: >-
   Do-NOT fire for: summarizing or writing daily/session memory or journaling (incl. Chinese
   "总结/记录今天的记忆"), or any generic "create/make/summarize X" that is not authoring an agent skill.
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   model_agnostic: true
 ---
 
@@ -54,6 +54,16 @@ files the engineer has not built yet, so `validate_structure` does NOT check on-
 After the engineer stage the conductor RE-runs `validate_structure --check-files` so every unit's
 `content_ref` now resolves to a real file (fail-closed at that point). Reference-existence is an
 engineer-stage gate, not a guidance-stage one.
+
+**Conditional gate branches (surface-dependent — gate ORDER and the min() fold are unchanged;
+these only add one check inside an existing gate).** If the skill BEING BUILT is itself a
+**>1-round autonomous loop**, its Evidence Dossier must carry the `loop_charter` attachment
+(runnable checks that were run red first · adjudication separated from the generator · on-disk
+state passing a cold-restart test · a structured stop condition with a cap and both stop sides);
+missing or hollow = stage-3 gate FAILURE, and the loop does not get to run autonomously (A45/H1).
+If the built skill carries a **tool surface, a script/action surface, or persistent memory**, the
+Structure Contract must answer the matching branch in `roles/guidance.md` §10 — the conductor
+spot-checks that the branch was answered or explicitly declared absent, never silently skipped.
 
 ## 2. Dispatch protocol (O6 — four-piece packet, single writer)
 
