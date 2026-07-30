@@ -7,7 +7,8 @@
 **What it does** — One 10,000–15,000-字 Chinese 乐评 from a primary credit (artist / composer / conductor / band / performer) + album name, across every musical dimension.
 
 **Why it's good** —
-- A deterministic 字-count window + genre-adaptive validator gate length and section coverage before anything ships.
+- A deterministic 字-count window + genre-adaptive validator gate length and section coverage before anything ships. It measures **length, not substance**: Latin/punctuation padding is caught, 汉字-level repetition padding is not — that side is carried by the negatives in `evals/JUDGE-MUST-FLAG.md` plus a human/judge read.
+- **The floor is never met by adding 字**: if two consecutive fix rounds add no real substance and the floor is still unmet, the skill stops and reports that the floor and this album's available material are incompatible — a call only the human can make.
 - Every fact is traced to a source; a missing source FAILs the gate — no confident-but-unsupported claims.
 - Classical separates the **work** from the **performance** and requires reference-recording comparison.
 - Obscure albums degrade honestly (explicit 资料不足), never fabricating tracks / personnel / dates.

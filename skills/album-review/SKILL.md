@@ -6,7 +6,7 @@ description: >-
   comprehensive critique. Triggers: "写一篇深度乐评", "全面评测这张专辑",
   "$album-review". NOT for audio-gear evaluation (→ hifi-review).
 metadata:
-  version: 0.1.2
+  version: 0.2.0
 ---
 
 # album-review
@@ -19,7 +19,18 @@ anything ships. Speed is not a concern — quality and honesty are the only bars
 
 **Locked decisions** (do not re-litigate):
 - **中文字符 = CJK 汉字 ONLY** (regex `[一-鿿]`). Latin/digits/punctuation do NOT
-  count toward the 10,000–15,000 window, so padding cannot game the floor.
+  count toward the 10,000–15,000 window. **Scope of that claim: Latin / digit /
+  punctuation padding cannot game the floor** — that, and only that, is what the
+  rule earns (proof: `evals/fixtures/cjk_padding_fails_floor.md`, 500 真汉字 +
+  22KB of Lorem ipsum, still FAILs the floor). **汉字-level repetition padding is
+  NOT caught by this gate, by design:** one paragraph pasted twenty times is
+  twenty paragraphs' worth of 汉字 to the counter, and a 10,000-字 wall of the
+  same sentence exits 0 (registered negative:
+  `evals/fixtures/repetition_padded_10k.md`). "Is this 10,000 字 of distinct
+  content or one paragraph in a hall of mirrors" is a semantic judgment; no
+  count, ratio, or similarity threshold decides it reliably, so it is carried by
+  the judge-must-flag negatives + a human/judge read (`rules/judge-must-flag.md`),
+  never by the validator. **Exit 0 is evidence of length, never of substance.**
 - **Emit a backing JSON** (`claims[]` + `evidence[]`) alongside the prose, so the
   traceability gate is machine-checkable. A fact-class claim whose `source_id` is
   absent from `evidence[]` FAILs the gate.
@@ -52,11 +63,27 @@ anything ships. Speed is not a concern — quality and honesty are the only bars
    参考录音/版本比较 section. Emit the backing JSON (`assets/backing.example.json`,
    contract `schemas/backing.schema.json`).
 6. **Verify (gate — never ship a FAIL).** Run the validator over the review +
-   backing; fix and re-run until exit 0:
+   backing:
    ```bash
    python3 scripts/check_review.py <review.md> --class standard|classical \
        --backing <backing.json>
    ```
+   **Stop condition (disjunctive — whichever fires first):**
+   - **green** — exit 0, no violations → ship. This is the only exit that ships.
+   - **fix** — a violation names a real, fixable gap (a missing section, an
+     untraced claim, genuinely unwritten analysis) → fix that gap, re-run.
+   - **escalate** — two consecutive fix rounds add **zero net 汉字 of new
+     substance** and the floor is still unmet → **stop patching and report to the
+     user**. The finding is not "the draft is short"; it is that the 10,000-字
+     floor and this album's available material are incompatible — a charge
+     against the contract, which only the human can settle (lower the floor for
+     this album, widen the research, or drop the job). Say so plainly, hand over
+     the honest short draft, and stop.
+
+   **Never close the gap by adding 字**: repeating a paragraph, restating the same
+   judgment in new words, padding with filler, or — worst — inventing
+   track/personnel/date specifics. All of those satisfy the counter and destroy
+   the review; the counter cannot see any of them (see the locked decision above).
 7. **Report.** The 乐评 + an 证据附录 (evidence appendix) summarizing sources.
 
 ## Controls (externalized, not prose-only)
@@ -102,7 +129,11 @@ precision vs adjacent skills (album-review vs hifi-review vs lyric-translation).
 
 ## Lifecycle
 
-Version `0.1.0`; see `CHANGELOG.md`. **Release gate:** ship only when
-`python3 evals/run_all.py` is GREEN (length + section + traceability + routing).
+Version `0.2.0`; see `CHANGELOG.md`. **Release gate:** ship only when
+`python3 evals/run_all.py` is GREEN (length + section + traceability + routing)
+**and** a human/judge has read the negatives in `rules/judge-must-flag.md` and
+rejected every one of them. GREEN alone is not sufficient — the harness measures
+what a machine can measure (counts, sections, claim→evidence links); whether the
+prose says anything is a semantic judgment that stays with the reader.
 Roster/template changes require a re-run of the eval fixtures. Rollback = revert
 to the prior `SKILL.md` + `scripts/`.
