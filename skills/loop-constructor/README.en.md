@@ -10,6 +10,8 @@
 - **Design backward** from "what check proves this is done?" (loop engineering ≈ verification engineering).
 - A deterministic linter (`lint_loop_design.mjs`) rejects any design with no runnable check, and the renderer refuses to write a runbook for a rejected design — a written `.loop/` doc is itself proof the design passed.
 - Grounded in the `loop-principle/` KB: cites node ids, reuses its templates/checklists, never restates theory.
+- **Stops on both sides** (0.3.0) — the stop condition carries a zero-change gate (the anti-arms-race brake) *and* a minimum-progress floor, so the loop can neither spin forever nor quit early; the `restart` trigger is a counter fixed before the run, not an in-flight judgment call.
+- **Reports paired numbers** — the emitted runbook ends with a run-report contract: no success/autonomy metric without its integrity counterpart (weakened-assertion audit, regression escapes, defect rate) or an explicit `not measured` tag.
 
 **When to use** — "how should I design a loop for X" · "design an agent loop" · "set up an autonomous / self-running agent workflow"; or call `/loop-constructor`.
 **Not for** — "reword this prompt" / single-shot prompt engineering (not a loop design); "now actually run the loop / build the feature" (it designs, does not execute); "add a node to loop-principle" / editing the KB (KB authoring, out of scope); non-agentic / non-loop or domain questions (album / audio / course → the relevant skill).

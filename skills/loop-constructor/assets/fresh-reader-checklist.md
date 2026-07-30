@@ -51,9 +51,18 @@ a hollow check is exactly the trap this pass exists to catch.
       prose against the attested booleans**: `separate_context:true` above a mandate
       that says the evaluator reviews its own diff is a lie the linter cannot see —
       the booleans are author-attested; this box is where the attestation is checked.
+- [ ] **The check is outside the generator's write surface (§II).** If the design did
+      NOT buy an independent evaluator, the runnable check is the arbiter — so the
+      judging script and its result file are read-only to the generator, or the check
+      runs via a hook/wrapper the generator doesn't invoke. Named in
+      `maker_checker.scope`. A generator that can edit the check or its verdict is
+      grading itself through the back door.
 - [ ] **Contract actually pins the behavior (§III).** `contract.assertions` are
-      enough to catch a plausible wrong build, not a rubber-stampable handful
-      (endpoint ≈ 8–12, module ≈ 12–20, app ≈ 20+). Each assertion is a real
+      enough to catch a plausible wrong build, not a rubber-stampable handful.
+      The numbers are **lower bounds over machine-gradable assertions** (endpoint
+      **≥ 8**, module **≥ 12**, app **≥ 20**; ceiling = 3× the bound, so a thin
+      contract is never fixed by padding). The linter's floor of 3 is a *lower*,
+      different thing — clearing it does not clear this box. Each assertion is a real
       testable claim with a check that can FAIL — and the check *asserts the
       outcome*, not mere existence (`test -f service.js` proves a file exists, not
       that billing works). `human-verify:` entries are for the genuinely
@@ -64,6 +73,18 @@ a hollow check is exactly the trap this pass exists to catch.
       `restart` route (discard + re-derive from the contract), and the design does
       NOT put a human in the way of a restart — human escalation is reserved for a
       **wrong contract**, not a broken build.
+- [ ] **The stall trigger is a pre-registered counter (§V).** "Patching has stalled"
+      is written as a number *before* iteration 1 ("2 consecutive same-class
+      failures → restart"; "a top-severity defect inside the previous iteration's own
+      fix → restart"), not left to in-flight judgment. If I can only find prose that
+      says the agent should "consider restarting when progress slows", the route will
+      never fire — optimism defers it every round.
+- [ ] **Stop condition closes on BOTH sides (D5).** There is a **zero-change gate**
+      ("N consecutive iterations with zero new changes → stop", the anti-arms-race
+      brake) AND a **minimum-progress floor** below which an early "done / can't
+      proceed" routes to `escalate` instead of counting as a stop. Caps
+      (iterations/time/budget) are written inside `stop_conditions` and are only
+      changeable from outside the loop. One-sided = half a stop condition.
 - [ ] **Subjective checks calibrated (§VI).** Any taste/quality gate is a rubric
       scorer with weighted axes calibrated on good-vs-slop references — not a vague
       "looks good"; and its `passing_but_wrong` is honest that a rubric only
@@ -73,6 +94,21 @@ a hollow check is exactly the trap this pass exists to catch.
       degrees-of-freedom match the task (high-freedom prose for open work, precise
       scripts only for the fragile/irreversible steps). A durable on-disk state set
       (contract/progress/append-only log) exists so the loop survives a compaction.
+- [ ] **Harness parts classified, and not self-classified (§VIII).** Each
+      scaffolding component is labelled **compensating** ("the model can't do this
+      yet" → settled by a bare-model with/without comparison, stamped with the model
+      baseline) or **structural** ("an architectural constraint still holds" →
+      settled by whether that constraint still exists). The class is recorded for the
+      checker to confirm, not asserted by whoever built the component — a builder who
+      can self-label a part "structural" can exempt anything from pruning by naming it.
+- [ ] **Run report pairs its numbers (§VII·b).** Every success/autonomy metric the
+      loop will report has its integrity/damage counterpart beside it — gates-green ↔
+      weakened-assertion diff audit, autonomous-resolution ↔ regression escapes,
+      throughput ↔ defect/rollback rate — or an explicit `not measured` tag (sampled
+      audit is the legal degradation; dropping the line is not).
+      `iterations_to_acceptance` is read both ways: too low means the check is too
+      weak, not that the loop is fast. Benefit claims are verified by external
+      timing / a gate, not by the participants.
 - [ ] **Bottleneck named (§IX).** The report says where the current weakest link is
       (plan? verification? taste?) and what you'd harden next — not "all smooth".
 - [ ] **Autonomy matches risk.** `human_placement` follows D3 (weak check or

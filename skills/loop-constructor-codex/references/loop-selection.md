@@ -208,8 +208,39 @@ Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
   frontier model often ships a clean rewrite faster than it patches). A `restart`
   is autonomous, not an escalation: **don't insert a human to interrupt a restart —
   insert one only when the *contract* is wrong, not when a build is.**
+- **Quantify the routing trigger BEFORE the run.** `restart`'s condition — "patching
+  has stalled" — is a semantic judgment, and in flight it loses to optimism every
+  time. Write it as a **counter in the stop conditions before iteration 1** and let it
+  fire mechanically: *"2 consecutive iterations with same-class failures → restart"*,
+  *"a top-severity defect lands inside the previous iteration's own fix → restart"*,
+  *"3 iterations without the failing assertion changing → escalate"*. No in-flight
+  discretion; no raising the counter from inside the loop. (The named failure: a
+  seven-round patch-vs-break arms race whose restart criterion was met at round two,
+  but was never written down, so the loop kept choosing `loopback` until the whole
+  effort was reverted. KB `guidelines/loops.md` H4 + T14.)
 - **Design-level**: an outer `max_iterations` budget, a non-empty `failure`
   branch list, `escalate` triggers, and a non-empty `success` state.
+- **Close the stop condition on BOTH sides.** A stop condition that only guards one
+  direction is half a stop condition:
+  - **Zero-change gate (anti-spin / anti-arms-race)** — *"N consecutive iterations
+    with zero new changes → stop"*, N typically 1–2. This is the sharpest
+    deterministic brake in the official harness guidance: a loop that can no longer
+    change anything is not converging, it is buying iterations. Put it in
+    `stop_conditions.failure` as its own branch.
+  - **Minimum-progress gate (anti-premature-abandonment)** — state the floor below
+    which "we're done / can't proceed" is **not** an accepted stop but an `escalate`:
+    e.g. *"every stage gate must have been reached and attempted with a real diff
+    before a stop is honoured"*. This side is not optional padding — the dominant
+    failure mode flipped between model generations (repeated-failed-action 38.7% →
+    6.3%; giving-up-early 25.8% → 50%), so a design that only guards the
+    won't-stop side is guarding yesterday's failure.
+  - **The caps live inside the condition.** `max_iterations` / time / token budget are
+    written into `stop_conditions` itself, not left to external good will — and they
+    are changed only *outside* the loop (by a human or a gate). A loop may **trip** a
+    cap; it may never **raise** one, because "one more round and it converges" is
+    exactly the judgment the cap exists to overrule.
+
+  (KB `guidelines/loops.md` H5, `rules/constitution.md` A45(iv).)
 - **Risk guards**: name each applicable anti-pattern + a concrete mitigation —
   reward hacking / test overfitting, error amplification, context drift, token
   blowup, permission blast radius, premature over-delegation.

@@ -112,8 +112,8 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
   },
   "harness_primitives": ["<>=0 items>"],
   "stop_conditions": {
-    "success": "<string>",
-    "failure": ["<>=1 outer/full-loop branch>"],
+    "success": "<string — the proven done-state; name the minimum-progress floor below which an early stop escalates instead of counting as done>",
+    "failure": ["<>=1 outer/full-loop branch — include the zero-change gate: 'N consecutive iterations with zero new changes'>"],
     "escalate": ["<trigger>", "..."],
     "max_iterations": 4
   },
@@ -144,22 +144,36 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
   multi-stage loop); the flat atomic unit leans on `maker_checker`. The evaluator
   IS the expanded `maker_checker` — `evaluator.separate_context` ⇔
   `maker_checker.separate_checker`. Mixing roles is the most common loop failure:
-  the model turns sycophantic the moment it grades itself.
+  the model turns sycophantic the moment it grades itself. An independent evaluator
+  is a *conditional* purchase; when a design skips it and lets the runnable check be
+  the arbiter, the check's **execution and result-writing must still sit outside the
+  generator's write surface** (judging script + verdict file read-only to the
+  generator, or a hook/wrapper it does not invoke) — say which in
+  `maker_checker.scope`. Otherwise the generator patches the door and then stamps it
+  (`references/loops-model.md` §II).
 - **`contract`** (LOOPS.md §III — *Negotiate The Contract First*) — before the
   generator writes a line, the generator proposes what "done" looks like and the
   evaluator pushes back until they agree on a checklist of **testable assertions**.
   The **contract, not the original spec, is what gets graded.** Each assertion is
   gradable (a check that can FAIL, or an explicit `human-verify:`) and, for a
   staged design, traceable to the stage that proves it (or `cross-cutting`). Scale
-  the count to the task — ≈20 for an app-sized build; the linter's floor of 3 only
-  rejects a vacuous contract, so the fresh-reader judges real sufficiency (10 is
-  usually too few; the evaluator rubber-stamps).
+  the count to the **surface**, and read the numbers as **lower bounds over
+  machine-gradable assertions**: endpoint/function **≥ 8**, module **≥ 12**, app-sized
+  **≥ 20**, each with a ceiling of 3× that bound so "thin contract" is never answered
+  by padding. The linter's floor of 3 is a *different, lower* absolute anti-vacuity
+  ground — clearing it clears the linter and still fails the sizing, so the
+  fresh-reader judges real sufficiency (a contract too thin to disagree with gets
+  rubber-stamped, which is the incident the bounds exist because of).
 - **`restart`** (LOOPS.md §V — *Let The Loop Restart*) — a stage `on_failure.action`
   meaning *discard this stage's work and re-derive it from the contract* rather than
   patching a codebase that has become archaeology. It carries no `to` (it throws its
   own work away and re-enters — it does not reset an upstream gate). Restart is not
   a human-escalation trigger: insert a human only when the **contract** is wrong,
-  not when a build is.
+  not when a build is. Its trigger — "patching has stalled" — must be **quantified in
+  the stop conditions before the run** ("2 consecutive same-class failures", "a
+  top-severity defect inside the previous iteration's own fix"), never judged
+  in-flight; the linter cannot check this, the fresh-reader does
+  (`references/loops-model.md` §V).
 
 ### What the linter enforces for STAGED designs (FAIL rules)
 

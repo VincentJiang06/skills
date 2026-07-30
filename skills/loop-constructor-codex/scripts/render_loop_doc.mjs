@@ -279,6 +279,20 @@ export function renderMarkdown(design) {
   out.push(list(design.harness_primitives));
   out.push("");
 
+  // Run report (paired telemetry) — static; no design-derived strings.
+  out.push("## Run report (emit this when the loop stops)");
+  out.push(
+    "> Report the outcome honestly — an escalated or capped run is a successful *loop*, just not a successful *task*. " +
+      "**No success/autonomy number is reported without its integrity counterpart beside it**, or an explicit `not measured` tag."
+  );
+  out.push("- **Outcome:** success | stopped-unmet (which cap/branch) | escalated (which trigger) · **iterations** · **cost**.");
+  out.push("- **Gates green** — paired with a **diff audit for weakened assertions** (tests deleted, expectations hard-coded, a check loosened to pass). A run that passed by weakening a gate is a failed run.");
+  out.push("- **Resolved without a human** — paired with **what escaped**: regressions or gaps the checks did not catch.");
+  out.push("- **Throughput** (stages/changes landed) — paired with **defect + rollback rate** over the same window.");
+  out.push("- **Iterations to acceptance** — read both ways: too high = slow feedback or a wall; **too low = the check was too weak to fail**.");
+  out.push("- **Unpaired?** Sampled audit plus a visible `not measured` tag is the honest degradation; silently dropping the integrity line is not. Verify any speed/benefit claim by external timing or a gate, never by the loop's own account of itself.");
+  out.push("");
+
   return out.join("\n");
 }
 

@@ -110,15 +110,18 @@
     "pre-commit hook runs the current stage's check as a deterministic gate"
   ],
   "stop_conditions": {
-    "success": "every stage's check passes in dependency order and the diff stays within the rate-limit middleware + load harness",
+    "success": "every stage's check passes in dependency order and the diff stays within the rate-limit middleware + load harness; minimum-progress floor: all three stage gates must have been reached and attempted with a real diff — a stop below that floor is an escalate, not a success",
     "failure": [
       "any stage exhausts its max_iterations without passing its check",
-      "a downstream stage forces a redesign of an already-accepted upstream stage twice"
+      "a downstream stage forces a redesign of an already-accepted upstream stage twice",
+      "2 consecutive outer iterations produce zero new changes (zero-change gate: the loop is spinning, stop rather than keep buying iterations)",
+      "2 consecutive iterations fail in the same class, or a failure lands inside the previous iteration's own fix (pre-registered stall counter -> restart the stage, do not patch forward)"
     ],
     "escalate": [
       "a public-API/response-schema change becomes necessary",
       "production permission or real traffic is required to verify",
-      "the load target only reproduces against prod"
+      "the load target only reproduces against prod",
+      "the loop proposes to stop before the minimum-progress floor is reached (premature-abandonment gate)"
     ],
     "max_iterations": 4
   },

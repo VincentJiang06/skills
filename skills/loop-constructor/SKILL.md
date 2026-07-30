@@ -6,7 +6,7 @@ description: >-
   "design an agent loop", "set up an autonomous / self-running agent workflow",
   "$loop-constructor". It DESIGNS the loop; it does NOT execute it.
 metadata:
-  version: 0.2.1
+  version: 0.3.0
 ---
 
 # loop-constructor
@@ -59,8 +59,9 @@ Two moves from the LOOPS.md operating model, both **linter-enforced for staged**
   #1 loop failure.
 - **Negotiate the contract (§III).** Generator proposes "done", evaluator pushes back
   → agreed **testable assertions** (`contract.assertions[]`, each gradable +
-  stage-traced). **The contract, not the spec, is graded.** ≈20 for an app-sized
-  build; ~10 rubber-stamps.
+  stage-traced). **The contract, not the spec, is graded.** The per-surface numbers are
+  **lower bounds over machine-gradable assertions** (endpoint ≥8, module ≥12, app ≥20;
+  ceiling 3×) — a contract too thin to disagree with gets rubber-stamped.
 
 ### 3. FILL — write the loop-design JSON (`references/loop-design-shape.md`)
 The decisions above mostly determine the spec. Fill the canonical **staged**
@@ -107,7 +108,10 @@ Hand back: the **decision log** (D0–D6), the **roles + negotiated contract**, 
 loop-design JSON, the lint result (PASS), the fresh-reader verdict, a self-scored
 rubric (`loop-principle/templates/loop_quality_rubric.template.json`), the
 **current bottleneck** (where the weakest link is now — plan / verification / taste;
-LOOPS.md §IX), and residual risks.
+LOOPS.md §IX), and residual risks. State the **run-report contract** the designed loop
+must honour when it stops: every success/autonomy metric paired with its
+integrity/damage counterpart or tagged `not measured` (`references/loops-model.md`
+§VII·b) — an unpaired success number is the shape of slop, not evidence.
 
 ## Grounding (KB path resolution)
 The skill reads from the embedded **loop-principle KB** at `loop-principle/`
@@ -149,20 +153,26 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 - **Restart beats archaeology.** Where a build can rot into a patch-pile, route
   `on_failure: restart` (discard + re-derive from the contract, §V) — and don't
   human-interrupt a restart; escalate only a **wrong contract**, not a broken build.
+  Its trigger is a **counter fixed before the run** ("2 consecutive same-class
+  failures"), never an in-flight call.
+- **Stop on both sides.** `stop_conditions` carries a zero-change gate ("N iterations
+  with zero new changes → stop", the anti-arms-race brake) *and* a minimum-progress
+  floor below which an early stop escalates instead of counting as done (D5).
 - **Delete the harness as the model improves** (§VIII). Prune scaffolding the model
   now does for free; match degrees-of-freedom to the task. A growing-only harness is
   one you've stopped reading.
 - **Reject-on-no-check (per stage).** A stage with no runnable feedback signal
   FAILs the linter; the anchor holds for every stage.
 - **Mandatory caps.** Every stage + the outer loop carry a finite
-  `max_iterations`; the stage graph must be acyclic.
+  `max_iterations`, written inside `stop_conditions`; the stage graph must be acyclic.
+  A loop may trip a cap, never raise one — cap changes happen outside the loop.
 - **Self-verification gate.** Return a design only after the linter PASSes and the
   fresh-reader checklist is clean.
 - **Cite, don't assert.** Back design choices with loop-principle node ids.
 
 ## Lifecycle
 
-- **version** in frontmatter (`0.2.0`).
+- **version** in frontmatter (`0.3.0`).
 - **Breaking change** = any change to the loop-design JSON schema the linter binds
   to (a new required field, a renamed key) — staged consumers must re-author. `0.2.0`
   added `roles` + `contract` (required for staged) and the `restart` action; the
