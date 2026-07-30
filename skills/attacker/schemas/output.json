@@ -14,7 +14,7 @@
         "additionalProperties": false,
         "required": ["lens", "location", "claim", "reproduction", "severity", "independence_tier"],
         "properties": {
-          "lens": {"type": "string", "enum": ["coherence", "gaming", "evidence", "reality", "foundation", "synthesis"]},
+          "lens": {"type": "string", "enum": ["coherence", "gaming", "evidence", "reality", "foundation", "synthesis", "fix-audit"]},
           "location": {"type": "string", "description": "file + line/section"},
           "claim": {"type": "string", "description": "one-sentence statement of the defect"},
           "reproduction": {
