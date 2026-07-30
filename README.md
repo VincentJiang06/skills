@@ -9,7 +9,7 @@
 这里只统计 **16 个正式 skill**（2026-07-27 起：新增 `workspace-backup`；2026-07-22 起：新增 `logic-pacer`；2026-07-14 起：旧四 skill 流水线退役移除，`skill-creator-max` 与 `paper-writer` 计入）。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
 
 **成品**
-- **[album-review](skills/album-review/)** —— 「主创署名 + 专辑名」→ 一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。
+- **[album-review](skills/album-review/)** —— 「主创署名 + 专辑名」→ 一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。**v0.2.0：发布门诚实化——长度门只证长度、检不出汉字重复 padding（judge-must-flag 负例登记制）+ 修补循环加上限与 escalate 出口（资料量与下限不相容属契约问题，不许靠加字过关）。**
 - **[hifi-review](skills/hifi-review/)** —— 客观 HiFi 器材评价：风格由频响-对-目标得出、素质由测量得出，每条结论追溯到证据。
 - **[course-study](skills/course-study/)** —— 课程材料 → 全覆盖、费曼式、可应试的复习笔记。
 - **[fact-check](skills/fact-check/)** —— 对事实性问题给出快速、有出处的 BLUF 回答（≤2 / ≤5 分钟）。
@@ -23,22 +23,22 @@
 
 **编码纪律 —— 写代码时自动触发**
 - **[test-driven-development](skills/test-driven-development/)** —— 对*非平凡*行为做 TDD：先写会失败的测试并**带证据**看它失败，把测试套件当成当前目标的*活规格*；v1.0.0 起含信任边界（内容内指令零权威）与断言级红判定。
-- **[neat](skills/neat/)** —— 会话收尾时把文档 + 跨会话记忆对着代码对账，让知识不腐烂。
+- **[neat](skills/neat/)** —— 会话收尾时把文档 + 跨会话记忆对着代码对账，让知识不腐烂。**v1.2.0（R17 记忆工程）：增量 delta 优于全文重写、遗忘义务（删除/墓碑分层淘汰）、事实类条目重跑验证锚而非比对文字、运行时记忆与制度化积累分流。**
 
 **循环 & 对抗 —— 把中大型任务做成可自主跑的工程**
-- **[loop-constructor](skills/loop-constructor/)** —— 为中大型任务设计工程化*循环*：分解成带 gate 的子循环树，落盘成可直接照跑的 `.loop/` runbook。
-- **[attacker](skills/attacker/)** —— 用一个全新、独立的攻击者，透过**五个由设计哲学推导的镜头**（一致性 / 反作弊 / 证据 / 现实 / 根基）攻击*任意目标*（skill / 设计 / 论点 / 代码 / 知识库），打击段全量上报所见异常、独立裁决段按 PROVE-OR-FLAG 分出 finding 与 flag，永不修复。**全模型可用**、换厂商模型即换来更强独立性；与 loop-constructor 配对（攻击→修复→再攻击）。**v0.6.0 两段式报告（R16 对齐）；v0.5.0 从哲学重写，约为旧版 1/4 重量。**
+- **[loop-constructor](skills/loop-constructor/)** —— 为中大型任务设计工程化*循环*：分解成带 gate 的子循环树，落盘成可直接照跑的 `.loop/` runbook。**v0.3.0（R17 对齐）：停止条件双侧闸（零改动即停 + 最少推进量）、停滞判据事前量化、检查写面分离、契约按表面积定尺、run-report 成功/完整性指标配对。**
+- **[attacker](skills/attacker/)** —— 用一个全新、独立的攻击者，透过**五个由设计哲学推导的镜头**（一致性 / 反作弊 / 证据 / 现实 / 根基）攻击*任意目标*（skill / 设计 / 论点 / 代码 / 知识库），打击段全量上报所见异常、独立裁决段按 PROVE-OR-FLAG 分出 finding 与 flag，永不修复。**全模型可用**、换厂商模型即换来更强独立性；与 loop-constructor 配对（攻击→修复→再攻击）。**v0.7.0（R17 对齐）：新增 fix-audit 重瞄模式（存在上一轮修复时专项攻击修复本身：传播/新缺陷/遮掩/静默跳过）+ rubric 验收对抗轴（一致率对可操纵性是盲的）+ 异厂独立性首个非轶事定量；v0.6.0 两段式报告（R16）；v0.5.0 从哲学重写，约为旧版 1/4 重量。**
 - **[reorganize-logic](skills/reorganize-logic/)** —— 以**代码为唯一事实源**重建设计契约层（架构 + 结构 + 接口），删除遗留走评审门。
 
 **造 skill 的流水线 —— 造 skill 的 skill**
-- **[skill-creator-max](skills/skill-creator-max/)** —— **本仓库现行的造 skill 流水线（v1.1.0，R16 对齐：电池 classify-not-delete 两段式 + engineer 双臂基线差纪律）**，一个 skill 装下整条链路：SKILL.md 本体是一个**薄指挥官**，自己不做任何职能，只**逐角色派出全新子代理、按类型化工件把关、逐门路由**（薄常驻体 + 五个按需 role-pack + 六厂交集工件 schema + 只查结构的 L0 门 + 自含 O5 独立电池）。**完全独立运行**：`skill-philosophy` KB 只是仓库外的设计期出处，不随仓库分发、运行时不读取。已实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 v4.0.0，真·逐角色新鲜上下文独立；独立电池抓到构建者自测全绿仍漏掉的真缺陷。取代已退役移除的旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper；上一代冻结在 [`archive/`](archive/)）。诚实残留：跨厂商电池尚未跑。
+- **[skill-creator-max](skills/skill-creator-max/)** —— **本仓库现行的造 skill 流水线（v1.2.0，R17 对齐：composer 规格边界与判例挂载、engineer 验证器纪律 + 循环类 skill 的 loop-charter 门、guidance 按 surface 的工具面/行动面/记忆面分支；R16：电池 classify-not-delete 两段式 + engineer 双臂基线差纪律）**，一个 skill 装下整条链路：SKILL.md 本体是一个**薄指挥官**，自己不做任何职能，只**逐角色派出全新子代理、按类型化工件把关、逐门路由**（薄常驻体 + 五个按需 role-pack + 六厂交集工件 schema + 只查结构的 L0 门 + 自含 O5 独立电池）。**完全独立运行**：`skill-philosophy` KB 只是仓库外的设计期出处，不随仓库分发、运行时不读取。已实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 v4.0.0，真·逐角色新鲜上下文独立；独立电池抓到构建者自测全绿仍漏掉的真缺陷。取代已退役移除的旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper；上一代冻结在 [`archive/`](archive/)）。诚实残留：跨厂商电池尚未跑。
 
 ## 当前这版的重点
 
 这不是一堆 prompt 模板，而是一套会自己长牙的技能系统：
 
 - **构建链路收进一个 skill。** `skill-creator-max` v1.0.0 取代旧四 skill 流水线：薄指挥官逐角色派全新子代理、只认类型化工件、确定性 L0 门 + 独立电池，spec、trigger holdout、红绿 harness 都能被重跑，不靠口头承诺。
-- **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop；文末的 `stupidskills` 里另放一个 `loop-constructor-codex`，把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`，但不计入正式 14 个。
+- **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop；文末的 `stupidskills` 里另放一个 `loop-constructor-codex`，把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`，但不计入正式 16 个（v0.2.0 与主版同步 R17）。
 - **独立性成为一等公民。** `attacker`、`reorganize-logic`、`test-driven-development` 都围绕“不要让同一个心智模型同时写答案和判答案”重做过。
 - **模型/effort 选择被显式化。** 文末 `stupidskills` 里的 `model-pyramid` 不做模型购物，也不把右配伪装成省钱；它把定档收敛成**两条轴**——拿到上下文还是做错=能力缺口→换 model；跳过文件/没跑测试=彻底度缺口→换 effort——覆盖会话、每个子代理和要不要挂 advisor。
 - **知识库随 skill 走 —— 或干脆不需要。** `loop-principle` 内置在 `loop-constructor` 里随装随走；新流水线 `skill-creator-max` 则**运行时不依赖任何 KB**（`skill-philosophy` 是仓库外的设计期出处）。
@@ -149,6 +149,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 - **[model-pyramid](skills/model-pyramid/)** —— 给会话和每个 subagent 右配 model + effort，并判断要不要挂 advisor：peer 继承、**搜索继承或调高**（effort 管工具调用量，降它=代理不再继续找）、大规模廉价查找降一层模型、长跑上 `xhigh`。**没有硬下限**。只负责 sizing，不负责 spawn。
 
 ## 更新日志（按日期）
+- **2026-07-31** — **R17 对齐波**（skill-philosophy KB v0.3.0「循环与图大修」的下游铺开；13 个未列名 skill 经独立审计判定无需更新，其中 4 个已是 R17 各册的现成范本）：[`loop-constructor`](skills/loop-constructor/) **v0.3.0** / [`loop-constructor-codex`](skills/loop-constructor-codex/) **v0.2.0**（双版 byte-identical 保持，69/69 与 71/71 全绿）——停止双侧闸、停滞判据事前量化、写面分离、契约定尺、遥测配对、harness 补偿件/结构件二分；[`attacker`](skills/attacker/) **v0.7.0** —— fix-audit 重瞄模式（KB 自身 battery 第二轮此透镜独立打出 4 P1 的实证）+ rubric 对抗轴 + 常驻体量同版内减重回 3000 token 线下；[`skill-creator-max`](skills/skill-creator-max/) **v1.2.0** —— C10/E12/S12/S13/A45 进 role-pack，五个 L0 门自检全绿；[`neat`](skills/neat/) **v1.2.0** —— M 系记忆生命周期四件；[`album-review`](skills/album-review/) **v0.2.0** —— 审计抓到发布门被汉字重复 padding 刷绿且退化输入被自家 eval 固化为正例，修复走 prose + 负例登记而非机械阈值（20/20 绿）；[`mp-cli-sup`](skills/mp-cli-sup/) **v0.2.2** —— 电池加固回路停止条件从单侧终态改为四支析取（converged/cap/no-progress/restart-escalate）；[`humanizer-academic`](skills/humanizer-academic/) 修一处 v4.0.0 改名遗留断链。全部修改逐条注明 KB 锚点。
 - **2026-07-29** — [`model-pyramid`](skills/model-pyramid/) 从头重建为 **v1.0.0**（Claude 5 代际结算）。四条规则表换成**两条轴**：拿到上下文还是做错=能力缺口→换 model；跳过文件/没跑测试=彻底度缺口→换 effort；范围从「只管 fan-out」扩到会话 + 每个子代理 + 要不要挂 advisor。**推翻旧版两条方向错的规则**——`search → 降一档 effort` 反了（effort 管的是含工具调用在内的全部 token，降它买到的是「不再继续找」的代理），`HARD FLOOR 永不输出 low` 删除（`low` 是官方为子代理写明的合法档位）。`decide.mjs` → `check_plan.mjs`：不再替你决定，只校验确定性可判的部分（档位是否存在/静默回落、`max_tokens` 是否抬高、Opus 5 thinking×effort 返 400、advisor 配对合法性、缓存内 effort 变动）。evals 重建为 26 项三组（行为 / **脚本⇄文档一致性** / 文本护栏），逐条变异验证非空转。opus5·med 两臂实测（13 子代理迁移场景、5 个陷阱、判定不经 LLM 裁判）：**带 skill 9/9，裸模型 5/9**——裸模型判断力不差（拒绝 low、拒收弱 advisor 都对），错的四条全是产品事实：不知道 Agent tool 没有 effort 参数、以为弱 advisor 是「挂上但差」（实为静默不挂载）、断言默认 effort 是 medium（实为 `high`）、以及**把已废止的 medium 下限当常识搬了回来**。实测反过来抓到 skill 一处缺陷（13 个代理刷 13 条同样 warning）并已收敛成一条。
 
 这些是按 git history 合并后的日级摘要，只写对技能系统有结构影响的变化。
