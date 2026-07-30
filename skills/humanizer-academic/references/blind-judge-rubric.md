@@ -116,7 +116,7 @@ pure-deletion robotic rewrite fails here — the closed-loop guard); **5 ≥ 4**
 
 ---
 
-## Track B — `popsci` (科普) — grounded in `references/popsci-register.md`
+## Track B — `popsci` (科普) — grounded in `references/popsci-pack.md`
 
 > The popsci failure modes are **two-sided**: collapse *downward* into
 > clickbait/hype/listicle (AI's default), and collapse *upward* into stiff

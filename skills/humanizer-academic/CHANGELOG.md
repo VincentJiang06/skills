@@ -4,6 +4,15 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
+## Unreleased
+
+### Fixed
+- `references/blind-judge-rubric.md` Track B pointed at `references/popsci-register.md`,
+  a file that stopped existing in 4.0.0 (the mode-split renamed it `popsci-pack.md`).
+  The rubric was carried over byte-identical in that rebuild, so the rename never
+  reached it — a dead link on the popsci judging path. Reference corrected; no
+  version bump (documentation-only, rubric semantics unchanged).
+
 ## 4.0.0 — Mode-split structural rebuild (2026-07-14)
 
 **Major** — but NOT for the usual reason: the rewrite behavior, default
