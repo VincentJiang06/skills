@@ -16,7 +16,7 @@
 
 ## 生命周期 / Lifecycle
 
-- **版本**：v1.1.0（加入 `scripts/kb_audit.mjs` 确定性闸门 + evals 回归套）。变更记录在 `CHANGELOG.md`（与 skill 同目录）。
+- **版本**：v1.2.0（加入 `rules/memory-lifecycle.md`：增量 delta / 遗忘义务 / 验证锚 / 运行时-积累分流）。变更记录在 `CHANGELOG.md`（与 skill 同目录）。
 - **发布闸门**：`node evals/run_all.mjs` 全绿（exit 0）才算可发布。
 - **回滚坏运行**：破坏性运行出错 → `git restore .`（或 `git checkout -- <file>`）恢复被删/被改的知识文件；这就是要求 git 工作树的原因。
 - **易变面**：跨平台路径表（references/agent-paths.md）随平台记忆布局变化最快——定期对照各平台最新文档复核，并记下复核时验证的平台版本。

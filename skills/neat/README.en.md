@@ -9,6 +9,7 @@
 **Why it's good** —
 - A deterministic anti-bloat / anti-rot linter (`kb_audit.mjs`) gates "sync complete" on machine-checkable **hard evidence** — MEMORY.md byte/line ceilings, relative-time leakage, memory-vs-docs size inversion, broken index links.
 - A memory→docs "graduation" valve pumps stable knowledge up into the docs, guarding against index bloat.
+- Memory-lifecycle discipline: **incremental deltas** (touch only the entries this session's lessons hit — never "rewrite MEMORY.md to make it tighter", which quietly erodes domain detail), a **duty to forget** (delete or tombstone stale/falsified entries; a long streak of zero deletions counts as a dead gate), and **verification anchors** (re-run the command/file behind a status fact instead of diffing prose; a broken anchor downgrades the entry to `needs_verification`).
 - A thin-orchestrator SKILL.md: low always-loaded cost, the rest on-demand.
 
 **When to use** — "sync up" · "tidy up docs / update memory / 收尾 / 这个阶段做完了" · "so a newcomer can pick it up"; or call `/sync`, `/neat`.

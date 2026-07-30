@@ -45,6 +45,7 @@ SKILL.md 是薄编排层；重内容拆进 `rules/`，遇到对应步骤再读�
 | [rules/claude-md-policy.md](rules/claude-md-policy.md) | 判断一条信息该进 CLAUDE.md/AGENTS.md 还是 docs/changelog/memory 时（✅/❌ 判据表） |
 | [rules/preflight-sizing.md](rules/preflight-sizing.md) | 第零步 —— 尺寸体检详解：闸门人类可读表、倒挂体检、精简→补漏执行顺序 |
 | [rules/sync-protocol.md](rules/sync-protocol.md) | 第一~五步 —— 盘点 / 变更矩阵 / 实际修改 / 自检清单 / 摘要的完整动作清单 |
+| [rules/memory-lifecycle.md](rules/memory-lifecycle.md) | 第三步动记忆之前 / 第四步自检 —— 增量 delta（禁全文重写）、遗忘义务（删除/墓碑）、验证锚、运行时 vs 积累分流 |
 | [rules/special-cases-and-lifecycle.md](rules/special-cases-and-lifecycle.md) | 遇到非标准场景（无 README、无新事实、记忆冲突、跨项目、补历史漏洞）或需要版本/发布闸门/回滚信息时 |
 | [rules/kb-audit-usage.md](rules/kb-audit-usage.md) | 第零步 / 第四步 —— 怎么跑 `scripts/kb_audit.mjs`，闸门清单、退出码、JSON 形状、相对时间豁免规则 |
 | [rules/leakage-and-size-policy.md](rules/leakage-and-size-policy.md) | 需要精确判断某个尺寸 / 倒挂 / 相对时间边界算不算违规时 |
@@ -59,8 +60,8 @@ SKILL.md 是薄编排层；重内容拆进 `rules/`，遇到对应步骤再读�
 - **第零步：尺寸体检（防膨胀）** —— 任何同步动作之前先跑确定性闸门 `node scripts/kb_audit.mjs <project-dir> --json`，别靠肉眼 `wc`/`grep`/`du`。HARD 违规（退出码非 0）阻断本次"同步完成"；超尺寸修复优先级高于补漏。
 - **第一步：盘点现状** —— 强制机械式枚举，先 `ls` 再判断；列出记忆文件 + 每个项目的 docs，输出一张「评估过/要改/不用改」文件清单，漏一个不行。
 - **第二步：识别变更** —— 用"变更影响矩阵"思考：新事实会波及哪些文档层级；重点查这次是不是**跨项目**（上下游两边 docs 都要对齐）。完整映射见 [references/sync-matrix.md](references/sync-matrix.md)。
-- **第三步：实际修改** —— 真的用 Edit/Write/删除命令落地，描述不算完成；顺序 docs/ → CLAUDE.md/AGENTS.md → 记忆；编辑原则：减优于加、合并优于追加、删除优于保留、毕业优于内部挪腾。
-- **第四步：自检清单** —— 改完先重跑 `node scripts/kb_audit.mjs <project-dir>`（须 exit 0）当回归，再逐项过尺寸/反膨胀 + 完整性/反漏改两组人判断项；打不了勾就回去补。
+- **第三步：实际修改** —— 真的用 Edit/Write/删除命令落地，描述不算完成；顺序 docs/ → CLAUDE.md/AGENTS.md → 记忆；编辑原则：减优于加、合并优于追加、删除优于保留、毕业优于内部挪腾。**记忆侧只做增量 delta（禁整份重写"让它更简洁"），且整理必须含删除/墓碑**（[rules/memory-lifecycle.md](rules/memory-lifecycle.md)）。
+- **第四步：自检清单** —— 改完先重跑 `node scripts/kb_audit.mjs <project-dir>`（须 exit 0）当回归，再逐项过尺寸/反膨胀 + 完整性/反漏改两组人判断项；事实类条目**重跑验证锚**而非比对文字；打不了勾就回去补。
 - **第五步：变更摘要** —— 所有文件改完之后（不是之前），给用户「记忆变更 / 文档变更（按项目分组）/ 未处理」三段式摘要，只列有实际变更的条目。
 
 ## 特殊情况 / Lifecycle
