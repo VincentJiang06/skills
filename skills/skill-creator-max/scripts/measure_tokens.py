@@ -52,6 +52,13 @@ ON_DEMAND_DIRS = ("rules", "references", "scripts", "assets")
 SKIP_DIRS = ("evals", "test", "tests", "__pycache__")
 
 # --- Architecture budgets (thresholds the flags use; tune in diagnosis-rubric.md) ---
+# ⚠ STALE since the Claude 5 generation (philosophy KB ADC3/ADC4, settlement 2026-07-29):
+#   these numbers were hand-calibrated in the Opus 4.x era against the cl100k_base proxy.
+#   Claude 5 ships a NEW tokenizer (~+30% tokens on the same text for Sonnet 5), so both the
+#   proxy AND the cut-points are off. Treat every flag below as a RELATIVE signal (compare
+#   files against each other, watch the direction across a refactor) — do NOT quote the
+#   absolute numbers as a budget verdict until re-measured on the target model's tokenizer.
+#   Re-measurement is the fix; inventing new constants without measuring is not.
 DESC_HARD_LIMIT = 1024     # chars — Claude Code TRUNCATES the description beyond this
 DESC_TARGET = 320          # chars — trigger-focused target (what + when/$trigger + key do-NOT)
 SKILL_TOK_CONCERNING = 1500
