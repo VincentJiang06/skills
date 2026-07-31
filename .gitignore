@@ -50,3 +50,5 @@ skills/mp-groundline/scripts/validate-skill.mjs
 
 # one-off ClawHub publish helper (delete after use)
 finish-clawhub-publish.sh
+.env
+*.env
