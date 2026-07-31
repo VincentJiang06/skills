@@ -8,8 +8,8 @@ at use time on the real program.
 
 > `vince-mp` is a system dependency the sibling skill `mp-cli-sup` drives —
 > do **NOT** rebuild it. Subcommands below are confirmed against
-> `~/.claude/skills/.../mp-cli-sup/references/cli-contract.md` (or
-> `/Users/vince/playground/skill-developer/skills/mp-cli-sup/references/cli-contract.md`).
+> the `vince-mp-cli-sup` skill's `references/cli-contract.md` (installed next to
+> this skill; in the repo it lives at `../../mp-cli-sup/references/cli-contract.md`).
 
 ## The loop (per page)
 
