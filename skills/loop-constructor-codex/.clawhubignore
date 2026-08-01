@@ -1,0 +1,8 @@
+.skill-*/
+.acceptance/
+demo/
+evals/
+.DS_Store
+__pycache__/
+*.pyc
+.gitignore
