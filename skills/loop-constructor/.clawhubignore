@@ -11,3 +11,19 @@ __pycache__/
 *.log
 .gitignore
 .clawhubignore
+
+# loop-principle KB: only templates/ is referenced at runtime (SKILL.md);
+# the rest (5.4M of search indexes, docs, tools) is design-time provenance —
+# too heavy for the hub bundle (413) and never loaded by the skill.
+loop-principle/indexes/
+loop-principle/knowledge_graph/
+loop-principle/docs/
+loop-principle/tools/
+loop-principle/testing/
+loop-principle/reports/
+loop-principle/metrics/
+loop-principle/decisions/
+loop-principle/references/
+loop-principle/schemas/
+loop-principle/checklists/
+loop-principle/INDEX.json
