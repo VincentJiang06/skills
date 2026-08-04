@@ -30,12 +30,21 @@ const INSTALL_NAME_ALIASES = {
 };
 // Local install roots. Claude Code reads ~/.claude/skills; ~/.agents/skills is
 // the vendor-neutral location several runtimes honor; OpenAI Codex reads its own
-// ~/.codex/skills. All get the vince- prefix so a re-deploy keeps the three in
-// sync. Roots whose parent dir is absent are skipped (that runtime isn't set up).
+// ~/.codex/skills; Qoder reads ~/.qoder/skills. All get the vince- prefix so a
+// re-deploy keeps them in sync. Roots whose parent dir is absent are skipped
+// (that runtime isn't set up on this machine), so listing a runtime here is free.
+//
+// Runtimes deliberately NOT listed:
+//   - Kimi CLI: no skills dir of its own. ~/.kimi/config.toml sets
+//     `merge_all_available_skills = true` with an empty `extra_skill_dirs`,
+//     i.e. it merges the standard locations above — deploying there covers it.
+//   - ~/.qoderwork/skills, ~/.qoderworkcn/skills: product-bundled skill sets
+//     with no user-installed third-party skills; not ours to populate.
 const DEST_ROOTS = [
   path.join(os.homedir(), ".claude", "skills"),
   path.join(os.homedir(), ".agents", "skills"),
   path.join(os.homedir(), ".codex", "skills"),
+  path.join(os.homedir(), ".qoder", "skills"),
 ];
 
 const args = process.argv.slice(2);
