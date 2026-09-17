@@ -16,7 +16,7 @@ pandoc 缺失、或 xelatex 与 lualatex 都缺失、或无 CJK 字体 → 回�
 ## 固定命令（中文 / 中英混排）
 
 ```bash
-pandoc study/伴读/L09-Pipeline.md -o study/伴读/L09-Pipeline.pdf \
+pandoc study/L09-Pipeline.md -o study/PDF/L09-Pipeline.pdf \
   --pdf-engine=xelatex \
   -V mainfont="Noto Serif" \
   -V CJKmainfont="Noto Serif CJK SC" \
@@ -34,12 +34,12 @@ pandoc study/伴读/L09-Pipeline.md -o study/伴读/L09-Pipeline.pdf \
 
 ## 与排版约定的配合
 
-rules/format.md 只用 markdown 稳定子集正是为了这一步：文字标记【新】【延伸】、`$…$` 公式、`text` 围栏伪代码都能过 xelatex；mermaid 不能——导出前把 mermaid 退回缩进列表。表格超过 5 列、格里有长中文时 CJK 会溢出，导出前拆表或缩短格内文字（只改导出用的副本，不改源）。
+rules/format.md 只用 markdown 稳定子集正是为了这一步：文字标记【新】【延伸】、`$…$` 公式、`text` 围栏伪代码都能过 xelatex。`mermaid` 围栏不会被渲染成图，会原样留成代码块：不删、不改写，图后那段文字讲解保住信息（rules/format.md「示意图」），回复里说一句「PDF 里的 mermaid 示意图是代码块形态」；ASCII 示意图照常导出。同文件的「见附录 An」链接与回链用的是 HTML 命名锚点（rules/layout.md「链接写法」），经 xelatex 导出后很可能不能点；这一格本机没有 pandoc、未实测，导出后请明说「PDF 里的附录链接可能不可点，文字仍可读」。表格超过 5 列、格里有长中文时 CJK 会溢出，导出前拆表或缩短格内文字（只改导出用的副本，不改源）。
 
 ## 验证
 
 ```bash
-pdftotext study/伴读/L09-Pipeline.pdf - | grep -c "流水线"
+pdftotext study/PDF/L09-Pipeline.pdf - | grep -c "流水线"
 ```
 
 抽 3 个样本串 grep 回抽的文本：一段正文中文、一个公式里的符号、**一行代码块里的中文**（伪代码是中文写的，`for 每条指令 i：`——只验正文中文会漏掉代码块里的中文坏掉这一类）。都命中才算导出成功；否则报告缺哪一类。
