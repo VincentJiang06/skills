@@ -1,10 +1,12 @@
 # humanizer-academic
 
-> Rewrite academic prose to strip AI-writing signals — while keeping the scholarly register and never inventing facts.
+> Rewrite serious nonfiction (academic or serious popular science) to strip AI-writing signals — while keeping its register and never inventing facts.
 
 **English** · [简体中文](README.md)
 
-**What it does** — Rewrites academic / scholarly / professional prose (English, Chinese, or mixed EN-in-ZH) to remove AI-writing signals while preserving scholarly register and never inventing facts.
+**What it does** — Rewrites serious nonfiction (English, Chinese, or mixed EN-in-ZH) to remove AI-writing signals, never inventing facts. Two modes: `academic` (thesis, abstract, literature review, research or policy report; keeps the formal, hedged register) and `popsci` (serious popular science; keeps questions, analogy and "you", but an analogy may only gloss a mechanism the source states, never carry a claim it does not). Text that already reads human comes back unchanged.
+
+**Version status (4.1.0, candidate, not released)** — R20 incremental alignment: the detector's verdict is a hint that never decides whether to rewrite, and it is off the default path; the numeric fact-invention check compares numbers exactly; the popsci analogy rule is one sentence shared by the pack and the blind-judge rubric. Two-arm run (3 cases, same-model judge, not blinded): better fidelity than the bare model in 3/3, no humanness win (1 tie, 1 narrow loss), cost not measured by the pre-registered instrument. E11 therefore did not pass; the version is unmerged and unpublished. Open issues are listed in the CHANGELOG.
 
 **Why it's good** —
 - Removes signal on three layers — **lexical + structural + statistical burstiness** — not a word denylist.

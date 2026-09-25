@@ -4,14 +4,23 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
-## Candidate (not released) — pending E11 (target 4.1.0)
+## 4.1.0 — candidate, NOT released: E11 gate_failed (2026-09-25)
 
 Incremental alignment to the skill-philosophy KB v0.4.0 (R20 wave, 2026-09-25,
-built on claude-opus-5-5). `metadata.version` stays 4.0.0 until the pre-registered
-E11 two-arm run passes; on a pass this heading becomes `4.1.0` (minor: the S2
-settlement KEPT the contrast-frame quota, so default rewrite aggressiveness and the
-register floors are unchanged — the major-bump rule does not fire). On a non-pass
-the heading becomes `Candidate (not released) — <status>` and carries the evidence.
+built on claude-opus-5-5). Minor bump: the S2 settlement KEPT the contrast-frame
+quota and the F09 analogy rule tightens fidelity only, so default rewrite
+aggressiveness and the register floors are unchanged (the major-bump rule does not
+fire). **Status: the E11 two-arm run did not pass its pre-registered line (see
+"E11 result" below). This version stays on branch `upgrade/humanizer-academic`,
+unmerged and unpublished; shipped installs remain 4.0.0.**
+
+Versioning deviation, stated: the SkillSpec pre-registered "on a non-pass,
+`metadata.version` stays 4.0.0 and this heading reads `Candidate (not released)`".
+The conductor bumped anyway, because the branch content already differs in
+behavior from shipped 4.0.0 (detector off the default path, one analogy rule,
+exact numeric guard); one version number on two different contents breaks version
+discipline (iron law 5). "Not released" is carried by this heading and by the
+unmerged branch; whether 4.1.0 ships is the owner's call.
 
 ### Changed
 - **Detector verdict is evidence, never a trigger** (P13/S14, A50). SKILL.md
@@ -81,16 +90,94 @@ the heading becomes `Candidate (not released) — <status>` and carries the evid
   rule given, `unsure` allowed) rated the old example `fail` (6 new claims) and the
   new one `pass` (8/8 supported); run dir `battery/fixes/F09/`.
 
+- (conductor, docs only) `_meta.json` said 3.0.0 while SKILL.md said 4.0.0; both
+  now read 4.1.0. README.md / README.en.md "What it does" now names the `popsci`
+  mode that has existed since 4.0.0 (battery F16 part; owner README rule, A37).
+
+### E11 result (two arms, 3 cases, pre-registered in `arms/rubric.md` / SkillSpec S1–S4)
+WITH = this candidate; WITHOUT = bare claude-opus-5-5 with the skill explicitly
+disabled; one fresh judge, `unsure` allowed (iron law 6).
+- Case 1, academic EN (AI draft): WITH abstained (draft byte-identical, plus one
+  preface line of editorial suggestions, which strictly breaks "output only").
+  WITHOUT rewrote every sentence, gained nothing in humanness (a = tie, b = tie)
+  and drifted claims (Gibbs et al. 2023 relabelled "experimental", "do not all
+  agree" → "far from uniform", "points the same way" → "compatible conclusion").
+  Fidelity WITH pass / WITHOUT unsure leaning fail; (c) WITH.
+- Case 2, popsci ZH (AI draft): WITH removed the numbered-reason shell, the paired
+  scaffold and the bold bullets, keeping every number, study and hedge. WITHOUT
+  wrote a livelier colloquial version but kept the bullet shell and paired
+  scaffold and added small unsourced shifts ("底下", dropped "其次", "才有底气",
+  "只要"). (a) WITHOUT slight win, (b) tie; fidelity WITH pass / WITHOUT unsure
+  leaning fail; (c) WITH.
+- Case 3, popsci ZH (human text): WITH returned it verbatim with a one-line notice
+  (S3 substring check passes). WITHOUT silently converted traditional characters and
+  「」 quotes (S3 fails).
+- Pre-registered reading: **S1 fidelity pass** (0 WITH hard fails, (c) never
+  prefers WITHOUT); **S3 pass**; **S2 fails** — WITH did not beat WITHOUT on (a) in
+  2/2 AI cases (tie, then a slight WITHOUT win); **S4 not measured by its
+  instrument** — the arm folders hold tool-call counts, not stream-json
+  `total_cost_usd`/`duration_ms`. Tool-call ratio WITH/WITHOUT 1.1 / 1.9 / 1.1
+  (median 1.1, under the 3.0 ceiling) is a proxy only.
+- Procedure faults, recorded: the judge saw which folder was `with/`/`without/`
+  (not blinded); the calibration anchors were not recorded; several arms ran
+  across two sessions after a usage-limit interruption, and the case-2 WITH arm
+  re-checked its output against a SKILL.md that changed mid-run (the zipper
+  change).
+  MDE: 2 AI cases × 1 run, direction only.
+- Why not retire: WITH was preferred on fidelity in 3/3 cases and WITHOUT had a
+  fidelity problem in 3/3 (claim drift in 1 and 2, silent edits to human text in
+  3). The skill's measured value is fidelity and abstention, not humanness gain.
+  The SkillSpec's exit (c) ("S2 fails with no fidelity negative → retire") also
+  fires literally; the spec ranks gate_failed above it, and the R20 brief defines
+  retirement as "delta ≈ 0 and no fidelity value", which this result is not.
+
+### Battery (1 round, instance tier) and fix round
+- Independence: **instance** only — attacker, adjudicator, fixer and fix-auditor
+  are all fresh claude-opus-5-5 instances, same vendor and model as the builder.
+  Model deviation: the 2026-09-13 skill-creator-max policy (builder = Fable,
+  evaluators = Opus) was replaced by the owner's R20 instruction "every role on
+  Opus 5.5 high"; builder and evaluators share one model.
+- Seeds 5/5 hit (one per lens: coherence, gaming, evidence, reality, foundation).
+  12 real defects confirmed (2 × P2, 10 × P3), 0 P0/P1, 0 fully refuted; none in
+  code the candidate newly wrote (iron law 3 not triggered).
+- Fixed (one fix round, see Fixed above): F05 (P2), F09 (P2).
+- Fix-audit (one pass), all open, none fixed (fix budget spent):
+  - **P2** `popsci-pack.md` register-floor "EN — after" example (~l.157) still
+    asserts what its Before never states ("for the same reason a sunset is red",
+    short wavelengths scatter more). Under the new analogy rule it is a hard fail,
+    and it loads on every popsci rewrite.
+  - P3 `academic-pack.md` Step 3 still says "never invent … analogy", while the
+    rubric's both-tracks hard-fail list allows a gloss: pack and judge disagree on
+    the academic track.
+  - P3 `evals/worked/popsci-en-blackholes` notes keep the old analogy wording and
+    self-pass a rewrite with source-absent details (also battery F08).
+  - P3 the F05 guard still passes numbers that appear only in the ZH fixture's URL
+    hashes (e.g. 72, 3881) and numbers written as words; the popsci worked pair is
+    outside its pair list.
+  - P3 the vaccine example's Before is labelled "SUBTRACT done — hype gone" but
+    still says "incredibly bright".
+- Battery P3s left open: F02-R (borderline "change nothing else" vs required ADD),
+  F07 (worked-note scores are maker self-scores cited as verification), F08, F10
+  (dash quota lacks its EN qualifier and loads for ZH), F11 (one high-precision hit
+  in a short text gives `ai_like` in detect-only output), F12, F13 (runtime "same
+  facts" examples add facts), F14 (eval-cases cite non-existent check names),
+  F15 (rubric output schema lacks source/lift fields), F16 residue (worked notes
+  cite the old rubric path; structural-signals A6 vs popsci `MODE_DROP`).
+- `evals/` is gitignored in this repo, so the F05 script change lives only in the
+  local `evals/` copy; the exact patch is kept in the run directory.
+
 ### Erratum
 - 3.1.0's gate was re-targeted to whole-document completeness **after** the results
   were seen. That is a new pre-registration, not a pass of the original experiment;
   the 3.1.0 numbers below stand as measured, not as a pre-registered gate pass (E9).
 
 ### Known limits and debt
-- Unsettled since Opus 4.8 (X4): `popsci-pack.md` (except its Step 3 analogy rule and
-  worked example, F09), `structural-signals.md`, the rest
+- Unsettled since Opus 4.8 (X4): `popsci-pack.md`, `structural-signals.md`, the rest
   of `lexical-en.md`/`lexical-zh.md`, and the ADD moves — carried unchanged, to be
-  probed rule by rule at the next settlement.
+  probed rule by rule at the next settlement. (Correction by the fix-audit: the F09
+  fix showed one worked example complies with the analogy rule; it did not probe
+  whether a rewriter following the rule avoids invention, so the rule is not
+  settled either.)
 - Detector verdict thresholds are fitted in-sample on the same 27+22 corpus (X1);
   hence "hint", not verdict. Not recalibrated (would be an A50 event).
 - Settlement and E11 AI samples come from one generator (claude-opus-5-5); users
