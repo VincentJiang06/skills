@@ -20,7 +20,7 @@
 
 **What ships** — 1 `SKILL.md` + 5 `references/` (integrity policy / citation styles / paper structures / subjective rubric / verifier brief) + 4 deterministic scripts (`scripts/`: length / sections / citation-format / citation checklist + ledger-completeness gate, Python stdlib) + an eval harness.
 
-**Honest note (v0.2.4, status draft)** —
+**Honest note (v0.2.5, status draft, not release-ready)** —
 - **The 0.1.0 claim is corrected.** 0.1.0 described the ledger gate's exit code as something a draft could not fake. The ledger was filled in by the same agent that wrote the paper, so the claim did not hold; 0.2.0 corrected it.
 - **The verifier is instance-tier.** It is a fresh context of the same model family, not a different vendor. When the host cannot dispatch a subagent, the skill falls back to a self-pass and the reply says so.
 - **Two-arm comparison (E11, run on 0.2.0, N=3, direction only):**
@@ -33,9 +33,10 @@
 - **Battery:** 5/5 seeds were hit, and 3 P1 plus 5 P2 findings were fixed in 0.2.1. The fix audit then found 5 P2 findings **in 0.2.1's own new parser code**. With the owner's go-ahead, 0.2.3 dealt with four of them:
   - The crash on `[2024-01-15]` and the `[0, 1]` interval false positive: the grouped-marker parse is **reverted** to 0.1.0's behaviour. The cost is that PW-F10 is open again: an entry cited only inside `[1-3]` is reported as uncited.
   - False citations such as `Great Recession (2008–2009)` and `COVID-19 (2020)`: narrowed, so the year must be followed by `)` or by a page or second year.
-  - 0.2.3 also let lower-case surnames such as `hooks, b.` pass. The fix audit found that this code let an entry led by a bare initial (`E. Okafor`, `A. Brandt`) key as `e` / `a` and pass against "e.g." or the article "a". **0.2.4 reverts it.** An APA entry led by a lower-case surname fails again as `<UNKEYED>`, where the installed 0.1.0 passes it by silently skipping it. This one shape is worse than installed and is waiting for an owner ruling.
-  - On 31 neighbour-shape witness inputs, 0.2.4 is worse than the installed 0.1.0 on 3, all of them that shape. It is better on 5.
+  - 0.2.3 also let lower-case surnames such as `hooks, b.` pass. The fix audit found that this code let an entry led by a bare initial (`E. Okafor`, `A. Brandt`) key as `e` / `a` and pass against "e.g." or the article "a". **0.2.4 reverts it.** An APA entry led by a lower-case surname fails again as `<UNKEYED>`, where the installed 0.1.0 passes it by silently skipping it. This shape is worse than installed and is waiting for an owner ruling.
+  - On 31 neighbour-shape witness inputs, 0.2.4 is worse than the installed 0.1.0 on 3, all of them that shape, and better on 5. That set had no non-citation year followed by `,` `;` or `:`; the release check found that class too: `Hurricane Katrina (2005; category 5)` and `(2008, see below)` are read as orphan citations, where installed passes them (FA-1 residual).
 
-  Still open: wrong author matching when one Chinese clause names two authors (FA-5, not separable by position), plus P3 findings. The full lists are in CHANGELOG 0.2.4, 0.2.3 and 0.2.2.
+  Still open: wrong author matching when one Chinese clause names two authors (FA-5, not separable by position), plus P3 findings. The full lists are in CHANGELOG 0.2.5, 0.2.4, 0.2.3 and 0.2.2.
+- **Release check after round 3 (0.2.5): not release-ready.** No open P0/P1, harness 42/42, the offline workflow passes, and the crash and interval false positive equal installed. But on two shape classes the candidate is worse than installed 0.1.0 on a legitimate paper: an APA entry led by a lower-case surname (`hooks, b.`) and a non-citation year followed by `,` `;` or `:`. Both wait for an owner ruling, and the size budget (iron rule 4) allows no net code growth.
 
 Full mechanism in [SKILL.md](SKILL.md).

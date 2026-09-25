@@ -2,6 +2,89 @@
 
 All notable changes to the `paper-writer` skill. Semver.
 
+## [0.2.5] — 2026-09-25
+
+Round-3 close record. Documentation only → patch. No script, reference or SKILL.md behaviour
+text changed; only `metadata.version`, this entry and the two READMEs. Fresh
+finalizer/recorder instance. Decision Record: `runs/paper-writer/decision-record.json`
+(gates `battery` iteration 3 and `final_acceptance` iteration 2) in the R20 workspace.
+
+Owner ruling for the round (Vince, 2026-09-25, in chat): "这七个你都继续去做把他们做完". It
+authorized a third fix round under iron rule 3, scoped to finishing the release. Every other
+judgment was delegated to the conductor.
+
+Principle pointers for this entry:
+- The release verdict is recorded as measured, not as hoped: P10 (a written claim gains no
+  authority from being written) and O5 min-fold (the verdict never exceeds the evidence).
+- The corrected witness count below: P10, and the iron-rule-7 gotcha that a fixed probe set
+  misses shapes it does not contain.
+- No code after the audit's P1: iron rule 3 / A51 fired on round 3's own code, so the only
+  moves were reverts (0.2.4), and this entry adds none.
+
+### What round 3 did (0.2.3 fix, 0.2.4 fallback)
+- **FA-2 crash on `[2024-01-15]` and FA-3 interval FP `[0, 1]` / `[0, 255]`: closed by revert**
+  (`ed155b7`, iron rule 3 / A51 and S14 / A50(i): a group, a date and an interval have the same
+  form). IEEE and GB/T equal installed 0.1.0 on these shapes. Cost: PW-F10 re-opened, same as
+  installed.
+- **FA-1 year-range FP: closed for literal ranges by narrowing** (`f858513`, iron rule 2).
+  `Great Recession (2008–2009)`, `(2008-2009)`, `COVID-19 (2020)` and `GPT-4 (2023)` pass. A
+  residual stays open (below).
+- **FA-4 lower-case surnames: fixed in `bee5139`, then reverted in `e6ba225`.** The fix audit
+  found a P1 false pass in `bee5139` itself: entries led by a bare initial keyed as `e` / `a`
+  and matched "e.g." or the article "a". Iron rule 3 fired, so the fix was reverted, not
+  patched. Two full-revert alternatives (drop the UNKEYED fail; restore 0.1.0's `(YYYY)` check)
+  were measured and rejected: each re-opens a P1 (PW-F04 / PW-F08) or adds a false pass.
+
+### Round-3 fix audit
+- 1 P1 (false pass, in `bee5139`, round 3's own code) → reverted in 0.2.4.
+- P2: FA-4 only half closed in 0.2.3 (`(boyd & Ellison, 2007)` had no passing form). After
+  the revert this shape folds into the open FA-4 item below (it now also FAILs as UNKEYED).
+- P2: the FA-1 narrowing still accepts a year followed by `,` `;` or `:`. Open (below).
+
+### Release check: NOT release-ready (criterion 1 fails)
+The criterion was: every blocking item equal to or better than installed 0.1.0, no open
+P0/P1, harness green, offline workflow runs.
+- **Holds:** no open P0/P1 (the audit P1 is reverted; PW-F04 and PW-F08 still fixed); harness
+  42/42 (installed 28/28); the offline workflow on `demo/paper.md` passes length, sections,
+  citations and `--verify`; FA-2 and FA-3 equal installed.
+- **Fails, FA-4:** an APA entry led by a lower-case surname (`hooks, b. (2000)`, `boyd, d.`)
+  FAILs as `<UNKEYED>` with no passing form except capitalising the name. Installed passes it,
+  but only by never checking the entry (it also passes when the entry is uncited). This
+  finalizer re-ran the `hooks` probe: candidate FAIL, installed PASS. The UNKEYED message
+  still does not name the cause (the lower-case initial).
+- **Fails, FA-1 residual:** `Great Recession (2008, see below) and Hurricane Katrina (2005;
+  category 5) … Smith (2012)` FAILs with orphans `recession (2008)` and `katrina (2005)`;
+  `Hurricane Katrina (2005: landfall)` FAILs too. Installed PASSes both. This finalizer re-ran
+  the first probe: candidate FAIL, installed PASS.
+
+### Correction to the 0.2.4 entry
+- **"Worse than 0.1.0 on 3 of 31 witness shapes" held only on that probe set.** The 31 probes
+  had no non-citation year followed by `,` `;` or `:`, so the FA-1 residual above was not
+  counted. Measured against installed, 0.2.4 = 0.2.5 is worse on at least two shape classes:
+  APA lower-case lead (FA-4) and year-plus-punctuation non-citations (FA-1 residual).
+
+### Open, and what needs the owner
+- **FA-4, APA lower-case lead:** (a) accept the fail-closed cost (the P12 / PW-F04 principle
+  favours this), or (b) authorize a prose re-plane in which the writer notes the UNKEYED FAIL,
+  the verifier covers `<UNKEYED>` entries (it already receives them on the checklist), and
+  SKILL.md gets an explicit named exception route. Iron rule 3 has fired, so no further code
+  fix without that ruling.
+- **FA-1 residual:** a further narrowing must not grow code (iron rule 4: `check_citations.py`
+  is 294 lines, +38.7% over the pre-wave 212; harness 42 cases, +50.0%, at the line). The
+  owner also decides whether it blocks release.
+- **Carried, not regressions against installed:** FA-5 (CJK two-name clause), PW-F10
+  (grouped numeric markers unread, same as installed), FA-6..FA-11, battery P3 F13 F14 F15
+  F16r F18 F19 F21, the E11 uplift rule (not met), verifier calibration and pressure
+  sentinels (not run), instance-tier independence only.
+- **Better than installed:** the PW-F04 fail-open (invented non-ASCII author passes) is fixed;
+  Chicago and MLA author-date have a passing form (PW-F08); `van der Waals` passes; an
+  uncited `hooks` entry is caught.
+
+### Verification (this entry)
+- Harness `evals/harness.py` 42/42. Scripts unchanged since 0.2.4 (`check_citations.py` 294
+  lines, `scripts/` 693).
+- Decision Record `validate_decision.py` exit 0.
+
 ## [0.2.4] — 2026-09-25
 
 Revert only → patch. This is the fallback repair for the round-3 fix audit, under the same
