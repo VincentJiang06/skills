@@ -101,7 +101,9 @@ function readJsonSafe(file) {
   }
 }
 
-function walk(dir, exts, out) {
+// `skip` = absolute dirs the program excludes from its package (packOptions.ignore
+// folders); each one actually met is recorded in `skipped` so the skip is reported.
+function walk(dir, exts, out, skip = new Set(), skipped = []) {
   let entries;
   try {
     entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -113,7 +115,8 @@ function walk(dir, exts, out) {
     const full = path.join(dir, ent.name);
     if (ent.isDirectory()) {
       if (SKIP_DIRS.has(ent.name)) continue;
-      walk(full, exts, out);
+      if (skip.has(full)) { skipped.push(full); continue; }
+      walk(full, exts, out, skip, skipped);
     } else if (exts.some((e) => ent.name.endsWith(e))) {
       out.push(full);
     }
@@ -259,14 +262,27 @@ export function scan(root) {
 
   // resolve miniprogramRoot from project.config.json (if present)
   let miniprogramRoot = ".";
+  let packIgnore = [];
   const pcfgPath = path.join(absRoot, "project.config.json");
   if (fs.existsSync(pcfgPath)) {
     const { json } = readJsonSafe(pcfgPath);
     if (json && typeof json.miniprogramRoot === "string" && json.miniprogramRoot.trim()) {
       miniprogramRoot = json.miniprogramRoot.replace(/^\.\//, "");
     }
+    const ign = json && json.packOptions && json.packOptions.ignore;
+    if (Array.isArray(ign)) packIgnore = ign;
   }
   const mpAbs = path.resolve(absRoot, miniprogramRoot);
+  // Folders the program itself excludes from its upload package never ship, so
+  // their files (typically build output such as dist/) are not migration sites.
+  // Only type "folder" is honored; the path is relative to miniprogramRoot
+  // (project.config.json doc). Every skipped folder is reported in ignored_dirs.
+  const skipAbs = new Set();
+  for (const e of packIgnore) {
+    if (e && e.type === "folder" && typeof e.value === "string" && e.value.trim()) {
+      skipAbs.add(path.resolve(mpAbs, e.value.trim().replace(/^\.\//, "").replace(/\/+$/, "")));
+    }
+  }
 
   // locate app.json under the resolved root
   const appJsonPath = path.join(mpAbs, "app.json");
@@ -395,7 +411,8 @@ export function scan(root) {
   // worklet/custom_route detectors as `.js`/`.ts` so a `'worklet'` directive or a
   // `wx.worklet` / route token inside a `.wxs` is never silently dropped (the
   // rewrite-class guarantee). The CSS and WXML branches do not apply to it.
-  const files = walk(mpAbs, [".wxml", ".wxss", ".less", ".js", ".ts", ".wxs"], []);
+  const skippedAbs = [];
+  const files = walk(mpAbs, [".wxml", ".wxss", ".less", ".js", ".ts", ".wxs"], [], skipAbs, skippedAbs);
   // ignore .d.ts and test files lightly
   for (const file of files) {
     const name = path.basename(file);
@@ -568,6 +585,7 @@ export function scan(root) {
     ok: true,
     error: null,
     miniprogramRoot,
+    ignored_dirs: skippedAbs.map(rel).sort(),
     renderer_config: {
       renderer: appRenderer,
       componentFramework,

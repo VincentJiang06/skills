@@ -124,6 +124,9 @@ export function generate(scanResult) {
     push("- **Status:** app on WebView, but pages are pinned to Skyline (per-page adoption) — migration flips those page jsons (see §1), keeps workarounds, and surfaces rewrite items below.");
   }
   push("");
+  if (Array.isArray(r.ignored_dirs) && r.ignored_dirs.length) {
+    push(`- **Not scanned:** ${r.ignored_dirs.map((d) => `\`${esc(d)}\``).join(", ")} — \`packOptions.ignore\` folders (not in the shipped package).`);
+  }
   push(`- **Summary:** mechanical ${summary.mechanical || 0} · keep ${summary.keep || 0} · verify ${summary.verify || 0} · **rewrite ${summary.rewrite || 0}** · total ${summary.total || 0}`);
   push("");
 

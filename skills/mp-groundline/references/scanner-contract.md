@@ -28,6 +28,7 @@ and looks for `app.json` directly under it.
   "ok": true,                       // false only on a structured blocker (see Errors)
   "error": null,                    // string when ok=false, else null
   "miniprogramRoot": "miniprogram/",// resolved value (relative to root), or "." 
+  "ignored_dirs": ["miniprogram/dist"], // packOptions.ignore folders met and NOT walked (relative to root), sorted; [] if none
   "renderer_config": {
     "renderer": "skyline",          // "skyline" | "webview" | null (unset → webview default)
     "componentFramework": "glass-easel",   // or null
@@ -212,7 +213,14 @@ WXML: `.wxml`. Styles: `.wxss` **and** `.less` (Skyline projects often author
 JS-subset module language and is run through the same worklet/custom_route
 detectors (and the same comment-strip) so a `'worklet'` directive or `wx.worklet`
 token inside a `.wxs` is never silently dropped. Config: `app.json`, page `*.json`.
-`node_modules/` and `miniprogram_npm/` are skipped.
+`node_modules/` and `miniprogram_npm/` are skipped. So is every folder the
+program's own `project.config.json` `packOptions.ignore` lists with `type:"folder"`
+(path relative to `miniprogramRoot`, per the WeChat project.config doc): those files
+are not in the uploaded package, so they are not migration sites — typically a
+`dist/` build copy that would otherwise double every finding. Other ignore types
+(`file`/`suffix`/`prefix`/`regexp`/`glob`) are not honored. Each skipped folder is
+listed in `ignored_dirs` and in the MIGRATION-MAP header. Page-json renderer pins
+are still read from `app.json` regardless. (Eval: `scan_pack_ignore_folder`.)
 
 The whole `miniprogramRoot` tree is walked recursively, so source findings inside
 **subpackage** dirs and **custom component** files (`Component({...})`, not just
