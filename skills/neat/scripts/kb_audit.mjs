@@ -3,8 +3,8 @@
 //
 // Encodes neat-freak's prose invariants (SKILL.md 第零步/第四步) as machine-checkable
 // gates so "sync complete" can block on objective evidence instead of an eyeballed
-// `wc -l` / `grep` / `du`. The mechanism lives HERE and is IMPORTED by the eval
-// harness (evals/run_all.mjs) — never duplicated there.
+// `wc -l` / `grep` / `du`. The mechanism lives HERE. Release eval: the behavioral
+// cases in assets/eval-cases.json (kb_audit itself has no regression fixtures yet).
 //
 //   import { auditKb } from "scripts/kb_audit.mjs";
 //   const { violations, hardFail, skipped, summary } = auditKb(projectDir);

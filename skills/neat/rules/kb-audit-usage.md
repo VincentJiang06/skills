@@ -1,8 +1,9 @@
 # rules/kb-audit-usage.md — running the kb_audit linter
 
 The deterministic anti-bloat / anti-rot gate. Load this at 第零步 (preflight) and
-第四步 (verify). The mechanism is `scripts/kb_audit.mjs`; the re-runnable eval
-harness is `evals/run_all.mjs` (imports the mechanism, never re-implements it).
+第四步 (verify). The mechanism is `scripts/kb_audit.mjs`. The release-time eval is
+`assets/eval-cases.json` (behavioral cases + run protocol); kb_audit itself currently
+has no regression fixtures (the old harness was lost 2026-07-06 — known debt).
 
 ## Run it
 
