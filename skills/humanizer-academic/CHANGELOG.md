@@ -36,6 +36,17 @@ the heading becomes `Candidate (not released) — <status>` and carries the evid
     instance: 4/4/2; re-counted with an "unsure" exit: 3/4/2 certain). Stamp at the
     canonical residence (`academic-pack.md`), listing its five other residences.
 
+- **Typical-path compression: the detector is off the default path** (zipper; P1
+  context economy, Z2 per-path read tokens, A44 cost ceiling, P13 — a hint that
+  cannot decide has no seat on the decision path). SKILL.md Protocol opens with
+  the read order (this file + the draft until Step 1 decides to rewrite; no pack,
+  no detector run to triage); Step 0.4 and the Step 5 re-run fire only on a user
+  request for signals; Boundary gains one sentence saying so. Measured on the
+  three E11 WITH cases, before vs after, n=1 each: detector calls 2 → 0, total input tokens −35% / −25% / ±0 (case 1/2/3),
+  cost $0.657 → $0.627; decisions unchanged (abstain, rewrite, abstain; both
+  abstains byte-verbatim) and a blind judge rated the new case-2 rewrite
+  fidelity `pass`. Always-loaded SKILL.md +61 tokens.
+
 ### Fixed
 - SKILL.md Eval section named `run_all_checks.py`, which never existed; it now names
   the three real harnesses and says `evals/` is source-repo only (A37 provenance).
