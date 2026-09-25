@@ -4,14 +4,61 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
-## Unreleased
+## Candidate (not released) — pending E11 (target 4.1.0)
+
+Incremental alignment to the skill-philosophy KB v0.4.0 (R20 wave, 2026-09-25,
+built on claude-opus-5-5). `metadata.version` stays 4.0.0 until the pre-registered
+E11 two-arm run passes; on a pass this heading becomes `4.1.0` (minor: the S2
+settlement KEPT the contrast-frame quota, so default rewrite aggressiveness and the
+register floors are unchanged — the major-bump rule does not fire). On a non-pass
+the heading becomes `Candidate (not released) — <status>` and carries the evidence.
+
+### Changed
+- **Detector verdict is evidence, never a trigger** (P13/S14, A50). SKILL.md
+  Boundary gains one sentence: `verdict` and `abstain_recommended` are
+  in-sample-calibrated hints — never the reason to abstain or to rewrite, never a
+  loop target ("rewrite until `human_like`" → one rewrite, then stop), never an
+  authorship probability. Detector comments/docstring and the eval docs stop calling
+  `ai_like` "the rewrite trigger". Comment-only: detector stdout is byte-identical
+  (sha256) on all 98 corpus runs; no threshold, pattern or field changed.
+- **Blind-judge vocabulary `pass | fail | unsure`** (iron law 6⑥, E11/A44): a judge
+  that cannot decide from the texts (the source contradicts itself, a claim-strength
+  change it cannot settle) says so instead of being forced into pass or fail. The
+  marginal-lift check no longer calls the unedited source the "without-skill" arm —
+  it proves "better than the source"; the bare-model comparison is the separate E11.
+- **A42 settlement against Opus 5.5, rule by rule** (P11/Z8/A42, stamped A37):
+  - S1 `lexical-en.md` §6 — the two single-word bullets (34 words) are **deleted**:
+    a bare Opus 5.5 asked only to "make it read less like AI" removed 36/36
+    occurrences of 12 sampled listed words in 3/3 drafts, so the list no longer
+    changed behavior. Phrase tells and "never rewrite on word-presence alone" stay.
+  - S2 academic contrast-frame quota (≤1 per document) — **kept**: the same bare
+    model still left 4, 4 and 2 frames in 3/3 frame-dense drafts. Stamp at the
+    canonical residence (`academic-pack.md`), listing its five other residences.
 
 ### Fixed
-- `references/blind-judge-rubric.md` Track B pointed at `references/popsci-register.md`,
-  a file that stopped existing in 4.0.0 (the mode-split renamed it `popsci-pack.md`).
-  The rubric was carried over byte-identical in that rebuild, so the rename never
-  reached it — a dead link on the popsci judging path. Reference corrected; no
-  version bump (documentation-only, rubric semantics unchanged).
+- SKILL.md Eval section named `run_all_checks.py`, which never existed; it now names
+  the three real harnesses and says `evals/` is source-repo only (A37 provenance).
+- (folded from the former "Unreleased" note, a77b5be) `references/blind-judge-rubric.md`
+  Track B pointed at `references/popsci-register.md`, a file that stopped existing in
+  4.0.0; reference corrected to `popsci-pack.md` (documentation-only).
+- evals/README counts: 115/115 → 129/129 detector checks; AI corpus 10+10 → 11+11.
+
+### Erratum
+- 3.1.0's gate was re-targeted to whole-document completeness **after** the results
+  were seen. That is a new pre-registration, not a pass of the original experiment;
+  the 3.1.0 numbers below stand as measured, not as a pre-registered gate pass (E9).
+
+### Known limits and debt
+- Unsettled since Opus 4.8 (X4): `popsci-pack.md`, `structural-signals.md`, the rest
+  of `lexical-en.md`/`lexical-zh.md`, and the ADD moves — carried unchanged, to be
+  probed rule by rule at the next settlement.
+- Detector verdict thresholds are fitted in-sample on the same 27+22 corpus (X1);
+  hence "hint", not verdict. Not recalibrated (would be an A50 event).
+- Settlement and E11 AI samples come from one generator (claude-opus-5-5); users
+  bring GPT/Kimi/Gemini text (U3). The 2026-06 multi-vendor fixtures stay as
+  regression material.
+- Blind judge has no A22 gold-alignment record (X3); same-family judging is
+  instance-tier independence only (X6).
 
 ## 4.0.0 — Mode-split structural rebuild (2026-07-14)
 
