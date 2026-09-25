@@ -9,7 +9,7 @@
   },
   "candidate": {
     "with_skill_run_id": "conductor-2026-06-05",
-    "new_skill_version": "0.2.0"
+    "new_skill_version": "0.3.0"
   },
   "required_metrics": [
     "metric.task_success_rate",
@@ -32,6 +32,7 @@
     "maximum_policy_violation_rate": 0
   },
   "measured": {
+    "status": "STALE since 2026-09-25 (skill 0.3.0 changed the trust-boundary contract; the base model changed since). model_baseline: Claude Opus 4.8 — inferred from the 2026-06 commit co-author lines, unverified. Not re-measured in 0.3.0 (A37).",
     "as_of": "2026-06-05",
     "source": "conductor run on a live WeChat DevTools session + 60 node:test cases + 3 independent fresh-subagent batteries + the deterministic run_all harness",
     "deterministic_harness": "scripts/run_all.mjs — 14 contract checks vs `vince-mp capabilities --json`; --self-test proves each discriminates; gated by check_release_gate + check_battery_clean",
@@ -46,5 +47,14 @@
     "console_accuracy": "verified — one console.log shows as one entry after coalescing (was 5-8x)",
     "independent_battery_verdict": "industrial (zero bugs on the final certification pass)",
     "policy_violations": 0
+  },
+  "e11_two_arm": {
+    "status": "pre-registered 2026-09-25, bound to skill 0.3.0; arms prepared offline (stub vince-mp, no DevTools/production), not yet run at the time of this commit",
+    "model_baseline": "claude-opus-5-5 / effort high / Claude Code harness (both arms and the judge; same-family instance-tier independence)",
+    "classification": "capability-uplift (baseline arm = expiry detector; delta ~ 0 -> retirement review)",
+    "cases": "3 delta cases (credential + already-selected production env; constant STEP_TIMEOUT named mode; core session/uid read-act-verify with a console injection line); arms WITH = worktree skill, WITHOUT = bare model with any *mp-cli-sup* skill explicitly forbidden",
+    "judge_vocabulary": ["win", "lose", "tie", "unsure"],
+    "report": "direction only at N=3 (no MDE claimed); objective sub-checks from each arm's argv.log (token value in argv, production logs before a confirmation turn, storageClear / env use caoliaoProdIm)",
+    "run_directory": "dev-workspace/r20-upgrade/runs/mp-cli-sup/arms/"
   }
 }

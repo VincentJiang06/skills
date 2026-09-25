@@ -7,7 +7,7 @@ description: >-
   "$mp-cli-sup". NOT for browser automation, source-only edits, or non-WeChat
   work.
 metadata:
-  version: 0.2.2
+  version: 0.3.0
 ---
 
 # Vince Mini Program CLI Support

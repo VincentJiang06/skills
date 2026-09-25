@@ -4,7 +4,7 @@
   "skill": {
     "id": "skill.mp-cli-sup",
     "name": "mp-cli-sup",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "owner": "Vince",
     "source_uri": "skills/mp-cli-sup",
     "artifact_uri": "skills/mp-cli-sup",
