@@ -23,6 +23,11 @@
 5. **编排摩擦 + 同作者相关性** —— 一个 skill 免去跨 skill 交接；每角色**全新上下文派发**从构造上就把构建者和评判者去相关。
 6. **description / 可移植性** —— 六厂交集 schema + description 长度纪律 + 硬 anti-trigger。
 
+**v1.3.3（1.3.x 第 3 轮修复，owner 2026-09-25 授权，只修卡住发布的两项）** ——
+- **FA-1 已修**：`validate_decision` 只查上限——`effective_verdict` 不得高于 `min(re_audit, battery)`，不再要求相等。原来的相等判定在 `clean` 可达之后，会把 instance 档、只做冒烟测试或整轮作废的 clean battery 逼成 `industrial`，并拒掉如实写的 `candidate`。低于上限的封顶（档位不够、只做冒烟、整轮作废）由指挥官判断并写明原因；门 PASS 本身从不等于可以 `industrial`。在全部 35 份真实 Decision Record 上新旧结论一致，0 新误报。
+- **E11 产出物未达标项已用 prose 修**：SKILL.md §7 新增"面向 owner 的写法"——已有的记录属于 owner，只在原处追加、保留原格式、原来没记的值保持未知，不得转换或替换；对 owner 用白话说规则，内部编号（K3、A51）只放在括号里。尚未重跑 E11 验证。
+- SKILL.md 3,186 tok（上限 3,200）；脚本 2,220 → 2,236 行。
+
 **v1.3.2（R20 升级波的发布记录，行为不变）** —— 结论：有效等级 `candidate`，流水线 `stopped_unmet`，修复预算已用完。
 - **两臂 E11（3 例，只作方向参考）**
   - 保真度：带 skill 赢 2 例、平 1 例、输 0 例。

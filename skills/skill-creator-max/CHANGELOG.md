@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.3.3] — 2026-09-25
+
+**Fix round 3 of the 1.3.x line, authorized by the owner's ruling of 2026-09-25 ("这七个你都继续去做把他们做完")
+under iron rule 3; scoped to the two items that held 1.3.2 back.** A51(v): this round is counted, not
+reset by the bump. Fixer: fresh Opus 5.5 high instance (engineer pack). Not yet re-audited.
+
+- **FA-1 (P2, fixed): `effective_verdict` is a ceiling, not an equality.** `validate_decision` now
+  rejects only a verdict ABOVE `min(re_audit, battery_cap)`. It used to require equality, so once
+  1.3.1 made `clean` reachable, a clean battery at `instance` tier, smoke-only or all-void *forced*
+  `industrial` and rejected an honest `candidate`. The lower caps (tier below what the stakes need,
+  smoke-only grade, every run void) are not in the record's strings, so they stay a conductor read:
+  SKILL.md §5, `roles/battery.md` Output and the schema description now say the gate checks only the
+  ceiling and the conductor caps lower and records why. A PASS still never licenses `industrial` by
+  itself. Chosen over adding tier/grade fields to the schema: a new required field would break every
+  existing record, an optional one would fail open, and "what tier do these stakes need" is an A33
+  stakes judgment, not a string compare. The gate was identical in the installed 1.2.0 (so this is
+  not a regression vs installed; 1.3.1 only made the state reachable).
+  Red: `logs/r3-01-red-FA1.log`; regression: selftest sanity-pass "clean battery, conductor caps below
+  the ceiling"; false positives: 35/35 real decision records verdict-identical old vs new, 0 new
+  false positives (`fp/decision_fp.py`; none of the 35 is in the newly accepted state, so FP=0 is
+  guaranteed by that, not a stress of the new path). [O5 min-fold, A33, E9 smoke-only, battery
+  severity scale]
+- **E11 artifact miss (fixed in prose, not re-measured): owner-facing register** in SKILL.md §7. An
+  existing record is the owner's: extend it in place, keep its format, leave a value it never
+  recorded unknown; never convert or replace it. Rules are said in plain words, an internal ID only
+  in brackets after. Cause: in the 1.3.0 arms, case 2 WITH re-schemaed the owner's decision record
+  and back-filled assumed legacy values; case 1/2 WITH leaned on bare K3/A50/A51 IDs. No check added.
+  [A35 append-only + precedent PO-001 (no destructive replacement of an artifact), P10 (a value
+  needs a source), O2/O-L0 (the human adjudicator must be able to judge from the record)]
+- SKILL.md 3,144 -> 3,186 tok (<= 3,200): the two rules cost 42 tok net after lossless trims whose
+  detail lives in `roles/battery.md` (PROVE-OR-FLAG parenthetical, attacker provenance line) and the
+  parallel-dispatch parenthetical. Script lines 2,220 -> 2,236 (+0.9% vs 2,216 pre-wave baseline);
+  selftest fixtures 66 -> 67.
+- **Still open:** FA-2..FA-9 and the 15 battery P3s (unchanged); exemption register X1-X12; E11 not
+  re-run on 1.3.3 (the register rule is unmeasured until it is); independence remains `instance` tier.
+
 ## [1.3.2] — 2026-09-25
 
 **Release record for the R20 wave (1.2.0 → 1.3.2). No behaviour change in this patch**: only the
