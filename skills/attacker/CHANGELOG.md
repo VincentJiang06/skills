@@ -24,8 +24,11 @@ now does what its own text already promised; no contract change.
   0.8.1 ended the list at the first blank line after a bullet, so later bullets or `1.` lines in a
   loose list were lost with exit code 0 (0.7.0 loses them too). Now a blank line ends the list only
   when the next non-blank line is neither list-shaped nor indented. A blank-line tamper on a copy
-  of the full `Philosophy/` KB: 0.7.0 and 0.8.1 both read 72 probes with an unchanged summary;
-  0.8.2 recovers all 166.
+  of the full `Philosophy/` KB (blank line before each later `- ` bullet): 0.7.0 and 0.8.1 both read
+  72 probes with an unchanged summary; 0.8.2 recovers all 166. **Partial** (corrected at round-3
+  close): this holds only for the marker shapes `LIST_RE` knows (`-` `*` `•` `1.` `1)`). After a
+  blank line, other question-line shapes (`2、` `（2）` `②` `a.` `+`) are still dropped with exit 0,
+  exactly as in 0.7.0 — see *Still open*.
 - **FA-4 (P3) — no false positive on wrapped bullets.** 0.8.1 flagged an indented continuation
   line of a bullet as an "unrecognised falsifiable-question line". It is now appended to the
   previous probe (CommonMark continuation), so no text is dropped and no flag is raised. An
@@ -44,10 +47,53 @@ now does what its own text already promised; no contract change.
 - Gaming lens 768 → 796 tok cl100k (cap 1000). Golden samples 825 → 855 tok (logged in
   prove-or-flag.md §Rubric budgets). SKILL.md unchanged at 2995 tok.
 
-### Still open (P3, not blocking)
+### Still open
+- **FA-1 residual (P2, latent, not a regression; reported to the owner, not fixed).** Found by the
+  round-3 fix-audit, reproduced at close. A blank line inside a question list followed by a line
+  in a shape `LIST_RE` does not know (`2、q2`, `（2）q2`, `② q2`, `a. q2`, `+ q2`) still ends the
+  list, and that line is lost with `needs_human` empty and exit 0. Without the blank line the same
+  line is flagged (exit 1). 0.7.0 behaves identically on these shapes, and the real corpora contain
+  0 of them. The docstring's "never silently dropped" and the `LIST_RE` comment "any marker"
+  therefore overstate what the script does. It is the same defect class as FA-1, so iron rule 3
+  forbids a round 4 without a new owner ruling.
+- FA-6 (P3): `--selftest` only asserts whether `needs_human` is non-empty, never probe count or
+  text. A mutant that silently re-opens FA-1 (bullets removed from the blank-line peek) keeps it
+  7/7 green, so "3/3 mutants killed" above covers only the fixer's own three mutants.
 - FA-3: the "no shadow-principle" gap check in `mark_gaps` is node-wide, not per header.
 - FA-5: flags carry no severity field in `schemas/output.json`.
 - F08: a 0-node parse still exits 0. Plus the 10 other open round-1 P3s (see 0.8.1).
+- Iron rule 4 margin: the script is at 165 lines against a cap of 166 for this wave.
+
+### Round-3 close (finalizer record — no version bump: docs only, 0.8.2 is unreleased)
+Owner ruling (Vince, 2026-09-25, in chat): "这七个你都继续去做把他们做完". It authorized this third
+fix round under iron rule 3, scoped to finishing the release; all other calls were delegated to
+the conductor. The finalizer changed no behavior; it corrected the FA-1 claim above and recorded
+the evidence. Anchors: KB O5 (verdict = min of re-audit and battery), A51(i) (fix-audit stop
+signature), A37 (honesty), iron rules 3 and 7.
+
+- **Fixes and why each is a fix, not a revert.** FA-1 (`75aef94`): a line-shape peek, not a revert
+  of `d01f233`, because the revert would re-open F07 and leave FA-1 in place (0.7.0 has the same
+  break); anchors: SKILL.md AIM "unparsable fields surface as `needs_human`", A50, E5. FA-2
+  (`20f14d0`): prose, not a revert of `fb7cdaa`, because the revert restores the "do not report"
+  drop; it applies rules the skill already had (gaming.md finding definition, golden 14 and 15),
+  so no new contract; anchor: P10.
+- **Fix-audit (fresh instance) of `75aef94`, `20f14d0`: 1 P2 + 1 P3.** The P2 is the FA-1 residual
+  above (FA-1 partly closed). The P3 is FA-6 (selftest cannot see silent loss). FA-2: no finding.
+- **Release check: release OK.** Compared against installed 0.7.0 on the same inputs, 0.8.2 is
+  better or equal in every case and worse in none. Loose `- ` list: 0.7.0 keeps only q1, 0.8.2
+  keeps all. Blank line then `1.`: 0.7.0 drops silently, 0.8.2 flags. Wrapped line: 0.7.0 drops the
+  text, 0.8.2 joins it. After a blank line, `2、` and `+`: both drop, identically. Gaming lens: 0.7.0
+  drops governed gaps; 0.8.2 reports them, as a finding when a cheat beats the clause. No open
+  P0/P1. On the real corpora (`Philosophy/` whole, `guidelines/evaluation.md`, `tensions.md`) both
+  versions give identical summaries, exit codes and per-node probe text.
+- **Tests at close.** `extract_shadow_map.py --selftest` 7/7, exit 0. Build harness
+  `check_attacker_080.py` 23/25 (I3 and D14 fail by design: they pin 0.7.0 logic and version
+  0.8.0) and its selftest OK. `concept_anchors.py` 39/39.
+- **Verdict.** Effective verdict stays **candidate** (battery `breaches_found` at `instance`
+  tier). Release-ready at that level; the FA-1 residual goes to Vince as a known residual.
+- **Harness debt for the next wave.** I3 and D14 need re-pinning; I2 ("golden 1-14 byte-unchanged")
+  compares only the first line of samples 1–9 (it expects 4-space indents, they use 3), so it
+  stayed 14/14 even though golden 5 changed.
 
 ## [0.8.1] — 2026-09-25
 
