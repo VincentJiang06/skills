@@ -5,7 +5,9 @@ The D0–D7 procedure and the linter enforce the loop's *structure*. This file i
 not schema**, and so live here (and in the fresh-reader pass) rather than in
 `lint_loop_design.mjs`. Cite them when they drive a design choice.
 
-Source: Karpathy, *Field Notes on Agents That Run for Days* (`loops.md`, v060726).
+Source: *Field Notes on Agents That Run for Days* (`loops.md`, v060726) — widely
+attributed to Karpathy; the attribution is not first-hand verified (KB evidence
+registry grade C), so cite the notes, not the author.
 Each rule below names where it lands in the design.
 
 ## The nine rules → where each lands
@@ -27,7 +29,7 @@ Rules II, III, V are **structure** — the linter binds them (see
 routing order and triggers are judgment. Rules IV, VI, VII, VIII, IX are
 **judgment** — the rest of this file, checked by the fresh-reader, not the linter.
 
-Four disciplines from the skill-philosophy KB's H series (`guidelines/loops.md`
+Disciplines from the skill-philosophy KB's H series (`guidelines/loops.md`
 H2/H4/H7/H8 + `rules/constitution.md` A45/A46) are folded into the sections they
 belong to rather than bolted on as a tenth rule: the **write-surface** half of role
 separation (§II), **contract sizing as lower bounds** (§III), the **pre-registered
@@ -194,6 +196,14 @@ work stalling, and it restarts without a human. A fixer signature counts what ha
 *after* a fix was presented as done: the evaluator or attacker re-opens it — a new
 P0/P1 inside that fix, the same defect class again, another exception layer. Keep the
 two apart when writing the counters, or (v) will pre-empt every restart.
+
+**Where each counter is written.** The own-work stall counter lives on the stage:
+`on_failure: restart` plus that stage's failure string ("2 consecutive iterations
+fail in the same class"). Never put it in the outer `stop_conditions.failure` list —
+every outer failure entry renders as a terminal STOPPED_UNMET in the runbook, so a
+"→ restart" line there tells the executor to stop and restart at once. Only the
+exhausted restart budget ("2 restarts of one stage without going green") belongs in
+the outer failure list; the fixer signatures belong in `stop_conditions.escalate`.
 
 Tell the designed loop which plane each counter lives on: (ii) and (v) are counts
 over the git diff / round log (a script can fire them); (i) needs a severity call by
