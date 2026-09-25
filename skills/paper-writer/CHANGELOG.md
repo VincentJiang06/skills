@@ -2,6 +2,66 @@
 
 All notable changes to the `paper-writer` skill. Semver.
 
+## [0.2.3] — 2026-09-25
+
+R20 fix round 3, authorized by the owner ("这七个你都继续去做把他们做完"), scoped to the four
+blocking fix-audit items. Bug fixes and one revert → patch. Fresh fixer instance
+(instance-tier independence). Record: `runs/paper-writer/battery/FIXES-R3.md` in the R20
+workspace.
+
+Principle pointers for this entry:
+- Revert before a third patch of the previous round's code: iron rule 3 / A51.
+- Every edit narrows what the parser accepts, except FA-4, which widens only by a structural
+  fact (author-slot position, or membership in the reference list): iron rule 2, S14 / A50(i).
+- Prose before code, no net growth: iron rule 4. `check_citations.py` is 297 lines (298 at
+  0.2.2; 212 at the pre-wave `c2a922b`, so +40.1%). The harness stays at 42 cases: the
+  regressions live inside two existing fixtures.
+- False positives measured on the full corpus and on a neighbour-shape witness run: iron rule 7
+  and the 0.2.2 gotcha (a corpus-only run misses shapes the corpus lacks).
+
+### Fixed
+- **FA-2 (crash) and FA-3 (interval FP): reverted, not patched.** The grouped-marker parse of
+  0.2.1 is removed; IEEE/GB/T read single `[n]` only, as 0.1.0 does. `[2024-01-15]` no longer
+  crashes and `[0, 1]` / `[0, 255]` are no longer markers. A bracketed group has the same form
+  as a date or an interval, so no deterministic rule separates them.
+  **Re-opened: PW-F10.** An entry cited only inside `[1-3]` / `[1, 4]` is reported as uncited.
+  0.1.0 behaves the same way, so this is not a regression against the installed version. The
+  numeric block of `references/citation-styles.md` now tells the writer to cite each entry once
+  with its own `[n]` where its claim is made.
+- **FA-1 (year-range FP).** A narrative year now has to close the parentheses or be followed by
+  the `,` / `;` / `:` that opens a page or a second year. `Great Recession (2008–2009)`,
+  `World War II (1939-1945)` and `(2008/09)` are no longer citations; `Smith (2012, p. 4)` and
+  `(Smith, 2010, 2011)` still are. A year range cannot key a reference entry either, so no real
+  citation is lost.
+- **Digit-bearing names (found by this round's witness run, same 0.2.1 widening).** Name tokens
+  are letters, apostrophes and hyphens only, so `COVID-19 (2020)` and `GPT-4 (2023)` are no
+  longer read as citations. 0.1.0 passed both.
+- **FA-4 (lower-case surnames).** `hooks, b.`, `boyd, d.`, `d'Alembert, J.` and `al-Ghazali, A. H.`
+  now key and pass in APA, Chicago and MLA. A lower-case-initial token counts as a surname only
+  in a reference entry's author slot, or in running text when it is a listed reference surname,
+  so `(since 2010)` and `in (2019)` remain non-citations. An entry with no name or no year still
+  fails. The APA message now names both requirements.
+
+### Verification
+- Harness 42/42. Red first: 40/42 on the 0.2.2 scripts (the two repurposed fixtures).
+- Mutation: 7/7 round-3 mutants killed. The 0.2.1 set still kills 6/7 on its surviving anchors;
+  its accepted survivor (year suffix stripped from ids) is unchanged.
+- Corpus FP (demo + 6 arm papers + all fixtures): no verdict change outside the two regression
+  fixtures. The 4 existing ledgers gate identically.
+- Witness run (29 neighbour shapes, installed 0.1.0 vs 0.2.2 vs 0.2.3): 0.2.3 matches or beats
+  0.1.0 on every shape. 0.2.2 was worse on 12.
+
+### Still open
+- **FA-5 (P2).** In a Chinese clause that names two reference authors before one year, the run
+  maps to the earlier surname. 0.1.0 does not check CJK names at all (they are skipped silently,
+  the fail-open PW-F04 fixed in 0.2.1). Co-authors (`王某某和张某某（2020）`, lead = first) and an
+  unrelated first name have the same form, so it is not separable by position.
+- **PW-F10** (re-opened above), **FA-6..FA-11** and **F13 F14 F15 F16r F18 F19 F21** as listed
+  under 0.2.2. Residual kept from 0.1.0: a lower-case surname cited in running text with no
+  reference entry (`hooks (2000)`, nothing listed) is not detected.
+- The E11 uplift rule, verifier calibration and pressure sentinels are unchanged from 0.2.2:
+  not met or not run.
+
 ## [0.2.2] — 2026-09-25
 
 R20 wave-close record. Documentation only → patch: no script, reference or SKILL.md behaviour
