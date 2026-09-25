@@ -3,6 +3,87 @@
 All notable changes to this skill. Versioning is semver on the loop-design JSON
 schema the linter binds to: a new required field / renamed key is a breaking change.
 
+## 0.5.0 — 2026-09-25
+
+**Failure routing re-aligned to the skill-philosophy KB v0.4.0 (R20)** — non-breaking:
+no schema change, no linter/renderer change (`scripts/` byte-identical to 0.4.0), eval
+battery unchanged at **101/101**, linter verdict vector over the whole existing corpus
+(2 goldens, the frozen 0.3.0 fixture, 6 real-task designs) identical to 0.4.0. Every
+change is prose in the judgment layer, because each is a semantic call a regex cannot
+decide (KB P13 / S14: no new mechanical check).
+
+The recorded problem: 0.3.0/0.4.0 told every designed loop that "a top-severity defect
+lands inside the previous iteration's own fix → `restart`" and that a human is
+escalated to only for a wrong contract. KB R20 says the opposite — that signature means
+stop and ask the owner whether the judgment should be mechanized at all; restarting in
+the same plane only re-commits the defect. Because this skill writes other agents'
+runbooks, the stale rule was copied into every design it emitted.
+
+### Changed
+- **Four-exit routing with one order** (KB `guidelines/loops.md` **H4**,
+  `rules/constitution.md` **A51**) — `loops-model.md` §V now names each exit by what
+  the failure accuses (escalate = contract / task impossible-or-blocked / fixer;
+  re-plane = the judgment's execution plane; loopback = upstream artifact; restart =
+  own stalled work) and fixes the order **escalate → re-plane → loopback → restart,
+  first hit wins**. `loop-selection.md` D5 and the `loop-design-shape.md` restart
+  bullet apply it and point to §V (one rule residence).
+- **Fixer signatures are pre-registered escalate triggers** (**A51** (i)–(v),
+  generalized to coding loops): P0/P1 inside the previous fix (or a ≥P2 regression in
+  the fix area); fix-area growth >50% over the last green baseline (fix area, not the
+  whole diff); a third exception layer on one threshold; a second implementation copy
+  of one root cause; 2 fix rounds on one defect class per version. Each counter's
+  plane is stated (P13).
+- **Re-plane is the owner's disposition after the stop, not an action** (**H4** shadow
+  3, **P13**/**S14**) — every fixer-signature escalate carries the plane question
+  ("can a deterministic rule judge this stably at all?"); there is deliberately no
+  `re-plane` `on_failure` value, so it cannot become a channel around the round cap.
+- **The safe exit is never sealed** (**H4**) — "impossible / blocked → stop and
+  report" survives a "don't ask, keep going" instruction (recorded as a preference).
+- **Caoliao narrative corrected** (**H4**, H-series verdict 2) — the audit and the
+  attacker were present and read correctly; what was missing was the authority to stop
+  and re-plane, not a restart counter or more auditing.
+- **Harness settlement is two-way** (**P11**) — `loops-model.md` §VIII and the SKILL.md
+  Controls bullet: at each release delete what the model does for free **and** add
+  back that version's named failure modes (cited by path to KB
+  `adaptations/claude5-family.md`, as of 2026-09-24); every change stamped with
+  `model_baseline` (resolved model id + effort + harness version).
+- **Evaluator instruction files are part of the write surface** (**P10**, **K1**) —
+  `loops-model.md` §II: `CLAUDE.md`, `AGENTS.md`, `.claude/` rules, auto-memory and the
+  `.loop/` evaluator prompts are auto-read by a "fresh" evaluator, so they are kept
+  outside the generator's write surface or hashed and verified; otherwise the design
+  records the evaluator's independence as `L-i incomplete`.
+- **Fresh-reader checklist** — "Restart vs escalate" becomes **"Failure routing (§V)"**
+  (FAILs fixer-signature → restart/loopback, including a fresh-context restart; PARTIAL
+  for an escalate without the plane question; FAILs a sealed safe exit); new box
+  **"Evaluator instruction files outside the generator's write surface (§II)"**.
+- **Staged golden** (string edits only, keys unchanged, still 0 FAIL / 0 WARN): the
+  own-fix clause left the restart counter; a fixer-signature escalate (with the plane
+  question) and a safe-exit escalate lead the escalate list; a matching
+  `parameter_provenance.fixed` entry; `maker_checker.scope` states the instruction-file
+  hashing so the golden passes its own new checklist box.
+- SKILL.md stays under its 0.4.0 size (3,387 → 3,385 tokens): the 0.4.0 Lifecycle
+  paragraph moved verbatim into this file (below, under 0.4.0).
+
+### Compatibility
+- Every pre-0.5 lint-green design still exits 0 (no linter change). **Persisted pre-0.5
+  runbooks keep the old routing** and still lint green — only the fresh-reader §V box
+  catches them; re-review, don't auto-rewrite (the renderer never overwrites).
+
+### Carried as-is (A40 incremental alignment — exemption register)
+- E-1 `lint_loop_design.mjs` + `render_loop_doc.mjs` untouched · E-2 embedded
+  loop-principle KB (2026-07-06) not updated; it holds no contradicting routing text ·
+  E-3 description (347 chars > 320 target) unchanged, no trigger baseline yet · E-4
+  SKILL.md still over the 3,000-token target (not grown) · E-5 large reference files
+  carried · E-6 no A49 judgment ledger file · E-7 no `model_baseline` stamp on the
+  skill itself · E-8 install-level `search_index.json` size.
+- Residual (not in this version's scope): the fresh-reader "Harness earns its keep"
+  box still reads deletion-only; §VIII carries the two-way rule.
+
+### Sibling
+- `loop-constructor-codex` does not mirror 0.5.0 yet; its own upgrade must copy the §V /
+  D5 / restart-bullet / checklist / golden / §II / §VIII / Controls changes and add its
+  codex-specific `AGENTS.md` write-surface clause.
+
 ## 0.4.0 — 2026-08-20
 
 **Parameter provenance** (non-breaking; battery 69 → **99/99**). The recorded incident:

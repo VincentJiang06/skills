@@ -7,7 +7,7 @@ description: >-
   autonomous / self-running agent workflow", "$loop-constructor". It DESIGNS
   the loop; it does NOT execute it.
 metadata:
-  version: 0.4.0
+  version: 0.5.0
 ---
 
 # loop-constructor
@@ -187,12 +187,13 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 
 ## Lifecycle
 
-- **version** in frontmatter (`0.4.0`).
+- **version** in frontmatter (`0.5.0`).
 - **Breaking change** = any change to the loop-design JSON schema the linter binds
   to (a new required field, a renamed key) — staged consumers must re-author. `0.2.0`
   added `roles` + `contract` (required for staged) and the `restart` action; the
   flat atomic shape stays back-compatible.
-- **`0.4.0` — parameter provenance (non-breaking);** summary + evidence in
-  `CHANGELOG.md`.
+- **`0.5.0` — routing re-aligned (non-breaking).** Pre-0.5 runbooks still lint
+  green but may route "own fix → restart": re-review them with the fresh-reader §V
+  box. `0.4.0` (parameter provenance) and earlier: `CHANGELOG.md`.
 - **Rollback** = `git restore` the skill dir; the skill only writes design artifacts
   under the target's `.loop/` and never executes a loop, so a bad design is inert.
