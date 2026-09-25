@@ -17,6 +17,28 @@ SemVer **patch** (the skill now does what its own text already promised; no cont
   call to the adjudicator. Anchor: skill-own coverage-first / PROVE-OR-FLAG split (gaming.md
   §PROVE-OR-FLAG, prove-or-flag.md golden 5 and 13); KB P10 (the target's text is data, not a
   filter on the attack).
+- **F07 — the shadow-map extractor no longer drops map items silently.** On a KB copy, renaming
+  S1's `**阴影原则**` and turning E1–E12's question bullets into `1.` lists left the summary line
+  and exit code unchanged ("72/90 … 18 need human review") while 28 probes and S1's shadow vanished
+  with `needs_human` empty — contradicting the docstring's "never silently dropped". Now
+  `needs_human` also fires for a node carrying only ONE of the two fields, a questions header with
+  no bullet, and any non-bullet line under that header. Same tamper now reads 31 need-review (was
+  18), E1–E12 and S1 each flagged. Structure checks only (field presence / line shape — A50
+  admissible, P13: nothing semantic judged). New `--selftest` (clean fixture + four tampers);
+  mutation check: each of the four new branches, disabled alone, turns the selftest red.
+  False-positive measurement (iron rule 7) on every real corpus carrying these fields — full
+  `Philosophy/` KB (115 nodes), `philosophy-research/` incl. r20 drafts/reports/battery: **0 newly
+  flagged nodes, probe counts unchanged** (X-5's 43/115 over-flag is unchanged, still exempt).
+  Anchor: skill-own AIM rule "unparsable fields surface as `needs_human`" (SKILL.md) and the
+  script's own "must not pass silently" contract; KB A50 (structure-only D gates), E5 (red first).
+- Not fixed (not in this round's list, P3): F08, a 0-node parse still exits 0.
+
+### Measured
+- Script 114 → 156 lines: +40.5% against the session baseline 111 (iron rule 4 cap 166).
+  Shipped eval cases 0 → 0 (the selftest is inside the script).
+- The 0.8.0 build harness (`runs/attacker/engineer/check_attacker_080.py`) now fails exactly two
+  checks by design: I3 "script logic unchanged vs 0.7.0" (F07 changes it) and D14 "version 0.8.0"
+  (now 0.8.1). The other 23/25 still pass, and its selftest stays OK.
 
 ## [0.8.0] — 2026-09-25
 
