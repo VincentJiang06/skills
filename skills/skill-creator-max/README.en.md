@@ -23,6 +23,17 @@
 5. **Orchestration friction + correlated authorship** — one skill removes the cross-skill handoffs; **fresh-subagent dispatch per role** decorrelates builder from grader by construction.
 6. **Description / portability** — six-vendor-intersection schemas + description-length discipline + hard anti-triggers.
 
+**v1.3.4 (release record for repair round 3; no behaviour change)** — round 3 was authorized by the owner's ruling of 2026-09-25 ("这七个你都继续去做把他们做完"). Effective verdict: `candidate`, releasable at `candidate` (not `industrial`); pipeline: `stopped_unmet`.
+- **Round-3 audit** (instance tier): 2 P2, 1 P3, no P0/P1.
+  - P2, open: when every lens run misses its seed (all void), the battery counts nothing and is `clean` by definition, so the gate lets `industrial` through. Only the conductor's prose caps it. Proposed next-round fix: define "no valid run" as `not_run`.
+  - P2, present since 1.2.0: a `battery_verdict` or `re_audit_verdict` outside its enum (`Clean`, `None`, an annotated string) skips the ceiling check and lets `industrial` through. The installed 1.2.0 behaves the same, so it is not a regression.
+- **Fallback check:** round 3 introduced neither P2, so nothing was reverted. Undoing round 3 would only reopen FA-1.
+- **Release check passed:**
+  - FA-1 gate: on 13 cases the candidate never does worse than installed. An honest `candidate` is no longer rejected, and no new over-claim gets through.
+  - E11 cases 1 and 2, re-run once each (directional only): in case 2 the installed version rewrote the owner's record into its own format; the candidate extended it in place, with no internal rule IDs.
+  - All five selftests pass; harness 52/52.
+- **Known issue:** a gate PASS does not mean `industrial`. When every run was void, the tier is short, or only a smoke test ran, the conductor caps at `candidate` by hand; both verdict fields must be written exactly as the enum spells them.
+
 **v1.3.3 (repair round 3 of the 1.3.x line, authorized by the owner on 2026-09-25; only the two items that held the release back)** —
 - **FA-1 fixed:** `validate_decision` checks a ceiling: `effective_verdict` may not exceed `min(re_audit, battery)`; equality is no longer required. The old equality check, once `clean` became reachable, forced a clean battery at instance tier, smoke-only or all-void up to `industrial` and rejected an honest `candidate`. Caps below the ceiling (tier short of the stakes, smoke-only, every run void) are the conductor's call, recorded with the reason; a gate PASS alone never means `industrial`. On all 35 real Decision Records the old and new verdicts are identical: 0 new false positives.
 - **E11 artifact miss fixed in prose:** SKILL.md §7 adds an owner-facing register: an existing record is the owner's, so extend it in place, keep its format, leave a value it never recorded unknown, and never convert or replace it; tell the owner each rule in plain words, with an internal ID (K3, A51) only in brackets after. E11 has not been re-run to confirm it.

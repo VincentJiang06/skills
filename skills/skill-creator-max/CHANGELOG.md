@@ -1,5 +1,66 @@
 # Changelog
 
+## [1.3.4] — 2026-09-25
+
+**Release record for fix round 3. No behaviour change in this patch**: only the version string,
+this entry and the README notes move. Round 3 ran under the owner's ruling of 2026-09-25, quoted
+verbatim: "这七个你都继续去做把他们做完". Under iron rule 3 that ruling authorized a third fix
+round scoped to finishing the release; A51(v) counts it as round 3 of the 1.3.x line, and this
+bump does not reset the count. **Recorded verdict: effective `candidate`, release OK at
+`candidate` (not `industrial`), pipeline `stopped_unmet`** (two P2s from the round-3 audit stay
+open, see below). [S14 changelog as record, O5 min-fold, A51(v)]
+
+- **What round 3 changed (1.3.3, no reverts).** FA-1: `validate_decision` checks a ceiling, not
+  an equality (83fe8e9). E11 artifact miss: owner-facing register rule in SKILL.md §7 (a7e1744).
+  Principle pointers are in the 1.3.3 entry below.
+- **Round-3 fix-audit (instance tier, Opus 5.5 high, fresh context): 2 P2 + 1 P3, no P0/P1.**
+  - P2, open: **an all-void battery is vacuously `clean`.** `clean` means "no adjudicated P1/P2"
+    (`roles/battery.md` Output). A battery in which every lens run missed its seed has zero counted
+    runs, so nothing can breach, and the gate lets `industrial` through. Only the conductor prose
+    in SKILL.md §5 caps it. Proposed fix for a future owner-authorized round: define zero non-void
+    runs as `battery_verdict = not_run`, which the gate already caps at `candidate`. That is a
+    count, not a judgment. Not applied here, because a recorder patch may not change behaviour.
+  - P2, open, pre-existing: **the gate fails open on off-enum values.** A `battery_verdict` or
+    `re_audit_verdict` outside its enum (`"Clean"`, `"Candidate"`, `None`, or an annotated string
+    such as `"breaches_found (FA-1 P2 open)"`) skips the ceiling check, so `industrial` PASSes.
+    The installed 1.2.0 and 1.3.2 behave identically, so this is not a regression. It does mean
+    two statements overclaim: the script docstring ("industrial is allowed only when
+    battery_verdict==clean") and SKILL.md §5 ("checks only this ceiling").
+  - P3: one finding, recorded as open. Its full text did not reach the recorder.
+- **Fallback check: no revert.** The reverter asked whether round 3 introduced either audited
+  defect. It ran 8 cases on the real `validate()` of three copies: installed 1.2.0, 1.3.2
+  (a4c3bb6) and HEAD (e8a650c). All four off-enum cases PASS in all three. The honest-`candidate`
+  FA-1 case is REJECTed by installed and 1.3.2 and PASSes at HEAD. Over-claims (`breaches_found`
+  or `re_audit=candidate` with `industrial`) are REJECTed by all three. So undoing round 3 would
+  reopen FA-1 and fix nothing. Iron rule 3's stop condition (a P0/P1 inside the previous fix) did
+  not fire. Evidence: `runs/skill-creator-max/logs/r3-fallback/repro.log`.
+- **Release check: `release_ok = true` at `candidate`** (instance tier; a same-family L-i reading).
+  - FA-1 gate: 13 cases, same inputs to both copies. The candidate matches or beats installed on
+    every case: the rejection half is closed, and no new over-claim gets through.
+  - E11 re-run on cases 1 and 2, N=1 per version, `claude -p` on claude-opus-5-5 high, skills
+    disabled, own fixture copy per arm. Case 2: installed 1.2.0 re-schemaed the owner's decision
+    record and put the internal IDs O-L0 and E9 into it. The candidate (1.3.3 rules, unchanged in 1.3.4) extended
+    the record in place, with zero internal rule IDs, and refused to assume the unknown repair-round
+    count. Case 1: the candidate kept `score_tone.mjs` as a comparator and asked for a separate
+    `llm_judge` entry; installed relabelled it wholesale. Rule-ID leakage in the md deliverables
+    was 0 in all four arms. **This is directional only.** Case 3 was not re-run, there was no
+    WITHOUT arm (so the pre-registered E11 artifact criterion against a no-skill baseline is
+    still not re-measured), there were no token counts, and the judge was not blind.
+  - No open P0/P1. All five validator selftests exit 0 (13/12/15/7/9+2). Harness 52/52. The
+    `_pipeline` gates PASS on the real run artifacts, and so do the installed gates.
+- **Known issue (gotcha) until the next repair round:** a `validate_decision` PASS does not
+  license `industrial`. Two paths still PASS it: an all-void battery, and an off-enum
+  `battery_verdict` or `re_audit_verdict`. The conductor must (a) cap at `candidate` whenever
+  every lens run was void, or the tier is below what the stakes need, or the grade was smoke-only,
+  and (b) write both verdict fields exactly as the enum spells them before trusting the gate.
+- **Open residuals:** the two P2s and one P3 above; FA-2..FA-9; battery P3s F03, F04, F07, F08,
+  F09, F11, F15, F16-R, F17, F18, F19, F21, F22, F23, F25; exemption register X1-X12 (X6
+  full-pipeline E11 and X7 cross-vendor battery never run). FA-7: SKILL.md is 3,186 tok, over the
+  3,000 "BAD" architecture flag (cap 3,200 holds). Independence is `instance` tier throughout.
+- **Deploy note:** the source frontmatter says `name: skill-creator-max`. The installed copy uses
+  the `vince-` prefix, so the deploy step must apply it. The root README.md / README.en.md line
+  still says v1.2.0 (FA-8); updating it is the conductor's job at merge.
+
 ## [1.3.3] — 2026-09-25
 
 **Fix round 3 of the 1.3.x line, authorized by the owner's ruling of 2026-09-25 ("这七个你都继续去做把他们做完")
