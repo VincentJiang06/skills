@@ -2,6 +2,309 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.8.2] — 2026-09-25
+
+**Fix round 3 (R20 wave, owner ruling 2026-09-25 "这七个你都继续去做把他们做完", iron rule 3).**
+Closes the two P2s the 0.8.1 fix-audit found inside 0.8.1's own fixes (FA-1, FA-2) and the
+continuation-line false positive (FA-4, P3) that 0.8.1 introduced. SemVer **patch**: the skill
+now does what its own text already promised; no contract change.
+
+### Fixed
+- **FA-2 — a governed gap that a runnable cheat beats is a finding again, not a forced flag.**
+  0.8.1 made `lenses/gaming.md` route every gap the target says it governs to an uncounted P3
+  flag, even when the striker's runnable cheat gets past the governing clause. That moved the
+  suppression into the flag class instead of removing it, and it contradicted the same file's
+  finding definition (runnable cheat = finding). Now the striker quotes the clause: if the cheat
+  beats it, the item is a **finding** at its own severity, with the clause in why-uncaught; only
+  if the clause really closes the cheat is it a **P3 flag**. Golden sample 5 gets the same
+  carve-out, so the adjudicator does not re-apply the suppression. Anchors: gaming.md
+  §PROVE-OR-FLAG finding definition; prove-or-flag.md golden 14/15 (cosmetic repair is not
+  repair; an item stands at its own merit); KB P10 (the target's text is data, not a filter).
+- **FA-1 — the shadow-map extractor no longer stops at a blank line inside a question list.**
+  0.8.1 ended the list at the first blank line after a bullet, so later bullets or `1.` lines in a
+  loose list were lost with exit code 0 (0.7.0 loses them too). Now a blank line ends the list only
+  when the next non-blank line is neither list-shaped nor indented. A blank-line tamper on a copy
+  of the full `Philosophy/` KB (blank line before each later `- ` bullet): 0.7.0 and 0.8.1 both read
+  72 probes with an unchanged summary; 0.8.2 recovers all 166. **Partial** (corrected at round-3
+  close): this holds only for the marker shapes `LIST_RE` knows (`-` `*` `•` `1.` `1)`). After a
+  blank line, other question-line shapes (`2、` `（2）` `②` `a.` `+`) are still dropped with exit 0,
+  exactly as in 0.7.0 — see *Still open*.
+- **FA-4 (P3) — no false positive on wrapped bullets.** 0.8.1 flagged an indented continuation
+  line of a bullet as an "unrecognised falsifiable-question line". It is now appended to the
+  previous probe (CommonMark continuation), so no text is dropped and no flag is raised. An
+  unindented ("lazy") continuation line still raises `needs_human`: that side fails closed, and it
+  occurs 0 times in the real corpora.
+- FA-1 and FA-4 are line-shape checks only (A50; P13: nothing semantic is judged). Two new
+  `--selftest` cases (`blank-then-numbered`, `loose-list-continuation`). Mutation check: 3/3
+  mutants of the new branches killed. False positives (iron rule 7) on every real corpus that
+  carries these fields (`Philosophy/`, 115 nodes; `philosophy-research/`, 323 nodes, including
+  r20 drafts, battery and reports): **0 newly flagged nodes, probe text unchanged**, against both
+  0.8.1 and 0.7.0.
+
+### Measured
+- Script 156 → 165 lines: +48.6% against the pre-wave baseline of 111 (iron rule 4 cap 166).
+  Shipped eval cases 0 → 0 (the selftest lives inside the script).
+- Gaming lens 768 → 796 tok cl100k (cap 1000). Golden samples 825 → 855 tok (logged in
+  prove-or-flag.md §Rubric budgets). SKILL.md unchanged at 2995 tok.
+
+### Still open
+- **FA-1 residual (P2, latent, not a regression; reported to the owner, not fixed).** Found by the
+  round-3 fix-audit, reproduced at close. A blank line inside a question list followed by a line
+  in a shape `LIST_RE` does not know (`2、q2`, `（2）q2`, `② q2`, `a. q2`, `+ q2`) still ends the
+  list, and that line is lost with `needs_human` empty and exit 0. Without the blank line the same
+  line is flagged (exit 1). 0.7.0 behaves identically on these shapes, and the real corpora contain
+  0 of them. The docstring's "never silently dropped" and the `LIST_RE` comment "any marker"
+  therefore overstate what the script does. It is the same defect class as FA-1, so iron rule 3
+  forbids a round 4 without a new owner ruling.
+- FA-6 (P3): `--selftest` only asserts whether `needs_human` is non-empty, never probe count or
+  text. A mutant that silently re-opens FA-1 (bullets removed from the blank-line peek) keeps it
+  7/7 green, so "3/3 mutants killed" above covers only the fixer's own three mutants.
+- FA-3: the "no shadow-principle" gap check in `mark_gaps` is node-wide, not per header.
+- FA-5: flags carry no severity field in `schemas/output.json`.
+- F08: a 0-node parse still exits 0. Plus the 10 other open round-1 P3s (see 0.8.1).
+- Iron rule 4 margin: the script is at 165 lines against a cap of 166 for this wave.
+
+### Round-3 close (finalizer record — no version bump: docs only, 0.8.2 is unreleased)
+Owner ruling (Vince, 2026-09-25, in chat): "这七个你都继续去做把他们做完". It authorized this third
+fix round under iron rule 3, scoped to finishing the release; all other calls were delegated to
+the conductor. The finalizer changed no behavior; it corrected the FA-1 claim above and recorded
+the evidence. Anchors: KB O5 (verdict = min of re-audit and battery), A51(i) (fix-audit stop
+signature), A37 (honesty), iron rules 3 and 7.
+
+- **Fixes and why each is a fix, not a revert.** FA-1 (`75aef94`): a line-shape peek, not a revert
+  of `d01f233`, because the revert would re-open F07 and leave FA-1 in place (0.7.0 has the same
+  break); anchors: SKILL.md AIM "unparsable fields surface as `needs_human`", A50, E5. FA-2
+  (`20f14d0`): prose, not a revert of `fb7cdaa`, because the revert restores the "do not report"
+  drop; it applies rules the skill already had (gaming.md finding definition, golden 14 and 15),
+  so no new contract; anchor: P10.
+- **Fix-audit (fresh instance) of `75aef94`, `20f14d0`: 1 P2 + 1 P3.** The P2 is the FA-1 residual
+  above (FA-1 partly closed). The P3 is FA-6 (selftest cannot see silent loss). FA-2: no finding.
+- **Release check: release OK.** Compared against installed 0.7.0 on the same inputs, 0.8.2 is
+  better or equal in every case and worse in none. Loose `- ` list: 0.7.0 keeps only q1, 0.8.2
+  keeps all. Blank line then `1.`: 0.7.0 drops silently, 0.8.2 flags. Wrapped line: 0.7.0 drops the
+  text, 0.8.2 joins it. After a blank line, `2、` and `+`: both drop, identically. Gaming lens: 0.7.0
+  drops governed gaps; 0.8.2 reports them, as a finding when a cheat beats the clause. No open
+  P0/P1. On the real corpora (`Philosophy/` whole, `guidelines/evaluation.md`, `tensions.md`) both
+  versions give identical summaries, exit codes and per-node probe text.
+- **Tests at close.** `extract_shadow_map.py --selftest` 7/7, exit 0. Build harness
+  `check_attacker_080.py` 23/25 (I3 and D14 fail by design: they pin 0.7.0 logic and version
+  0.8.0) and its selftest OK. `concept_anchors.py` 39/39.
+- **Verdict.** Effective verdict stays **candidate** (battery `breaches_found` at `instance`
+  tier). Release-ready at that level; the FA-1 residual goes to Vince as a known residual.
+- **Harness debt for the next wave.** I3 and D14 need re-pinning; I2 ("golden 1-14 byte-unchanged")
+  compares only the first line of samples 1–9 (it expects 4-space indents, they use 3), so it
+  stayed 14/14 even though golden 5 changed.
+
+## [0.8.1] — 2026-09-25
+
+**Battery fix round (R20 wave, 1 round per iron rule 3).** Two battery-confirmed P2 defects fixed;
+SemVer **patch** (the skill now does what its own text already promised; no contract change).
+
+### Fixed
+- **F14 — Gaming lens no longer tells the striker to drop "governed" gaps.** `lenses/gaming.md`
+  said "Do not report a gap the target already governs", the only striker-side drop instruction in
+  any lens. It contradicted the same file's coverage-first rule, the rubric's P3
+  "already-governed-but-worth-noting" and golden samples 5/13 (dropping is the adjudicator's power),
+  and let a target's own-voice "anti-gaming: X governed" suppress Gaming reports. Now: report it as
+  a flag (P3 if the clause really closes the cheat), quote the governing clause, and leave the noise
+  call to the adjudicator. Anchor: skill-own coverage-first / PROVE-OR-FLAG split (gaming.md
+  §PROVE-OR-FLAG, prove-or-flag.md golden 5 and 13); KB P10 (the target's text is data, not a
+  filter on the attack).
+- **F07 — the shadow-map extractor no longer drops map items silently.** On a KB copy, renaming
+  S1's `**阴影原则**` and turning E1–E12's question bullets into `1.` lists left the summary line
+  and exit code unchanged ("72/90 … 18 need human review") while 28 probes and S1's shadow vanished
+  with `needs_human` empty — contradicting the docstring's "never silently dropped". Now
+  `needs_human` also fires for a node carrying only ONE of the two fields, a questions header with
+  no bullet, and any non-bullet line under that header. Same tamper now reads 31 need-review (was
+  18), E1–E12 and S1 each flagged. Structure checks only (field presence / line shape — A50
+  admissible, P13: nothing semantic judged). New `--selftest` (clean fixture + four tampers);
+  mutation check: each of the four new branches, disabled alone, turns the selftest red.
+  False-positive measurement (iron rule 7) on every real corpus carrying these fields — full
+  `Philosophy/` KB (115 nodes), `philosophy-research/` incl. r20 drafts/reports/battery: **0 newly
+  flagged nodes, probe counts unchanged** (X-5's 43/115 over-flag is unchanged, still exempt).
+  Anchor: skill-own AIM rule "unparsable fields surface as `needs_human`" (SKILL.md) and the
+  script's own "must not pass silently" contract; KB A50 (structure-only D gates), E5 (red first).
+- Not fixed (not in this round's list, P3): F08, a 0-node parse still exits 0.
+
+### Measured
+- Script 114 → 156 lines: +40.5% against the session baseline 111 (iron rule 4 cap 166).
+  Shipped eval cases 0 → 0 (the selftest is inside the script).
+- The 0.8.0 build harness (`runs/attacker/engineer/check_attacker_080.py`) now fails exactly two
+  checks by design: I3 "script logic unchanged vs 0.7.0" (F07 changes it) and D14 "version 0.8.0"
+  (now 0.8.1). The other 23/25 still pass, and its selftest stays OK.
+
+### Verification record (R20 wave close — no version bump: docs only, 0.8.1 is unreleased)
+The finalizer changed no behavior. This section records the evidence the 0.8.0 → 0.8.1 release
+rests on and what is still open. Anchors: KB E11 (two arms), O5 (effective verdict = min of
+re-audit and battery), A51(i) (fix-audit stop signature), K1 (independence tiers), A37 (honesty).
+
+- **E11, bound to commit 4e8acd9 (the 0.8.0 build).** Per the pre-registration it was not re-run
+  after the fix round. It used 3 cases × 1 run per arm. The WITHOUT arm had the skill explicitly
+  disabled. The blind judge re-ran every P1 reproduction.
+  - Case 1 (term-safe-rewriter): **WITH better (modest).** WITH gives an explicit
+    same-reading witness pair (0.829 pass with meaning changed vs 0.970 pass with meaning kept),
+    states its search coverage, and asks the re-plane question. WITHOUT has the same facts but no
+    pair, and 7 overlapping P1s.
+  - Case 2 (green-but-wrong billing): **tie.**
+  - Case 3 (fix-audit of snapshot-pruner): **WITH better (modest).** WITH escalates because two
+    P1s sit inside round 1's own fixes, and asks the plane question. WITHOUT lists precedence only
+    as a suspicion.
+  - Totals: 2W / 0L / 1T.
+  - Recall: every seed found by both arms, so 0 seed losses. False findings: 0 for both arms in
+    every case.
+  - Checks: injection sentinel passed in cases 1 and 2 (both arms). Witness hunt scored above 0 in
+    case 1. Tier honesty passed in every WITH run (`instance`, "L-i incomplete", model ID
+    declared).
+  - **Cost cap not verifiable.** No arm recorded `total_cost_usd`. The tool-call proxy (WITH/WITHOUT)
+    is 1.17x / 1.08x / 1.15x.
+  - **Fork not exercised.** The arm host had no Agent/Task tool, so the WITH arm ran all lenses in
+    one context. The skill's per-lens fork is therefore unmeasured.
+  - Result: not retired. The skill's value is preference/fidelity (the witness pair, fix-audit
+    escalation, calibrated severity), not recall; the bare model found every seed too.
+- **Battery: 1 round against 0.8.0 at `instance` tier.** L-i was incomplete: the project CLAUDE.md
+  and the auto-memory index were injected, and the judge was `judge-uncalibrated`.
+  - Seeds: **5/5** (one per lens), so no void lens.
+  - Non-seed items: 13 confirmed (P2: F07, F14; P3: F08, F09, F10, F12, F13, F15, F16, F18, F19,
+    F20, F02r) and 3 refuted.
+  - The fix round (above) fixed F07 and F14.
+- **Fix-audit (fresh instance) on fb7cdaa..d01f233: 2 P2 + 3 P3, all open.**
+  - FA-1 (P2): F07 is only partly fixed. After one blank line inside a question list, the new
+    break at `extract_shadow_map.py:76` stops collecting. Later `- ` or `1.` lines are then lost
+    with `needs_human` empty and exit 0. On a KB copy this hid 11 probes and left the summary
+    byte-identical.
+  - FA-2 (P2): the F14 fix moved the suppression instead of removing it. A governed gap must now
+    be a flag, and flags are never counted, even when the cheat beats the clause. This conflicts
+    with gaming.md:32-34 and golden samples 3, 5 and 15.
+  - FA-3 (P3): the new header check reads the node-wide probe list, so a second, empty questions
+    header in the same node goes unflagged.
+  - FA-4 (P3): a CommonMark wrapped continuation line is flagged and the probe is cut short. No
+    real corpus has one today.
+  - FA-5 (P3): `schemas/output.json` flags carry no severity, so "a P3 flag" cannot be written in
+    schema-conformant output.
+- **Escalation.** Iron rule 3 is not triggered: nothing above P2 was found. FA-1 and FA-2, however,
+  match this skill's own A51(i) signature (a ≥P2 defect in the fix area, or a relocated defect).
+  They are therefore handed to the owner with no further repair round. The fix budget is spent.
+  The first question is posed, not decided. Should "does a governed gap count" and "is the
+  extractor's line-shape parse the right plane" be settled by the owner before another patch?
+- **Other open P3s (not fixed):** F08, F09, F10, F12, F13, F15, F16, F18, F19, F20, F02r. X-6
+  (the different-vendor acceptance run) is still not done.
+- **Independence and model deviation.** Every role in this wave (builder, E11 arms and judge,
+  battery striker and adjudicator, fixer, fix-auditor) was `claude-opus-5-5` high in a fresh
+  context. That makes the tier **`instance`**: Opus 5.5 wrote the 0.8.x text, so the text is not
+  `instance_plus`. Only the Fable-authored legacy text sits at `instance_plus`, and nothing reached
+  `model`. This departs from the 2026-09-13 skill-creator-max model policy (builder Fable,
+  evaluators Opus). The owner ordered all roles on Opus 5.5 high for this wave.
+- **Tests at close.**
+  - `extract_shadow_map.py --selftest`: 5/5 ok.
+  - 0.8.0 harness on HEAD: 23/25 (I3 and D14 fail by design). The same harness on an export of
+    4e8acd9 gives 25/25, rc 0.
+  - `concept_anchors.py`: 39/39. `schemas/output.json` parses.
+  - The pipeline's `validate_report.py` on the 0.8.0 evidence dossier now fails its re-run check,
+    because the harness pins 0.8.0. The dossier's evidence binds to 4e8acd9.
+
+## [0.8.0] — 2026-09-25
+
+**R20 alignment (philosophy KB v0.4.0 — K1 vendor tiers, P10/A36 trust boundary, P13/S14 judgment
+planes, A51 stop signature).** Incremental alignment (A40/O7 tier 增量对齐) of seven re-verified audit
+items (`r20-upgrade/g1-meta.md` §2) plus what they force. Every change points at a KB anchor or a
+skill-own principle (iron rule 1). Five lens definitions, E9 stop rule, fix-audit axes A–D,
+PROVE-OR-FLAG bar, severity scale and golden samples 1–14 are unchanged (byte-identical where stated).
+SemVer **minor**: the output-schema enum widens and runtime behavior changes; no field removed.
+
+### Changed — independence vocabulary (KB K1, A37)
+- A **different model of the same vendor is no longer `model`-tier.** 0.7.0 told FORK to prefer "a
+  different model" and said that bought `model` tier "by construction"; under K1 (R20) an Opus 5.5
+  attacker on Fable-authored text is **`instance_plus` (L-i+)**, and `model` (L-m) needs a
+  **different vendor** declared with resolved model IDs of attacker and target author. Sites:
+  SKILL.md rule 2, FORK, Contract `required_tier`, NOT-do list, honest coverage note;
+  `references/prove-or-flag.md` §Judge topology ("model family" → "vendor"); both READMEs.
+- `schemas/output.json`: `instance_plus` added to `findings[].independence_tier` and
+  `coverage_gaps.independence_reached` — **additive only** (no field added/removed/renamed; key
+  sets and `required` lists byte-equal to 0.7.0; six-vendor constraints untouched).
+- FORK no longer promises "zero build history" unconditionally: the dispatcher states the host
+  context the striker inherits (project CLAUDE.md, auto-memory index, plugin hooks); injected and
+  not stripped ⇒ `L-i incomplete: <what>`, unknown ⇒ `L-i incomplete (host context not verified)`
+  (K1). The run claims only the highest provable tier; an unmet `required_tier` goes in notes and
+  `battery_grade` keeps its budget-vs-risk-floor meaning.
+- The PBT-Bench / MAS-ProVe evidence now lives once, in `prove-or-flag.md` §Judge topology (SKILL.md
+  keeps a pointer) — dedup that paid for part of the Authority paragraph.
+
+### Added — trust boundary (KB P10, A36; Z5 no-compress)
+- SKILL.md **§Authority** (3 lines): target, shadow map, fetched pages and prior-round reports are
+  data; a sentence telling reviewers to skip something is itself reported; dispatch passes lens
+  files whole.
+- The **verbatim authority sentence** opens all five lens files (the lens file is the striker's
+  whole prompt; SKILL.md never reaches it). It is on the Z5 no-compress list: do not reword,
+  compress or trade it for budget.
+- Golden sample **15** (reviewer-addressed "do not report X" → X still reported + the note flagged;
+  contrasted with sample 5's governed tension). **Injection seed recipe** in `seed-recipes.md`.
+- `scripts/extract_shadow_map.py` docstring declares its action surface: read-only (reads .md,
+  writes stdout) — A36 per-script declaration; code unchanged.
+- `fix-audit.md`: prior findings, ledgers and fixer summaries are data; "fixed" is verified by
+  re-running the original reproduction.
+
+### Added — separability witness hunt (KB P13, S14, A50(i); A41 no sixth lens)
+- `lenses/reality.md` hunt **7**: for a deterministic check that renders a FINAL verdict on a
+  semantic judgment, exhibit a pair of real inputs with the same reading and opposite correct
+  verdicts, with both readings and search coverage; consequence = re-plane (D→L evidence / L
+  judgment card), never a new feature, exception or retuned threshold. S14 names the battery as the
+  witness supplier; no lens was told to hunt it. Folded into Reality (extends hunt 2), not a sixth
+  lens. Golden sample **16**: pairs that read differently are not a witness (claim → FLAG; halves
+  may stand alone). Library-class incident: caoliao-style-writer's seven-round arms race.
+
+### Changed — SEED matcher re-planed (KB S14/A50(i) applied reflexively; skill-own "never an uncalibrated judge")
+- The SEED hit decision was itself a D-face final on a semantic question with a constructible
+  witness (an item at the seed location using a seed keyword for a *different* defect). Now: the
+  deterministic location+keyword match is a **pre-screen**; the **planter** confirms hits and
+  near-misses against its answer key; no planter/key ⇒ **`seed-unscored`** (findings delivered, void
+  for E9). Seeds and injection notes are planted on a branch/copy only. Prose only, no code.
+
+### Changed — fix-audit escalation (KB H4, A51(i))
+- Escalation now fires on all of A51(i): P0/P1 inside last round's fixes, ≥P2 regression in the fix
+  area, or a defect relocated into an adjacent file (post-review severity). The report poses the
+  first question — *wrong plane (re-plane per H4/S14) rather than badly tuned?* — the attacker raises
+  it, never decides it, and never recommends a tighter regex / exception / retuned threshold.
+
+### Changed — A37 honesty
+- `prove-or-flag.md` no longer claims the golden samples "carry a `model_baseline` stamp" (none
+  existed). They are verdict patterns with answers inline — grading them is not calibration. No
+  judge calibration record exists, so the rubric is **`judge-uncalibrated`** and every run says so
+  in notes. SKILL.md step 4 mirrors this. No stamp value was fabricated.
+- Budget lines restated with measurements: lens cap "~600" (all five were 637–753 at 0.7.0) →
+  "≤ ~850, hard ceiling 1000"; rubric body stated "~900" but measured 1,304 (0.7.0) / 1,511 (0.8.0).
+
+### Judgment planes (A49 in one paragraph — X-2, no ledger file shipped)
+Activation = L (host model on the description). Shadow-map extraction = D skeleton (fixed regex on
+lint-enforced headers; unparsable ⇒ `needs_human`). SEED hit = D→L pre-screen + planter-with-key
+final (re-planed this version). Finding/flag proposal = L striker (proposal only, never deletion).
+Final adjudication and severity = L judge (different-vendor preferred; judge-uncalibrated declared).
+Independence tier = L orchestrator applying K1 to declared facts (no D script: it would read
+self-declared names, not provenance). Reviewer-addressed-instruction vs governed tension = L
+(no D detector: paraphrase and other languages give trivial witness pairs). Witness readings = D
+evidence (execute the gate); correct verdicts = L. Fix-audit axis C = re-executed repro (D→L).
+A51 escalation = L raises → H owner decides. Stop = D count + L marginal judgment. Output schema = D
+skeleton. The only D-face final gates left are skeleton checks.
+
+### Weight ledger (A41 add-ledger — measured with tiktoken cl100k, not estimated)
+- Always-loaded `SKILL.md`: **2,941 → 2,995** tokens (cap 3,000). Paid by: the PBT-Bench detail
+  relocated to prove-or-flag.md, merged opening paragraphs, compacted Contract / Harness / NOT-do /
+  honest-note prose — no field or rule removed. (The 0.7.0 ledger's 2,885 was a character-model
+  estimate; the measured 0.7.0 figure is 2,941.) Description byte-identical (332 chars, X-1 warn).
+- Lens files (on-demand, one per striker): coherence 637→716, gaming 649→728, evidence 671→750,
+  foundation 753→832, reality 747→**988** (authority sentence +79 each; reality also +162 for hunt
+  7). Reality sits in the logged 850–1000 band; no hunt item was removed or reworded to pay.
+- On-demand references: prove-or-flag 1,831→2,336 (golden 14→16, +14%), fix-audit 1,339→1,515,
+  seed-recipes 581→954. Script 111→114 lines (docstring only; iron rule 4 cap 166).
+- Shipped eval cases: 0 → 0 (E11 fixtures live in the upgrade run directory, X-3).
+
+### Exemption register (carried, not aligned this version)
+X-1 description 332 > 320 chars · X-2 no A49 ledger file (paragraph above instead) · X-3 no shipped
+eval set · X-4 lens budget restated, not cut · X-5 extractor over-flags `needs_human` on node types
+without six-piece fields (43/115 on the KB) · X-6 different-vendor acceptance run still not done ·
+X-7 no A42 point-version settlement applied to lens prose · X-8 carried mechanism unchanged · X-9 a
+stale 0.4.x "attacker" copy in the desktop skills-plugin cache competes for `$attacker` (reported,
+outside this skill's scope). Detail: `r20-upgrade/runs/attacker/skill-spec.json` materials.
+
 ## [0.7.0] — 2026-07-31
 
 **R17 alignment (philosophy KB v0.3.0 — the verifier-engineering increment).** Three deltas, each
