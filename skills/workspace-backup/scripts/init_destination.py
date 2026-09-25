@@ -11,6 +11,12 @@ The marker carries dest_id, machine UUID, hostname, layout_version, created_at
 and nothing free-text, so no future reader can mistake its contents for
 instructions.
 
+Its flags are acts, not consent: --confirm, --ack-secrets and
+--adopt-foreign-marker are run only on the user's own words in the current chat
+(SKILL.md, widening keys). It never writes off_machine or delete_at_destination.
+When config.json cannot be written (e.g. a host sandbox denyWrite), it records
+nothing, prints the exact JSON for the owner to add by hand, and exits 30.
+
 Usage:
   init_destination.py --config C --dest-id ID --confirm
   init_destination.py --config C --dest-id ID --ack-secrets --confirm
@@ -92,6 +98,15 @@ def main():
               "certain this drive should now belong to this machine.")
         j.append("init_refused", dest=dest_id, verdict="FOREIGN_MACHINE")
         return guard.CONFIRM
+    if "CLOUD_SYNC_DESTINATION" in codes:
+        # INV-07: even a marker (machine UUID + hostname) would leave this Mac.
+        for a in g.get("anomalies") or []:
+            if a["code"] == "CLOUD_SYNC_DESTINATION":
+                print(f"[CLOUD_SYNC_DESTINATION] {a['message']}")
+        print("HELD. Nothing written. The owner declares off_machine: true for this destination "
+              "in config.json first; then run this again.")
+        j.append("init_refused", dest=dest_id, verdict="CLOUD_SYNC_DESTINATION")
+        return guard.CONFIRM
     if not confirmed:
         print(f"Would initialise destination {dest_id!r} at:\n  {_state.escape_untrusted(dest['path'])}\n"
               f"Setup never guesses a destination. Re-run with --confirm once that exact path "
@@ -118,15 +133,23 @@ def main():
               f"{_state.escape_untrusted(marker_path)} — left untouched")
 
     if ack_secrets:
-        ack = cfg.get("portable_secrets_ack") or {}
-        ack[dest_id] = {"acknowledged_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-                        "note": ("the user was shown the secret-bearing files and their "
-                                 "destination paths, and accepted that they will live on this "
-                                 "portable destination. Every run restates the count.")}
-        cfg["portable_secrets_ack"] = ack
-        _state.save_config(cfg)
+        kind = " and ".join(k for k, on in (("portable", dest.get("portable")),
+                                            ("off-machine", g.get("off_machine"))) if on) or "this"
+        entry = {"acknowledged_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                 "note": (f"the user was shown the pattern-matched secret-bearing files and their "
+                          f"destination paths, and accepted that they will live on this {kind} "
+                          f"destination. Every run restates the count.")}
+        ack = dict(cfg.get("portable_secrets_ack") or {})
+        ack[dest_id] = entry
+        try:
+            _state.save_config({**cfg, "portable_secrets_ack": ack})
+        except OSError as e:
+            print(f"config.json could not be written ({e}). Nothing was recorded. If that is your "
+                  f"sandbox lock on {cfg['_path']}, add this under \"portable_secrets_ack\" "
+                  f"yourself:\n" + json.dumps({"portable_secrets_ack": {dest_id: entry}}, indent=2))
+            return guard.CONFIRM
         j.append("portable_secrets_acknowledged", dest=dest_id)
-        print(f"recorded the one-time portable-destination secrets acknowledgement for {dest_id}")
+        print(f"recorded the one-time {kind}-destination secrets acknowledgement for {dest_id}")
     return 0
 
 

@@ -160,6 +160,7 @@ def build_plan(cfg, inventory, args):
         dests[did] = {
             "id": did, "path": d["path"], "state": state_name, "guard_exit": code,
             "portable": bool(d.get("portable")), "removable": bool(d.get("removable")),
+            "off_machine": bool(g.get("off_machine")), "off_machine_source": g.get("off_machine_source"),
             "same_physical_disk_as_source": bool(d.get("same_physical_disk_as_source")),
             "marker_valid": bool(g.get("marker_valid")),
             "container": g.get("container"),
@@ -181,7 +182,11 @@ def build_plan(cfg, inventory, args):
             anomalies.append({**a, "dest": did})
         j.append("dest_verdict", dest=did, verdict=state_name, exit_code=code,
                  path=d["path"], container=g.get("container"),
-                 anomaly_codes=[a.get("code") for a in (g.get("anomalies") or [])])
+                 anomaly_codes=[a.get("code") for a in (g.get("anomalies") or [])],
+                 off_machine=bool(g.get("off_machine")), off_machine_source=g.get("off_machine_source"),
+                 cloud_sync_root=g.get("cloud_sync_root"),
+                 pooled_volume_names=g.get("pooled_volume_names") or [],
+                 pooled_backup_role=bool(g.get("pooled_backup_role")))
 
     routable = [k for k, v in dests.items() if v["state"] == "CLEAR"]
 
@@ -333,17 +338,30 @@ def build_plan(cfg, inventory, args):
                 "routed": bool(live),
             })
 
-    # ---- portable-destination secrets acknowledgement (F5 / dispute D3)
+    # ---- secrets acknowledgement for a portable OR off-machine destination
+    #      (F5 / dispute D3-extended; INV-07: content leaves this machine only
+    #      where the owner said so). The ack key name is kept on purpose.
     ack = cfg.get("portable_secrets_ack") or {}
     for did, d in dests.items():
-        if d["state"] != "CLEAR" or not d["portable"]:
+        if d["state"] != "CLEAR" or not (d["portable"] or d["off_machine"]):
             continue
         # only the secrets actually routed HERE. Counting unrouted ones inflated
         # the consent prompt and then claimed, in every later report, that a file
         # living nowhere but the source was 'now at a second location'.
         here = [s for s in all_secrets if did in (s.get("dest_paths") or {})]
         n = len(here)
-        if n and not ack.get(did):
+        if n and not ack.get(did) and not d["portable"]:
+            blocked[did] = {
+                "code": "OFF_MACHINE_SECRETS_UNACKNOWLEDGED", "count": n,
+                "message": (f"{n} pattern-matched secret-bearing file(s) would be copied to "
+                            f"{d['path']}, which is off this machine ({d['off_machine_source']}): "
+                            f"content there syncs to an account or machine outside this Mac. They "
+                            f"are preserved by design, but the first copy needs a one-time "
+                            f"acknowledgement on the owner's own words: init_destination.py "
+                            f"--dest-id {did} --ack-secrets --confirm."),
+                "files": [s["source_rel"] for s in here],
+            }
+        elif n and not ack.get(did):
             blocked[did] = {
                 "code": "PORTABLE_SECRETS_UNACKNOWLEDGED", "count": n,
                 "message": (f"{n} secret-bearing file(s) would be copied to {d['path']}, which is "

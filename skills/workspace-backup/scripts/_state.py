@@ -168,11 +168,17 @@ def atomic_write_json(path, data):
     d = os.path.dirname(os.path.abspath(path))
     os.makedirs(d, exist_ok=True)
     tmp = os.path.join(d, f".{os.path.basename(path)}.tmp.{os.getpid()}")
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.flush()
-        os.fsync(f.fileno())
-    os.replace(tmp, path)
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    except OSError:
+        # a write-protected target (host sandbox denyWrite) must not leave debris
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
 
 
 def escape_untrusted(s):

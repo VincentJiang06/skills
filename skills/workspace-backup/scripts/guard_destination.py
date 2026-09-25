@@ -13,8 +13,10 @@ Exit codes (the contract every caller branches on):
                                   mount point. A NORMAL outcome, not an error.
   20  REFUSED_TIME_MACHINE      — no override exists. --force does not apply.
   21  REFUSED_INSIDE_SOURCE     — the destination resolves inside a source root.
-  30  REQUIRES_CONFIRMATION     — foreign machine, changed identity, or no
-                                  marker yet (first-run setup).
+  30  REQUIRES_CONFIRMATION     — foreign machine, changed identity, no
+                                  marker yet (first-run setup), or a known
+                                  cloud-sync root in the path that the owner
+                                  has not declared off_machine: true.
    2  usage error
 
 Usage:
@@ -61,6 +63,29 @@ BUNDLE_TM_EVIDENCE = ["backup_manifest.plist", "Backups.backupdb",
 # Machine?". It means the volume is explicitly NOT a TM store — the opposite of
 # what this guard used to conclude from it. Reported as data, never a refusal.
 TM_DECLINED_MARKER = ".com.apple.timemachine.donotpresent"
+
+# Where macOS keeps content that syncs off this machine: iCloud Drive under
+# Library/Mobile Documents, File Provider clouds (Dropbox, Google Drive, OneDrive,
+# ...) under Library/CloudStorage. Matched as a component PAIR on the realpath,
+# anywhere in it (dispute D-W1: testable on temp fixtures, sees through symlinks;
+# a copied home tree on another disk is the known false-positive class). A match
+# is "known cloud-sync root detected in the path", never proof of syncing, and
+# no match is never a certificate that a path is local (network shares, iCloud
+# Desktop & Documents and other sync clients carry no path signal).
+CLOUD_SYNC_ROOTS = (("Library", "Mobile Documents"), ("Library", "CloudStorage"))
+
+
+def cloud_sync_root(real_path):
+    """Pure: the known cloud-sync root whose component pair occurs in this
+    already-resolved path, or None. Case-folded, because realpath keeps the
+    case the user typed and the boot filesystem is case-insensitive."""
+    parts = [p.casefold() for p in str(real_path).split("/")]
+    for a, b in CLOUD_SYNC_ROOTS:
+        for i in range(len(parts) - 1):
+            if parts[i] == a.casefold() and parts[i + 1] == b.casefold():
+                return f"{a}/{b}"
+    return None
+
 
 KNOWN_MARKER_KEYS = {"schema_version", "dest_id", "machine", "hostname",
                      "layout_version", "created_at"}
@@ -388,6 +413,8 @@ def evaluate(cfg, dest, forced, plist_path=None):
         "removable": bool(dest.get("removable")),
         "same_physical_disk_as_source": bool(dest.get("same_physical_disk_as_source")),
         "force_requested": bool(forced),
+        "off_machine": False, "off_machine_source": None, "cloud_sync_root": None,
+        "pooled_volume_names": [], "pooled_backup_role": False,
     }
 
     # Read the marker FIRST, so a refusal below never swallows what else is here.
@@ -432,6 +459,34 @@ def evaluate(cfg, dest, forced, plist_path=None):
         anomalies.extend(marker_anoms)
         res["verdict"] = "REFUSED_TIME_MACHINE"
         return res, TM
+
+    # -- 2b. off this machine? Decided AFTER both refusals, so a cloud-shaped
+    #        path that is also TM-marked or inside a source keeps 20/21. It can
+    #        only ever route to the owner (exit 30), never refuse.
+    root = cloud_sync_root(os.path.realpath(path))
+    declared = dest.get("off_machine") is True        # JSON true only
+    res["cloud_sync_root"] = root
+    res["off_machine"] = bool(root) or declared
+    res["off_machine_source"] = ("both" if root and declared else
+                                 "detected" if root else "declared" if declared else None)
+    cloud_hold = bool(root) and not declared
+    if cloud_hold:
+        anomalies.append({
+            "code": "CLOUD_SYNC_DESTINATION",
+            "message": (f"known cloud-sync root detected in the path ({root}): {esc(path)} resolves "
+                        f"to {esc(os.path.realpath(path))}, so a copy there is expected to leave "
+                        f"this machine. Held (exit 30) until the owner declares off_machine: true "
+                        f"for this destination in config.json, on his own words in chat. Not a "
+                        f"refusal and not proof of syncing: a copied home tree on another disk "
+                        f"matches too, and the same declaration resolves it."),
+            "source": esc(path)})
+    if res["off_machine"]:
+        anomalies.append({
+            "code": "OFF_MACHINE_DESTINATION",
+            "message": (f"{esc(path)} is off this machine ({res['off_machine_source']}): what is "
+                        f"copied there leaves this Mac. Pattern-matched secret files need a "
+                        f"one-time acknowledgement before the first copy."),
+            "source": esc(path)})
 
     # -- 3. mount identity. os.stat().st_dev, never os.path.exists.
     exists = os.path.isdir(path)
@@ -505,6 +560,10 @@ def evaluate(cfg, dest, forced, plist_path=None):
             names = ", ".join(f"{esc(v)} ({esc(n)})" for v, n in
                               zip(info["volumes"] or [], info["volume_names"] or []))
             has_tm_role = any("Backup" in r for r in (info.get("roles") or {}).values())
+            res["pooled_volume_names"] = [n for v, n in zip(info["volumes"] or [], info["volume_names"]
+                                                            or []) if v != dev]
+            res["pooled_backup_role"] = any("Backup" in r for v, r in (info.get("roles") or {}).items()
+                                            if v != dev)
             anomalies.append({
                 "code": "SHARED_APFS_CONTAINER",
                 "message": (f"{esc(dev)} shares APFS container {esc(ref)} with {names}. Their "
@@ -557,7 +616,7 @@ def evaluate(cfg, dest, forced, plist_path=None):
                         f"pre-scan runs against the source either way."),
             "source": esc(path)})
 
-    if needs_confirm:
+    if needs_confirm or cloud_hold:
         res["verdict"] = "REQUIRES_CONFIRMATION"
         return res, CONFIRM
     res["verdict"] = "CLEAR"
@@ -684,13 +743,23 @@ def _selftest():
     else:
         fails.append("the captured real diskutil plist fixture is missing")
 
+    # 9. the cloud-sync root classifier is pure: roots found, look-alikes not
+    for pth, want in (("/Users/v/Library/Mobile Documents/com~apple~CloudDocs/B", "Library/Mobile Documents"),
+                      ("/Users/v/Library/CloudStorage/Dropbox/B", "Library/CloudStorage"),
+                      ("/Users/v/library/mobile documents/x", "Library/Mobile Documents"),
+                      ("/Volumes/X/Mobile Documents Backup/x", None), ("/Users/v/iCloud-notes", None),
+                      ("/Users/v/Library/CloudStorageOld/x", None), ("/Volumes/5TBofData/B", None)):
+        if cloud_sync_root(pth) != want:
+            fails.append(f"cloud_sync_root({pth!r}) = {cloud_sync_root(pth)!r}, want {want!r}")
+
     if fails:
         for f in fails:
             print("SELFTEST FAIL: " + f)
         return 1
-    print("guard_destination.py selftest: 11 checks (7 refusals incl. a TM-bearing bundle, "
+    print("guard_destination.py selftest: 12 checks (7 refusals incl. a TM-bearing bundle, "
           "3 non-over-refusals incl. an ordinary disk image and the DECLINED marker, measured "
-          "free space + case sensitivity, 1 pooled-container), each against a known-bad input, "
+          "free space + case sensitivity, 1 pooled-container, 1 cloud-root classifier), each against a "
+          "known-bad input, "
           "zero writes performed")
     return 0
 
