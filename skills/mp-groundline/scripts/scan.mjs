@@ -248,7 +248,7 @@ function snippetAt(src, index, len = 60) {
 export function scan(root) {
   const empty = { mechanical: 0, keep: 0, verify: 0, rewrite: 0, total: 0, already_migrated: false };
   const fail = (error, miniprogramRoot = ".") => ({
-    ok: false, error, miniprogramRoot,
+    ok: false, error, miniprogramRoot, ignored_dirs: [],
     renderer_config: null, findings: [], summary: { ...empty }
   });
 

@@ -191,7 +191,7 @@ backslashes (the last `\` is a severed escape lead) loses its last char; an
 When the program cannot be scanned, return:
 
 ```json
-{ "ok": false, "error": "app.json not found under <miniprogramRoot>", "miniprogramRoot": "...",
+{ "ok": false, "error": "app.json not found under <miniprogramRoot>", "miniprogramRoot": "...", "ignored_dirs": [],
   "renderer_config": null, "findings": [], "summary": { "mechanical":0,"keep":0,"verify":0,"rewrite":0,"total":0,"already_migrated":false } }
 ```
 
