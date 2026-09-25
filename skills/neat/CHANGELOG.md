@@ -35,6 +35,8 @@ All notable changes to this skill.
   `special-cases` 发布闸门、`kb-audit-usage.md`、`kb_audit.mjs` 头注释改指向它。
 - **SKILL.md** — frontmatter 加 `metadata.version: 1.3.0`（description 逐字未改）；第零 / 一 / 三 / 五步与 Controls
   段各改一行，与上面的契约一致。
+  另删去「特殊情况 / Lifecycle」「参考资料」两段——它们逐字重复 Modules 表里已有的三个指针，所链文件集合不变
+  （锚：P1 上下文经济 / Z2；SKILL.md 自述「薄编排层」）；常驻 2,982 → 2,793 token，低于 1.2.0 的 2,842。
 - **豁免登记（沿用未改，A40）**：X1 人设开场"像有洁癖一样"；X2"强制机械式枚举，漏一个不行"；X3"这是这个 skill 的灵魂"；
   X4 约 26 项自检清单（X1–X4 为 P11 结算候选，缺逐条裸模型证据，下个 Z8 结算）；X5 kb_audit 无回归夹具；
   X6 CLAUDE.md 软上限 ~300 行未按宿主"建议 200 行内"重标；X7 MEMORY.md HARD 门与宿主超限报错部分重复；
