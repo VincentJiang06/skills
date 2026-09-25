@@ -26,7 +26,7 @@ inventory  ->  guard  ->  plan  ->  [user go-ahead]  ->  copy  ->  verify  ->  r
 | 1 | `scripts/inventory.py --config C --out inventory.json` | measures the SOURCE; emits units, properties, and the UNCOVERED list. Read-only. Starts the run and flags any TORN previous run. |
 | 2 | `scripts/guard_destination.py --config C --dest-id D --json` | says NO. Runs for **every** destination before any writer exists. Cannot write — that is the point. |
 | 3 | `scripts/plan.py --config C --inventory inventory.json --out plan.json` | classifies A/B/C, routes to cleared destinations, **re-observes the destination for every unit the source fingerprint calls unchanged**, pools free space per container, emits the space verdict. Re-runs the guard itself. Writes nothing to any destination. |
-| 4 | — | **show the user `plan.json`'s byte totals, destination verdicts, any DESTINATION DRIFT lines and the space verdict, and wait for a go.** |
+| 4 | — | **show the user `plan.json`'s byte totals, destination verdicts, any DESTINATION DRIFT or `SPACE_ESTIMATE_LOWER_BOUND` lines and the space verdict, and wait for a go.** |
 | 5 | `scripts/copy.py --config C --plan plan.json --dest D --go` | moves bytes for the changed units. Without `--go` it is a dry run and writes nothing. |
 | 6 | `scripts/verify.py --config C --plan plan.json --dest D` | re-enumerates the destination independently and is the ONLY thing that can mark a unit safe. |
 | 7 | `scripts/status.py --config C` | renders the report. Every factual claim in your reply comes from here. |

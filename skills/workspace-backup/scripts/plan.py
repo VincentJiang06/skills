@@ -389,8 +389,14 @@ def build_plan(cfg, inventory, args):
             cap = dests[did]["capacity_bytes"] if cap is None else cap
             src = dests[did]["free_source"] if src is None else src
         planned = sum(dests[d]["planned_bytes"] for d in dids)
+        upper = sum(dests[d]["planned_bytes_upper_bound"] for d in dids)
         head = headroom_for(cap)
         fits = None if free is None else (planned <= (free - head))
+        # planned = unit bytes minus what the destination held: a LOWER bound
+        # once files were renamed or moved (rsync re-sends them). Gating on the
+        # upper bound would refuse every small edit to a 17 GB unit on a tight
+        # disk (over-refusal); saying it at step 4 is the proportionate form.
+        fits_upper = None if free is None else (upper <= (free - head))
         for did in dids:
             space[did] = {
                 "container": container, "pooled_free_bytes": free, "capacity_bytes": cap,
@@ -400,6 +406,7 @@ def build_plan(cfg, inventory, args):
                 "planned_bytes_upper_bound": dests[did]["planned_bytes_upper_bound"],
                 "shares_container_with": [x for x in dids if x != did],
                 "fits": fits,
+                "fits_upper_bound": fits_upper,
                 "note": ({
                     "apfs-container": ("free space is ONE pool for this APFS container; the "
                                        "figures for its volumes are the same bytes, not "
@@ -430,6 +437,18 @@ def build_plan(cfg, inventory, args):
                                 f"than warning: filling this container is how a backup damages "
                                 f"the system it was supposed to protect."),
                 })
+            if fits and fits_upper is False:
+                anomalies.append({
+                    "code": "SPACE_ESTIMATE_LOWER_BOUND", "dest": did,
+                    "message": (f"{did}: the plan fits on its estimate "
+                                f"({_state.human_bytes(planned)}), but renamed or moved files "
+                                f"are re-sent, and with delete-at-destination "
+                                f"{'ON' if cfg.get('delete_at_destination') else 'OFF'} the "
+                                f"old copies stay until pruned: up to "
+                                f"{_state.human_bytes(upper)} against "
+                                f"{_state.human_bytes(max(0, free - head))} usable. Show this "
+                                f"before asking for a go."),
+                    "source": "plan.py space verdict"})
             if src == "cli-override":
                 anomalies.append({
                     "code": "SPACE_VERDICT_OVERRIDDEN", "dest": did,
@@ -606,6 +625,9 @@ def main():
                           f"{_state.escape_untrusted(r['dest_drift'])} — re-copying")
         for did, b in plan["blocked"].items():
             print(f"  BLOCKED {did}: [{b['code']}] {b['message']}")
+        for a in plan["anomalies"]:
+            if a.get("code") == "SPACE_ESTIMATE_LOWER_BOUND":
+                print(f"  [SPACE_ESTIMATE_LOWER_BOUND] {a['message']}")
         for n in plan["needs_answer"]:
             print(f"  NOT CLASSIFIED {_state.escape_untrusted(n['id'])} — {n['reason']}. It is "
                   f"routed nowhere, so it is NOT backed up.")

@@ -186,6 +186,18 @@ with `SPACE_UNMEASURED`. It **refuses**, it does not warn, and it never passes
 what it never measured: filling this container is how a backup damages the
 system it was supposed to protect.
 
+**The byte figure it gates on is an estimate, and a LOWER bound.** For a changed
+unit it is the unit's bytes minus what the destination held at the last verify —
+right for an edit, too low after a rename or a move, because rsync re-sends
+those files and, with delete-at-destination OFF, the old copies stay. Gating on
+the worst case (every byte of every changed unit) would refuse a one-file edit
+to a 17 GB unit on a tight disk, run after run, so the gate keeps the estimate
+and `plan.py` says the rest: when the estimate fits but the upper bound does not,
+the space verdict carries `fits_upper_bound: false` and the plan prints
+`SPACE_ESTIMATE_LOWER_BOUND` with both figures. Show that line at step 4, before
+asking for a go; a user who just reorganised a large unit is the one who knows
+whether it applies.
+
 `plan.py --free-bytes-override` / `--container-capacity-override` exist for
 fixtures. Using either stamps `free_source: cli-override` into `plan.json`,
 journals a `space_override` event, and makes every report carry a
