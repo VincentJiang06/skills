@@ -291,8 +291,10 @@ export function scan(root) {
   const rendererOptions = appJson.rendererOptions && typeof appJson.rendererOptions === "object"
     ? appJson.rendererOptions : null;
 
-  // effective app renderer for diffing page overrides ("webview" is the default)
-  const effectiveAppRenderer = appRenderer || "webview";
+  // The migration TARGET is "webview" (also the default when renderer is unset).
+  // Page pins are measured against the target, not against the app renderer.
+  const TARGET = "webview";
+  const effectiveAppRenderer = appRenderer || TARGET;
   const isSkyline = appRenderer === "skyline";
 
   // app.json source for line numbers
@@ -363,17 +365,22 @@ export function scan(root) {
     const { json: pjJson } = readJsonSafe(pj);
     if (!pjJson || typeof pjJson !== "object") continue; // malformed page json → skip, no crash
     const pageRenderer = typeof pjJson.renderer === "string" ? pjJson.renderer : null;
-    if (pageRenderer && pageRenderer !== effectiveAppRenderer) {
-      page_overrides.push({ page, file: rel(pj), renderer: pageRenderer });
+    if (!pageRenderer) continue;
+    // A page pinned to anything but the target must be flipped, even when it
+    // equals the app renderer (a skyline page under a skyline app stays on
+    // Skyline after the app flip) and even when the app is unset/webview
+    // (per-page Skyline adoption). A webview pin under a skyline app needs no
+    // edit: it is listed in page_overrides (needs_flip:false) but is no finding.
+    const needsFlip = pageRenderer !== TARGET;
+    if (!needsFlip && pageRenderer === effectiveAppRenderer) continue;
+    page_overrides.push({ page, file: rel(pj), renderer: pageRenderer, needs_flip: needsFlip });
+    if (needsFlip) {
       const pjSrc = fs.readFileSync(pj, "utf8");
-      // Only a page that stays/forces skyline needs a mechanical flip; a page
-      // pinned to webview under a skyline app is ALSO a distinct mechanical
-      // delta the migration must reconcile. Either way it is its own finding.
       add({
         category: "page_renderer_override", action: "mechanical", severity: "low",
         file: rel(pj), line: lineOfKey(pjSrc, "renderer"),
         snippet: `"renderer": "${pageRenderer}"`,
-        note: `Page-level renderer "${pageRenderer}" differs from app-level "${effectiveAppRenderer}"; reconcile this page distinctly from the app flip.`
+        note: `Page pins renderer "${pageRenderer}" — flip this page json to "webview"; the app-level flip does not reach it.`
       });
     }
   }
@@ -549,7 +556,8 @@ export function scan(root) {
   for (const f of findings) {
     if (Object.prototype.hasOwnProperty.call(summary, f.action)) summary[f.action]++;
   }
-  summary.already_migrated = !isSkyline; // renderer already webview (or unset → webview default)
+  // already migrated only when neither the app nor any page is off the target
+  summary.already_migrated = !isSkyline && !page_overrides.some((po) => po.needs_flip);
 
   return {
     ok: true,

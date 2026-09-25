@@ -28,7 +28,7 @@
     },
     "minimal_diff": {
       "definition": "files touched + lines changed by the migration on a program; minimal is the success signal.",
-      "oracle": "the mechanical flip is ONE app.json edit (+ N page-json edits only where a page-level renderer override exists); keep rows produce zero edits.",
+      "oracle": "the mechanical flip is ONE app.json edit (+ N page-json edits only where a page json pins a non-webview renderer); keep rows produce zero edits.",
       "target": "as small as the scan's mechanical count; report it.",
       "measured": "real fixture: mechanical==1 (single app.json renderer flip), 0 page overrides → 1 file / ~1 line for the core flip."
     },

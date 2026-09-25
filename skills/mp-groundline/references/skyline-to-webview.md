@@ -26,7 +26,7 @@ below marks it Skyline-only.
 | Skyline config | WebView | Action | Evidence |
 |---|---|---|---|
 | `renderer: "skyline"` | `renderer: "webview"` (the default) | **mechanical** (the core flip) | S-CONFIG: renderer 可选值 webview(默认)/skyline |
-| page-level `renderer` override | reconcile per page | **mechanical** (distinct per page) | S-OVERVIEW FAQ: Skyline 支持按页面/分包粒度开启 → page json carries its own renderer |
+| page json pinned to `renderer: "skyline"` (any non-webview pin) | `"webview"` on that page | **mechanical** (distinct per page; the app flip does not reach it; a Skyline pin under an unset/webview app is still a migration target) | S-OVERVIEW FAQ: Skyline 支持按页面/分包粒度开启 → page json carries its own renderer |
 | `componentFramework: "glass-easel"` | supported on WebView | **keep** | S-CONFIG: glass-easel 是 Skyline 必需；WebView 亦支持 glass-easel |
 | `rendererOptions.skyline.*` (defaultDisplayBlock / defaultContentBox / disableABTest / tagNameStyleIsolation) | ignored by WebView | **keep** (or strip) | S-CONFIG: rendererOptions 嵌套在 rendererOptions.skyline 下，仅 Skyline 读取 |
 | `window.navigationStyle: "custom"` | native nav available, custom still works | **keep** | S-CONFIG: Skyline 必须 custom；WebView 两者皆可，保持一致就 keep |

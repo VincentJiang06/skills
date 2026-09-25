@@ -118,8 +118,10 @@ export function generate(scanResult) {
   push(`- **Current renderer:** \`${esc(rc.renderer || "(unset → webview)")}\``);
   if (summary.already_migrated) {
     push("- **Status:** ALREADY ON WEBVIEW — no renderer flip needed. The protocol STOPS before editing; the rows below are inventory only.");
-  } else {
+  } else if (rc.renderer === "skyline") {
     push("- **Status:** on Skyline — migration flips the renderer to WebView, keeps workarounds, and surfaces rewrite items below.");
+  } else {
+    push("- **Status:** app on WebView, but pages are pinned to Skyline (per-page adoption) — migration flips those page jsons (see §1), keeps workarounds, and surfaces rewrite items below.");
   }
   push("");
   push(`- **Summary:** mechanical ${summary.mechanical || 0} · keep ${summary.keep || 0} · verify ${summary.verify || 0} · **rewrite ${summary.rewrite || 0}** · total ${summary.total || 0}`);
@@ -137,12 +139,18 @@ export function generate(scanResult) {
   push(`| style | \`${esc(rc.style || "(unset)")}\` | \`${esc(rc.style || "(unset)")}\` | keep |`);
   push(`| lazyCodeLoading | \`${esc(rc.lazyCodeLoading || "(unset)")}\` | \`${esc(rc.lazyCodeLoading || "(unset)")}\` | keep |`);
   push("");
-  if (Array.isArray(rc.page_overrides) && rc.page_overrides.length) {
-    push("**Page-level renderer overrides (reconcile each distinctly):**");
+  const pinned = Array.isArray(rc.page_overrides) ? rc.page_overrides : [];
+  const toFlip = pinned.filter((po) => po.needs_flip);
+  if (toFlip.length) {
+    push("**Page-level renderer pins to flip to `webview` (the app flip does not reach them):**");
     push("");
-    for (const po of rc.page_overrides) {
-      push(`- \`${esc(po.file)}\` → renderer \`${esc(po.renderer)}\` (differs from app-level)`);
+    for (const po of toFlip) {
+      push(`- \`${esc(po.file)}\` → renderer \`${esc(po.renderer)}\` → \`webview\``);
     }
+    push("");
+  }
+  if (pinned.length > toFlip.length) {
+    push(`${pinned.length - toFlip.length} page(s) already pin \`renderer: "webview"\` — no edit needed (informational).`);
     push("");
   }
 

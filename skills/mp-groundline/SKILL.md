@@ -49,8 +49,10 @@ when the scan finds them. **Flag, never silently drop.**
 
 ### Preflight
 Resolve `miniprogramRoot` from `project.config.json`; locate `app.json`; confirm
-`renderer == "skyline"` (if already `"webview"` → report already-migrated, run the
-scan as a no-op inventory, and **STOP before editing**); confirm a clean git
+the program is on Skyline — app `renderer == "skyline"` **or** any page json
+pinned to `"skyline"` (per-page adoption counts). Only when the scan says
+`already_migrated` (app and every page on WebView) → report already-migrated, run
+the scan as a no-op inventory, and **STOP before editing**. Confirm a clean git
 working tree so the flip is revertible.
 
 ### Step 1 — Scan  → load `rules/scan-protocol.md`
@@ -68,7 +70,9 @@ Write `MIGRATION-MAP.md` **before any edit** so the plan is reviewable. Contract
 `references/scanner-contract.md`; mapping evidence: `references/skyline-to-webview.md`.
 
 ### Step 3 — Mechanical flip
-Edit `app.json` (and any page-level `renderer` override): `renderer → "webview"`.
+Edit `app.json` and every page json listed as a `page_renderer_override` (a page
+pinned to Skyline — the app flip does not reach it): `renderer → "webview"`. A page
+already pinned to `"webview"` needs no edit.
 Keep `glass-easel`, `style:"v2"`, `navigationStyle:"custom"`, `lazyCodeLoading`,
 per-page `disableScroll`; keep or strip `rendererOptions.skyline` (ignored by
 WebView).

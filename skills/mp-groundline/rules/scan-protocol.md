@@ -19,8 +19,8 @@ findings[], summary }`. On a blocker it prints a structured error and exits 1.
 
 ## The four actions
 
-- **mechanical** — the renderer flip (app-level) and any page-level renderer
-  override. The migration applies these automatically.
+- **mechanical** — the renderer flip (app-level) and every page json pinned to a
+  renderer other than `webview`. The migration applies these automatically.
 - **keep** — a Skyline-era workaround that still renders under WebView. Default
   for every workaround; consistency-first means leaving it alone.
 - **verify** — behavior may differ under WebView; confirm before/after with
@@ -70,13 +70,17 @@ findings[], summary }`. On a blocker it prints a structured error and exits 1.
   **not** blank a real declaration sharing its line.
 - **camera tap-mask → verify.**
 - **config:** `renderer:"skyline"` → exactly one `renderer_flip` (mechanical);
-  page-level `renderer` differing from app-level → a distinct `page_renderer_override`
-  (mechanical) at that page's json, **deduped by resolved path** so the same physical
+  a page json pinned to any renderer other than **the target `webview`** → a distinct
+  `page_renderer_override` (mechanical) at that page's json — measured against the
+  target, not the app renderer, so a Skyline pin under a Skyline app still flips and a
+  Skyline pin under an unset/webview app is a migration target (a `webview` pin under
+  a Skyline app is listed in `page_overrides` with `needs_flip:false`, no finding), **deduped by resolved path** so the same physical
   page listed under both `subPackages` and `subpackages` yields exactly one (distinct
   pages in different roots still each get their own); `componentFramework:"glass-easel"` → keep;
   `rendererOptions.skyline` → keep/strip note, never rewrite.
-- **already webview:** `renderer:"webview"` (or unset) → `summary.mechanical==0`,
-  `summary.already_migrated==true`; STOP before editing.
+- **already webview:** app `renderer:"webview"` (or unset) **and no page pinned to
+  Skyline** → `summary.mechanical==0`, `summary.already_migrated==true`; STOP before
+  editing. A program that adopted Skyline page by page is not already migrated.
 - **malformed/missing app.json →** `{ ok:false, error }`, a blocker (no crash, no
   silent empty scan).
 - **idempotency:** re-scanning an already-webview tree yields no new findings and

@@ -35,8 +35,9 @@ and looks for `app.json` directly under it.
     "navigationStyle": "custom",    // app.json window.navigationStyle, or null
     "lazyCodeLoading": "requiredComponents", // or null
     "rendererOptions": { "skyline": { ... } },  // raw object, or null
-    "page_overrides": [             // pages whose json sets renderer differing from app-level
-      { "page": "pages/foo/index", "file": "miniprogram/pages/foo/index.json", "renderer": "skyline" }
+    "page_overrides": [             // page jsons pinning a renderer: every non-webview pin
+                                    // (needs_flip:true) + webview pins under a skyline app (false)
+      { "page": "pages/foo/index", "file": "miniprogram/pages/foo/index.json", "renderer": "skyline", "needs_flip": true }
     ]
   },
   "findings": [
@@ -53,7 +54,7 @@ and looks for `app.json` directly under it.
   "summary": {
     "mechanical": 1, "keep": 7, "verify": 1, "rewrite": 0,
     "total": 9,
-    "already_migrated": false       // true iff renderer is already "webview" (or unset)
+    "already_migrated": false       // true iff app renderer is "webview"/unset AND no page needs_flip
   }
 }
 ```
@@ -118,7 +119,7 @@ the worklet and the custom_route pattern → one of each).
 | category | action | severity | granularity | trigger |
 |---|---|---|---|---|
 | `renderer_flip` | mechanical | info | once per program (app-level) | app.json `renderer:"skyline"` (exactly one) |
-| `page_renderer_override` | mechanical | low | once per **physical** page (deduped by resolved page-json path) | page json `renderer` differing from app-level. The resolved page set is **deduped by resolved path**, so the SAME physical page listed in both `subPackages` and `subpackages` (or in `pages[]` and a subpackage) yields **exactly one** override; distinct pages in different roots each still get their own |
+| `page_renderer_override` | mechanical | low | once per **physical** page (deduped by resolved page-json path) | page json `renderer` pinned to anything other than the target `"webview"` (a Skyline pin under a Skyline app included — the app flip does not reach it). A `webview` pin needs no edit and yields no finding. The resolved page set is **deduped by resolved path**, so the SAME physical page listed in both `subPackages` and `subpackages` (or in `pages[]` and a subpackage) yields **exactly one** override; distinct pages in different roots each still get their own |
 | `renderer_options` | keep | info | once per program | `rendererOptions.skyline` present (ignored by WebView; keep or strip) |
 | `component_framework` | keep | info | once per program | `componentFramework:"glass-easel"` (supported on WebView) |
 | `worklet` | rewrite | high | per matching line | worklet animation API/directive. **STRONG** signals (`wx.worklet`, a `'worklet'` directive, `applyAnimatedStyle`, `runOnUI`, `runOnJS`, `useSharedValue`) always fire. **WEAK** tokens (`Easing`, bare `timing(`/`spring(`/`decay(`) fire **only when the file also carries a STRONG signal** — a generic charting/animation lib reusing those bare names yields nothing (file-level gate, not a `wx.worklet.` prefix) |
@@ -199,7 +200,7 @@ wrapper prints the error JSON and exits non-zero.
 
 ## Idempotency
 
-Re-scanning an already-`webview` tree → `summary.mechanical === 0`,
+Re-scanning an already-`webview` tree (app and every page) → `summary.mechanical === 0`,
 `summary.already_migrated === true`, and **no** `renderer_flip` / `page_renderer_override`
 findings (the migration is not re-applied). Workaround `keep` findings may still
 appear (they are inventory, not edits).
