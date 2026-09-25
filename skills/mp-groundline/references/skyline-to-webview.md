@@ -36,11 +36,15 @@ below marks it Skyline-only.
 > the two `rendererOptions.skyline` switches opt into WebView's block / content-box
 > defaults (first-party: developers.weixin.qq.com/miniprogram/dev/framework/runtime/skyline/wxss.html,
 > fetched 2026-09-25). A program **without** them was laid out under flex +
-> border-box, so the flip changes the default layout of every node — a global shift,
-> not a per-page delta. The MIGRATION-MAP warns when either flag is missing. Verify at
-> Step 4 first; if the shift is confirmed and global, one `app.wxss` default rule that
-> restores the Skyline defaults is the smallest fix (`rules/minimal-fix-protocol.md`),
-> not edits page by page. Page jsons can carry their own `rendererOptions`.
+> border-box, so the flip changes the default layout of every node that ran on
+> Skyline. The MIGRATION-MAP warns when either flag is missing. Verify at Step 4 first.
+> Under a skyline app the shift is global: if confirmed, one `app.wxss` default rule
+> that restores the Skyline defaults is the smallest fix (`rules/minimal-fix-protocol.md`),
+> not edits page by page — then re-verify any page pinned to `webview`, which never ran
+> on Skyline but is reached by `app.wxss` too. Under **per-page adoption** (app unset /
+> webview) only the pinned pages shift: restore the defaults in those pages' own wxss,
+> never `app.wxss`, which would change the pages that were always WebView. Page jsons
+> can carry their own `rendererOptions`.
 
 ## Hard Skyline-only features (→ rewrite — no WebView equivalent)
 

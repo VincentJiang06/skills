@@ -144,15 +144,23 @@ export function generate(scanResult) {
   push("");
   // Skyline defaults every node to flex (column) + border-box unless these two
   // opt-ins are set; WebView defaults to block + content-box. Missing flags mean
-  // the flip changes the default layout of every node.
+  // the flip changes the default layout of every node that ran on Skyline — all
+  // of them under a skyline app, only the pinned pages under per-page adoption.
+  const pinned = Array.isArray(rc.page_overrides) ? rc.page_overrides : [];
+  // a 0.1.x scan has no needs_flip: fall back to "pinned to anything but webview"
+  const toFlip = pinned.filter((po) => po.needs_flip ?? po.renderer !== "webview");
+  const webviewPins = pinned.length - toFlip.length;
   const sky = (rc.rendererOptions && rc.rendererOptions.skyline) || {};
   const missing = ["defaultDisplayBlock", "defaultContentBox"].filter((k) => sky[k] !== true);
   if (!summary.already_migrated && missing.length) {
-    push(`> **Default layout shift:** app.json \`rendererOptions.skyline\` does not set ${missing.map((k) => `\`${k}: true\``).join(" / ")}. Skyline then lays nodes out as flex (column) with border-box; WebView uses block with content-box. Expect the flip to change the default layout of every node (page jsons may set their own rendererOptions). Check it first at Step 4; if the shift is global, one app.wxss default rule restoring the Skyline defaults is the smallest fix, not per-page edits.`);
+    const head = `> **Default layout shift:** app.json \`rendererOptions.skyline\` does not set ${missing.map((k) => `\`${k}: true\``).join(" / ")}. Skyline then lays nodes out as flex (column) with border-box; WebView uses block with content-box.`;
+    if (rc.renderer === "skyline") {
+      push(`${head} Expect the flip to change the default layout of every node (page jsons may set their own rendererOptions). Check it first at Step 4; if the shift is global, one app.wxss default rule restoring the Skyline defaults is the smallest fix, not per-page edits.${webviewPins ? ` ${webviewPins} page(s) pin webview and never ran on Skyline; an app.wxss rule reaches them too, so re-verify them after it.` : ""}`);
+    } else {
+      push(`${head} Per-page adoption: only the ${toFlip.length} page(s) pinned to Skyline change; pages that were always WebView do not. Check it first at Step 4; restore the Skyline defaults in the pinned pages' own wxss, not app.wxss (an app-wide rule would change the always-WebView pages).`);
+    }
     push("");
   }
-  const pinned = Array.isArray(rc.page_overrides) ? rc.page_overrides : [];
-  const toFlip = pinned.filter((po) => po.needs_flip);
   if (toFlip.length) {
     push("**Page-level renderer pins to flip to `webview` (the app flip does not reach them):**");
     push("");
