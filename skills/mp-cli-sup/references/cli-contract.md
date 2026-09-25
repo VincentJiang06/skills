@@ -48,11 +48,21 @@ idle-reaps itself. Every later command auto-starts a session if none is running.
 vince-mp doctor [--project <dir>] [--skip-typecheck] --json
 # checks: node, resolved project (miniprogramRoot-aware), wechat cli, tsc --noEmit,
 #         .ts/.js freshness, selected backend domain, local LAN IPv4
-vince-mp env list | current | use <key> | token <ADMIN_TOKEN>     # mockLan|caoliaoDevNet|caoliaoProdIm
+vince-mp env list | current | use <key> | token <t>   # keys mockLan|caoliaoDevNet|caoliaoProdIm (= data.cli.im, PRODUCTION)
+#   `token <t>` is run by the USER in their own terminal, never by the agent (see Token channel below)
 vince-mp logs --request-id <id> | --user-id <id> | --code <n> [--route r] [--since t] [--limit n]
 # POSTs <env.base>/admin/error-logs/list with Authorization: Bearer <token>
-# token from VINCE_MP_ADMIN_TOKEN or `env token`; pull a client failure's server-side error log.
+# pull a client failure's server-side error log from the CURRENTLY selected env.
 ```
+
+Token channel: the CLI resolves the admin token from `--token`, then `VINCE_MP_ADMIN_TOKEN`, then the value
+`env token` stored in `~/.vince-mp/config.json`. **The agent uses none of these with a value**: the user sets
+`VINCE_MP_ADMIN_TOKEN` in the environment that launches the agent, entered without echo or shell history
+(`read -rs VINCE_MP_ADMIN_TOKEN && export VINCE_MP_ADMIN_TOKEN`). `env token <value>` is not recommended to
+anyone: the value sits in argv (`ps`) and shell history. `ADMIN_TOKEN_REQUIRED` tells the agent the token is
+absent (name-only check); relay only its env-variable path to the human (older CLI hints also say "run
+`env token <token>`" — don't pass that part on), and don't act on the hint yourself. `env use` persists the selection across
+sessions; production-target envs and `logs` against them need an action-bound go-ahead (SKILL.md Core rules).
 
 ## One-shot / explicit-connection commands
 
@@ -130,8 +140,10 @@ network/canvas/camera instrumentation; no implicit file writes; no implicit Came
 
 ## Read/act caps & step-only actions
 
-- **`console`** returns the FIRST `pageSize` entries (default 50, oldest-first) of the ≤1000 buffer.
-  For recent/all logs use `console --page-size 1000` or `step '{"type":"listConsole","pageIdx":N}'`.
+- **`console`** returns the FIRST `pageSize` entries (default 50) of the message and exception buffers merged
+  and sorted **oldest-first**; each buffer keeps its most recent 1000, so `total` can reach 2000. For the newest
+  entries read `total`, then page from the end: `step '{"type":"listConsole","pageSize":200,"pageIdx":N}'` with
+  N = ceil(total/200) − 1 (`pageIdx` without `pageSize` pages at 50). `console --page-size 2000` returns all of it.
 - **Output path parent must already exist.** `shot`/`elementScreenshot`/`screenshot` write only under
   `--workspace-root`, AND the parent dir must pre-exist (the CLI does not `mkdir`) — else `PATH_NOT_FOUND`.
 - **Truncation.** `eval`/`sysinfo`/`scan` cap JSON at ~200KB and IGNORE `--max-bytes` (only `data`
@@ -146,18 +158,3 @@ network/canvas/camera instrumentation; no implicit file writes; no implicit Came
   `storageSet {"key","value"}` / `storageGet|storageRemove {"key"}` ·
   `elementTrigger {"uid","eventName","detail?"}` · `elementAttribute|elementProperty {"uid","name"}` ·
   `longpress {"uid"}` · `mediaAction {"action","options?"}`.
-
-## At-a-glance command map
-
-A grouped index of the surface above (load this section, or the SKILL.md skeleton, when you just need the shape; the sections above hold the exact schema):
-
-- **Session lifecycle:** `session start|status|stop|restart|reconnect` (auto-reconnects on a dropped connection; `reconnect` forces it).
-- **Read (instant):** `page`, `stack`, `data [path]`, `sysinfo`, `query <sel> [--all]`,
-  `snapshot <sel>`, `console [--clear]`, `eval '<expr>'`.
-- **Act (uids persist):** `tap <uid>`, `input <uid> <text>`, `scan <code> [--type t] [--method m] [--raw]`,
-  `shot <output>`, `nav <url>`, `step '<json>'` (any supported workflow step — see `references/cli-contract.md`), `run --stdin` (batch).
-- **Diagnose / cross-stack:** `doctor [--skip-typecheck]`, `env list|use <key>|current|token <t>`,
-  `logs --request-id <id> | --user-id <id> | --code <n>`.
-- **One-shot / special:** add `--no-session` to any shorthand (except `console`, whose buffer lives in the session daemon) for a single connect-and-exit;
-  `smoke-existing --ws-endpoint <ws>` (attach-only non-invasive); `screenshot`, `media`,
-  `capabilities`, `help`.

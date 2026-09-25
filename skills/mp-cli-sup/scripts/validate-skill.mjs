@@ -49,7 +49,8 @@ if (fs.existsSync(path.join(root, "SKILL.md"))) {
     if (!/^name:\s*(?:vince-)?mp-cli-sup$/m.test(frontmatter)) {
       errors.push("SKILL.md frontmatter name must be mp-cli-sup (or the vince-mp-cli-sup install name)");
     }
-    const descriptionMatch = frontmatter.match(/^description:\s*(?:>\s*\n([\s\S]*)|(.+))$/m);
+    // same parse as run_all.mjs skill_frontmatter (YAML block scalar indicators or a plain scalar)
+    const descriptionMatch = frontmatter.match(/^description:[ \t]*(?:[>|][-+1-9]{0,2}[ \t]*\n((?:[ \t]+.*\n?|[ \t]*\n)+)|(\S.*))/m);
     const descriptionText = descriptionMatch
       ? (descriptionMatch[1] || descriptionMatch[2] || "").replace(/\s+/g, " ").trim()
       : "";
