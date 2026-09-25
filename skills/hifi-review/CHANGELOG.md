@@ -1,5 +1,41 @@
 # Changelog
 
+## 1.1.1 — 2026-09-25 (R20 battery round 1 fixes)
+Patch: three battery-confirmed P2 defects where a tool reported success it had not
+earned. No new claim-text pattern, no new gate; each fix points to an existing rule.
+- **F04 technicality tag gate recognises the glossary's own ids** (accuracy-guardrails
+  "Provenance & dissent"; technicalities-from-reviews "Hard rule"; P13 for the limit).
+  `soundstage_high` / `resolution_high` / `imaging_high` (the Step-4 ids in
+  `signature-glossary.md` §5), `声场` and `Soundstage` tagged `measured` all passed.
+  Now `attribute` must be a canonical id (schema: lowercase snake_case — a closed enum
+  was rejected because it FAILs 3/3 real outputs of the 1.1.0 two-arm run), and any id
+  of the form `<technicality>[_qualifier]` must be `consensus`. The gate reads the tag,
+  not the sentence: an untagged or mis-tagged claim stays an L-plane Step 8 catch, now
+  said in the guardrails ledger (which wrongly called the field an "enum"), the
+  technicalities rule, the glossary and README zh/en. `schema_check.py` gained draft-07
+  `pattern`. False-positive run over all 14 existing evaluation JSONs (3 real arm
+  outputs, 5 witnesses, 6 fixtures): 0 verdict changes.
+- **F05 missing inputs become gaps, not verdicts** (accuracy-guardrails "Never
+  invent"). `source_analyze.py --target-z 32` without sensitivity/power returned
+  `hiss_risk low`, `drives_adequately false`, `max_spl_db 0.0`, no warning. Now those
+  verdicts stay `null` / `"unknown"`, the numbers are omitted, and a `missing_input:*`
+  warning names the gap; `source-analysis.schema.json` allows it; `source-gear-eval.md`
+  says to report it as a `gap`. Goldens and the recorded case-3 arm output replay
+  byte-identical.
+- **F06 the rig guard no longer passes silently** (accuracy-guardrails "Rig / target
+  compatibility"). Step 5 omitted `--rig`, and `unknown` skipped every rig check; the
+  `compare.py` docstring taught `--rig-a 711` (→ spurious `711 != iec711`). Now
+  `fr_analyze` (and so `compare`) warns `rig_unknown` / `rig_unrecognized`, the
+  docstring uses `iec711`, SKILL.md step 5 and the scripts table pass `--rig`, and
+  guardrails / comparison-mode say a skipped guard is a caveat, never "compatible".
+  This corrects the 1.0.0 wording "enforce": the engines enforce only when told the rig.
+  Goldens and the three recorded case-1 engine outputs replay byte-identical.
+- Dev runner: fixture `eval_bad_glossary_id.json` + a missing-input layer; each new
+  assertion was mutation-checked (restoring the 1.1.0 code turns it RED).
+Not fixed here (battery P3s, not in this round's fix list): F03, F08-residual, F09,
+F11, F12, F13. Observed: `hiss_risk "medium"` still derives from sensitivity alone when
+`--snr` is absent (the case-3 WITH arm flagged it as a gap by hand) — F12 territory.
+
 ## 1.1.0 — 2026-09-25 (R20 incremental alignment, A40/O7)
 Minor: the self-verify gate's contract changes (one FAIL rule removed). Description,
 engines, references/ and schemas/ are byte-identical to 1.0.2; L1 goldens not re-frozen.
