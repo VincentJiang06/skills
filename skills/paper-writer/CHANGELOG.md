@@ -2,6 +2,52 @@
 
 All notable changes to the `paper-writer` skill. Semver.
 
+## [0.2.4] — 2026-09-25
+
+Revert only → patch. This is the fallback repair for the round-3 fix audit, under the same
+owner ruling as 0.2.3. Iron rule 3 fired: the audit's blocking P1 sat in 0.2.3's own new
+code, so no new fix code was written; the only moves allowed were reverts. Fresh repairer
+instance. Record: `runs/paper-writer/battery/FIXES-R3.md` (section "Fallback repair") in the
+R20 workspace.
+
+### Reverted
+- **The FA-4 lower-case fallback in `lead_name` (0.2.3), a false pass (P1).** In an entry's
+  author slot the fallback returned any first token, even a bare initial, when no
+  capitalised multi-letter token was present. So `E. Okafor. … 2014` keyed as `e`, and
+  `A. Brandt (2016)` keyed as `a`. The MLA mention check then matched "e.g." and the article
+  "a", and APA matched `(a 2016 replication)`. Both papers PASSed; 0.2.2 and 0.1.0 FAIL them.
+  The `citation-styles.md` sentence about lower-case surnames is reverted with it. The APA
+  UNKEYED message wording from 0.2.3 is kept (string only).
+
+### Re-opened
+- **FA-4 (P2), APA shape only.** An APA entry led by a lower-case surname (`hooks, b. (2000)`,
+  `boyd, d. (2014)`) fails as UNKEYED again, and there is no passing form except capitalising
+  the name. Installed 0.1.0 passes this shape by silently skipping the entry (fail-open: the
+  entry is never cross-referenced, so it also passes when the entry is uncited). This is the
+  one shape where this build is worse than installed. For `d'Alembert`, `al-Ghazali` and
+  Chicago/MLA lower-case forms, the build equals installed (both FAIL). For `van der Waals` it
+  is better (PASS, where installed FAILs).
+  No pure revert closes this shape. Both candidates were measured:
+  - Dropping the UNKEYED fail. The PW-F04 fail-closed harness case turns red (41/42), and an
+    uncited MLA entry led by an initial false-passes where installed FAILs.
+  - Reverting 2f1b3eb's whole hunk (restoring 0.1.0's `(YYYY)` check). PW-F08 re-opens (MLA
+    in its own form FAILs), `(n.d.)` entries FAIL again, and the harness drops to 40/42.
+  The next step needs an owner ruling. The options are to accept the fail-closed cost for
+  this shape, or to authorize a round that re-planes it in prose (for example, the verifier
+  handles lower-case-led entries, `<UNKEYED>`, as it already handles every entry).
+
+### Verification
+- Harness 42/42, both before this change and after it. The regression fixture
+  `apa_narrative_forms.md` drops its hooks/boyd lines; the case count is unchanged.
+- The audit repros (MLA initials, APA `(a 2016 …)`) FAIL again, as they do in 0.2.2 and
+  0.1.0. They are kept as witness probes.
+- Corpus FP (22 fixtures + demo + 6 arm papers): no verdict change except that fixture. The
+  4 ledgers gate identically.
+- Witness run (31 shapes: the 29 from 0.2.3 plus the 2 audit repros): 0.2.4 is worse than
+  0.1.0 on 3 shapes (APA lower-case lead only: `hooks`, `hooks-etal`,
+  `since-with-lower-ref`), better on 5, and equal on the other 23.
+- `check_citations.py` is 294 lines (297 at 0.2.3; +38.7% against the pre-wave 212).
+
 ## [0.2.3] — 2026-09-25
 
 R20 fix round 3, authorized by the owner ("这七个你都继续去做把他们做完"), scoped to the four
