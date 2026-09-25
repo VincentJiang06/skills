@@ -113,6 +113,22 @@ unmerged branch; whether 4.1.0 ships is the owner's call.
   allowed) on SKILL.md table + Step 3 + hard-fail list: old `conflict`, new
   `consistent`; run dir `battery/fixes/R3-academic/`.
 
+- **Popsci worked exemplar no longer self-passes invented details** (fix-audit P3 +
+  battery F08, round 3; hard constraint 1, SKILL.md Step 5; eval evidence only —
+  `evals/worked/` is not loaded at runtime). The black-holes rewrite added "for
+  millions of years", "hanging at the horizon, never quite crossing", a glowing ring
+  around the shadow, equations failing "past the horizon" and "less a settled fact"
+  (against the source's "firmly established") while its notes said "every fact
+  traces to the source". The rewrite now keeps only source claims; its notes cite
+  the shared Analogy rule, record the correction, and call their scores a maker
+  self-score, not a blind-judge result. Fresh judge: old `fail` (4 new_claim,
+  2 unsure), new `pass` (0/0). Three judge-verified regression cases added to
+  `evals/eval-cases.json` (B14 runtime pack examples, B15 this exemplar, B16
+  academic pack vs judge), 18 → 21. `evals/` is gitignored, so these edits live in
+  the local copy; the exact patch is `battery/fixes/R3-blackholes/evals-round3.patch`
+  in the run directory. No script or check changed (scripts 1706 lines); harness
+  22/22, 129/129, calibrate PASS (strong FP 0/27).
+
 - (conductor, docs only) `_meta.json` said 3.0.0 while SKILL.md said 4.0.0; both
   now read 4.1.0. README.md / README.en.md "What it does" now names the `popsci`
   mode that has existed since 4.0.0 (battery F16 part; owner README rule, A37).
@@ -170,15 +186,17 @@ disabled; one fresh judge, `unsure` allowed (iron law 6).
     Before never stated — **fixed in round 3** (see Fixed).
   - P3 `academic-pack.md` Step 3 "never invent … analogy" vs the rubric's
     both-tracks gloss rule — **fixed in round 3**.
-  - P3 `evals/worked/popsci-en-blackholes` notes keep the old analogy wording and
-    self-pass a rewrite with source-absent details (also battery F08).
+  - P3 `evals/worked/popsci-en-blackholes` notes kept the old analogy wording and
+    self-passed a rewrite with source-absent details (also battery F08) — **fixed in
+    round 3**.
   - P3 the F05 guard still passes numbers that appear only in the ZH fixture's URL
     hashes (e.g. 72, 3881) and numbers written as words; the popsci worked pair is
     outside its pair list.
   - P3 the vaccine example's Before still said "incredibly bright" — **fixed in
     round 3**.
 - Battery P3s left open: F02-R (borderline "change nothing else" vs required ADD),
-  F07 (worked-note scores are maker self-scores cited as verification), F08, F10
+  F07 (worked-note scores are maker self-scores cited as verification; the
+  black-holes notes are relabelled in round 3, the gpt-en/kimi-zh notes are not), F10
   (dash quota lacks its EN qualifier and loads for ZH), F11 (one high-precision hit
   in a short text gives `ai_like` in detect-only output), F12, F13 (runtime "same
   facts" examples add facts), F14 (eval-cases cite non-existent check names),
