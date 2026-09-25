@@ -2,6 +2,84 @@
 
 All notable changes to the `paper-writer` skill. Semver.
 
+## [0.2.6] — 2026-09-25
+
+Re-plane of the two remaining regression classes against installed 0.1.0. Patch: no new
+parser, one new output class. Fresh author instance. The conductor ruled option (b) under the
+owner's delegation of 2026-09-25 ("这七个你都继续去做把他们做完").
+
+Principle pointers:
+- P13 / S14 and iron rule 2: "is this a citation" and "is this lower-case token a surname"
+  cannot be settled from the string (`Katrina (2005; category 5)` has the form of `Smith (2012,
+  p. 4)`). They move to the L plane (the verifier) instead of getting a third string patch.
+- P12 / PW-F04: nothing is silently skipped. Every REVIEW item is on the verifier checklist, and
+  the ledger gate blocks until it has a verdict.
+- Iron rule 4: script lines 484 → 482, and harness cases stay at 42.
+
+### Changed
+- `check_citations.py`: two shapes now print as `REVIEW` lines that name the cause. They are not
+  FAILs and do not set the exit code.
+  - (i) An entry led by a lower-case-initial surname (`hooks, b.`, `boyd, danah.`, `d'Alembert`).
+    This was the FA-4 UNKEYED FAIL.
+  - (ii) A narrative year followed by `,` `;` `:` with no reference entry. This was the FA-1
+    residual orphan FAIL.
+  - A bare initial (`e. Okafor`, `a. Brandt`) and a particle entry without a year (`van Dijk ...
+    1998.`) still FAIL. A parenthetical orphan such as `(Smith, 2012)` still FAILs, and so does a
+    narrative orphan that closes its parentheses, such as `Jones (2019)`.
+  - The PASS line reads "zero FAIL-class orphans", and adds `review=N` when there are REVIEW items.
+- `extract_citations.py`: each narrative REVIEW item is listed as `<REVIEW:name_year>`. A
+  lower-case-led entry is already listed as `<UNKEYED:…>`. `--verify` accepts `NOT_A_CITATION`
+  as terminal for `<REVIEW:…>` ids only, and reports how many there were.
+- `SKILL.md`: named **REVIEW route**; new row J3r in "Who decides what"; a report line for
+  REVIEW items; the ledger-gate text; `version: 0.2.6`.
+  - The route: keep the name as its author writes it, and add an entry if the item is a real
+    citation. Everything else goes to the fresh verifier, and an unverified REVIEW item blocks
+    delivery.
+- `references/verifier-brief.md`: how to label the two REVIEW id kinds, and the
+  `NOT_A_CITATION` exception. `references/citation-styles.md`: the UNKEYED sentence names both
+  REVIEW shapes.
+
+### Evidence (R20 workspace `runs/paper-writer/battery/fix-r3c/`)
+- **Red first:** `red.log` shows 38/42 on the dedfe3d scripts with the new cases, before any
+  script edit. `red_final_evals_on_head.log` shows the same 38/42 on the final evals.
+  **Green:** `green_final.log` shows 42/42.
+- **Harness, 42 cases (the +50% line).** Evals are gitignored; the snapshots are `evals_before/`
+  and `evals_after/`.
+  - Added 3 cases: `apa_review_shapes` → exit 0 plus the REVIEW strings, and a VERIFY pair
+    (BLOCK when REVIEW ids have no verdict; PASS when every id is dispositioned).
+  - Dropped 3 subsumed cases: the `check_length` and `check_sections` `--help` cases (their E-L1
+    PASS cases already run them), and the ZH impossibly-high-band case (its EN twin and the ZH
+    in-band PASS case cover it).
+  - Merged into existing fixtures: hooks/boyd into `mla_style_compliant`, hooks + Katrina into
+    `orphan_reference` (it still FAILs on the reverse orphan), Katrina + `Jones (2019)` into
+    `malformed_citation` (still FAILs on both orphans), `a. Brandt` + `van Dijk` into
+    `unkeyed_entry` (still FAILs), and `Karpicke (2012, p. 158)` into `apa_narrative_forms`.
+  - Cases may now also assert substrings of stdout.
+- **Mutation:** `mutation.log`, 8 of 8 killed.
+- **False positives, iron rule 7** (`fp_head.txt` / `fp_now.txt` / `fp_prefixtures_*.txt` /
+  `ledgers_*.txt`).
+  - All 22 pre-change fixtures, the demo and all 6 arm papers give the same result, differing only
+    in the PASS-line wording.
+  - The 4 arm/demo ledgers gate identically.
+  - The only verdict changes are on the 4 edited or new fixtures, all as intended.
+- **Witness** (`witness.txt`, 43 probes, columns installed / dedfe3d / now; tag `R` = a REVIEW
+  line is printed).
+  - Against installed:
+    - 0 legitimate shapes worse.
+    - 9 shapes that installed silently passed are now routed as REVIEW.
+    - 6 shapes that installed FAILed are now REVIEW.
+    - 3 shapes installed FAILed now pass (colon/comma page, van der Waals).
+    - 2 defects installed passed now FAIL (lower-case-initial entries).
+  - Against dedfe3d: 15 FAIL → REVIEW, and no other change.
+
+### Known costs (accepted by the ruling)
+- A true orphan written `Smith (2012, p. 4)` with no entry is REVIEW, no longer FAIL. It is
+  caught only when the verifier runs; installed 0.1.0 did not read it at all.
+- An uncited lower-case-led entry, and a lower-case junk line in the reference list, are REVIEW,
+  not FAIL. They sit on the checklist as `<UNKEYED:…>` and block at the ledger gate until the
+  verifier disposes of them.
+- Release check not re-run; E11 and verifier calibration are still unrun (see 0.2.5).
+
 ## [0.2.5] — 2026-09-25
 
 Round-3 close record. Documentation only → patch. No script, reference or SKILL.md behaviour
