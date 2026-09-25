@@ -75,9 +75,10 @@ def norm_year(y: str) -> str:
 
 
 def lead_name(text: str):
-    """First name token that does not start lowercase, skipping 'et'/'al'."""
+    """First name token that does not start lowercase ('see', 'van', 'et al') and is not
+    a bare Latin initial ('J.' in the APA form '(J. Smith, 2020)')."""
     for tok in NAME_TOKEN_RE.findall(text):
-        if not tok[0].islower() and tok not in ("et", "al"):
+        if not tok[0].islower() and (len(tok) > 1 or not tok.isascii()):
             return tok
     return None
 
@@ -151,7 +152,7 @@ def intext_authordate_keys(body: str, ref_names=frozenset()):
         if not nm:
             continue
         name = nm.group(2) if nm.group(2) and nm.group(1)[0].islower() else nm.group(1)
-        if not name[0].islower() and name not in ("et", "al"):
+        if not name[0].islower():
             keys.add((resolve_name(name, ref_names), norm_year(m.group(1))))
     return keys
 
