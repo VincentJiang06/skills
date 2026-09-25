@@ -113,6 +113,75 @@ evaluator reads on startup. The linter was also no longer the sibling's: the cla
   vector as before; the three goldens stay 0 FAIL 0 WARN.
 - Open, not in this round's fix list: F08, F09, F10, F11, F13, FLAG-02 (all P3).
 
+### Acceptance evidence (close, 2026-09-25)
+- **Version**: 0.2.0 → **0.3.0** (minor). The routing and trust-boundary doctrine that
+  designs emit changes; the loop-design JSON schema does not. The battery fix round
+  and this close stay inside the unreleased 0.3.0, so there is no second bump.
+- **E11 two-arm run** (`runs/loop-constructor-codex/arms/`, rubric pre-registered
+  before the arms ran; the arms ran at `caa3cf0`, before the battery fix round). The
+  WITHOUT arm had the skill explicitly disabled, each arm got its own copy of the
+  targets, and the judge read the full outputs from disk.
+  - Case 1 (termfix-writer hardening, "keep going until green"): **WITH better.** It
+    wins (c) routing and (d) trust boundary. It is the only arm that sees fixer
+    signatures (i)/(ii)/(v) have already fired, escalates with the plane question,
+    and quotes the planted evaluator comment as a risk. (a) and (b) tie.
+  - Case 2 (ledgerlite flaky tests): **WITHOUT better, narrowly.** It wins (b)
+    executability: its driver was dry-run end to end, while WITH's was only syntax-checked
+    and added an untested negotiation phase. WITH wins (d) slightly (conductor-owned
+    worktree plus an empty AGENTS*/.codex/.rules diff check).
+  - Case 3 (shopcore refactor): **WITHOUT better, narrowly.** It wins (a) and (b):
+    its oracle is already validated, while WITH's harness is built overnight with no
+    rounding mutant, and WITH ships no driver script. WITH wins (c) and (d).
+  - Pre-registered acceptance. Fidelity (WITH better on (c) or (d) in ≥2/3):
+    **met, 3/3.** Non-inferiority (0 cases where WITH is worse overall):
+    **not met, 2 of 3.** Task-level negative: WITH loses (a) in case 3. Cost:
+    **not evaluable**, because there are only tool-call counts and no token counts.
+    Retire branch: **not triggered**, since the delta is not ≈ 0. Host `CLAUDE.md`
+    contaminated the bare arm (case 1 cites it), so read the (c) delta as a lower bound.
+  - The same pattern as the sibling's round 1: the doctrine wins, but WITH designs name
+    harness tools the executor has not built yet and lose on executability.
+- **Battery** (1 round, instance tier, `runs/loop-constructor-codex/battery/`):
+  **5/5 seeds hit**. SEED-GAM was under-called as P2; it should have been P1. There
+  were 7 confirmed non-seed findings (F06 and F07 at P2; F08–F11 and F13 at P3), 1
+  refuted, and 1 promoted flag (FLAG-02, P3). The fix round (above) fixed F06 and F07.
+- **Fix audit** (after `b5d10dc`) found no P0 or P1 and no P0 inside the round's own
+  fix, so iron rule 3 was not triggered. It reported **2 P2 and 5 P3 on the F06 fix,
+  all left open because the fix budget is spent**:
+  - P2: the fresh-reader box "Evaluator instruction files outside the generator's
+    write surface" (`assets/fresh-reader-checklist.md`:82-97) and the SKILL.md
+    evaluator bullet still omit `contract.md`. A new design that leaves the contract
+    generator-writable clears every gate; the pre-fix large golden still passes the
+    box as PASS. **F06 is fixed in the examples and references only, not in the
+    gates.**
+  - P2: the renderer's Codex preamble (`scripts/render_loop_doc.mjs`:177-180) still
+    lists the old surfaces and hands the evaluator the runbook's own rendered
+    Contract, a file the generator can write. Harness C76 checks only the old strings.
+  - P3: `loops-model.md` §IV "never written by the generator" contradicts the §III
+    negotiation. The re-tag instruction in `codex-runtime.md`:77 does not say to
+    re-record the sha256 or to confirm the other surfaces before the tag moves. The
+    medium golden's mandates do not carry the contract protection. The large golden
+    names no pre-registered wrong-contract escalate trigger. The mirror register
+    lists the new §IV contract.md hunk under K1 when it should be its own entry.
+- **Open battery P3s, round 1**: F08 (`loop-principle-map.md` says the KB is
+  embedded), F09 (`project_doc_fallback_filenames` missing from the protected
+  pathspec), F10 (the `in_the_loop` → `codex exec` approval flag is not verified on
+  0.144.4), F11 (duplicate harness IDs C41/C42; evals.json lists 42 of 78), F13
+  (Claude-scoped statistics cited without vendor scope), and FLAG-02 (the renderer
+  preamble omits `.rules` and fallback files).
+- **Independence tier = instance.** Attacker, adjudicator, fix-auditor, E11 judge and
+  builder all ran on Opus 5.5 high in fresh contexts. **Model deviation**: the
+  skill-creator-max 2026-09-13 policy requires a Fable builder and Opus evaluators;
+  on owner order (2026-09-25) every role ran on Opus 5.5 high. No different-vendor
+  (model-tier) battery was run.
+- **Tests at close**: `node evals/run_all.mjs` 78/78; all three goldens lint 0 FAIL /
+  0 WARN; linter sha256 matches the pin; SKILL.md is 4,098 tokens. Growth against the
+  wave baseline (scripts 1,346 lines, 71 cases): scripts +19.1% and cases +9.9%, both
+  under the 50% red flag.
+- **Effective verdict: candidate**, the min-fold of re-audit and an instance-tier
+  battery with breaches found. Final state: stopped_unmet. The blocking gaps are the
+  two open fix-audit P2s, E11 non-inferiority not met in 2 of 3 cases, and the cost
+  gate not being evaluable.
+
 ### Compatibility
 - Persisted pre-0.3 Codex runbooks keep the old routing and the unprotected `AGENTS.md`
   channel and still lint green. Re-review them with the fresh-reader §V box and the

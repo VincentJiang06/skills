@@ -16,6 +16,8 @@
 - **数字出处 D7**：选型流程扩到 D0–D7，分阶段设计声明 `parameter_provenance`；新产出的设计必须 0 FAIL 且 0 WARN 才算干净。
 - **linter 与姊妹技能一致，并按哈希钉住**：`lint_loop_design.mjs` = loop-constructor 0.5.0 的 linter（0.4.0 起未变），sha256 `1fec173225e5c671086da11fc6b85bb2183f6da636e0db7d25cdb16ae256fd36`。0.2.0 所说的「与姊妹逐字节一致」其实早已失效（958 行对 1,160 行），现已恢复并钉住。设计在两个技能间可互通。
 - 验收（本版）：三个示例设计 lint 0 FAIL / 0 WARN；开发用测试 78/78；旧/新 linter 在全部 26 份现有设计上的退出码和 FAIL 数完全一致，仅缺 `parameter_provenance` 的分阶段设计多一条 WARN。
+- 两臂实验（E11，3 个用例）：带技能的一臂在路由和评审信任边界上 3/3 更好；但只赢了用例 1，用例 2、3 在可执行性和检查实效上略输给裸模型（它的设计会点名一些执行者还得自己动手做的 harness 工具）。成本没法评估（只记了工具调用次数，没记 token）。独立性只到 instance 档：全部角色都跑在 Opus 5.5 high 上，按 owner 指令偏离了 2026-09-13 的模型策略。结论：candidate。
+- 已知未修：`contract.md` 的保护只写进了参考文档和示例设计，fresh-reader 核对表和 runbook 前言都还没有写。所以新设计即使让生成者能改契约，也照样过得了全部检查。另有 11 条 P3 未修，清单见 CHANGELOG「Acceptance evidence」。
 
 **什么时候用** —— 「给 codex 设计一个 agent loop」·「搭一个用 Codex 自运行的工作流」；或 `$loop-constructor-codex`。
 **不适用** —— 真的把循环跑起来（它只设计、不执行）；非 Codex 的 Claude Code 循环（→ 姊妹技能 `loop-constructor`）；改 loop-principle 知识库。
