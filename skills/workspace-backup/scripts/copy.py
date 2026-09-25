@@ -27,6 +27,8 @@ Exit codes:
   5 unrecognised copier                        6 another run holds the lock
   7 at least one unit failed to copy          11 plan.json named a target the
                                                  guard never cleared
+A unit whose copier could not run (OSError / SubprocessError) is journalled
+with exit_code 13 and the run goes on to the next unit (exit 7 overall).
 
 Usage:
   copy.py --config C --plan plan.json --dest ID [--unit U] [--go]
@@ -462,7 +464,10 @@ def main():
                                      "removed — destination deletion requires "
                                      "delete_at_destination (see L4-29)")
                 os.makedirs(os.path.dirname(os.path.abspath(route["dest_path"])), exist_ok=True)
-                p = subprocess.run(c["argv"], capture_output=True, timeout=3600)
+                # no wall-clock cap: a first run can exceed six hours (_state.py)
+                # and one 17 GB unit can take more than one. Ctrl-C + resume
+                # (re-enter at guard) is the outlet for a hung copier.
+                p = subprocess.run(c["argv"], capture_output=True)
                 rc, out_b = p.returncode, p.stdout
                 err = (p.stderr or b"").decode("utf-8", "replace")
                 # LIVE-FIRE (2026-07-27): the startup probe proves the BINARY
@@ -480,17 +485,17 @@ def main():
                              why="the flag was accepted by the binary but rejected on this "
                                  "unit's files; retrying without it")
                     c = build_command(u, route, cfg, copier, rsync_bin, exclude_file, None)
-                    p = subprocess.run(c["argv"], capture_output=True, timeout=3600)
+                    p = subprocess.run(c["argv"], capture_output=True)
                     rc, out_b = p.returncode, p.stdout
                     err = (p.stderr or b"").decode("utf-8", "replace")
                     if rc == 0:
                         print(f"       {u['id']}: extended attributes NOT preserved — "
                               f"{xattr_flag} failed on this unit's files (com.apple.macl or "
                               f"similar); the bytes are copied, the metadata is not.")
-            except OSError as e:
+            except (OSError, subprocess.SubprocessError) as e:
                 # a read-only destination (NTFS by default, or a drive remounted
-                # read-only after I/O errors) must be ONE unit's failure, not the
-                # death of the run
+                # read-only after I/O errors), or any subprocess failure, must be
+                # ONE unit's failure, not the death of the run
                 rc, out_b, err = 13, b"", f"{type(e).__name__}: {e}"
             bytes_moved, names = transferred(out_b, u["path"])
             ok = rc == 0
