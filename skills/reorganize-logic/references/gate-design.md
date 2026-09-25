@@ -114,8 +114,9 @@ a visible `COVERAGE_HOLE`, never hide one. A file set the walk cannot express
 symbols)`. The gate passes only at **ratio 1.0** with zero flags. Matching is
 **exact name** (Set membership), never substring — so `id` cannot "cover"
 `uuid`/`idx`/`valid`. This is what stops a near-name false-positive from inflating
-coverage. A name *strongly defined* (not an `export { … }` list alias, not a weak
-function) in two or more files is two symbols: a row covers the file it cites plus
+coverage. A name *strongly defined* by a declaration (not an `export { … }` list alias, not a
+CommonJS binding such as `exports.x =` / `module.exports = { x }` / `module.exports = x`,
+which may re-export an import, not a weak function) in two or more files is two symbols: a row covers the file it cites plus
 the files reached from it through `export { name } from` re-exports, and each
 defining file no row reaches is its own `COVERAGE_HOLE` (detail names the file).
 A name with one defining file (the usual barrel case) is covered by any row of that

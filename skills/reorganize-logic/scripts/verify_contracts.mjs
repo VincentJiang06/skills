@@ -44,6 +44,9 @@ const NAME = "[A-Za-z_$][\\w$]*";
 
 // Each entry: a per-line matcher returning { names:[...], confidence }.
 // Order matters only for readability; we collect from every matcher that hits.
+// bind: a CommonJS assignment form. It binds a name and may re-export an import
+// (`exports.foo = require('./foo')`), so, like an `export { }` list member, it never
+// makes the name a separate per-file symbol (coverage identity, see validate()).
 const SURFACE_MATCHERS = [
   // --- JS / TS strong exports ---
   { re: new RegExp(`^\\s*export\\s+default\\s+(?:async\\s+)?function\\s+(${NAME})`), conf: "strong" },
@@ -51,14 +54,14 @@ const SURFACE_MATCHERS = [
   { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const|let|var)\\s+(?!enum\\b)(${NAME})`), conf: "strong" },
   { re: new RegExp(`^\\s*export\\s+(?:default\\s+|declare\\s+)?(?:abstract\\s+)?class\\s+(${NAME})`), conf: "strong" },
   { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const\\s+)?(?:type|interface|enum)\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*module\\.exports\\.(${NAME})\\s*=`), conf: "strong" },
-  { re: new RegExp(`^\\s*exports\\.(${NAME})\\s*=`), conf: "strong" },
+  { re: new RegExp(`^\\s*module\\.exports\\.(${NAME})\\s*=`), conf: "strong", bind: true },
+  { re: new RegExp(`^\\s*exports\\.(${NAME})\\s*=`), conf: "strong", bind: true },
   // whole-module export of one binding: `module.exports = f;` makes f a strong export
-  { re: new RegExp(`^\\s*module\\.exports\\s*=\\s*(${NAME})\\s*;?\\s*$`), conf: "strong" },
+  { re: new RegExp(`^\\s*module\\.exports\\s*=\\s*(${NAME})\\s*;?\\s*$`), conf: "strong", bind: true },
   // computed string-key assignment: exports['x'] = / module.exports["x"] =
-  { re: new RegExp(`^\\s*(?:module\\.)?exports\\[['"](${NAME})['"]\\]\\s*=`), conf: "strong" },
+  { re: new RegExp(`^\\s*(?:module\\.)?exports\\[['"](${NAME})['"]\\]\\s*=`), conf: "strong", bind: true },
   // Object.defineProperty(exports|module.exports, 'x', …)
-  { re: new RegExp(`Object\\.defineProperty\\(\\s*(?:module\\.)?exports\\s*,\\s*['"](${NAME})['"]`), conf: "strong" },
+  { re: new RegExp(`Object\\.defineProperty\\(\\s*(?:module\\.)?exports\\s*,\\s*['"](${NAME})['"]`), conf: "strong", bind: true },
   // --- Python top-level (col 0, public = no leading underscore) ---
   { re: new RegExp(`^(?:async\\s+)?def\\s+(${NAME})`), conf: "strong" },
   { re: new RegExp(`^class\\s+(${NAME})`), conf: "strong" },
@@ -268,19 +271,19 @@ function directSurface(content, path) {
       if (mm.ext && !String(path).endsWith(mm.ext)) continue;
       const hit = line.match(mm.re);
       if (hit && hit[1]) {
-        names.push(hit[1]);
+        names.push({ n: hit[1], bind: mm.bind });
         if (mm.conf === "strong") confidence = "strong";
       }
     }
     const decls = exportDeclNames(line);
     if (decls.length) {
-      for (const n of decls) names.push(n);
+      for (const n of decls) names.push({ n });
       confidence = "strong";
     }
-    for (const name of names) if (!name.startsWith("_")) entries.push({ name, line: i + 1, confidence });
+    for (const { n, bind } of names) if (!n.startsWith("_")) entries.push(bind ? { name: n, line: i + 1, confidence, alias: true } : { name: n, line: i + 1, confidence });
   }
   const obj = objectExportKeys(content);
-  for (const k of obj.keys) entries.push({ name: k.name, line: k.line, confidence: "strong" });
+  for (const k of obj.keys) entries.push({ name: k.name, line: k.line, confidence: "strong", alias: true }); // CommonJS binding
   for (const f of obj.flags) flags.push(f);
   for (const k of namedExportLists(content)) entries.push({ name: k.name, line: k.line, confidence: "strong", alias: true, spec: k.spec });
   const star = starExports(content);
@@ -473,7 +476,7 @@ export function validate(input) {
 
     // 2) coverage: every surface symbol must be documented or excluded (exact name).
     //    Identity = (name, defining file): when one name is STRONGLY defined (not an
-    //    export-list alias, not a weak un-exported function) in >= 2 files, those are
+    //    export-list alias, not a CommonJS binding, not a weak function) in >= 2 files, those are
     //    different symbols, and a row covers only the file it cites plus the files
     //    reached from it through `export { name } from` aliases. One defining file
     //    (the usual barrel case) = one symbol, so any row of that name covers it.
