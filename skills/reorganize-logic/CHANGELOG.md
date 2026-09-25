@@ -1,5 +1,94 @@
 # Changelog — reorganize-logic
 
+## 0.3.2 — 2026-09-25 — release record: E11, battery, fix audit, open defects (docs only)
+
+Patch, documentation only. `scripts/verify_contracts.mjs` and the local evals are
+byte-identical to 0.3.1 (86cb8c8). This entry records the evidence for the R20
+upgrade (0.3.0 + 0.3.1) and the defects still open. Both READMEs gain a
+"Known limitations" section. **The fix audit found a P1 inside the 0.3.1 fix.
+Iron rule 3 fired, so no further fix was made. The owner decides the next step.**
+*Principle: KB O5 (the written verdict never exceeds the battery); root CLAUDE.md
+iron rule 3 (stop and report when a P0/P1 is found in this round's own fix);
+P11 (settle both ways: the claims 0.3.1 made that the audit disproved are
+withdrawn below).*
+
+### Open defects in 0.3.1 (fix audit, not fixed)
+- **P1, F02 walk.** The walk skips every file the project-root `.gitignore`
+  matches, including files git still tracks (added with `git add -f`, or committed
+  before the pattern). Their exports are never read, so no `COVERAGE_HOLE` is
+  raised and the gate prints PASS. Repro: `.gitignore` = `src/*.js`, tracked
+  `src/shim.js` exporting `publicHelper`, contract documents only `api`. 0.3.1:
+  PASS, exit 0. 0.3.0: FAIL `COVERAGE_HOLE publicHelper`. This withdraws the 0.3.1
+  claim "When unsure, the walk reads" for `.gitignore`-matched files.
+- **P2, F01 × CommonJS barrels.** The alias closure only follows ESM
+  `export { x } from`. A CommonJS re-export (`exports.foo = require('./lib/foo')`,
+  `module.exports = { Foo }`) counts as a second defining file, so one symbol
+  raises a false `COVERAGE_HOLE`, and the only green path is a duplicate row. This
+  withdraws the 0.3.1 claim that the remaining new holes are distinct same-named
+  exports: this false-positive class was not measured.
+- **P2, F04 anonymous default class.** `export default class extends Controller`
+  (every Stimulus controller) yields a strong export named `extends`; same for
+  `implements`.
+- **P2, docs vs code.** gate-design.md lists `export [declare] function`, but the
+  function matchers have no `declare` form. `export declare function foo()` and
+  `export declare namespace NS` are dropped silently, and because the docs list
+  the form, the escalate path for unrecognized forms does not fire.
+- **P3 (8):** a column-0 `name =` inside a docstring or comment satisfies the
+  cited-line check; `.js` specifiers in TS NodeNext barrels do not resolve to
+  `.ts`, so a false hole appears; a hand-written `.d.ts` beside `.js` needs two
+  rows; nested `.gitignore` files are not read, so `packages/*/dist` is walked and
+  becomes a second defining file; `module.exports = null/undefined/true` yields a
+  literal-named export; `venv`/`.next`/`.cache` dirs are skipped at any depth with
+  no report of what was skipped; grouped Go `type ( … )` blocks are dropped; the
+  printed `extracted`/`ratio` still count names, not (name, file) symbols.
+- **Battery P3 carried from 0.3.0 (13):** F03 (zero surface = PASS), F09
+  (boundary depends on `--scope`), F10 (pytest `test_*` treated as surface), F11
+  (no CLI-path eval before C31; C22 map differs from the scoped CLI), F13 (star
+  chain depth cut-off fails open; 0.5 ceiling uncalibrated), F14 (STAR/UNPARSED
+  cannot be cleared by documenting), F15 (scope-relative Source paths documented
+  but rejected), F16 (stale or documented∩excluded exclusions pass silently), F17
+  (exports inside comments are extracted), F18 (copy-pasted eval edge labels), F19
+  (protocol.md compaction re-read list omits `_exclusion-review.md`), FLAG6 (the
+  Python `class` matcher fires on JS files).
+
+### E11 two-arm result (run on 0.3.0, low tier, 3 cases)
+Both arms: `claude -p`, Opus 5.5 high, Skill tool disallowed. WITH = told to read
+the worktree copy of the skill. Independent fixture copies, prepared before
+launch. The judge was a fresh session reading full files. Labels were unblinded
+after judging.
+
+| Case | Fixture | Verdict | Why |
+|---|---|---|---|
+| 1 | CityRankIndex (Python, 114 strong) | WITH better, narrow | WITH: 122/122 def rows at exact lines, no error found, legacy untouched behind a deletion manifest, found 2 real defects (`score_median` undefined at `city_score_gptr.py:477`; monitor ref bug at `city_monitor.py:215`). WITHOUT: far more complete (217 callables, constants, env vars) but documents the broken `--rescore` as working, and rewrote README plus 3 legacy docs in place unasked. |
+| 2 | deep-scan Fastify API (JS, 354 strong) | WITHOUT better | Both faithful. WITHOUT: deeper, correct architecture, ~900 generated symbols, security findings (`/auth/login` has no auth hook; two error codes share 100409). WITH: accurate but thinner (52 endpoints, 335 gate-checked rows). |
+| 3 | Paper Graph `src/paperproof` (Python, 378 strong) | WITHOUT better, moderate | Neither arm had an error. WITHOUT: deeper architecture and a full API reference with a `--check` drift mode. WITH: 278 public rows plus 118 internals, each with a reason; stronger public/internal adjudication. |
+
+Pre-registered verdict: 1 win, 2 losses, so **inconclusive** (not uplift, and not
+delta≈0, so no retire recommendation). WITH had no fidelity error in any case and
+never edited legacy docs. WITHOUT had one error in case 1, rewrote README plus 3
+legacy docs unasked in case 1, and edited 2 AGENTS.md rows in case 2. Bare Opus
+5.5 high was more complete in all three cases. Cost, in tool calls: WITH ~65 plus
+4 reader sessions against ~47 (case 1), ~65 against ~56 (case 2), ~72 against ~44
+(case 3). Deviations: tokens and wall clock were not captured (COST.txt empty), and
+the scripted m1/m2 metrics were replaced by the judge's line-accuracy check.
+
+### Battery (round 1 on 0.3.0, instance tier)
+Seeds 5/5 hit, one per lens. Confirmed: 4 P2 (F01, F02, F04, F05; fixed in 0.3.1)
+and 13 P3 (open, listed above). 1 refuted. No P0/P1 in 0.3.0. The fix audit of
+0.3.1 found the 1 P1, 3 P2 and 8 P3 listed above.
+
+### Independence and model deviation
+Every role, including the attacker, the adjudicator, the E11 judge and the fix
+auditor, was Opus 5.5 high in a fresh context. This is **instance tier**, not
+model tier. It deviates from the skill-creator-max model policy of 2026-09-13
+(builder Fable, evaluators Opus), by the owner's order of 2026-09-25.
+
+### Verdict
+Effective verdict **draft**: an open P1 contradicts the gate's anchor claim that no
+recognized export is silently dropped. Owner options are in the R20 decision
+record (for example, revert only the root-`.gitignore` skip from 29e0e08 and keep
+the rest of 0.3.1).
+
 ## 0.3.1 — 2026-09-25 — battery fix round: four extractor/coverage holes (P2)
 
 Patch: the gate now meets guarantees it already claimed ("no recognized export
