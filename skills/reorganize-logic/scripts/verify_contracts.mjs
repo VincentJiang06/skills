@@ -558,40 +558,24 @@ const CODE_EXT = new Set([".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".py", "
 // Never source, skipped at any depth (dependency installs, VCS, caches, virtualenvs).
 const SKIP_DIR = new Set(["node_modules", ".git", "__pycache__", ".venv", "venv", ".uv-cache", "site-packages", ".tox", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".loop", ".cache", ".next", ".nuxt", ".turbo"]);
 // Usually build output, but also a legitimate source-dir name (src/build): skipped only
-// directly under the project root. Deeper output dirs are skipped when the root
-// .gitignore says so; otherwise they are read (fail-closed: extra surface, never a hole).
+// directly under the project root. Deeper output dirs are skipped when git ignores them.
 const ROOT_SKIP = new Set(["dist", "build", "coverage", "vendor", "target", "out"]);
 
-// The project-root .gitignore, git semantics for one file: `#` comments, `!` negation
-// (last match wins; git cannot re-include below an excluded dir, and neither do we),
-// trailing `/` = dir only, a `/` elsewhere anchors to the root, `*` `?` `**` globs.
-// Nested .gitignore files and global excludes are not read.
-function gitignoreRules(text) {
-  const rules = [];
-  for (let l of String(text).split("\n")) {
-    l = l.replace(/\s+$/, "");
-    if (!l || l.startsWith("#")) continue;
-    const neg = l.startsWith("!");
-    if (neg) l = l.slice(1);
-    const dirOnly = l.endsWith("/");
-    l = l.replace(/\/+$/, "");
-    const anchored = l.includes("/");
-    l = l.replace(/^\//, "");
-    const src = l
-      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-      .replace(/\*\*\//g, "\u0001").replace(/\/\*\*$/, "\u0002").replace(/\*/g, "[^/]*").replace(/\?/g, "[^/]")
-      .replace(/\u0001/g, "(?:.*/)?").replace(/\u0002/g, "/.*");
-    rules.push({ neg, dirOnly, re: new RegExp(anchored ? `^${src}$` : `(?:^|/)${src}$`) });
+// What git itself ignores under root: untracked paths matched by any ignore source (nested
+// .gitignore, .git/info/exclude, global excludes). A tracked file is never listed, even when a
+// pattern matches it (`git add -f`). null = git gives no answer here (no repo, no git binary, root
+// inside an ignored dir): then no ignore file is honored and the walk reads (fail-closed).
+function gitIgnoredPaths(root, execFileSync) {
+  try {
+    const out = execFileSync("git", ["-C", root, "ls-files", "-z", "--others", "--ignored", "--exclude-standard", "--directory"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: 1 << 30 });
+    return new Set(out.split("\0").filter(Boolean).map((p) => p.replace(/\/$/, "")));
+  } catch {
+    return null;
   }
-  return rules;
-}
-function gitIgnored(rules, rel, isDir) {
-  let hit = false;
-  for (const r of rules) if ((!r.dirOnly || isDir) && r.re.test(rel)) hit = !r.neg;
-  return hit;
 }
 
-async function readTree(root, rel, files, fs, path, rules) {
+// skipped = { byName: Map(dir name -> count), ignored: [paths] }, printed so no skip is silent.
+async function readTree(root, rel, files, fs, path, ignored, skipped) {
   let entries;
   try {
     entries = await fs.readdir(path.join(root, rel), { withFileTypes: true });
@@ -600,11 +584,16 @@ async function readTree(root, rel, files, fs, path, rules) {
   }
   for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     const r = rel ? rel + "/" + e.name : e.name;
-    if (e.isDirectory()) {
-      if (SKIP_DIR.has(e.name) || e.name.startsWith(".venv") || e.name.startsWith(".skill-")) continue;
-      if (ROOT_SKIP.has(r) || r === "docs/contracts" || gitIgnored(rules, r, true)) continue;
-      await readTree(root, r, files, fs, path, rules);
-    } else if (e.isFile() && CODE_EXT.has(path.extname(e.name)) && !gitIgnored(rules, r, false)) {
+    if (e.isDirectory() && r === "docs/contracts") continue;
+    if (ignored && ignored.has(r) && (e.isDirectory() || CODE_EXT.has(path.extname(e.name)))) {
+      skipped.ignored.push(r);
+    } else if (e.isDirectory()) {
+      if (SKIP_DIR.has(e.name) || e.name.startsWith(".venv") || e.name.startsWith(".skill-") || ROOT_SKIP.has(r)) {
+        if (e.name !== ".git") skipped.byName.set(e.name, (skipped.byName.get(e.name) || 0) + 1);
+        continue;
+      }
+      await readTree(root, r, files, fs, path, ignored, skipped);
+    } else if (e.isFile() && CODE_EXT.has(path.extname(e.name))) {
       try {
         files[r] = await fs.readFile(path.join(root, r), "utf8");
       } catch { /* skip unreadable */ }
@@ -637,17 +626,20 @@ async function main() {
   }
 
   const files = {};
-  let ignoreText = "";
-  try {
-    ignoreText = await fs.readFile(path.join(root, ".gitignore"), "utf8");
-  } catch { /* no root .gitignore */ }
-  await readTree(root, scope || "", files, fs, path, gitignoreRules(ignoreText));
+  const skipped = { byName: new Map(), ignored: [] };
+  const { execFileSync } = await import("node:child_process");
+  await readTree(root, scope || "", files, fs, path, gitIgnoredPaths(root, execFileSync), skipped);
 
   const r = validate({ contractText, files, scope });
   for (const f of r.fails) console.log(`FAIL  [${f.tag}] ${f.symbol || ""} — ${f.detail}`);
   for (const f of r.flags) console.log(`FLAG  [${f.tag}] ${f.symbol || ""} — ${f.detail} (agent must reconcile)`);
   for (const f of r.reviews) console.log(`REVIEW [${f.tag}] ${f.symbol || ""} — ${f.detail} (${f.tag === "HIGH_EXCLUSION_RATIO" ? "information" : "fresh-reader must adjudicate"})`);
   const cov = r.coverage;
+  if (skipped.byName.size || skipped.ignored.length) {
+    const names = [...skipped.byName].map(([n, c]) => n + " x" + c).join(", ") || "no dirs by name";
+    const ign = skipped.ignored;
+    console.log(`\nnot read: ${names}; ${ign.length} path(s) git ignores${ign.length ? " (" + ign.slice(0, 5).join(", ") + (ign.length > 5 ? ", …" : "") + ")" : ""}`);
+  }
   console.log(`\ncoverage: ${cov.documented} documented / ${cov.excluded} excluded / ${cov.extracted} extracted — ratio ${cov.ratio.toFixed(3)}`);
   if (r.ok) {
     const nr = r.reviews.length ? `; ${r.reviews.length} review item(s)` : "";

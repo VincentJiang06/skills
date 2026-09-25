@@ -95,11 +95,18 @@ The CLI walks the project root (or the `--scope` dir) for code files. It skips, 
 any depth, dirs that are never source: `node_modules`, `.git`, `__pycache__`,
 `.venv*`, `venv`, `.uv-cache`, `site-packages`, tool caches, `.loop`, `.skill-*`.
 Output-named dirs (`dist`, `build`, `coverage`, `vendor`, `target`, `out`) are
-skipped only directly under the project root, so `src/build/` is read. Everything
-the project-root `.gitignore` ignores is skipped too (git semantics for that one
-file; nested `.gitignore` files are not read). When unsure, the walk reads: an extra
-file can only add a visible `COVERAGE_HOLE`, never hide one. A file set the walk
-cannot express (several roots, custom skips) is escalate (d) in `protocol.md`.
+skipped only directly under the project root, so `src/build/` is read. Ignore files
+are honored **through git only**: the walk skips exactly what
+`git ls-files --others --ignored --exclude-standard` reports, i.e. untracked paths that
+any ignore source matches (nested `.gitignore` files included). A tracked file is
+always read, even when a pattern matches it (`git add -f`). When git gives no answer
+(no repo, no git binary, or the root sits inside an ignored dir), no ignore file is
+honored and the walk reads everything outside the dirs named above. When the root is
+a subdirectory of a larger repo, that repo's ignore rules apply, so pass the real
+project root. Nothing is skipped silently: the CLI prints a `not read:` line with the
+skipped dir names and the git-ignored paths (first five). An extra file can only add
+a visible `COVERAGE_HOLE`, never hide one. A file set the walk cannot express
+(several roots, custom skips) is escalate (d) in `protocol.md`.
 
 ## Coverage threshold (not mere presence)
 
