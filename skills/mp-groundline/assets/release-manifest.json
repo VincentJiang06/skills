@@ -4,7 +4,7 @@
   "skill": {
     "id": "skill.mp-groundline",
     "name": "mp-groundline",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "owner": "Vince",
     "source_uri": "skills/mp-groundline",
     "artifact_uri": "skills/mp-groundline",
@@ -17,28 +17,28 @@
   },
   "change": {
     "change_type": "patch",
-    "summary_zh": "0.2.1 发布记录（无行为改动）：记入 E11 两臂结果（0.1.2 上 WITH 3/3 胜，未盲、未记 token）、battery 结果（种子 4/5、确认 14 条、0.2.0 修复 7 条）与修复审计遗留（2 条 P2、7 条 P3 未修）；校正 metric-plan 与本清单里过期的戳记。0.2.0 行为改动见 CHANGELOG。",
-    "summary_en": "0.2.1 release record (no behavior change): records the E11 two-arm result (WITH 3/3 on 0.1.2, unblinded, no token counts), the battery result (seeds 4/5, 14 confirmed, 7 fixed in 0.2.0) and the fix-audit residuals (2 P2 + 7 P3 open); corrects stale stamps in metric-plan and this manifest. 0.2.0 behavior changes: see CHANGELOG.",
+    "summary_zh": "0.2.2 第三轮修复（owner 2026-09-25 授权）：修掉 0.2.0 修复审计遗留的 OD1（packOptions.ignore 文件夹里的已声明页面照常扫描，不再静默漏报 rewrite）、OD2（默认布局提示只指向在 Skyline 上跑过的页面）以及 P3 的 OD3/OD5/OD6/OD7/OD8/OD9；OD4（同行带引号正则后的 wx:// 路由漏报）是 0.1.x 就有的已知限制，保留为开放项。行为改动见 CHANGELOG 0.2.2。",
+    "summary_en": "0.2.2 third fix round (owner-authorized 2026-09-25): fixes the 0.2.0 fix-audit residuals OD1 (a declared page inside a packOptions.ignore folder is scanned; no silent rewrite drop), OD2 (default-layout advice scoped to the pages that ran on Skyline) and P3s OD3/OD5/OD6/OD7/OD8/OD9; OD4 (wx:// route after a same-line quote-bearing regex literal) is a known limit already present in 0.1.x and stays open. Behavior changes: see CHANGELOG 0.2.2.",
     "breaking_change": false,
     "public_behavior_contract_changed": false,
     "changelog_path": "CHANGELOG.md"
   },
   "release_gate": {
     "checklist_id": "checklist.skill_release_gate",
-    "passed": false,
+    "passed": true,
     "gate_conditions": [
       "validate-skill green (scripts/validate-skill.mjs, local-only) on the dev checkout AND re-run on each install root after every deploy",
-      "deterministic eval harness green (node evals/run_all.mjs -> exit 0, 49/49; includes the generator structure/injection cases)",
+      "deterministic eval harness green (node evals/run_all.mjs -> exit 0, 55/55; includes the generator structure/injection cases and the R3 regression cases)",
       "E11 with/without two-arm evidence (A44) recorded in assets/metric-plan.json"
     ],
-    "failed_check_ids": [
-      "open-P2-OD1: a page declared in app.json inside a packOptions.ignore folder has its renderer flipped but its content unscanned (silent rewrite drop, matches rollback trigger 'missed rewrite (silent drop)'); introduced by the 0.2.0 F06 fix, found by the fix audit, not fixed (wave fix budget spent); owner ruling needed",
-      "open-P2-OD2: default-layout-shift warning is global even for per-page Skyline adoption; not fixed; owner ruling needed"
-    ],
+    "failed_check_ids": [],
     "waived_check_ids": [
       "real-program-smoke: scan-only smoke done 2026-09-25 on both deep-scan programs and wxa.cli.im; a DevTools before/after run was not possible offline (the earlier 'program no longer on disk' waiver was false)",
-      "trigger-eval: never run since 0.1.0; description unchanged through 0.2.1 (waived, open for the next K2 review)",
-      "adversarial-checklist-16/16: 0.1.0 build-time evidence, superseded by the 49-case harness and the R20 battery; not re-run"
+      "trigger-eval: never run since 0.1.0; description unchanged through 0.2.2 (waived, open for the next K2 review)",
+      "adversarial-checklist-16/16: 0.1.0 build-time evidence, superseded by the 49-case harness and the R20 battery; not re-run",
+      "known-limit-OD4: a wx:// route on the same JS line after a quote-bearing regex literal is missed (documented in references/scanner-contract.md; present in installed 0.1.1 too, so not a regression; a fix needs regex-literal parsing)",
+      "carried-P3s F09 F12 F13 F15 F16 F17(remainder) F04r: battery round-1 P3s, all present in 0.1.1; not fixed in this wave (see CHANGELOG)",
+      "r3-fix-audit: the 0.2.2 fix round (OD1-OD9) has red->green regression cases and a full-corpus row diff but no independent fix audit yet; the conductor rules whether one is owed before deploy"
     ],
     "evidence_paths": [
       "evals/run_all.mjs",

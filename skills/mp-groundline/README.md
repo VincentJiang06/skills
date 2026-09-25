@@ -15,8 +15,8 @@
 **什么时候用** —— 「把小程序从 skyline 迁移到 webview 保持页面一致」·「生成 skyline→webview 迁移对照 doc」；也可用 `/mp-groundline` 显式调用。
 **不适用** —— 实时运行时调试（→ mp-cli-sup）；开发 Skyline 组件 / worklet 动画 / 自定义路由（→ skyline-* skills，方向相反）；webview→skyline 反向迁移；不换渲染器的纯性能优化；除非明确要求，否则不现代化 / 回退 workaround；非微信工作。
 
-**依赖与维护** —— Step 4 验证依赖 `mp-cli-sup` 驱动的系统 `vince-mp` CLI；开发者工具或 vince-mp 不可用时，迁移地图把每页标为 UNVERIFIED，不会声称「一致」。扫描器以迁移目标 `webview` 衡量页面级 `renderer`（逐页采用 Skyline 的程序也算迁移对象），跳过 `project.config.json` `packOptions.ignore` 里的文件夹并在地图里列出。本地 `validate-skill` 只检查 skill 结构与合成用例，不能证明某次真实迁移页面一致。
-**实测与已知问题（0.2.1）** —— 两臂对照（E11，在 0.1.2 上跑，3 个用例）：3 例中评委都判带 skill 的一臂更好。它每例的 diff 都更小，保留了 `rendererOptions` 和所有 workaround，也没有去修没观察到的差异。不带 skill 的裸模型三例都做了这类预防性修补。这个结论只是方向性的：评委知道哪臂带 skill，只记了工具调用次数、没记 token。修复审计留下两条未修的 P2。① 若 app.json 声明的页面落在 `packOptions.ignore` 文件夹里，扫描器会翻转它的 renderer，却不扫描它的内容。所以要拿地图里的「Not scanned」目录去对照要翻转的页面清单，重合的目录手动扫描。② 逐页采用 Skyline 的程序，也会收到「全局默认布局变化」的提示。这类程序的默认布局修补只加在被 pin 的页面上。其余遗留问题见 CHANGELOG。
+**依赖与维护** —— Step 4 验证依赖 `mp-cli-sup` 驱动的系统 `vince-mp` CLI；开发者工具或 vince-mp 不可用时，迁移地图把每页标为 UNVERIFIED，不会声称「一致」。扫描器以迁移目标 `webview` 衡量页面级 `renderer`（逐页采用 Skyline 的程序也算迁移对象），跳过 `project.config.json` `packOptions.ignore` 里的文件夹并在地图里列出（放着 app.json 声明页面的文件夹照常扫描）。本地 `validate-skill` 只检查 skill 结构与合成用例，不能证明某次真实迁移页面一致。
+**实测与已知问题（0.2.2）** —— 两臂对照（E11，在 0.1.2 上跑，3 个用例）：3 例中评委都判带 skill 的一臂更好。它每例的 diff 都更小，保留了 `rendererOptions` 和所有 workaround，也没有去修没观察到的差异。不带 skill 的裸模型三例都做了这类预防性修补。这个结论只是方向性的：评委知道哪臂带 skill，只记了工具调用次数、没记 token。0.2.0 修复审计留下的两条 P2 已在 0.2.2 修掉：声明页面落在 `packOptions.ignore` 文件夹里时照常扫描；逐页采用 Skyline 的程序，默认布局提示只指向被 pin 的页面。仍开着的是已知限制：同一行里带引号的正则字面量后面的 `wx://` 路由会漏报（0.1.x 同样存在），其余见 CHANGELOG。
 **安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/mp-groundline ~/.claude/skills/`）。
 
 完整说明见 [SKILL.md](SKILL.md)。

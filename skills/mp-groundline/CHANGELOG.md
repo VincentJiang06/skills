@@ -1,5 +1,57 @@
 # Changelog — mp-groundline
 
+## 0.2.2 — 2026-09-25 (R20 wave, third fix round, owner-authorized)
+
+Owner ruling (Vince, 2026-09-25): finish the release. This round fixes the defects
+the 0.2.0 fix audit left open (listed under 0.2.1). Patch bump: bug fixes only; the
+scanner contract keeps its shape (the blocker gains the `ignored_dirs: []` field
+the good path already had). Each line names the principle it follows.
+
+- **OD1 (P2) — a `packOptions.ignore` folder that holds a declared page is scanned.**
+  (Prime directive "flag, never silently drop"; the manifest's rollback trigger
+  "missed rewrite (silent drop)".) 0.2.0 skipped such a folder while still flipping
+  the page, so a `grid-view` or custom route on it vanished from the map. A folder
+  holding a page from `pages` or a subpackage is now walked; folders with no
+  declared page stay skipped and reported. Least-risk choice over reverting F06:
+  the revert would bring back 1,149 duplicate `dist/` rows on the real program,
+  and the fix only restores 0.1.x behaviour for the affected folders.
+- **OD2 (P2) — the default-layout advice reaches only the pages that ran on
+  Skyline.** (minimal-fix protocol: smallest change that touches only affected
+  pages, verify first.) Under per-page adoption the map now names the pinned pages
+  and points to their own wxss, never `app.wxss`. Under a skyline app it keeps the
+  one-rule advice and adds a re-verify note for any page pinned to `webview`.
+  skyline-to-webview.md layout note updated to match.
+- **OD3 (P3)** — `scan | head` exits 0 again (EPIPE on stdout is ignored; other
+  stream errors still throw). 0.1.x exited 0; 0.2.0 printed a stack trace and exit 1.
+- **OD5 (P3)** — the generator reads a 0.1.x scan (no `needs_flip`) by the pin
+  itself: a non-webview pin is listed to flip.
+- **OD6 (P3)** — the blocker JSON carries `ignored_dirs: []` (contract: one shape).
+- **OD7 (P3)** — the `renderer_options` note predicts a layout shift only when a
+  flag is missing. It was a false warning on all three real programs on disk, which
+  set both flags.
+- **OD8 (P3)** — SKILL.md: the already-migrated STOP moved from Preflight to Step 1,
+  where the scan result exists; Step 3 flips `app.json` only when it says `skyline`,
+  and names which pages the layout shift reaches. SKILL.md stays at 139 lines.
+- **OD9 (P3)** — the F05 pipe case also checks that no `process.exit()` follows the
+  CLI's stdout write, so it fails on Linux too (local-only harness).
+- **OD4 (P3) stays open as a known limit.** A `wx://` route on the same line after a
+  quote-bearing regex literal is still missed. Installed 0.1.1 misses it too, so it
+  is not a regression; a fix needs regex-literal parsing, which is out of proportion.
+- Harness: 49 → 55 cases (6 new, one per fixed item; OD8 is prose, OD9 extends a case).
+  Red on 0.2.1 scripts: 6 of 55. Green on 0.2.2: 55/55.
+- False positives on all existing corpus (iron rule 7): 33 prior fixtures and 3 real
+  programs, full scan JSON and map diffed row by row against 0.2.1. Finding counts
+  are unchanged everywhere. The changes are the OD7 note text (3 real programs,
+  `clean-workaround`, `mixed`), the OD2 warning text (`page-override`,
+  `page-skyline-unset-app`) and `ignored_dirs: []` on the 3 blocker fixtures.
+  No new false positive.
+- Growth against the pre-wave baseline (iron rule 4): scan.mjs 591 → 636, gen 223 →
+  251, cases 44 → 55; all under +50%.
+- Carried battery P3s are unchanged and present in 0.1.1 too: F09, F12, F13, F15,
+  F16, F17 remainder, F04r.
+- The 0.2.2 fix round has no independent fix audit yet. The conductor decides
+  whether one is owed before deploy.
+
 ## 0.2.1 — 2026-09-25 (R20 wave, release record; no behavior change)
 
 Patch bump: this entry records evidence and open defects, and corrects stale stamps.
