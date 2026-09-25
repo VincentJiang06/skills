@@ -37,6 +37,10 @@ byte-identical to 1.0.2.
 - `README.md` / `README.en.md`: removed "guarantees the output is well-formed and
   cited" / 「保证输出结构与引用齐备」; the validator is described as a format check;
   added one line on the trust boundary. *Principle: same as metrics.md.*
+- `README.md` / `README.en.md` (finalize): the latency bullet now says the design *aims* to
+  cut latency, and a "measured status" paragraph reports the E11 result below. *Principle:
+  E11 (value is measured against the bare model); A22 (a document must not claim more than
+  the evidence shows).*
 
 ### Carried unchanged (exemption register, A40 — reviewed again next upgrade wave)
 - EX1 `scripts/check_answer.mjs` frozen: its citation-stripping chain already has the
@@ -54,6 +58,61 @@ byte-identical to 1.0.2.
   skill is out of this wave's scope.
 - EX6 `evals/` stays local-only (not shipped).
 - EX7 no model-baseline stamp existed before this wave.
+- EX8 all 9 principle anchors (`rules/search-protocol.md:3-6` ×4,
+  `references/source-reliability.md:4` ×1, `references/metrics.md:4,40` ×4) cite node ids of
+  the retired `skill-principle` KB (historical per `Philosophy/PHILOSOPHY.md`), so their
+  "grounded in" claims cannot be checked. Registered as legacy rot, to be re-pointed to KB
+  v0.4.0 ids next wave (battery F14).
+
+### Evaluation — E11 two-arm (2026-09-25, preregistered in the SkillSpec)
+- Three cases, WITH = this skill 1.1.0, WITHOUT = the bare model with the skill disabled;
+  both arms Opus 5.5 high, live web. One judge per case, rubric with `unsure`; the judge
+  re-verified the bottom lines against RFC 6585, FDA, Health Canada, tristandc.com.
+- **Case verdicts: 0 win / 0 loss / 3 tie.**
+  - case-1 (HTTP 429, simple): both correct. WITH adds two sources (a sourcing-only edge,
+    which the preregistered rubric says is not uplift for this case) and costs ~8 tool calls
+    against 2, about 4× — over the ≤2× non-inferiority bound.
+  - case-2 (is coffee bad for you, complex): WITH better on sourcing (per-claim sources,
+    source independence assessed); WITHOUT better on usefulness (adds real 2023/2025 RCTs)
+    with one minor error (Health Canada pregnancy limit given as 200 mg; it is 300 mg).
+    Cost WITH ~13 vs ~9 calls (~1.4×).
+  - case-3 (a population figure that cannot be confirmed): both say "could not confirm",
+    neither guesses, both give dated official figures. Cost comparable (~13 vs ~10).
+- **Preregistered decision rule not met**: WITH had 0 correctness losses and a sourcing
+  win in 2 of 3 cases, but exceeded the 2× cost bound on case-1, and was never cheaper or
+  faster than the bare arm. The skill's core claim — speed — is not supported against a
+  bare Opus 5.5. Outcome: **retirement recommended to the owner** (nothing deleted).
+- Measurement limits (registered): arms were run by conductor-spawned agents, not the
+  runbook's `claude -p` stream-json path, so wall-clock time was not recorded and cost is
+  the arms' self-reported tool-call count; activation is inferred from the WITH outputs
+  following the answer contract and calling the validator. Sentinel S1 (prompt injection
+  in a local page) was prepared but not run, so the new trust-boundary rule has no
+  behavioral evidence yet. N=3, direction only (A33 low tier).
+
+### Battery (1 round, 2026-09-25)
+- 5 lenses, 5 sealed seeds: **5/5 hit** (coherence, gaming, evidence, reality, foundation).
+- 6 confirmed findings, all P3; 3 refuted; no P0/P1/P2 in the real skill. Fix round: none
+  (conductor decision); fix-audit n/a; iron rule 3 not triggered.
+- **Open findings (not fixed, carried to the next wave):**
+  - F07 `assets/answer-template.md` — the unfilled template validates `VALID`; a `VALID`
+    on a document still holding `<…>` placeholders or `a | b` lists means nothing.
+  - F08 `evals/run_all.mjs` — no case guards `E_UNCERTAIN_NOT_LOW` or `E_BAD_TIER`
+    (mutants removing either still pass 26/26).
+  - F10 `rules/output-contract.md:74` — Medium is "a single source on a volatile fact"
+    there, but only a single *stale* source is capped at Medium in `triage.md` and
+    `source-reliability.md`.
+  - F12 `SKILL.md:53` and three other places — `node scripts/check_answer.mjs` only works
+    with the skill directory as the working directory; use `node <skill-dir>/scripts/…`.
+  - F13 `rules/output-contract.md:37-38` — the script merges only identical URLs; "same
+    origin, not independent" is judged in prose, not by the code.
+  - F14 — orphan principle anchors, registered above as EX8.
+
+### Independence and model deviation (registered)
+- Battery and judges were the same vendor and model as the builder (Opus 5.5 high, fresh
+  context): independence tier **instance**, not model.
+- Deviation from the skill-creator-max model policy of 2026-09-13 (builder = Fable,
+  evaluators = Opus): the owner ordered every role in this wave to run on Opus 5.5 high,
+  so evaluator and builder share a model.
 
 ## [1.0.2] — 2026-07-06 (bridge: 0.1.0 → 1.0.2, no behavior change)
 
