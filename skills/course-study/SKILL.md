@@ -57,7 +57,7 @@ metadata:
 
 | 情形 | 读（未注明即全文） |
 |---|---|
-| 在 study/ 下新建/覆盖文件前；写文件头、文末节、链接时 | rules/layout.md |
+| 跟课：分拣与读任何 PDF 之前；在 study/ 下新建/覆盖文件前；写文件头、文末节、链接时 | rules/layout.md |
 | 跟课：读完 layout、读任何 PDF 前 | rules/companion.md |
 | 写到表/图/示意图/时序/伪代码/第一处公式；导出前 | rules/format.md 对应节 |
 | 脉络不确定或讲义跨画像 | rules/subjects.md |
