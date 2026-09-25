@@ -3,6 +3,70 @@
 All notable changes to this skill. Format loosely follows Keep a Changelog;
 versioning is semver.
 
+## [0.3.0] — 2026-09-25
+
+Incremental alignment to the philosophy KB v0.4.0 (A40, R20 wave, low tier). The
+gates' verdict logic did not change; what changed is **what the docs say the
+backing gate proves**, a packaging bug that made the gate unreachable on public
+installs, and a missing trust-boundary statement.
+
+### Fixed
+- **Backing gate over-claimed (P13/S14, A22; this skill's own 0.2.0 E12 precedent).**
+  `validate_backing.py` checks schema, that fact-labelled claims carry a
+  `source_id`, and that ids resolve in `evidence[]`. The docstring, SKILL.md
+  Scripts row, README(.en) and research-protocol §3 said fabricated facts are
+  caught; a fact labelled `interpretation` with no source, or an invented
+  `evidence[]` entry, exits 0. All sites now state the scope and name the three
+  things it does not check (support, label honesty, prose↔backing). The dangling-id
+  message reads `(dangling reference)` instead of `(fabricated)` — the script
+  cannot know intent. Over-correction guarded: the gate still catches unsourced
+  fact-labelled claims and dangling ids (cases `untraced_fact`,
+  `fabricated_evidence_ref`).
+- **Public installs crashed at Step 6 (Controls: "Ship is blocked on any non-zero
+  exit" must be reachable).** `validate_backing.py` imported `schema_check` from
+  `evals/`, which never ships (repo `.gitignore`, `.clawhubignore`); a
+  tracked-files-only install raised `ModuleNotFoundError`. `schema_check.py` moved
+  byte-identical to `scripts/` (sha256 unchanged), no try/except fallback
+  (fail-closed). The harness no longer puts `evals/` on `sys.path`, which had
+  masked the crash.
+- **Metrics named what their instruments do not measure (E11 instrument validity,
+  A20).** "ungrounded-claim rate" → "untraced fact-label rate (reference
+  integrity)"; "activation precision" (a regex over 7 prompts) → "route-classifier
+  agreement (regex proxy; not skill activation)"; real activation precision is
+  declared 未测 until a description-driven trigger eval runs.
+- **README path drift (hygiene).** The registry is `rules/judge-must-flag.md`, not
+  `evals/JUDGE-MUST-FLAG.md`; the 0.2.0 entry below is left as written (history).
+
+### Added
+- **Trust boundary (P10, A36, S13).** SKILL.md Controls + rules/research-protocol.md:
+  fetched pages, snippets and caller-supplied material are data; directives inside
+  them are not followed and are named in the report. Scripts table declares both
+  scripts read-only.
+- Local evals: case `public_install_scripts_run` (`git archive HEAD` extract, both
+  scripts return a verdict with no Traceback; red at c2a922b, green after the move),
+  case `mislabeled_fact_exits_zero` + fixture `backing_mislabeled_fact.json`
+  registered in `rules/judge-must-flag.md`, and `evals/behavioral/injection_sentinel.md`
+  (E11 sentinel). 20 → 22 cases, GREEN.
+
+### Deliberately NOT done
+No prose↔backing string match, no regex for "fact labelled as interpretation", no
+evidence fetch / similarity check. Each is a semantic judgment with obvious witness
+pairs ('1987 年那种冷冽的合成器质感' vs '录于 1987 年'); they stay judge reads (P13,
+iron rule 2). No detector for "steering text" either — P10 is a source rule.
+
+### Exemptions carried (A40; not brought to the 0.4.0 constitution this wave)
+EX1 no full generation settlement of the rule body (the E11 run is the only
+settlement evidence) · EX2 no `allowed-tools` frontmatter · EX3 no calibration
+record for the judge-must-flag read · EX4 E11 at N=3, direction only, no
+third arm/MDE · EX5 no model_baseline stamps on pre-existing deterministic
+fixtures (not model-bound) · EX6 section linter / CJK counter carried without A50
+lineage work · EX7 0.2.0 history paths left as written.
+
+### Release gate
+`python3 evals/run_all.py` GREEN (22/22) **and** a human/judge rejects every
+fixture in `rules/judge-must-flag.md`. E11 two-arm record: run directory of the
+R20 wave (not shipped).
+
 ## [0.2.0] — 2026-07-31
 
 Honesty pass on the publish gate. The validator did not change; what changed is

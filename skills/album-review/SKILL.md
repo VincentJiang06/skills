@@ -6,7 +6,7 @@ description: >-
   comprehensive critique. Triggers: "写一篇深度乐评", "全面评测这张专辑",
   "$album-review". NOT for audio-gear evaluation (→ hifi-review).
 metadata:
-  version: 0.2.0
+  version: 0.3.0
 ---
 
 # album-review
@@ -143,7 +143,7 @@ write, delete and publish nothing.
 
 ## Lifecycle
 
-Version `0.2.0`; see `CHANGELOG.md`. **Release gate:** ship only when
+Version `0.3.0`; see `CHANGELOG.md`. **Release gate:** ship only when
 `python3 evals/run_all.py` is GREEN (length + section + traceability + routing)
 **and** a human/judge has read the negatives in `rules/judge-must-flag.md` and
 rejected every one of them. GREEN alone is not sufficient — the harness measures
