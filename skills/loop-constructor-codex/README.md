@@ -6,7 +6,7 @@
 
 **做什么** —— 与姊妹技能 [`loop-constructor`](../loop-constructor/) 相同：把任务分解成一棵带各自 gate 的子循环树（每段是一个扁平循环，自带机器可验证的 DoD + 可运行 check + 上限，用 `depends_on` 连接、无环），并落盘为可直接照跑的 `.loop/` runbook。区别只在于循环的各个角色落到 **Codex** 上：每个角色一个独立的 `codex exec` 进程。
 
-**Codex 映射** —— 三个角色 = 三次独立的 `codex exec`（评审是只拿到 diff + 契约的全新 `read-only` 进程）；每次 `codex exec` 都是新上下文，所以持久状态全在磁盘上（`.loop/`、账本、`contract.md`、`codex resume` 时先重读磁盘）；`large` 扇出 = 多个并发 `codex exec` 进程、各占一个 git worktree。细节见 [`references/codex-runtime.md`](references/codex-runtime.md)。落盘的 runbook 带一段 **"How to run this loop (Codex CLI)"** 前言。
+**Codex 映射** —— 三个角色 = 三次独立的 `codex exec`（评审是只拿到 diff + 立约时那份契约的全新 `read-only` 进程；契约与评审读的指令文件同属受保护面，生成者不可改）；每次 `codex exec` 都是新上下文，所以持久状态全在磁盘上（`.loop/`、账本、`contract.md`、`codex resume` 时先重读磁盘）；`large` 扇出 = 多个并发 `codex exec` 进程、各占一个 git worktree。细节见 [`references/codex-runtime.md`](references/codex-runtime.md)。落盘的 runbook 带一段 **"How to run this loop (Codex CLI)"** 前言。
 
 **0.3.0（跟进姊妹技能 0.5.0）** ——
 - **修复里冒出的缺陷会让循环停下**：若上一轮修复里又冒出 P0/P1 缺陷（或修复区膨胀超 50%、同类缺陷修满 2 轮等），循环停下交给 owner，不再原地重来；owner 先问「这个判断到底该不该交给代码」——要不要换判断平面（re-plane）由 owner 决定，循环自己不能选。路由顺序固定为 escalate → re-plane → loopback → restart，先命中者生效；「任务不可能或被阻塞 → 停下上报」这条出口永不封死。`codex-runtime.md` 的操作步骤改为逐条对应这套规则，不再有自己的一套（旧句「只在契约错时上报」已删）。

@@ -90,6 +90,29 @@ evaluator reads on startup. The linter was also no longer the sibling's: the cla
   wording. `loop-design-shape.md`, `loop-principle-map.md`, the flat golden and the
   linter are byte-identical.
 
+### Battery fix round (round 1 of 1; instance-tier battery, 5/5 seeds)
+- **F06 (P2) — `contract.md` is now a protected evaluator surface.** The graded
+  criteria sat in no protected set, so a generator could delete the assertion it
+  failed and the §1 pathspec / sha256 control still passed. `codex-runtime.md` §1
+  (evaluator row, control (a) pathspec, control (b) hash set, new why-paragraph) and
+  §2, `loops-model.md` §II and §IV, the large golden (evaluator/generator mandates,
+  `maker_checker.scope`, A12 check, `harness_primitives`, outer escalate) and the
+  medium golden's `maker_checker.scope` now include it. The evaluator grades the
+  contract-time copy; a wrong contract is an escalate, never a generator edit.
+  Anchors: `loops-model.md` §III ("the contract … is what gets graded"), KB P10 / K1,
+  A45(ii). Mirror register: K4 (§II) and K1's §IV hunk widened, K7 widened; the
+  sibling carries the same omission (routed to the conductor, not fixed there).
+- **F07 (P2) — the large golden stops on both sides.** Its outer `stop_conditions`
+  gained a minimum-progress floor in `success`, a zero-change failure branch and a
+  premature-abandonment escalate entry, mirroring the medium golden. The zero-change
+  counter is tagged decision-class in `parameter_provenance` and the D5 / D7 log
+  lines. Anchor: SKILL.md Controls "Stop on both sides" (D5). No linter check was
+  added: whether a stop text is two-sided stays a fresh-reader judgment.
+- No script, check or eval case changed (linter sha256 pin unchanged; harness 78/78).
+  Corpus re-run after the fixes: all 26 designs give the same exit / FAIL / WARN
+  vector as before; the three goldens stay 0 FAIL 0 WARN.
+- Open, not in this round's fix list: F08, F09, F10, F11, F13, FLAG-02 (all P3).
+
 ### Compatibility
 - Persisted pre-0.3 Codex runbooks keep the old routing and the unprotected `AGENTS.md`
   channel and still lint green. Re-review them with the fresh-reader §V box and the
