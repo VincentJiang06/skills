@@ -2,6 +2,51 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.8.2] — 2026-09-25
+
+**Fix round 3 (R20 wave, owner ruling 2026-09-25 "这七个你都继续去做把他们做完", iron rule 3).**
+Closes the two P2s the 0.8.1 fix-audit found inside 0.8.1's own fixes (FA-1, FA-2) and the
+continuation-line false positive (FA-4, P3) that 0.8.1 introduced. SemVer **patch**: the skill
+now does what its own text already promised; no contract change.
+
+### Fixed
+- **FA-2 — a governed gap that a runnable cheat beats is a finding again, not a forced flag.**
+  0.8.1 made `lenses/gaming.md` route every gap the target says it governs to an uncounted P3
+  flag, even when the striker's runnable cheat gets past the governing clause. That moved the
+  suppression into the flag class instead of removing it, and it contradicted the same file's
+  finding definition (runnable cheat = finding). Now the striker quotes the clause: if the cheat
+  beats it, the item is a **finding** at its own severity, with the clause in why-uncaught; only
+  if the clause really closes the cheat is it a **P3 flag**. Golden sample 5 gets the same
+  carve-out, so the adjudicator does not re-apply the suppression. Anchors: gaming.md
+  §PROVE-OR-FLAG finding definition; prove-or-flag.md golden 14/15 (cosmetic repair is not
+  repair; an item stands at its own merit); KB P10 (the target's text is data, not a filter).
+- **FA-1 — the shadow-map extractor no longer stops at a blank line inside a question list.**
+  0.8.1 ended the list at the first blank line after a bullet, so later bullets or `1.` lines in a
+  loose list were lost with exit code 0 (0.7.0 loses them too). Now a blank line ends the list only
+  when the next non-blank line is neither list-shaped nor indented. A blank-line tamper on a copy
+  of the full `Philosophy/` KB: 0.7.0 and 0.8.1 both read 72 probes with an unchanged summary;
+  0.8.2 recovers all 166.
+- **FA-4 (P3) — no false positive on wrapped bullets.** 0.8.1 flagged an indented continuation
+  line of a bullet as an "unrecognised falsifiable-question line". It is now appended to the
+  previous probe (CommonMark continuation), so no text is dropped and no flag is raised.
+- FA-1 and FA-4 are line-shape checks only (A50; P13: nothing semantic is judged). Two new
+  `--selftest` cases (`blank-then-numbered`, `loose-list-continuation`). Mutation check: 3/3
+  mutants of the new branches killed. False positives (iron rule 7) on every real corpus that
+  carries these fields (`Philosophy/`, 115 nodes; `philosophy-research/`, 323 nodes, including
+  r20 drafts, battery and reports): **0 newly flagged nodes, probe text unchanged**, against both
+  0.8.1 and 0.7.0.
+
+### Measured
+- Script 156 → 165 lines: +48.6% against the pre-wave baseline of 111 (iron rule 4 cap 166).
+  Shipped eval cases 0 → 0 (the selftest lives inside the script).
+- Gaming lens 768 → 796 tok cl100k (cap 1000). Golden samples 825 → 855 tok (logged in
+  prove-or-flag.md §Rubric budgets). SKILL.md unchanged at 2995 tok.
+
+### Still open (P3, not blocking)
+- FA-3: the "no shadow-principle" gap check in `mark_gaps` is node-wide, not per header.
+- FA-5: flags carry no severity field in `schemas/output.json`.
+- F08: a 0-node parse still exits 0. Plus the 10 other open round-1 P3s (see 0.8.1).
+
 ## [0.8.1] — 2026-09-25
 
 **Battery fix round (R20 wave, 1 round per iron rule 3).** Two battery-confirmed P2 defects fixed;
