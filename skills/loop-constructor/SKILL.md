@@ -7,7 +7,7 @@ description: >-
   autonomous / self-running agent workflow", "$loop-constructor". It DESIGNS
   the loop; it does NOT execute it.
 metadata:
-  version: 0.4.0
+  version: 0.5.0
 ---
 
 # loop-constructor
@@ -38,8 +38,8 @@ point — **write the loop, not the prompt** — every hard call becomes an orde
 reviewable derivation, not judgment-by-vibes.
 
 ### 1. SELECT — run the decision procedure (`references/loop-selection.md`)
-Answer **D0–D7 in order**; each answer determines part of the shape and is
-recorded with a one-line justification (the **decision log**). The ordered
+Answer **D0–D6 in order** (D7 closes after NEGOTIATE); each answer shapes the
+loop and is recorded with a one-line justification (the **decision log**). The ordered
 decisions: **D0** is-it-a-loop (name the runnable "done?" check or route away) ·
 **D1** decompose (seam test → flat vs staged) · **D2** per-stage pattern + check
 (+ `falsifiable_when`/`passing_but_wrong`) · **D3** autonomy (`in_the_loop` vs
@@ -49,9 +49,7 @@ cadence (completeness-first vs iteration-first, a *dial* that re-tunes D2/D3/D5)
 **D7** number provenance (closing sweep: each digit-bearing string classed
 decision | definitional | empirical; empirical ⇒ `derived`, never hand-fixed).
 Load `references/loop-selection.md` and run the full procedure — each D-item there
-is the operational decision rule. The procedure is the **selection method** — it
-replaces altitude-by-vibes with a reviewable derivation. Record the answers as the
-`selection_log` array.
+is the operational decision rule. Record the answers as the `selection_log` array.
 
 ### 2. NEGOTIATE — separate the roles + agree the contract (`references/loops-model.md`)
 Two moves from the LOOPS.md operating model, both **linter-enforced for staged**:
@@ -162,17 +160,20 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
   the evaluator is a fresh context told the artifact is broken. Required for staged.
 - **Negotiate the contract; grade it, not the spec.** Agree the testable assertions
   before building (§III); too few lets the evaluator rubber-stamp. Required for staged.
-- **Restart beats archaeology.** Where a build can rot into a patch-pile, route
-  `on_failure: restart` (discard + re-derive from the contract, §V) — and don't
-  human-interrupt a restart; escalate only a **wrong contract**, not a broken build.
-  Its trigger is a **counter fixed before the run** ("2 consecutive same-class
-  failures"), never an in-flight call.
+- **Route failures by what they accuse (§V):** escalate → re-plane → loopback →
+  restart, first hit wins. Restarting the stage's own stalled work stays autonomous
+  (no human). Escalate = stop for the owner on a wrong contract, an impossible or
+  blocked task (never sealed), or a fixer signature such as a P0/P1 inside the
+  previous fix; the owner first asks whether the judgment should be mechanized at
+  all — re-plane is theirs, never an `on_failure` the loop picks. Every trigger is a
+  **counter fixed before the run**, never an in-flight call.
 - **Stop on both sides.** `stop_conditions` carries a zero-change gate ("N iterations
   with zero new changes → stop", the anti-arms-race brake) *and* a minimum-progress
   floor below which an early stop escalates instead of counting as done (D5).
-- **Delete the harness as the model improves** (§VIII). Prune scaffolding the model
-  now does for free; match degrees-of-freedom to the task. A growing-only harness is
-  one you've stopped reading.
+- **Settle the harness both ways at each model release** (§VIII). Delete what the
+  model now does for free, add back that version's named failure modes, stamp each
+  change with `model_baseline`; match degrees-of-freedom to the task. A growing-only
+  harness is one you've stopped reading.
 - **Reject-on-no-check (per stage).** A stage with no runnable feedback signal
   FAILs the linter; the anchor holds for every stage.
 - **Mandatory caps.** Every stage + the outer loop carry a finite
@@ -184,17 +185,13 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 
 ## Lifecycle
 
-- **version** in frontmatter (`0.4.0`).
+- **version** in frontmatter (`0.5.0`).
 - **Breaking change** = any change to the loop-design JSON schema the linter binds
   to (a new required field, a renamed key) — staged consumers must re-author. `0.2.0`
   added `roles` + `contract` (required for staged) and the `restart` action; the
   flat atomic shape stays back-compatible.
-- **`0.4.0` — parameter provenance (non-breaking).** SELECT closes with D7;
-  staged designs declare `parameter_provenance` `{fixed[], derived[]}`; the linter
-  gains an additive `warns[]` channel (absence on staged = WARN, never FAIL; exit
-  codes unchanged; flat absence silent) plus strict shape + cross-reference FAILs
-  when the key is present; the renderer prints a provenance table only for
-  declaration-bearing designs (declaration-free output byte-identical). Every
-  pre-0.4 lint-green design still exits 0. Evidence + details: `CHANGELOG.md`.
+- **`0.5.0` — routing re-aligned (non-breaking).** Pre-0.5 runbooks still lint
+  green but may route "own fix → restart": re-review them with the fresh-reader §V
+  box. `0.4.0` (parameter provenance) and earlier: `CHANGELOG.md`.
 - **Rollback** = `git restore` the skill dir; the skill only writes design artifacts
   under the target's `.loop/` and never executes a loop, so a bad design is inert.

@@ -26,7 +26,8 @@ recorded with a one-line justification (the **decision log**):
   cheapest check on the spectrum that still fails on that mode; fill
   `falsifiable_when` + `passing_but_wrong`.
 - **D3 — Autonomy.** `in_the_loop` vs `on_the_loop` from blast-radius ×
-  reversibility × feedback-quality (weakest check wins).
+  reversibility × feedback-quality (a weak check guarding a high-blast or
+  irreversible step puts the human in).
 - **D4 — Parallelism.** Independent stages that benefit from fan-out → `large`
   (multi-agent); else `medium` (sequential).
 - **D5 — Guards.** Per-stage caps + `on_failure` routing; outer budget + failure +
@@ -135,7 +136,8 @@ wrong. Watch for these traps (each is a real one independent review has caught):
   thresholds) or it passes via unrelated well-tested code.
 - **Statistical/soak checks without a quantified bound.** "soak surfaces latent
   failures" is empty unless you state the trial count and the residual rate it
-  can detect at that count (e.g. 10⁴ trials catches a ~0.3% residual, not a 0.01%
+  can detect at that count (e.g. 0 failures in 10⁴ trials bounds the residual at
+  about 0.03% at 95% confidence, by the rule of three — it cannot vouch for a 0.01%
   one). Put the number in the check.
 - **A repro that suppresses the bug.** Over-determinizing a concurrency repro
   (fixed schedule) can serialize away the very race it must catch — make RED
@@ -179,10 +181,12 @@ Score the design (and any high-stakes stage) on three axes:
 - **reversibility** — can you cheaply undo it?
 - **feedback quality** — does the check *truly* catch the failure (or can it pass while wrong)?
 
-> **`in_the_loop`** (human approves each iteration) when **high blast × low
-> reversibility × weak check**. Otherwise **`on_the_loop`** (human reviews at the
-> gates / at the end). When two axes pull opposite ways, the weakest check wins:
-> a check that can pass-while-wrong forces a human in.
+> **`in_the_loop`** (human approves each iteration) when the blast radius is
+> **high and** reversibility is **low**, or when a **weak check** (one that can pass
+> while wrong) guards a high-blast **or** irreversible step. Otherwise
+> **`on_the_loop`** (human reviews at the gates / at the end). A weak check on a
+> low-blast, reversible step does not put a human into every iteration: name it as
+> the current bottleneck (`loops-model.md` §IX) and strengthen the check.
 
 Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`.
 
@@ -209,19 +213,29 @@ Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
   `loopback` to an **upstream** stage (a `depends_on` ancestor), `escalate`,
   `abort`, or **`restart`** (discard this stage's work and re-derive it from the
   contract — LOOPS.md §V; the right move when a build has become archaeology, and a
-  frontier model often ships a clean rewrite faster than it patches). A `restart`
-  is autonomous, not an escalation: **don't insert a human to interrupt a restart —
-  insert one only when the *contract* is wrong, not when a build is.**
+  frontier model often ships a clean rewrite faster than it patches). Pick the exit
+  by **what the failure accuses**, in the order of `loops-model.md` §V:
+  **escalate → re-plane → loopback → restart, first hit wins.** A `restart` of the
+  stage's own stalled work is autonomous — **don't insert a human to interrupt it.**
+  Insert one at `escalate`, which has three grounds: the **contract** is wrong, the
+  **task** is impossible or blocked, or a **fixer signature** fired (§V lists the
+  five). Re-plane is not an `on_failure` value: it is the owner's disposition after
+  an escalate stop, never a route the loop takes by itself.
 - **Quantify the routing trigger BEFORE the run.** `restart`'s condition — "patching
   has stalled" — is a semantic judgment, and in flight it loses to optimism every
-  time. Write it as a **counter in the stop conditions before iteration 1** and let it
-  fire mechanically: *"2 consecutive iterations with same-class failures → restart"*,
-  *"a top-severity defect lands inside the previous iteration's own fix → restart"*,
-  *"3 iterations without the failing assertion changing → escalate"*. No in-flight
-  discretion; no raising the counter from inside the loop. (The named failure: a
-  seven-round patch-vs-break arms race whose restart criterion was met at round two,
-  but was never written down, so the loop kept choosing `loopback` until the whole
-  effort was reverted. KB `guidelines/loops.md` H4 + T14.)
+  time. Write every trigger as a **counter in the stop conditions before iteration 1**
+  and let it fire mechanically: *"2 consecutive iterations whose failures are the
+  same class → `restart`"* (own-work stall), *"a P0/P1 lands inside the previous
+  iteration's own fix → STOP, `escalate` (owner first asks whether this judgment
+  should be mechanized at all)"*, *"3 iterations without the failing assertion
+  changing → `escalate`"*. Pre-register §V's fixer signatures as the first
+  `stop_conditions.escalate` entries, ahead of the restart counters, and never seal
+  the "impossible / blocked → escalate" exit. No in-flight discretion; no raising a
+  counter from inside the loop. (The named failure: a seven-version patch-vs-break
+  arms race over a deterministic gate; the audit and an independent attacker were
+  present and read the non-convergence correctly — what the loop lacked was the
+  authority to stop and ask whether the judgment belonged in code at all. KB
+  `guidelines/loops.md` H4 + H-series verdict 2, `rules/constitution.md` A51.)
 - **Design-level**: an outer `max_iterations` budget, a non-empty `failure`
   branch list, `escalate` triggers, and a non-empty `success` state.
 - **Close the stop condition on BOTH sides.** A stop condition that only guards one
@@ -369,9 +383,13 @@ red fixture.**
   change-channel test settles it: only the operator may move it, outside the loop,
   between runs — whereas an empirical value's whole point is that the
   pre-registered formula moves it *inside* the loop.
-- **Sample sizes and agreement bars are empirical.** "A sample of ≥20 verdicts
-  with ≥90% agreement" makes variance and attainability claims — measurement can
-  refute a sample size or an agreement bar; you cannot know them at 0 runs.
+- **A sample size that claims something is empirical; a minimum sample floor is
+  decision.** "A sample of ≥20 verdicts reaches ≥90% agreement" makes variance and
+  attainability claims — measurement can refute it, and you cannot know it at 0
+  runs, so it is `derived`. The minimum sample floor a calibrating stage collects
+  before it trusts a derived value ("≥2 timed runs before the budget is computed")
+  claims nothing about the world — it states how much evidence you insist on — so
+  it is a decision number, marked "re-examine per design".
 - **External facts** (a vendor rate limit, a published price/quota): file as
   FIXED, class decision or definitional, with a `why` naming the external source
   and a revisit date. Do not "derive" a published contract from your own run (it
@@ -394,8 +412,8 @@ other direction.
 **Emit exactly one selection_log line**, e.g.
 `{"decision":"D7","answer":"2 decision / 2 definitional / 1 empirical -> characterize calibrates","why":"<the sweep>"}`.
 
-The skill recommends **no default** for any drift threshold or sample floor: the
-FIELDS are required, the VALUES are per-design (each is itself a decision number —
+The skill recommends **no default** for any drift threshold or minimum sample
+floor (the floor above, not a sample size that claims variance): the FIELDS are required, the VALUES are per-design (each is itself a decision number —
 mark it "re-examine per design"; the golden's examples say so too).
 
 ## Output of the procedure

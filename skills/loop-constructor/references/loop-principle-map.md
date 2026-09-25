@@ -1,4 +1,4 @@
-# loop-principle map — 9 steps → KB grounding
+# loop-principle map — design fields → KB grounding
 
 This is a **thin pointer**. The substance lives in the loop-principle KB; cite
 these node ids and load the templates/checklists by path instead of restating
@@ -88,7 +88,7 @@ step that uses it (all verified via `query_kb`):
 > skill's own shape in `references/loop-design-shape.md`, and the rendered runbook
 > comes from `scripts/render_loop_doc.mjs`, not from the KB template directly.
 
-All grounding ids above (the 9-step table + the Decomposition table) were verified
+All grounding ids above (the field table + the Decomposition table) were verified
 present in the KB at build time and resolve via `query_kb`: **node** ids
 (`principle.* concept.* pattern.* procedure.* technique.* anti_pattern.*`) live in
 `<kb>/knowledge_graph/nodes/*.json`; **doc** ids (the `doc.*` entries, e.g.

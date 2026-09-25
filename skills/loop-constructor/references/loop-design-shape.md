@@ -62,7 +62,8 @@ Entering a loop means the task is big enough to decompose, so the skill emits a
 **staged** design: every task is a tree/sequence of gated sub-loops. The flat
 shape above is **not deprecated** — it is the atomic unit (one stage *is* a flat
 loop), and the linter still accepts a lone flat object for back-compat. But the
-9-step protocol produces the staged shape below.
+selection procedure (SELECT → NEGOTIATE → FILL → VERIFY, D0–D7) produces the staged
+shape below.
 
 ```json
 {
@@ -189,13 +190,18 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 - **`restart`** (LOOPS.md §V — *Let The Loop Restart*) — a stage `on_failure.action`
   meaning *discard this stage's work and re-derive it from the contract* rather than
   patching a codebase that has become archaeology. It carries no `to` (it throws its
-  own work away and re-enters — it does not reset an upstream gate). Restart is not
-  a human-escalation trigger: insert a human only when the **contract** is wrong,
-  not when a build is. Its trigger — "patching has stalled" — must be **quantified in
-  the stop conditions before the run** ("2 consecutive same-class failures", "a
-  top-severity defect inside the previous iteration's own fix"), never judged
-  in-flight; the linter cannot check this, the fresh-reader does
-  (`references/loops-model.md` §V).
+  own work away and re-enters — it does not reset an upstream gate). A restart of the
+  stage's own stalled work is autonomous: don't put a human in its way. Its trigger —
+  "patching has stalled" — must be **quantified in the stop conditions before the
+  run** ("2 consecutive same-class failures"), never judged in-flight. A top-severity
+  defect inside the previous iteration's own fix is **not** a restart trigger: it is a
+  fixer signature, and it goes to the outer `stop_conditions.escalate` (stop; the
+  owner first asks whether the judgment should be mechanized at all). **There is no
+  `re-plane` action, on purpose**: re-plane is the owner's/gate's disposition after an
+  escalate stop, not a route the loop may take, so the enum stays
+  `loopback | escalate | abort | restart` — a request for `on_failure: re-plane` is
+  declined and the plane question goes into the escalate trigger instead. The linter
+  cannot check any of this, the fresh-reader does (`references/loops-model.md` §V).
 - **`parameter_provenance`** (D7 — *number provenance*) — the declaration that
   classifies the design's numbers: one top-level key, exactly two arrays. An empty
   block is an affirmative claim ("this design has no empirical parameters"): legal
@@ -271,7 +277,7 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 | `stages[i].feedback_signal.passing_but_wrong` | missing/empty — record the passing-but-WRONG implementation the check would wrongly accept (or `"none: <why exhaustive>"`); presence is structural, the fresh-reader judges whether it's real |
 | `stages[i].stop_conditions.failure` | not a non-empty list of **non-empty strings** (`[null]` / `[""]` / `[0]` FAIL) |
 | `stages[i].stop_conditions.max_iterations` | missing, or not a positive integer **≤ 10000** (an effectively-infinite cap is no cap) |
-| `stages[i].stop_conditions.on_failure` | `action` not `loopback`/`escalate`/`abort`; a `loopback` whose `to` is missing, unresolved, the stage **itself**, or **not an upstream stage** (must be a transitive `depends_on` ancestor); or an `escalate`/`abort` carrying a stray `to` |
+| `stages[i].stop_conditions.on_failure` | `action` not `loopback`/`escalate`/`abort`/`restart`; a `loopback` whose `to` is missing, unresolved, the stage **itself**, or **not an upstream stage** (must be a transitive `depends_on` ancestor); or an `escalate`/`abort` carrying a stray `to` |
 | `stages[i].depends_on` | present but not an array, **or** references a stage id that does not exist |
 | `stages.reachability` | the `depends_on` edges form a cycle (no enterable root ⇒ cannot terminate) |
 | `hybrid.*` | a top-level `feedback_signal` / `definition_of_done` / `loop_pattern` alongside `stages[]` (per-loop fields belong inside a stage) |
