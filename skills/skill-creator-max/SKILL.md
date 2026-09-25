@@ -63,6 +63,10 @@ vs "扫描人数": LCS 0.75, opposite verdicts). Confirm: a JSON-schema check (d
 over-correction). An LLM whose verdicts a comparator scores gets its own `llm_judge` entry. Unsure →
 strict path until the owner rules.
 
+**Stage-3 red provenance (E5).** `validate_report` checks only `red_before_green: true` plus a
+non-empty red file. Open it: it must record failing runs of the green run's cases, dated earlier,
+and must not be the harness itself. Otherwise fail stage 3.
+
 **Conditional gate branches (add one check inside an existing gate; order and min() fold
 unchanged).** If the built skill is itself a **>1-round autonomous loop**, its dossier must carry
 `loop_charter` (checks run red first · adjudication separated from the generator · on-disk state

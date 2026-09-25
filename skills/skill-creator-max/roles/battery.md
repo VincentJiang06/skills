@@ -87,7 +87,9 @@ produce a passing test suite. Anchors: O5, E6, E9, [SELF-battery渐近], [SELF-a
 1. Existence-check bypass: for every "field X exists / section Y non-empty" check, write the
    one-line boilerplate that passes it.
 2. Self-report gating (deepest): any exit/verify condition that fires only when the OWNER volunteers
-   an event — show how "just never report it" defeats it forever.
+   an event — show how "just never report it" defeats it forever. Standing case: the dossier's
+   `red_before_green` is self-reported; open the red artifact and check it predates green on the
+   same cases.
 3. Author-same-source: where does one author write the rule AND the golden samples AND run the
    verification? Name every collapse.
 4. Self-chosen inputs: thresholds/tiers the executor sets for itself and is then graded against —

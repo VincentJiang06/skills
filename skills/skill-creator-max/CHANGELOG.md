@@ -14,6 +14,15 @@ pre-1.3.0 text or scripts, so no A51(i) signature fired. The 15 P3s stay in the 
   (key equality), so A50(i) is exempt; A50(ii): old vs new verdicts identical on 42/42 real
   skill_spec files (none of them leaves a tri-state field blank, so the escape was never used);
   selftest 12→13 traps (the F02 repro, red on the old code). [C2, A49, A50, S14]
+- **engineer §2, evidence-dossier schema, SKILL.md stage 3, battery Gaming lens — red provenance
+  says who checks what (F05).** engineer §2 claimed the gate checks "red artifact exists and
+  predates green"; `validate_report` checks only the self-reported `red_before_green: true` plus a
+  non-empty file (so the harness itself passed as its own red log). The prose now states that, the
+  schema description marks the boolean self-reported, the conductor reads the red artifact at
+  stage 3 (failing runs of the same cases, dated earlier, not the harness), and the Gaming lens
+  lists it as a standing self-report case. No mtime gate added: a file timestamp is not the
+  ordering of runs, and prose + a read is the default fix form. validate_report untouched (AST
+  identical; verdicts identical on the 36 real dossiers). [E5, K4, A49, iron law 2]
 
 ## [1.3.0] — 2026-09-25
 

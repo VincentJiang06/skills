@@ -54,7 +54,7 @@
       "required": ["red_artifact_path", "red_before_green", "kind"],
       "properties": {
         "red_artifact_path": {"type": "string"},
-        "red_before_green": {"type": "boolean", "description": "red log timestamp precedes first green commit (E5 state assertion)"},
+        "red_before_green": {"type": "boolean", "description": "red log timestamp precedes first green commit (E5 state assertion). Self-reported: validate_report checks only true + a non-empty file at red_artifact_path; the ordering and same-cases-flipped are the conductor's stage-3 read and the battery's provenance spot-check"},
         "kind": {"type": "string", "enum": ["failing_test_log", "behavioral_baseline"]}
       }
     },

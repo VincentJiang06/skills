@@ -58,8 +58,11 @@ nothing — this is the vacuity every green-but-wrong incident traces back to [S
       the skill on the same cases and save that as a **behavioral baseline** — the red artifact of
       kind `behavioral_baseline`.
 - [ ] The red log's timestamp must precede your first green run. This is a STATE assertion, not a
-      path assertion (E5): the gate checks "red artifact exists and predates green", never "you
-      followed steps in order" [ANT-Demystify].
+      path assertion (E5) [ANT-Demystify]. Know what checks it: `validate_report` sees only your
+      `red_before_green: true` and a non-empty file at `red_artifact_path`. It cannot see ordering,
+      and it cannot tell a red log from any other file. "Predates green, same cases flipped" is
+      checked by the conductor's stage-3 read of the artifact and the battery's provenance
+      spot-check, so write the red log for that reader (the runs themselves, with timestamps).
 - [ ] Fill `red_light_history` with the real path and kind. If you cannot produce a red artifact,
       the honest dossier says so — a fabricated red log is worse than a missing one, and the
       battery spot-checks provenance.
