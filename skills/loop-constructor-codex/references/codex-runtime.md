@@ -7,6 +7,15 @@ concept on the **OpenAI Codex CLI** (one `codex exec` process per role). Load it
 NEGOTIATE (roles), FILL (harness_primitives + D4), and PERSIST (the runbook's
 how-to-run preamble). Cite loop-principle node ids as the sibling references do.
 
+**Phase map** (moved from SKILL.md in 0.3.0). Load this file during **NEGOTIATE** (roles realization — three
+roles = three separate `codex exec` invocations, the evaluator a fresh read-only one
+launched so it cannot obey instruction files the generator wrote, §1),
+**FILL** (harness_primitives = durable on-disk state; D4 parallelism = concurrent
+`codex exec` processes in git worktrees), and **PERSIST** (the emitted runbook carries a
+"How to run this loop (Codex CLI)" preamble:
+per-stage `codex exec` pattern, evaluator-as-fresh-`codex exec`, re-read-disk
+on `codex resume`; for `large` designs, concurrent `codex exec` + worktrees).
+
 **Codex facts — observed on codex-cli 0.144.4, 2026-09-25** (local `codex exec --help`,
 `codex features list`, strings in the native binary; local observation, not vendor docs —
 re-stamp at each codex-cli release, `references/loops-model.md` §VIII): non-interactive
