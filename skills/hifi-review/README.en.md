@@ -8,7 +8,7 @@
 
 **Why it's good** —
 - Rig-aware FR analysis (711 ≠ 5128) with a peak/dip pass — 量感 and 风格 both land in dB from the curve.
-- A "consensus ≠ measurement" no-inflation gate: review consensus is never sold as a measurement endorsement.
+- A "consensus ≠ measurement" no-inflation gate: technicality claims can only be tagged consensus, never sold as a measurement endorsement.
 - A media roster judged **dynamically** by orientation, not bucketed — measurement-backed sources trusted, impression-led ones bias-corrected.
 - Every claim traced to evidence and tagged `measured | consensus | prior` with a confidence level.
 
@@ -17,4 +17,6 @@
 
 **Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/hifi-review ~/.claude/skills/`).
 
-Full spec: [SKILL.md](SKILL.md)
+**Known limitations** — `validate_output.py` checks structure only (schema, every claim traced to a listed source, technicalities tagged consensus); it does not judge whether a claim is justified (e.g. an audible-difference claim — that is the Step 8 self-read against the judgment card). The L1 goldens are regression baselines frozen by the engines on synthetic curves: they prove determinism and no regression, not accuracy.
+
+Current version 1.1.0 — see [CHANGELOG.md](CHANGELOG.md). Full spec: [SKILL.md](SKILL.md)
