@@ -91,3 +91,24 @@ Most-used on reactor.vincejiang.com / UniWild expository nodes. Failure cost = M
   R6 E11 arm outputs; R7 the audit's English probe; R8 selftest fixtures. 1.1.0 readings are in
   the CHANGELOG. Known residual FP classes (reported, not patched): title-case headings, a
   capitalised word after a colon, ALL-CAPS emphasis words.
+
+## 1.1.0 acceptance status (stated honestly)
+
+- **Two-arm comparison (E11) run 2: WITH 2 wins / 1 loss / 0 ties, so the pre-registered
+  acceptance line (zero losses) is not met.** On the Chinese McNamara paragraph and the English
+  benchmark paragraph WITH unfolded the same leaps at shorter length (1.17x vs 1.26x / 1.35x) and was
+  preferred. On the Chinese black-hole encyclopedia lead WITHOUT narrowly won: the WITH arm declined
+  to swap two sentences (friction mentioned before the accretion disc) under the "NOT reorder points"
+  rule, and the bare model's swap read better. No fidelity hard fail in any arm; every name and
+  number survived; WITH cost <= 1.4x. N = 3, narrow margins, one same-family judge, the blinding
+  leaked again and the calibration controls were not recorded, so this is direction only. Whether
+  "no reorder" should allow a local two-sentence swap that repairs a leap is left to the author.
+- **Battery (instance tier, two rounds)**: seeds 5/5 hit in both rounds; the single round-1 P2
+  (Chinese numerals undisclosed) is fixed. Everything else is P3, unfixed and carried: `--terms`
+  with two empty lists prints "none"; a name after an abbreviation ending in "." (Dr./cf./e.g./U.S.)
+  is not a candidate; an ASCII number turned into a longer one (20 -> 200) is not flagged; malformed
+  `--terms` gives a traceback; the probe's anchors cannot be run as written and have no alignment
+  record; the selftest's "stance" check cannot fail; the A-POS-1 anchor file carries the rewriter's
+  annotations; tell #2 is missing "in". The full list is in CHANGELOG 1.1.0.
+- **Model deviation**: every role in this wave (builder, attacker, judges) is Opus 5.5 at the
+  owner's direction, so independence is instance-tier only.

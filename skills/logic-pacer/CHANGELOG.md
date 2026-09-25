@@ -48,15 +48,49 @@ contract and the verify adjudication behaviour change. Each item names its ancho
   "probe 4/4" below are self-reports only; no file was found in the installed skill, the source
   repo or the dev worktrees (P10). They are annotated here, not rewritten.
 - **E11 two-arm run (A14/E11)**: three cases (ZH in-distribution, EN held-out, ZH held-out
-  genre). Run 1 bound to the pre-battery-fix commit and was judged 3 WITH wins / 0 losses, but
-  its judge saw the arm directory names (blinding leak) and no verdicts/cost file was written,
-  so it counts as direction only (run dir `arms/_archive/run1-b24ce38/`, P10). Run 2 is staged
-  on this release's text with the same pre-registered acceptance line; its verdicts are
-  recorded at settlement by the conductor, pending at this commit.
-- **FP register R6** (iron rule 7): the six run-1 arm outputs, 1.0.0 check 4 ordinary-word hits
-  -> 1.1.0 check 0; the judge found no name or number lost in either arm.
-- Model-policy deviation: builder, judges and labeller are the same model (Opus 5.5) at the
-  owner's direction; independence is instance-tier only.
+  genre); WITH = this release, WITHOUT = bare model explicitly told not to load any skill; each arm
+  its own copy of the source; pre-registered acceptance: L = 0, W >= 1, no WITH fidelity hard fail,
+  WITH cost <= 3.0x. Run 1 (pre-battery-fix b24ce38) was judged W3/L0 but its judge saw the arm
+  directory names, so it counts as direction only (`arms/_archive/run1-b24ce38/`). **Run 2 (this
+  release's text, 6469808): W2 / L1 / T0 -> the pre-registered line is NOT met (gate_failed).**
+  Case 1 (ZH, McNamara) WITH narrowly preferred: same leaps unfolded at 1.17x vs 1.26x, only
+  inferences already in the source. Case 2 (EN, benchmarks) WITH preferred: same junctures at 1.17x
+  vs 1.35x, tighter and closer to the author's register. Case 3 (ZH, black-hole encyclopedia lead,
+  mostly followable) WITHOUT narrowly preferred: the WITH arm declined a two-sentence local swap
+  (friction mentioned before the accretion disc) citing this skill's "NOT reorder points" rule, and
+  the bare model's swap read better. No fidelity hard fail in any arm; every name and number
+  survived; both arms' change reports were honest. Cost proxy (tool calls, tokens not exposed): WITH
+  1.0x / 1.4x / 1.4x of WITHOUT, under the 3.0x line. Not retire_recommended (W = 2). **Resolution
+  caveat**: N = 3, narrow margins, one same-family judge for all three cases, the blinding leaked
+  again (the judge saw `with/` / `without/`, arm process notes unstripped), and the calibration
+  controls have no recorded verdicts, so this is direction, not an effect size. Records:
+  run dir `e11/verdicts.json`, `e11/cost.json`, `arms/judgement.md`.
+- **Open question for the owner (not fixed, fix budget spent)**: case 3 suggests the anti-trigger
+  "NOT reorder points" is being applied to a local two-sentence swap that repairs a leap (a premise
+  used before it is introduced), which is arguably inside the skill's own job (tell #2). Whether to
+  narrow that rule is a design ruling, left to the owner.
+- **FP register R6** (iron rule 7): 12 arm outputs (run 1 + run 2), 1.0.0 check 6 ordinary-word
+  hits -> 1.1.0 check 0; the judge found no name or number lost in any arm. Final re-measure on all
+  registered corpora at release: R1 0 -> 0, R2 188 -> 1, R3 0 -> 0, R5 854 -> 245, R6 6 -> 0,
+  R7 12 -> 0, R4 candidates 9,046 -> 548; pass line OK; selftest 16/16.
+- **Battery** (instance tier: same model, fresh contexts; two rounds, one fix round, iron rule 3
+  respected). Round 1 (b24ce38): seeds 5/5 hit; 10 confirmed = 1 P2 (F-R2, fixed in dda1d38) +
+  9 P3. Round 2 (6469808): seeds 5/5 hit; 7 confirmed, all P3, 7 refuted, no P0/P1, none in the
+  round-1 fix code, no fix round. **Open residuals (P3, carried, not fixed)**: `--terms` with two
+  empty lists prints "none" instead of "not checked" (F-G2/F-06); a name after an abbreviation
+  ending in "." (Dr., cf., e.g., U.S.) is not a candidate, so the "only sentence-initial names are
+  unchecked" disclosure is incomplete (F-R3/F-07); an ASCII number changed into a superstring
+  (20 -> 200, 15% -> 150%) is not flagged, substring test with no digit boundary (F-R4/F-08);
+  other F-R4 false negatives (Gödel/Émile, single digits, empty source); malformed `--terms`
+  gives a traceback (F-R5); the probe's "judge must reproduce these labels" cannot be run and no
+  alignment record exists (F-EA1/F-09); the selftest's "stance" check cannot fail but counts in
+  16/16 (F-EA2/F-11); the probe's A-POS-1 anchor file carries the builder's annotations (F-12);
+  tell #2 reads "a premise the sentence it is introduced" (missing "in"), worded differently in
+  the probe (F-14); worked-example attribution scope shift (F-C2); unsourced judge-bias
+  superlative (F-EV2); Pinker quote drops "I know of" (F-EV3).
+- Model-policy deviation (skill-creator-max policy of 2026-09-13 wants a Fable builder and Opus
+  evaluators): at the owner's direction every role here (builder, attacker, adjudicator, E11 arms
+  and judge, FP labeller) is Opus 5.5, so independence is instance-tier only, not model-tier.
 - Carried under exemption: description length (E1), A-F tutorial settlement (E2), CJK anchor
   list (E3), probe calibration anchors Quetelet-only (E4), register check `--terms`-only (E5),
   the worked example's parenthetical about `evals/` (E6, flagged to the conductor).
