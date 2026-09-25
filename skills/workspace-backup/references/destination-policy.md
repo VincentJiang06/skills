@@ -1,7 +1,9 @@
 # Destination policy — the refusal rulebook
 
-Read this when `guard_destination.py` exits non-zero or emits an anomaly code.
-On a clean run — every destination exits 0 with no anomaly — do not read it.
+Read this when `guard_destination.py` exits non-zero or emits an anomaly code
+other than `SHARED_APFS_CONTAINER` / `OFF_MACHINE_DESTINATION` (since 0.3.0
+`status.py` states those two in words on the destination's line). On a clean
+run, do not read it.
 
 Every rule below names the anomaly code the guard actually emits for it, so a
 refusal message can never cite a rule the guard does not implement.
@@ -14,7 +16,7 @@ refusal message can never cite a rule the guard does not implement.
 | 10 | `OFFLINE` | absent, or a removable path that is not a mount point. **A normal outcome, not an error.** |
 | 20 | `REFUSED_TIME_MACHINE` | no override exists |
 | 21 | `REFUSED_INSIDE_SOURCE` | the destination resolves inside a source root |
-| 30 | `REQUIRES_CONFIRMATION` | foreign machine, changed identity, or no marker yet |
+| 30 | `REQUIRES_CONFIRMATION` | foreign machine, changed identity, no marker yet, or a known cloud-sync root in the path that is not declared `off_machine: true` |
 
 The other chain members have their own codes — `copy.py` 3/4/5/6/7/11,
 `verify.py` 8/9/11, `plan.py` 1 — and SKILL.md's run-chain section carries the
@@ -79,6 +81,57 @@ a swapped src/dst pair takes.
 
 ---
 
+## INV-07 — off this machine. `CLOUD_SYNC_DESTINATION`, `OFF_MACHINE_DESTINATION`.
+
+A copy into an iCloud Drive or other cloud-sync folder leaves this Mac: the sync
+client uploads it. Content may leave only to a destination the owner declared.
+
+**What the guard matches** — one pure function, `cloud_sync_root()`, over the
+destination's `realpath` (so a symlink into such a folder is seen through): the
+component pair `Library/Mobile Documents` (iCloud Drive) or
+`Library/CloudStorage` (File Provider clouds: Dropbox, Google Drive, OneDrive…),
+anywhere in the path, case-folded. A match is **"known cloud-sync root detected
+in the path"** — never proof that anything syncs. Look-alikes such as
+`Mobile Documents Backup`, `iCloud-notes` or `CloudStorageOld` do not match.
+
+**Order.** Decided after both refusals: a path that is also a Time Machine store
+still exits `20`, one inside a source root still exits `21`. A cloud match never
+refuses; it routes to the owner.
+
+* **Detected, not declared** → exit `30` `CLOUD_SYNC_DESTINATION`. Nothing is
+  copied there, and `init_destination.py` will not write a marker there either
+  (a marker names this machine). The other destinations run normally.
+* **Declared** (`"off_machine": true` on that destination in `config.json`, the
+  JSON boolean only — `"yes"` does not count) → exit `0` with
+  `OFF_MACHINE_DESTINATION`. `plan.py` then holds it with
+  `OFF_MACHINE_SECRETS_UNACKNOWLEDGED` until the pattern-matched secret files
+  routed there are acknowledged once (`--ack-secrets`). The declaration and the
+  acknowledgement are two facts; both may be asked in one turn (see
+  first-run-setup.md, *Widening keys*).
+* **Declared but not detected** (a network share, `~/Documents` under iCloud
+  Desktop & Documents) → treated exactly like detected-and-declared.
+
+**Known false negatives** — no path signal, so the guard is silent and the
+report says "no known cloud-sync root detected", never "local": iCloud Desktop &
+Documents sync on `~/Desktop` / `~/Documents`; SMB/NFS mounts; a legacy
+`~/Dropbox`; any sync client outside the two roots. The owner's outlet is to
+declare `off_machine: true`.
+
+**Known false positive** — a copied home tree on another disk, e.g.
+`/Volumes/X/old-mac/Users/v/Library/Mobile Documents/restore`. Cost: one
+confirmation turn; the same declaration resolves it. There is no path allowlist.
+
+**Dependency.** macOS keeps these two roots today (checked 2026-09-25). If a
+macOS release moves them, this check rots toward false negatives silently —
+re-check the two roots at every macOS major version.
+
+* **BAD:** `destination rejected (CLOUD_SYNC_DESTINATION)`
+* **GOOD:** "icloud is held: that folder syncs to iCloud, so a copy there leaves
+  this Mac. I copy off-machine only to a destination you declare; 12
+  pattern-matched secret files would go there (list below). ext-2tb ran as usual."
+
+---
+
 ## Mount identity. `NOT_A_MOUNT_POINT` → `OFFLINE`.
 
 Decided by `os.stat().st_dev` compared to `/`'s — **never by
@@ -138,6 +191,10 @@ journals a `space_override` event, and makes every report carry a
 `SPACE_VERDICT_OVERRIDDEN` anomaly — a fabricated space verdict must never be
 indistinguishable from a measured one.
 
+**Independence.** When a pooled volume carries the Backup (Time Machine) role,
+`status.py` says on that destination's line that it is not an independent copy
+of that disk: one disk failure takes the Time Machine store and this copy.
+
 `/Volumes/5TBofData` (disk5s1, 3.4 TiB free) is on its own container and is the
 only genuinely independent destination available today. Class-A copies there are
 the first real two-device redundancy the deliberately-local material has ever
@@ -175,11 +232,10 @@ derive the write target from the config destination root + the unit id and exit
 while the copier — with `--delete` — prunes another, which is what a stale plan
 after a config path change looks like.
 
-A valid marker also authorises one narrow destination-side deletion: sweeping
-the `.NAME.XXXXXXXXXX` files a killed copier leaves behind, under the derived
-destination path only, and only where no file of that exact name exists in the
-source. Without it, one power loss left the unit permanently unverifiable, and
-SKILL.md forbids hand-writing the `rm`.
+The `.NAME.XXXXXXXXXX` files a killed copier leaves behind are **reported, never
+deleted** (since 0.2.1: the pattern also matches `.env.production`, and the
+0.2.0 sweep destroyed real files). `verify.py` does not fail a unit over them;
+with delete-at-destination on, the copier's own `--delete` reclaims them.
 
 ---
 
@@ -207,6 +263,39 @@ Case-sensitivity remains an open unknown (spec U5) for `/Volumes/5TBofData` and
 `/Volumes/2TBofData` until they are mounted and queried; `CASE_SENSITIVITY_UNKNOWN`
 is reported rather than defaulted, and unknown is treated as the losing
 direction.
+
+---
+
+## Action surface and decision planes
+
+What each script can do at most, and what actually stops it. "Rule" = prose the
+model follows; "process" = enforced by the script's own code path; "host" = an
+execution-layer lock outside the skill. The skill installs no host lock.
+
+| script | highest action | locked by |
+|---|---|---|
+| `guard_destination.py` | read | process: no write call in the file (eval L0-03) |
+| `status.py` | read (renders) | process |
+| `inventory.py`, `plan.py`, `verify.py` | write, state dir only | process: paths derived from config (exit 11) |
+| `init_destination.py` | write: destination root + marker, `config.json` (acks) | process: runs the guard first; its flags are acts, the consent is the user's sentence (rule) |
+| `copy.py` | **delete** at the destination (`rsync --delete`) | process: only when `delete_at_destination` AND a fresh valid marker; that key is rule-layer only unless the owner installs the host `denyWrite` on `~/.workspace-backup/config.json`, which then locks deletion too |
+| `_state.py` | delete: its own lock/temp files in the state dir | process |
+
+Every widening key (`delete_at_destination`, `off_machine`,
+`portable_secrets_ack`, adopting a foreign marker) sits in files this agent can
+write. Only the owner's words (rule) and the owner's host lock (execution) govern
+them; every report prints delete-at-destination ON/OFF and names each
+off-machine destination so the state is never invisible.
+
+Judgments added in 0.3.0 and who makes them:
+
+| id | judgment | plane | executor | fallback |
+|---|---|---|---|---|
+| J1 | is this destination under a known cloud-sync root | deterministic (path component match) | `guard_destination.py` | look-alike fixtures + mutant; only routes to J2, never refuses |
+| J2 | may workspace content leave this machine to it | human (owner's own words) | `off_machine: true` in config | every report names off-machine destinations |
+| J3 | which files are secrets | deterministic evidence → model/owner | `secret_patterns` | report says pattern-matched and prints the patterns |
+| J4 | may this destination delete files absent from the source | human | `delete_at_destination` + valid marker | ON/OFF line every report; host lock recommended |
+| J5 | is this destination independent of the Time Machine disk | deterministic (container membership + Backup role) | guard, rendered by `status.py` | real captured plist fixture + mutant |
 
 ---
 
