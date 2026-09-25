@@ -51,7 +51,7 @@ These differ per model — this is the part people most often carry over wrongly
 
 `Default` = the API default when `effort` is omitted (models overview, "Default effort" row).
 `Thinking` = whether `thinking: {"type":"disabled"}` is refused. `scripts/check_plan.mjs` carries the
-same two columns; `evals` C6 binds them.
+same two columns; a dev-only harness check (C6, not shipped with the skill) binds them.
 
 | Model | Default | Thinking | Where to start | Notes |
 |---|---|---|---|---|

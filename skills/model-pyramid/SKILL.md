@@ -24,24 +24,25 @@ recommends and reports — it never spawns agents, edits configs, or blocks you.
 
 ## The two axes (use these, not a rule table)
 
-- **Claude had the context, tried, and still got it wrong → capability gap → change the MODEL.**
+- **Claude had the context, tried — at higher effort too — and still got it wrong → capability gap → change the MODEL.**
 - **Claude got it wrong by skipping a file, not running tests, not double-checking → thoroughness gap → change the EFFORT.**
 
-Effort is **not** "thinking depth". It governs *all tokens in the response — text, tool calls,
-and thinking*: how many files get read, how many tool calls get made, how much gets verified,
+Effort is the main control for thinking depth — **and not only that**. It governs *all tokens in
+the response — text, tool calls, and thinking*: how many files get read, how many tool calls get made, how much gets verified,
 how far a multi-step task runs before checking in. **Lower effort ⇒ fewer tool calls.**
 
 ⛔ **The corollary that kills the most common mistake**: search / exploration / repeated tool
-calling is the *last* place to economise on effort. Official guidance names "exploratory tasks
-such as repeated tool calling, detailed web search, and knowledge-base search" as a reason to
-go **`xhigh`**. Cutting effort on a search agent buys an agent that stops looking.
+calling is the *last* place to economise on effort. Cutting effort on a search agent buys an
+agent that stops looking. Hold it or raise it — but not to `xhigh` by reflex: on Opus 5.5,
+reserve `xhigh`/`max` for a gain you measured.
 
 ## Defaults: start here, move on evidence
 
 1. **Model** — a subagent inherits the session model unless you say otherwise. Inheriting is
    the correct default; override only for a reason you can name.
-2. **Effort** — **set it explicitly.** Omitted = *that model's* default: **Opus 5.5 `medium`**;
-   Fable 5.1, Opus 5, Sonnet 5 `high`; Haiku 4.5 none.
+2. **Effort** — **set it explicitly.** Omitted on the API = *that model's* default: **Opus 5.5
+   `medium`**; Fable 5.1, Opus 5, Sonnet 5 `high`; Haiku 4.5 none. A bare Claude Code Agent-tool
+   call instead inherits the *session* effort (`references/runtime-knobs.md`).
 3. **Adjust with evals, not vibes.** Step down where quality holds, up where it doesn't.
    Carrying settings over from an earlier model generation ⇒ **re-sweep**, don't reuse.
 
@@ -68,13 +69,13 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
 ## Before you emit `xhigh` or `max`
 
 - **Raise `max_tokens`** — 64k is the documented start, 128k for long agentic turns (Opus 5.5
-  thinks more per turn). It caps thinking **plus** text together.
+  thinks more per turn; Fable 5.1 wants it large from `high` up). It caps thinking **plus** text.
 - **Check the level exists on that model** — an unsupported level silently falls back to the
   highest supported level at or below it.
 - **Thinking is always on for Opus 5.5 / Fable 5.1 / Fable 5** — `thinking:disabled` or
   `budget_tokens` ⇒ 400 at *any* effort; lower effort instead. (Opus 5: 400 only at `xhigh`/`max`.)
-- **`max` is for genuinely frontier problems** — elsewhere it adds cost for small gains, and on
-  structured-output tasks it can cause overthinking.
+- **`max` is for genuinely frontier problems** — elsewhere it adds cost for small gains. The Opus
+  5.5 guide: reserve `xhigh` and `max` for work where you have measured a quality gain.
 - **Effort does not shorten prose** — observed on Opus 5 (unverified on 5.5): if you want it
   shorter, say so in the prompt.
 
@@ -82,7 +83,9 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
 
 - **Advisor** — a stronger model consulted *at decision points* rather than running throughout.
   Fits long multi-step tasks where most turns are routine but plan quality decides the outcome;
-  adds little on short tasks. → `references/orchestration.md`
+  adds little on short tasks. The pair must be legal for *every* model it attaches to; an
+  executor with no row in the pairing table (Opus 5.5 today) gets **no advisor** until a test
+  request with that exact pair succeeds. → `references/orchestration.md`
 - **`opusplan`** — Opus for plan mode, Sonnet for execution. A free structural win when the task
   genuinely splits that way.
 - **Effort down-step** — usually a bigger, safer lever than a model down-step: it degrades

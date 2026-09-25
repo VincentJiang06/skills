@@ -46,7 +46,34 @@ v1.0.0 的事实层在 2026-09-22（Opus 5.5 成为默认 Opus，Claude Code 2.1
   C4 改指"无逐次 effort + frontmatter 可带"；L1 改查 A37 四要素（只查格式、不查年龄）。
 - 误报账（铁律 7）：12 条旧夹具 + 16 个 selftest 方案 + 13-agent P-collapse 方案新旧对跑，唯一变化是
   p6 / s1 的 `advisor-weaker → advisor-invalid-pairing` 改名，零新增代码。
-- 规模：`check_plan.mjs` 197 → 235 行，`run_all.mjs` 209 → 238 行，用例 29 → 37（均在 +50% 红线内）。
+- 规模（含下方 battery 修复轮）：`check_plan.mjs` 197 → 255 行，`run_all.mjs` 209 → 238 行；用例**记录** 29 → 37
+  （plan-fixtures 12 → 20 + trigger-cases 17，后者没有 runner、未实测，见 F15）；`run_all` **检查项** 26 → 36；
+  `--selftest` 16 → 24。均在 +50% 红线内（295 / 313 / 43）。
+
+### Battery 修复轮 / battery fix round (1 轮，instance 档；ADJUDICATION 14 条确认、0 P0/P1)
+
+- **F06（P2）批量行与钳制自相矛盾**：批量行原写"降一层 + `low`–`medium`"，正好是钳制禁止的"两个旋钮同降"，
+  selftest 还用 filter 把 `both-knobs-dropped` 藏了起来。改为"降一层 *或* 降一档 effort，二选一"，selftest 去掉 filter、
+  同时覆盖两种合法写法。→ skill 自带钳制"每层只动一个旋钮"；P11 双向结算（文档与检查器说同一件事）。
+- **F07（P2）+ flag 7 引文错配**："exploratory tasks … 该上 `xhigh`"与"structured-output 上 overthinking"只出现在
+  effort 页的 **Opus 4.7** 表里。删掉错配引文；搜索推论保留（方向有出处：effort 低 ⇒ 工具调用少），补上 Opus 5.5 指南
+  "`xhigh`/`max` 留给实测有收益的活"。→ P10（权威来自出处）。
+- **F08** "effort 不是 thinking depth"与文档相反 → 改为"effort 是 thinking depth 的主旋钮，但不止于此"；能力轴补上
+  "调高 effort 也试过"。→ P10；skill 自带两条轴。
+- **F09 / F13 / F19（check_plan，先红后绿）**：恒开模型上 thinking 对象带 `budget_tokens` 报 `thinking-always-on`；
+  advisor 配对按每个子代理自己的模型再查一遍（同一模型只报一条）；没有 effort 旋钮的模型不再额外报 `max_tokens`。
+  → 文档已写明的事实由检查器承接（P11）；只是表格事实，不新增语义判断（P13）。误报账：37 个既有方案 + 31 个合法 ID
+  + E11 case-3 方案，新旧对跑**零变化**。
+- **F11** advisor 自己的读取可以缓存（`caching`，约 3 次调用回本）；**F12** Opus 主 + Opus advisor 是"第二意见"，
+  **不是**独立校验（advisor 读完整转录）。→ P10；skill 自带"独立性验证者非 fork"。
+- **F16** 用例数口径写清（记录 37 vs 检查项 36）；**F17** README / model-and-effort 标明 `evals/` 只在开发仓库、不随发布；
+  **F18** 不传 effort：API = 模型默认，Claude Code 裸 Agent tool 调用 = 继承会话 effort。flag 5：Fable 5.1 从 `high`
+  起就要大 `max_tokens`。
+- **E11 case 2（判 lose）**：带技能的臂给 Opus 5.5 执行模型直接配了 `claude-fable-5-1` advisor——配对表里没有
+  Opus 5.5 的行，API 对非法组合返 400。文字改为：没有行的执行模型**默认不挂 advisor**，试探请求成功后才加，
+  不凭"至少同等强"写进生产配置。→ P10；orchestration.md 既有"invalid pair ⇒ 400"。
+- **挂起（登记、不追）**：F10（缓存检查要区分 fork 与独立子代理，需新增输入字段、属检查重设计）· F14（文档配对表 ⇄
+  脚本 ADVISORS 的绑定检查，属新增机械门，本档不做）· F15（trigger-cases 没有 runner，触发准确率未测——测量债）。
 
 ### 豁免登记 / Exemption register (not re-verified this wave; re-review at the next A42 event or 2 review periods)
 

@@ -44,7 +44,11 @@ carries the same lookup:
 | Fable 5.1, Mythos 5.1 | Mythos 5.1, Fable 5.1 only |
 
 **Opus 5.5 is not in the pairing table at this baseline** — neither as executor nor as advisor
-(U1). Any pairing that involves it is *unverified*: try it, and check it actually attached.
+(U1). Any pairing that involves it is *unverified*, and the page's own rule is that an invalid
+pair returns 400. So the default is **no advisor** on an Opus 5.5 executor (and no Opus 5.5
+advisor): add one only after a throwaway request with that exact pair succeeds — in Claude Code,
+after you see it attached. Never write an unverified pair into a production config on the
+strength of the "at least as capable" rule.
 
 On the API an invalid pair returns **400**. In Claude Code an invalid advisor is simply **not
 attached** — you get a notification, not an error. **Subagents inherit the configured advisor**
@@ -56,8 +60,10 @@ the earlier "dimmed in the picker" state is gone.
 
 ### Cost shape
 
-Each call sends the whole conversation at the advisor's rates, and the advisor's own read is
-**never cached** — every call reprocesses the transcript. But it fires at decision points, not
+Each call sends the whole conversation at the advisor's rates, and by default the advisor's own
+read is **not cached** — every call reprocesses the transcript. Setting `caching` on the advisor
+tool caches it across calls; that breaks even at about three advisor calls, so turn it on for long
+loops only. But it fires at decision points, not
 every turn, so *a faster main model + a stronger advisor typically costs less than running the
 stronger model throughout*.
 
@@ -65,7 +71,8 @@ Useful pairings (the advisor page: Opus as advisor keeps total cost similar or l
 maximises the quality lift; the benefit shrinks as the executor's own capability approaches the
 advisor's): Sonnet main + Opus advisor (routine work, escalate planning/failures/completion
 checks) · Haiku main + Opus advisor (cheapest main with strong planning) · Opus main + Opus
-advisor (independent check on high-stakes work, cost second).
+advisor (a second opinion on high-stakes work, cost second — **not** an independent check: the
+advisor reads the executor's full transcript; for independence use a non-fork verifier, below).
 
 **Cache note**: toggling the advisor mid-session does **not** invalidate the main model's prompt
 cache — unlike changing model or effort.
