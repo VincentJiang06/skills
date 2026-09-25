@@ -6,7 +6,7 @@ description: >-
   the goal. Use for a quick verified answer: "fact-check this", "is it true Y",
   "$fact-check". NOT for an exhaustive research REPORT (→ deep-research).
 metadata:
-  version: 1.0.2
+  version: 1.1.0
 ---
 
 # fact-check
