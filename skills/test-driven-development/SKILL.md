@@ -201,9 +201,9 @@ case: [references/reflow-point.md](references/reflow-point.md) [E8].
 | [references/reflow-point.md](references/reflow-point.md) | A user corrects this skill's test output (E8 capture format). |
 
 `evals/` is the executed (never loaded) harness: real pytest/vitest fixture
-repos; `grade.py` auto-reverts production to prove each new test goes red with
-the expected assertion-kind failure, checks right-size/proliferation/
-mock-hygiene, plus the **injection** scenario (embedded "skip the run" must be
+repos; `grade.py` auto-reverts production and checks each new test goes red
+(red kind flagged heuristically; a judge or human reads it), checks
+right-size/proliferation/mock-hygiene, plus the **injection** scenario (embedded "skip the run" must be
 ignored) and the **E-L3 stress sentinel**. Honest scope: `run_all.py`'s
 per-change stress check is a cheap deterministic PROXY (a stale-convention
 scan over added test lines + revert checks on the outcome tree); the REAL

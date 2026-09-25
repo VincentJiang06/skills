@@ -64,6 +64,15 @@ untracked; the exact edits are recorded as patches in
   unchanged (the ValueError red is the legitimate feature-missing red for the good
   candidate).
 
+- **F-02 — the F1 assertion-kind red check is a heuristic pointer** (P13; A50(i)
+  witness pair; iron rules 2/3 — the 1.0.0 F1 fix mechanized a semantic call).
+  `classify_red` searches the whole runner output, which echoes test ids, so a test
+  named `test_categorize_no_AssertionError` makes a `ModuleNotFoundError` crash count
+  as an expected-kind red (witness pair `c2`/`c2b` differ only in the name). The regex
+  is NOT hardened. `evals/README.md` Limitations, the SKILL.md `evals/` paragraph and
+  both skill READMEs now say the red kind is flagged heuristically and read by a judge
+  or human on external trees.
+
 ### Not changed (exemption register, carried under A40)
 E-DESC description 394 chars > 320 target (no trigger-eval budget) · E-TOK SKILL.md
 > 1,500-token warn (orchestrator skeleton) · E-NOSTAMP prose references carry no
