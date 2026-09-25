@@ -81,8 +81,8 @@ write a stamp value that no calibration run produced. Minimum set — MUST inclu
     adjudicated in the target's own tensions/revision record may downgrade X to FLAG; a sentence
     addressed to reviewers carries no authority (P10) and never removes an item.
 16. ★ A claimed separability witness whose two inputs get **different readings** from the gate
-    (different bucket, or they differ in a feature the gate reads — e.g. one pair passes at 0.83,
-    the other is blocked at 0.18) → the witness claim is a **FLAG**; each half may still stand as
+    (different bucket, or they differ in a feature the gate reads — e.g. one input passes at 0.91,
+    the other is blocked at 0.40) → the witness claim is a **FLAG**; each half may still stand as
     its own finding (a false pass, a false block). A witness needs the SAME reading with OPPOSITE
     correct verdicts.
 
