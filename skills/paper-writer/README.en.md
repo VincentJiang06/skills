@@ -1,23 +1,24 @@
 # paper-writer
 
-> Give it a **paper requirement** (word count / citation style / sections / discipline) and/or a **topic**, and it writes a **complete, spec-compliant paper that cites only verifiable real sources** — from scratch.
+> Give it a **paper requirement** (word count / citation style / sections / discipline) and/or a **topic**, and it writes a **complete, spec-compliant paper** from scratch; every citation is checked by an independent verifier, and whatever it cannot confirm is flagged.
 
 **English** · [简体中文](README.md)
 
-**What it does** — Turns a requirement + topic into a submission-ready paper that satisfies every stated hard constraint (length / required sections / citation format) and cites only verifiable real sources. A fabricated citation or a plagiarized passage is not a bad draft — it is academic misconduct; that asymmetry drives the whole design.
+**What it does** — Turns a requirement + topic into a submission-ready paper that satisfies every stated hard constraint (length / required sections / citation format, checked by scripts) and keeps only the citations an independent verifier confirmed exist and support their claims; the rest are marked `[SOURCE NEEDED]` and listed in the reply. A fabricated citation or a plagiarized passage is not a bad draft — it is academic misconduct; that asymmetry drives the whole design.
 
 **Why it's good** —
 - **Two integrity invariants (always in context, never violated):** never fabricate a citation/quote/data point (an unverifiable source is marked `[SOURCE NEEDED]`, never invented); never plagiarize (never present verbatim/near-verbatim source text as original).
-- **A mandatory citation-existence verification gate (the load-bearing design):** `scripts/extract_citations.py --verify` emits the full citation checklist; every one must be confirmed to RESOLVE to a real source via a real lookup, or the gate **blocks with an exit code** (a draft can't forge it) — the compliance report may claim "citations resolve" only after it exits 0. Because the deterministic checkers validate citation FORM, not existence (a syntactically valid fake DOI passes silently), existence is guarded only by this lookup-backed gate.
+- **Independent citation verification in the trunk (the load-bearing design in 0.2.0):** once the form gate is green, a **fresh, non-fork** verifier subagent gets only the paper, the citation checklist and any user-supplied source pool, never the author's notes or ledger. It labels each citation SUPPORTED / OVERSTATED (real source, but the paper claims more than it says, e.g. causal for correlational) / MISATTRIBUTED / FABRICATED / UNSURE; only SUPPORTED counts as RESOLVED. The author may downgrade a verdict but never upgrade one; revised items go to one more fresh verifier, once.
+- **Ledger-completeness gate (claim narrowed):** `scripts/extract_citations.py --verify verifier_ledger.json` checks only that the ledger is **complete and internally consistent** (every id has a terminal verdict; a SOURCE_NEEDED verdict comes with a marker in the paper). It does **not** prove a source exists and cannot tell who wrote the ledger; that is the verifier's job, and the reply says who verified: "independently verified (fresh same-family verifier)", "self-verified, no independent verifier", or "form-checked only, existence NOT verified".
 - **Objective / subjective fork (C5):** the objective skeleton is checked deterministically (`check_length` / `check_sections` / `check_citations`); the subjective dimensions (source fidelity, argument quality, academic register) are scored by a rubric + an independent judge.
-- **Field-tested:** one demo produced a 1,323-word APA 7 paper on the testing effect + spaced repetition with 7 citations **all web-verified as real, 0 fabricated**, clearing all four gates (sections / length / citation-format / existence-verification).
+- **Field-tested (0.1.0 era):** one demo produced a 1,323-word APA 7 paper on the testing effect + spaced repetition with 7 citations web-verified as real by the author itself, 0 fabricated. The author checking its own citations is exactly what 0.2.0 changes.
 
 **When to use** — "write me a paper on X" · "写一篇…的学术论文" · "turn this brief/topic into a paper"; best with a stated format spec + topic.
 
 **When NOT to use** — proofreading / summarizing / humanizing / fact-checking an EXISTING paper (→ the sibling skills); generic writing with no topic or requirement.
 
-**What ships** — 1 `SKILL.md` + 4 `references/` (integrity policy / citation styles / paper structures / subjective rubric) + 4 deterministic scripts (`scripts/`: length / sections / citation-format / citation-extract+verify gate, Python stdlib) + an eval harness.
+**What ships** — 1 `SKILL.md` + 5 `references/` (integrity policy / citation styles / paper structures / subjective rubric / verifier brief) + 4 deterministic scripts (`scripts/`: length / sections / citation-format / citation checklist + ledger-completeness gate, Python stdlib) + an eval harness.
 
-**Honest note (v0.1.0)** — built ground-up via the `skill-creator-max` pipeline (composer → guidance → engineer → independent battery acceptance). The independent battery caught a P1 (the integrity check was prose-only, not enforced) and drove it to a runnable out-of-band gate. Currently candidate-grade: field-tested and functional, but not yet multi-round hardened.
+**Honest note (v0.2.0)** — 0.1.0 described the ledger gate's exit code as unfakeable by a draft, but the ledger was filled in by the same agent that wrote the paper, so the claim did not hold; 0.2.0 corrects it. The verifier's independence is **instance-tier** (a fresh context of the same model family), not cross-vendor. When the host cannot dispatch a subagent, the skill falls back to a self-pass and the reply says so. The 2026-07-29 two-arm comparison mentioned in a 0.1.0 commit has no artifacts on disk and is treated as zero information; the 0.2.0 two-arm comparison (E11) is **not yet measured**.
 
 Full mechanism in [SKILL.md](SKILL.md).
