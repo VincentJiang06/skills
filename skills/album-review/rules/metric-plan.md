@@ -3,9 +3,9 @@
 | Metric | Definition | Target | Instrument |
 |---|---|---|---|
 | length-window conformance rate | % of runs landing in [10000,15000] 汉字 | ≥ 0.9 | `scripts/check_review.py` exit code per run |
-| ungrounded-claim rate | fact-class claims with no valid `source_id` per review | 0 | `scripts/validate_backing.py` |
-| section-coverage pass rate | % of reviews passing the genre-adapted section linter | high | `scripts/check_review.py` |
-| activation precision | correct routing on a labeled trigger set (album-review vs hifi-review vs lyric-translation/buy) | high | `classify_route` over `evals/fixtures/routing_cases.json` |
+| untraced fact-label rate (reference integrity) | fact-labelled claims with no `source_id` or a dangling one, per review. Does NOT count unsupported claims or facts mislabelled as interpretation — those have no instrument (未测; judge read, `rules/judge-must-flag.md`) | 0 | `scripts/validate_backing.py` |
+| section-keyword coverage rate (proxy; not header presence) | % of reviews in which every genre-adapted keyword group appears **anywhere** in the text. One sentence naming the keywords over headerless prose passes, so this does not measure structure; header presence + real content per section has no instrument (未测; the writer owns it at Step 5) | high | `scripts/check_review.py` |
+| route-classifier agreement (regex proxy; not skill activation) | `classify_route` agrees with the labels on a small routing fixture (album-review vs hifi-review vs lyric-translation/buy) | high | `classify_route` over `evals/fixtures/routing_cases.json` |
 
 **Completeness pairing (H7) — declared 未测, not covered.** All four metrics above
 are success-side. Their completeness partner — **distinct-content / repetition
@@ -18,6 +18,8 @@ human/judge read. Stating it as 未测 is the point: reporting the success side
 alone would imply a coverage this plan does not have.
 
 The first three success-side metrics are read straight off the validator's exit
-semantics, so they are mechanically observable per run. Activation precision is
-sampled from the routing fixture (and should be re-sampled when the trigger
-surface changes).
+semantics, so they are mechanically observable per run. Real activation is decided
+by the host reading the `description`, not by `classify_route`; **activation
+precision is 未测** until a description-driven trigger eval (positives + near-miss
+negatives, run with the skill installed) is run — the route-classifier row is a
+proxy and must not be reported as activation precision.
