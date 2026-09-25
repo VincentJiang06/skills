@@ -236,7 +236,12 @@ accurate) so a token mentioned only in a comment never becomes a finding:
 
 - **WXML** — `<!-- … -->` blocks (`stripWxmlComments`).
 - **JS / TS / WXS** — `//` line + `/* */` block, skipping over string literals so a
-  `//` inside `'wx://…'` is not mistaken for a comment (`stripJsComments`).
+  `//` inside `'wx://…'` is not mistaken for a comment (`stripJsComments`). A
+  `'…'`/`"…"` string ends at a newline (JS forbids a raw newline in one), so a quote
+  inside a regex literal (`/['"]/g`) opens at most a one-line false string and
+  cannot make a later `'wx://…'` read as a comment. Regex literals are not parsed:
+  a real rewrite token on the **same** line after such a regex can still be missed
+  — a known limit. (Eval: `scan_js_regex_quote_no_drop`.)
 - **WXSS / LESS** — a **CSS-aware** stripper (`stripCssComments`), **not** the JS
   one. The JS stripper treats `//` as a line comment, which is wrong for CSS: the
   `//` inside `background: url(https://cdn/x.png)` would blank the rest of that

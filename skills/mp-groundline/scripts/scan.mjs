@@ -130,7 +130,8 @@ function stripWxmlComments(src) {
 // COMMENT that merely mentions `wx.worklet` / `routeBuilder` produces no finding —
 // only real code (incl. string literals like 'wx://…', which ARE real usage)
 // does. A `"` / `'` / `` ` `` is skipped over so a `//` inside a string is not
-// mistaken for a comment.
+// mistaken for a comment. Regex literals are not parsed; a quote inside one
+// opens a false string that ends at the newline (see the loop below).
 function stripJsComments(src) {
   let out = "";
   let i = 0;
@@ -159,6 +160,10 @@ function stripJsComments(src) {
       i++;
       while (i < n) {
         if (src[i] === "\\") { out += src[i]; if (i + 1 < n) out += src[i + 1]; i += 2; continue; }
+        // A '…' / "…" string cannot hold a raw newline in JS. Ending it there
+        // bounds a false open (a quote inside a regex literal such as /['"]/)
+        // to one line, so it cannot swallow a later real '//' as a comment.
+        if (src[i] === "\n" && quote !== "`") break;
         out += src[i];
         if (src[i] === quote) { i++; break; }
         i++;
