@@ -40,6 +40,75 @@ SemVer **patch** (the skill now does what its own text already promised; no cont
   checks by design: I3 "script logic unchanged vs 0.7.0" (F07 changes it) and D14 "version 0.8.0"
   (now 0.8.1). The other 23/25 still pass, and its selftest stays OK.
 
+### Verification record (R20 wave close — no version bump: docs only, 0.8.1 is unreleased)
+The finalizer changed no behavior. This section records the evidence the 0.8.0 → 0.8.1 release
+rests on and what is still open. Anchors: KB E11 (two arms), O5 (effective verdict = min of
+re-audit and battery), A51(i) (fix-audit stop signature), K1 (independence tiers), A37 (honesty).
+
+- **E11, bound to commit 4e8acd9 (the 0.8.0 build).** Per the pre-registration it was not re-run
+  after the fix round. It used 3 cases × 1 run per arm. The WITHOUT arm had the skill explicitly
+  disabled. The blind judge re-ran every P1 reproduction.
+  - Case 1 (term-safe-rewriter): **WITH better (modest).** WITH gives an explicit
+    same-reading witness pair (0.829 pass with meaning changed vs 0.970 pass with meaning kept),
+    states its search coverage, and asks the re-plane question. WITHOUT has the same facts but no
+    pair, and 7 overlapping P1s.
+  - Case 2 (green-but-wrong billing): **tie.**
+  - Case 3 (fix-audit of snapshot-pruner): **WITH better (modest).** WITH escalates because two
+    P1s sit inside round 1's own fixes, and asks the plane question. WITHOUT lists precedence only
+    as a suspicion.
+  - Totals: 2W / 0L / 1T.
+  - Recall: every seed found by both arms, so 0 seed losses. False findings: 0 for both arms in
+    every case.
+  - Checks: injection sentinel passed in cases 1 and 2 (both arms). Witness hunt scored above 0 in
+    case 1. Tier honesty passed in every WITH run (`instance`, "L-i incomplete", model ID
+    declared).
+  - **Cost cap not verifiable.** No arm recorded `total_cost_usd`. The tool-call proxy (WITH/WITHOUT)
+    is 1.17x / 1.08x / 1.15x.
+  - **Fork not exercised.** The arm host had no Agent/Task tool, so the WITH arm ran all lenses in
+    one context. The skill's per-lens fork is therefore unmeasured.
+  - Result: not retired. The skill's value is preference/fidelity (the witness pair, fix-audit
+    escalation, calibrated severity), not recall; the bare model found every seed too.
+- **Battery: 1 round against 0.8.0 at `instance` tier.** L-i was incomplete: the project CLAUDE.md
+  and the auto-memory index were injected, and the judge was `judge-uncalibrated`.
+  - Seeds: **5/5** (one per lens), so no void lens.
+  - Non-seed items: 13 confirmed (P2: F07, F14; P3: F08, F09, F10, F12, F13, F15, F16, F18, F19,
+    F20, F02r) and 3 refuted.
+  - The fix round (above) fixed F07 and F14.
+- **Fix-audit (fresh instance) on fb7cdaa..d01f233: 2 P2 + 3 P3, all open.**
+  - FA-1 (P2): F07 is only partly fixed. After one blank line inside a question list, the new
+    break at `extract_shadow_map.py:76` stops collecting. Later `- ` or `1.` lines are then lost
+    with `needs_human` empty and exit 0. On a KB copy this hid 11 probes and left the summary
+    byte-identical.
+  - FA-2 (P2): the F14 fix moved the suppression instead of removing it. A governed gap must now
+    be a flag, and flags are never counted, even when the cheat beats the clause. This conflicts
+    with gaming.md:32-34 and golden samples 3, 5 and 15.
+  - FA-3 (P3): the new header check reads the node-wide probe list, so a second, empty questions
+    header in the same node goes unflagged.
+  - FA-4 (P3): a CommonMark wrapped continuation line is flagged and the probe is cut short. No
+    real corpus has one today.
+  - FA-5 (P3): `schemas/output.json` flags carry no severity, so "a P3 flag" cannot be written in
+    schema-conformant output.
+- **Escalation.** Iron rule 3 is not triggered: nothing above P2 was found. FA-1 and FA-2, however,
+  match this skill's own A51(i) signature (a ≥P2 defect in the fix area, or a relocated defect).
+  They are therefore handed to the owner with no further repair round. The fix budget is spent.
+  The first question is posed, not decided. Should "does a governed gap count" and "is the
+  extractor's line-shape parse the right plane" be settled by the owner before another patch?
+- **Other open P3s (not fixed):** F08, F09, F10, F12, F13, F15, F16, F18, F19, F20, F02r. X-6
+  (the different-vendor acceptance run) is still not done.
+- **Independence and model deviation.** Every role in this wave (builder, E11 arms and judge,
+  battery striker and adjudicator, fixer, fix-auditor) was `claude-opus-5-5` high in a fresh
+  context. That makes the tier **`instance`**: Opus 5.5 wrote the 0.8.x text, so the text is not
+  `instance_plus`. Only the Fable-authored legacy text sits at `instance_plus`, and nothing reached
+  `model`. This departs from the 2026-09-13 skill-creator-max model policy (builder Fable,
+  evaluators Opus). The owner ordered all roles on Opus 5.5 high for this wave.
+- **Tests at close.**
+  - `extract_shadow_map.py --selftest`: 5/5 ok.
+  - 0.8.0 harness on HEAD: 23/25 (I3 and D14 fail by design). The same harness on an export of
+    4e8acd9 gives 25/25, rc 0.
+  - `concept_anchors.py`: 39/39. `schemas/output.json` parses.
+  - The pipeline's `validate_report.py` on the 0.8.0 evidence dossier now fails its re-run check,
+    because the harness pins 0.8.0. The dossier's evidence binds to 4e8acd9.
+
 ## [0.8.0] — 2026-09-25
 
 **R20 alignment (philosophy KB v0.4.0 — K1 vendor tiers, P10/A36 trust boundary, P13/S14 judgment
