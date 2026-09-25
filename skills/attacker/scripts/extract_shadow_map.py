@@ -32,6 +32,7 @@ SHADOW_RE = re.compile(r"\*\*(?:阴影原则|Shadow[- ]?Principle)\*\*[:：]?\s*
 FALSIFY_RE = re.compile(r"\*\*(?:可证伪问题|Falsifiable[- ]?Questions?)\*\*[:：]?", re.IGNORECASE)
 # A node header like "## C3｜..." or "### A11（...）" or "## S10｜信任边界".
 NODE_RE = re.compile(r"^#{2,4}\s+([A-Z]\d+|P\d+|A\d+|T\d+)[｜（(．.\s]")
+LIST_RE = re.compile(r"\s*(?:[-*•]|\d+[.)])\s")  # a list item line, any marker
 
 
 def iter_md_files(path):
@@ -68,15 +69,21 @@ def extract(path):
                 cur["needs_human"].append(f"empty shadow-principle @line {i+1}")
             continue
         if FALSIFY_RE.search(line):
-            # collect bullets as probes until a new bold/node header, or a blank after >=1 bullet
+            # probes: bullets until a bold/node header, or a blank not followed by a list/indented line
             cur["has_falsify_header"] = True
             j = i + 1
             while j < len(lines):
                 nxt = lines[j].rstrip("\n")
-                if nxt.startswith("**") or NODE_RE.match(nxt) or (nxt.strip() == "" and cur["falsifiable"]):
+                if nxt.startswith("**") or NODE_RE.match(nxt):
                     break
-                if nxt.strip().startswith(("- ", "* ", "• ")):
+                if nxt.strip() == "" and cur["falsifiable"]:
+                    k = next((k for k in range(j, len(lines)) if lines[k].strip()), len(lines))
+                    if k == len(lines) or not (LIST_RE.match(lines[k]) or lines[k][:1] in " \t"):
+                        break
+                elif nxt.strip().startswith(("- ", "* ", "• ")):
                     cur["falsifiable"].append(nxt.strip()[2:].strip())
+                elif nxt[:1] in " \t" and cur["falsifiable"]:  # indented continuation of a bullet
+                    cur["falsifiable"][-1] += " " + nxt.strip()
                 elif nxt.strip():  # any other shape under the header is surfaced, not dropped
                     cur["needs_human"].append(f"unrecognised falsifiable-question line @line {j+1}")
                 j += 1
@@ -140,7 +147,9 @@ def selftest():
     cases = {"clean": (ok, 0), "renamed-shadow": (ok.replace("阴影原则", "阴影"), 1),
              "one-numbered-line": (ok.replace("- q2", "1. q2"), 1),
              "empty-question-list": (ok.replace("- q1\n- q2\n", "\n**BAD**：x\n"), 1),
-             "no-question-header": (ok.split("**可证伪问题**")[0], 1)}
+             "no-question-header": (ok.split("**可证伪问题**")[0], 1),
+             "blank-then-numbered": (ok.replace("- q2", "\n1. q2"), 1),  # FA-1: no silent stop at blank
+             "loose-list-continuation": (ok.replace("- q2", "\n- q2\n  wrapped"), 0)}  # FA-4: no FP
     bad = 0
     for name, (text, want) in cases.items():
         with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False, encoding="utf-8") as f:
