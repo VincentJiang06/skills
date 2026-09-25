@@ -47,7 +47,7 @@ publicness. *KB A50: skeleton checks are exempt from (i); (ii) FP measured below
 ### Evidence (run dir `battery/fix/`)
 - Red first: C30–C33 failed on 3b6d5fd (`red-log.txt`). They pass now; evals 33/33.
   Every carried assertion is untouched.
-- Mutation: 15 single-point mutants of the new code. Each one turns a case red.
+- Mutation: 13 single-point mutants of the new code. Each one turns a case red.
 - Real corpus (8 corpora + academic wrapper + dnsprobe), every changed line
   classified in FIXES.md.
   - F04: +28 TP (`export default class` services).
