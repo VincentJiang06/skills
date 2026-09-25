@@ -6,7 +6,7 @@ description: >-
   flags); never fixes. A different-vendor attacker buys stronger independence. Use-when:
   "red-team/break this", "$attacker". Do-NOT: fix or edit the target.
 metadata:
-  version: 0.8.0
+  version: 0.8.1
   model_agnostic: true
 ---
 

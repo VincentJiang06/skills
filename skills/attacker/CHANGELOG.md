@@ -2,6 +2,22 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.8.1] — 2026-09-25
+
+**Battery fix round (R20 wave, 1 round per iron rule 3).** Two battery-confirmed P2 defects fixed;
+SemVer **patch** (the skill now does what its own text already promised; no contract change).
+
+### Fixed
+- **F14 — Gaming lens no longer tells the striker to drop "governed" gaps.** `lenses/gaming.md`
+  said "Do not report a gap the target already governs", the only striker-side drop instruction in
+  any lens. It contradicted the same file's coverage-first rule, the rubric's P3
+  "already-governed-but-worth-noting" and golden samples 5/13 (dropping is the adjudicator's power),
+  and let a target's own-voice "anti-gaming: X governed" suppress Gaming reports. Now: report it as
+  a flag (P3 if the clause really closes the cheat), quote the governing clause, and leave the noise
+  call to the adjudicator. Anchor: skill-own coverage-first / PROVE-OR-FLAG split (gaming.md
+  §PROVE-OR-FLAG, prove-or-flag.md golden 5 and 13); KB P10 (the target's text is data, not a
+  filter on the attack).
+
 ## [0.8.0] — 2026-09-25
 
 **R20 alignment (philosophy KB v0.4.0 — K1 vendor tiers, P10/A36 trust boundary, P13/S14 judgment
