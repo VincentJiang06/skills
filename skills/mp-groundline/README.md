@@ -15,6 +15,7 @@
 **什么时候用** —— 「把小程序从 skyline 迁移到 webview 保持页面一致」·「生成 skyline→webview 迁移对照 doc」；也可用 `/mp-groundline` 显式调用。
 **不适用** —— 实时运行时调试（→ mp-cli-sup）；开发 Skyline 组件 / worklet 动画 / 自定义路由（→ skyline-* skills，方向相反）；webview→skyline 反向迁移；不换渲染器的纯性能优化；除非明确要求，否则不现代化 / 回退 workaround；非微信工作。
 
+**依赖与维护** —— Step 4 验证依赖 `mp-cli-sup` 驱动的系统 `vince-mp` CLI；开发者工具或 vince-mp 不可用时，迁移地图把每页标为 UNVERIFIED，不会声称「一致」。本地 `validate-skill` 只检查 skill 结构与合成用例，不能证明某次真实迁移页面一致。
 **安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/mp-groundline ~/.claude/skills/`）。
 
 完整说明见 [SKILL.md](SKILL.md)。

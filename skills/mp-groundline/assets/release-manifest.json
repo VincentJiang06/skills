@@ -4,39 +4,45 @@
   "skill": {
     "id": "skill.mp-groundline",
     "name": "mp-groundline",
-    "version": "0.1.0",
+    "version": "0.1.2",
     "owner": "Vince",
     "source_uri": "skills/mp-groundline",
     "artifact_uri": "skills/mp-groundline",
     "checksum": "",
-    "compatibility": ["Claude Code skill folder", "Codex skill folder", "system vince-mp CLI (for the verify step only)"]
+    "compatibility": [
+      "Claude Code skill folder",
+      "Codex skill folder",
+      "system vince-mp CLI (for the verify step only)"
+    ]
   },
   "change": {
-    "change_type": "minor",
-    "summary_zh": "首个可用版本：确定性 Skyline→WebView 迁移扫描器 + MIGRATION-MAP 生成器 + 证据绑定的对照 KB + 触发评测。",
-    "summary_en": "First working version: deterministic Skyline→WebView migration scanner + MIGRATION-MAP generator + an evidence-bound mapping KB + trigger evals.",
+    "change_type": "patch",
+    "summary_zh": "0.1.2 冻结档事故修补：validate-skill 骨架检查修复（`>-` 解析、vince- 前缀、mp-cli-sup 字面量），Step 4 前置条件 + 降级路径（无验证 → UNVERIFIED，不称一致），发布门条件只列真实会跑的检查。",
+    "summary_en": "0.1.2 freeze-tier incident patch: validate-skill skeleton-check fixes (`>-` parse, vince- prefix, mp-cli-sup literal); Step 4 precondition + degraded path (no verification -> UNVERIFIED, never 'consistent'); release-gate conditions list only checks that actually run.",
     "breaking_change": false,
     "public_behavior_contract_changed": false,
-    "changelog_path": ""
+    "changelog_path": "CHANGELOG.md"
   },
   "release_gate": {
     "checklist_id": "checklist.skill_release_gate",
-    "passed": true,
+    "passed": false,
     "gate_conditions": [
-      "validate-skill green (scripts/validate-skill.mjs)",
-      "deterministic eval harness green (node evals/run_all.mjs → exit 0, 18/18)",
-      "generator golden-snapshot green (in the harness)",
-      "16/16 adversarial_checklist edges mapped to a passing case",
-      "trigger_eval green over assets/eval-cases.json",
-      "a clean read-only smoke on a real Skyline program"
+      "validate-skill green (scripts/validate-skill.mjs, local-only) on the dev checkout AND re-run on each install root after every deploy",
+      "deterministic eval harness green (node evals/run_all.mjs -> exit 0, 44/44; includes the generator structure/injection cases)",
+      "E11 with/without two-arm evidence (A44) recorded in assets/metric-plan.json"
     ],
-    "failed_check_ids": [],
-    "waived_check_ids": [],
+    "failed_check_ids": [
+      "e11-with-without: PENDING, not failed; arms prepared in the upgrade run dir, not yet run (0.1.2)"
+    ],
+    "waived_check_ids": [
+      "real-program-smoke: the deep-scan Skyline program used in 0.1.0 is no longer on disk; cannot be re-run (waived 0.1.2)",
+      "trigger-eval: never run since 0.1.0 (metric-plan said 'deferred'); description unchanged in 0.1.2, so no re-balance was triggered (waived, open for the next K2 review)",
+      "adversarial-checklist-16/16: 0.1.0 build-time evidence, superseded by the 44-case harness; not re-run"
+    ],
     "evidence_paths": [
       "evals/run_all.mjs",
-      ".skill-engineer/red/red.log",
-      ".skill-engineer/build-report.json",
-      "scripts/validate-skill.mjs"
+      "scripts/validate-skill.mjs",
+      "CHANGELOG.md"
     ]
   },
   "tests": {
@@ -48,7 +54,11 @@
   },
   "rollback": {
     "known_good_version": "v0-stub",
-    "rollback_trigger": ["scanner contract regression", "false rewrite on a clean program", "missed rewrite (silent drop)"],
+    "rollback_trigger": [
+      "scanner contract regression",
+      "false rewrite on a clean program",
+      "missed rewrite (silent drop)"
+    ],
     "rollback_steps_path": "rules/minimal-fix-protocol.md",
     "migration_target_rollback": "the SKILL's own migration edits a git working tree: revert = git checkout app.json + touched page json"
   },

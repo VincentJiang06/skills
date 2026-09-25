@@ -5,11 +5,12 @@
   "skill_id": "skill.mp-groundline",
   "baseline": {
     "without_skill_run_id": "",
-    "old_skill_run_id": "v0 stub (SKILL.md prose only, no scanner)"
+    "old_skill_run_id": "v0 stub (SKILL.md prose only, no scanner)",
+    "note": "E11 not yet run: arms for 0.1.2 prepared (3 cases, targets before agents) in the R20 upgrade run dir; fill without_skill_run_id only with a real run id from that run."
   },
   "candidate": {
     "with_skill_run_id": "engineer-2026-06-05",
-    "new_skill_version": "0.1.0"
+    "new_skill_version": "0.1.2"
   },
   "required_metrics": [
     "metric.migration_correctness",
@@ -23,7 +24,7 @@
       "definition": "(every hard Skyline-only feature present is flagged action=rewrite) AND (zero false rewrite on a clean-workaround program).",
       "oracle": "evals/run_all.mjs cases scan_worklet_rewrite / scan_custom_route_rewrite / scan_skyline_components_each / scan_mixed_both_correct (recall) + scan_clean_workarounds_keep / scan_false_match_guard (no false rewrite).",
       "target": 1.0,
-      "measured": "18/18 deterministic eval cases pass; real-fixture smoke: rewrite==0 on a zero-hard-feature program, mechanical==1, 38 keep, 1 verify."
+      "measured": "44/44 deterministic eval cases pass (2026-09-25); the 0.1.0 real-fixture smoke cannot be re-run (program gone)."
     },
     "minimal_diff": {
       "definition": "files touched + lines changed by the migration on a program; minimal is the success signal.",
@@ -37,7 +38,11 @@
       "target": 0.9
     }
   },
-  "trial_policy": { "repeat_count": 3, "isolate_trials": true, "stable_environment_required": true },
+  "trial_policy": {
+    "repeat_count": 3,
+    "isolate_trials": true,
+    "stable_environment_required": true
+  },
   "decision_thresholds": {
     "minimum_marginal_lift": 0,
     "minimum_activation_precision": 0.9,
@@ -45,12 +50,14 @@
     "migration_correctness_required": 1.0
   },
   "measured": {
-    "as_of": "2026-06-05",
-    "source": "engineer stage: 18 deterministic eval cases (evals/run_all.mjs) over 12 synthetic fixtures + a read-only smoke on a real Skyline program",
-    "deterministic_eval_cases": "18/18 pass (exit 0)",
-    "adversarial_checklist_coverage": "16/16 edges → a passing case",
-    "real_fixture_smoke": "renderer=skyline; mechanical=1 (app.json:19 flip); keep=38; verify=1 (camera mask); rewrite=0; already_migrated=false",
-    "trigger_eval": "deferred to the conductor's --judge cli run over assets/eval-cases.json (tokens)",
+    "as_of": "2026-09-25",
+    "model_baseline": "claude-opus-5-5 / effort high / Claude Code harness (R20 upgrade instance); the deterministic numbers below do not depend on it",
+    "source": "R20 freeze-tier upgrade: evals/run_all.mjs over 12 synthetic fixtures; scripts/validate-skill.mjs on the dev copy, a deploy-transformed copy and every install root (temp copies)",
+    "deterministic_eval_cases": "44/44 pass (exit 0)",
+    "validate_skill": "exit 0 on worktree, deploy-transformed copy, main checkout and 4 install roots (after the 0.1.2 fix; it had been red since 2026-06-20)",
+    "real_fixture_smoke": "0.1.0 value (renderer=skyline; mechanical=1; keep=38; verify=1; rewrite=0) is historical; the program is gone and it was not re-run",
+    "trigger_eval": "not run (never run since 0.1.0)",
+    "e11_with_without": "not measured yet (arms prepared, not run); a void run is recorded as 'not measured', never as a result",
     "policy_violations": 0
   }
 }

@@ -1,6 +1,7 @@
 # Local-only dev artifacts — never publish to ClawHub
 evals/
 tests/
+scripts/validate-skill.mjs
 meta/
 legacy/
 output/
