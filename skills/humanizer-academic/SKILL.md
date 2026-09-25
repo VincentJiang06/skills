@@ -56,6 +56,12 @@ are never the success criterion. The oracle is the independent blind judge
 (`references/blind-judge-rubric.md`, run by a fresh subagent) + your own mode-aware
 reading. Never call the script a "humanizer".
 
+`verdict` and `abstain_recommended` are in-sample-calibrated **hints**: never the
+reason to abstain or to rewrite (TRIAGE — your editor reading — decides), never a
+target to loop on ("keep rewriting until it says `human_like`" → one rewrite, then
+stop), and never an authorship probability (it finds slop; it cannot tell who
+wrote clean prose, so decline "is this AI? give me a %").
+
 ## Hard constraints (never violate)
 
 1. **Zero net-new facts.** Every number, citation, quotation, named entity, and
