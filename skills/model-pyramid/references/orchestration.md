@@ -1,7 +1,8 @@
 # orchestration — advisor, opusplan, subagents, and where the cost actually goes
 
-> Stamped **2026-07-29**. The advisor is an experimental, Anthropic-API-only feature;
-> availability and pairing rules change. Re-verify before relying on a row here.
+> Stamped **2026-09-25** (advisor-tool page fetched 2026-09-25; Claude Code changelog through
+> 2.1.281). The advisor is a beta server tool on the Claude API and Claude Platform on AWS (not
+> Bedrock / Google Cloud / Foundry); pairing rules change. Re-verify before relying on a row here.
 
 ## Four ways to get a stronger model involved
 
@@ -30,22 +31,28 @@ strongest model. For those, switch the main model instead.
 
 ### Pairing legality (the advisor must be ≥ the main model)
 
-| Main model | Accepted advisors |
+The API's table (advisor-tool page, "Model compatibility", fetched 2026-09-25) — `check_plan`
+carries the same lookup:
+
+| Main model (executor) | Accepted advisors |
 |---|---|
-| Haiku 4.5 | Fable, Opus, Sonnet — *Haiku can call an advisor, never be one* |
-| Sonnet 4.6 | Fable, Opus, Sonnet |
-| Sonnet 5 | Fable, Opus, Sonnet 5 (a Sonnet 4.6 advisor is rejected) |
-| Opus 4.6 | Fable, Opus, Sonnet 5 |
-| Opus 4.7+ | Fable, and Opus 4.7 or later |
-| Fable 5 | Fable only |
+| Haiku 4.5, Sonnet 4.6 | Mythos/Fable 5.1, Mythos/Fable 5, Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, Sonnet 5, Sonnet 4.6 — *Haiku can call an advisor, never be one* |
+| Sonnet 5 | Mythos/Fable 5.1, Mythos/Fable 5, Opus 5, Opus 4.8, Opus 4.7, Sonnet 5 |
+| Opus 4.6 | Mythos/Fable 5.1, Mythos/Fable 5, Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, Sonnet 5 |
+| Opus 4.7, Opus 4.8 | Mythos/Fable 5.1, Mythos/Fable 5, Opus 5, Opus 4.8, Opus 4.7 |
+| Opus 5, Fable 5, Mythos 5 | Mythos/Fable 5.1, Mythos/Fable 5, Opus 5 |
+| Fable 5.1, Mythos 5.1 | Mythos 5.1, Fable 5.1 only |
 
-If the advisor is less capable than the main model it is simply **not attached** — you get a
-notification, not an error. **Subagents inherit the configured advisor** and re-run the pairing
-check against *their own* model, so a Sonnet subagent under an Opus session may use an advisor
-the parent could not.
+**Opus 5.5 is not in the pairing table at this baseline** — neither as executor nor as advisor
+(U1). Any pairing that involves it is *unverified*: try it, and check it actually attached.
 
-⚠ At this baseline Claude Code **does not offer Fable 5 as the advisor** (it appears dimmed and
-`--advisor fable` is rejected), so a Fable 5 main session runs without one.
+On the API an invalid pair returns **400**. In Claude Code an invalid advisor is simply **not
+attached** — you get a notification, not an error. **Subagents inherit the configured advisor**
+and re-run the pairing check against *their own* model, so a Sonnet subagent under an Opus
+session may use an advisor the parent could not.
+
+Claude Code offers **Fable 5 as an advisor again** for organisations with Fable access (2.1.232);
+the earlier "dimmed in the picker" state is gone.
 
 ### Cost shape
 
@@ -54,7 +61,9 @@ Each call sends the whole conversation at the advisor's rates, and the advisor's
 every turn, so *a faster main model + a stronger advisor typically costs less than running the
 stronger model throughout*.
 
-Useful pairings: Sonnet main + Opus advisor (routine work, escalate planning/failures/completion
+Useful pairings (the advisor page: Opus as advisor keeps total cost similar or lower; Fable 5.1
+maximises the quality lift; the benefit shrinks as the executor's own capability approaches the
+advisor's): Sonnet main + Opus advisor (routine work, escalate planning/failures/completion
 checks) · Haiku main + Opus advisor (cheapest main with strong planning) · Opus main + Opus
 advisor (independent check on high-stakes work, cost second).
 
@@ -63,7 +72,13 @@ cache — unlike changing model or effort.
 
 ## Subagent sizing in practice
 
-- **Opus 5 delegates to subagents more readily** than 4.8 and is strong at multi-agent
+- **Independence-motivated verifiers are non-fork.** Forking is on by default in Claude Code
+  (2.1.232) and a fork inherits the full conversation — a "blind" judge spawned as a fork is not
+  blind. Spawn it as a non-fork subagent or a separate session and report `non-fork`.
+- **Async subagents save wall time, not quality** (Fable 5.1 migration guide: a lead that does not
+  block on its subagents finishes sooner at similar quality, tokens and cost).
+- *Opus 5 pattern, a reasonable start on 5.5 (not re-tested, EX-6):*
+  **Opus 5 delegates to subagents more readily** than 4.8 and is strong at multi-agent
   coordination with writer-verifier patterns. Expect more fan-out; size it deliberately.
 - **Opus 5 verifies its own work without being told.** Delete inherited instructions like
   "include a final verification step" or "use a subagent to verify" — on Opus 5 they cause
@@ -76,11 +91,18 @@ cache — unlike changing model or effort.
 
 ## Long-horizon runs (>30 min, million-token budgets)
 
-- `xhigh` exists for this shape of work.
-- Fable 5 is built for it: works autonomously with fewer mid-task check-ins, and pulls furthest
-  ahead the longer the job runs.
-- Set a large `max_tokens` — it caps thinking **plus** response text together.
-- Consider a task budget so the model can pace itself, rather than exposing a raw countdown.
+- **Start on Opus 5.5 at `xhigh`**; it sustains multi-hour autonomous runs with parallel
+  subagents better than Opus 5. Move to **Fable 5.1** when evals at higher effort still fall short
+  — i.e. when the gap is *capability* (two axes), not thoroughness (models overview).
+- Set a large `max_tokens` — it caps thinking **plus** response text together (64k–128k).
+- **Pacing, not stopping.** On the API, a task budget (beta) lets the model pace itself. On Opus
+  5.5 multi-agent harnesses, an `elapsed 340s / 1200s` line appended to each message makes the
+  team parallelise and finish sooner — it is **advisory**; if you need a hard stop, keep your own
+  timeout, and check quality (under time pressure it may search and verify a little less).
+  Lowering effort reduces the work itself; a budget mostly keeps more agents working in parallel.
+- In **Claude Code** there is no task budget: use `/goal`, agent `maxTurns` (hitting it returns
+  output marked partial) or, on Managed Agents, a session budget.
+- Do not expose a raw context-window countdown (it induces early hand-off; claude5-family ADC1).
 
 ## What this skill will not tell you
 

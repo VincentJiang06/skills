@@ -8,8 +8,8 @@ description: >-
   "$model-pyramid". NOT API price shopping.
 license: MIT
 metadata:
-  version: "1.0.0"
-  model_baseline: "claude-5 family (Fable 5 / Opus 5 / Sonnet 5 / Haiku 4.5) · docs read 2026-07-29"
+  version: "1.1.0"
+  model_baseline: "claude-opus-5-5 · effort high · Claude Code 2.1.280 · facts read 2026-09-25 against claude5-family.md base 2026-09-24"
 ---
 
 # model-pyramid
@@ -18,9 +18,9 @@ Pick **model** and **effort** for the session and for every subagent you spawn, 
 in one line each. Framing is **right-sizing**: assign what the work needs. This skill
 recommends and reports — it never spawns agents, edits configs, or blocks you.
 
-> **Everything numeric here is dated.** Ladders, defaults and rosters change every model
-> generation. `metadata.model_baseline` is the stamp. When the family changes, re-verify
-> against live docs before trusting a number in this skill — and re-sweep your own evals.
+> **Everything numeric here is dated** (stamp: `metadata.model_baseline`). **Any point version
+> (e.g. 5.1, 5.5) or a silent weight swap under the same name** ⇒ re-verify defaults, thinking,
+> pairing and what it touched; **a new model generation** ⇒ full re-sweep, your evals included.
 
 ## The two axes (use these, not a rule table)
 
@@ -40,8 +40,8 @@ go **`xhigh`**. Cutting effort on a search agent buys an agent that stops lookin
 
 1. **Model** — a subagent inherits the session model unless you say otherwise. Inheriting is
    the correct default; override only for a reason you can name.
-2. **Effort** — the default is **`high`** on every model that supports effort. Setting `high`
-   is byte-identical to omitting the parameter. (Exception: Opus 4.7 defaults to `xhigh`.)
+2. **Effort** — **set it explicitly.** Omitted = *that model's* default: **Opus 5.5 `medium`**;
+   Fable 5.1, Opus 5, Sonnet 5 `high`; Haiku 4.5 none.
 3. **Adjust with evals, not vibes.** Step down where quality holds, up where it doesn't.
    Carrying settings over from an earlier model generation ⇒ **re-sweep**, don't reuse.
 
@@ -51,11 +51,11 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
 
 | Task shape | Model | Effort | Why |
 |---|---|---|---|
-| **Peer co-work** — equal-difficulty shards, judge panels, adversarial verifiers, one delegated deep task | inherit | inherit | It is the same work, split. Cutting either knob cuts the work. |
+| **Peer co-work** — equal-difficulty shards, judge panels, adversarial verifiers, one delegated deep task | inherit | inherit | It is the same work, split. Cutting either knob cuts the work. An *independence* verifier (blind judge, fresh red team) is **non-fork** — a fork (Claude Code default) shares its author's context. |
 | **Search / exploration** — codebase sweep, web research, evidence gathering | inherit | **inherit or raise** | Effort governs tool-call volume. This is the axis you *raise* for search. |
 | **High-volume homogeneous lookups** (~20+ cheap, near-identical) | drop **one** tier (Opus→Sonnet) | `low`–`medium` | The documented home of `low`: "simpler tasks that need the best speed and lowest costs, such as subagents". |
-| **Long-horizon autonomous run** (>30 min, token budgets in the millions) | Fable 5 if available, else top tier | `xhigh` | `xhigh` is defined for exactly this. |
-| **Anything else** | inherit | default (`high`) | No reason to move a knob ⇒ don't move it. |
+| **Long-horizon autonomous run** (>30 min, token budgets in the millions) | Opus 5.5; Fable 5.1 when the gap is capability | `xhigh` | `xhigh` is defined for exactly this. |
+| **Anything else** | inherit | the model's default, written out | No reason to move a knob ⇒ don't move it — but name the level. |
 
 **Clamps**
 - At most **one knob per layer** — one tier down *or* one effort step, not both.
@@ -67,16 +67,16 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
 
 ## Before you emit `xhigh` or `max`
 
-- **Raise `max_tokens`** — 64k is the documented starting point. It is a hard cap on thinking
-  **plus** response text together, and at these levels the model needs room to think *and* act
-  across subagents and tool calls.
+- **Raise `max_tokens`** — 64k is the documented start, 128k for long agentic turns (Opus 5.5
+  thinks more per turn). It caps thinking **plus** text together.
 - **Check the level exists on that model** — an unsupported level silently falls back to the
   highest supported level at or below it.
-- **On Opus 5, thinking cannot be disabled at `xhigh`/`max`** — that combination returns 400.
-- **`max` is for genuinely frontier problems.** On most workloads it adds significant cost for
-  small gains, and on structured-output tasks it can cause overthinking.
-- **Effort does not shorten prose.** On Opus 5, lowering effort does not reliably shorten the
-  visible response — if you want it shorter, say so in the prompt.
+- **Thinking is always on for Opus 5.5 / Fable 5.1 / Fable 5** — `thinking:disabled` or
+  `budget_tokens` ⇒ 400 at *any* effort; lower effort instead. (Opus 5: 400 only at `xhigh`/`max`.)
+- **`max` is for genuinely frontier problems** — elsewhere it adds cost for small gains, and on
+  structured-output tasks it can cause overthinking.
+- **Effort does not shorten prose** — observed on Opus 5 (unverified on 5.5): if you want it
+  shorter, say so in the prompt.
 
 ## Cost levers that are not "pick a cheaper model"
 
@@ -85,13 +85,14 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
   adds little on short tasks. → `references/orchestration.md`
 - **`opusplan`** — Opus for plan mode, Sonnet for execution. A free structural win when the task
   genuinely splits that way.
-- **Effort down-step** — usually a bigger and safer lever than a model down-step: it degrades
+- **Effort down-step** — usually a bigger, safer lever than a model down-step: it degrades
   gracefully and applies per request.
 
 ## The cache trap
 
-Changing **model or effort invalidates the prompt cache**. Pick a level at the start of a cached
-conversation and hold it; vary effort *across* workloads, not *within* one long session.
+Changing **model or top-level effort invalidates the prompt cache**. Hold one level per cached
+conversation — vary effort *across* workloads, or use **per-message effort (beta)**, which keeps
+the cache on Opus 5.5 / Fable 5.1 / Opus 5.
 (Toggling the advisor does **not** invalidate the cache.)
 
 ## Report
@@ -103,23 +104,27 @@ One line per agent:
 ```
 
 Flags worth emitting: `inherited`, `justified:<reason>`, `override`, `max_tokens-raised`,
-`cache-hold`, `advisor:<model>`, `degraded:<what the runtime could not express>`.
+`cache-hold`, `advisor:<model>`, `non-fork`, `degraded:<what the runtime could not express>`
+(`effort-not-expressible` only if neither Workflow `opts.effort` nor agent-type `effort:`
+frontmatter is available). Each line carries its rule + flags, so it survives compaction.
 
 ## Files
 
 | File | Load when |
 |---|---|
-| `references/model-and-effort.md` | per-model ladder, support matrix, documented start points |
-| `references/orchestration.md` | advisor pairing, opusplan, subagent patterns, cost shape |
-| `references/runtime-knobs.md` | emitting knobs for a concrete runtime (Claude Code / Agent tool / Workflow / API / Codex) |
-| `scripts/check_plan.mjs` | validate a plan mechanically |
+| `references/model-and-effort.md` | a non-session model is named, or you need a model's default, levels or thinking legality |
+| `references/orchestration.md` | an advisor, opusplan, verifier/judge fan-out or >30-min run is on the table |
+| `references/runtime-knobs.md` | emitting knobs for a concrete runtime (Claude Code, Agent tool, Workflow, agent frontmatter, API, Codex) |
+| `scripts/check_plan.mjs` | a plan JSON exists — run it, don't read it |
 
 ## Mechanical check
 
 ```bash
-node scripts/check_plan.mjs '{"agents":[{"label":"reviewer","model":"claude-opus-5","effort":"max"}]}'
+node scripts/check_plan.mjs '{"agents":[{"label":"reviewer","model":"claude-opus-5-5","effort":"max"}]}'
 ```
 
-Checks only what is deterministic: level exists on that model, `max_tokens` raised at
-`xhigh`/`max`, Opus 5 thinking×effort conflict, advisor pairing legality, effort varied inside a
-cached session, and both-knobs-dropped. It does **not** judge whether your sizing is wise.
+Checks only table facts: level exists, `max_tokens` at `xhigh`/`max`,
+thinking legality, advisor pairing, effort varied in a cached session, search/both-knobs cuts
+against the session's resolved effort. Unknown models are **reported** (`model-unknown`: re-verify
+this skill), never passed; aliases get no model-specific verdict. **Zero findings = nothing fired, not "verified"**;
+whether your sizing is wise is not judged.
