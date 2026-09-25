@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
-"""Traceability + schema gate for an evaluation JSON. Exit 1 on any violation."""
-import json, os, re, sys
+"""Schema + traceability-structure gate for an evaluation JSON. Exit 1 on any violation.
+Uses schema_check.py (same dir; stdlib validator, ships with the skill)."""
+import json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, "..", "evals"))
+sys.path.insert(0, HERE)
 from schema_check import validate  # noqa: E402
 
 TECHNICALITIES = {"soundstage", "imaging", "resolution", "dynamics", "transient", "timbre"}
+
+
+def is_technicality(attr):
+    """Canonical ids from signature-glossary.md: `soundstage` or `soundstage_high` etc."""
+    return str(attr or "").split("_")[0] in TECHNICALITIES
 
 
 def check(doc, schema):
@@ -18,13 +24,11 @@ def check(doc, schema):
         for sid in c.get("source_ids", []):
             if sid not in ev_ids:
                 errs.append(f"claims[{i}]: source_id '{sid}' not in evidence")
-        if doc.get("device_class") == "transducer" and c.get("attribute") in TECHNICALITIES \
+        if doc.get("device_class") == "transducer" and is_technicality(c.get("attribute")) \
                 and c.get("provenance") != "consensus":
             errs.append(f"claims[{i}]: technicality '{c.get('attribute')}' provenance '{c.get('provenance')}' (must be consensus)")
-        # "audibl" but NOT "inaudible": a source audible-difference claim needs a measurement.
-        if doc.get("device_class") == "source" and re.search(r"(?<!in)audibl", c.get("text", "").lower()) \
-                and c.get("provenance") != "measured":
-            errs.append(f"claims[{i}]: audible-difference claim not backed by measurement")
+        # Claim TEXT is never pattern-matched here (1.1.0): whether an audible-difference
+        # claim is justified is an L-plane judgment -> rules/source-gear-eval.md card, Step 8.
     return errs
 
 

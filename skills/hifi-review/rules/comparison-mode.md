@@ -11,7 +11,8 @@ Comparison reuses the single-device engines, then adds an alignment + delta laye
 
 ## Per-band delta (transducer)
 Run the deterministic engine: `python3 scripts/compare.py <a.csv> <b.csv> --target
-<id> [--category-a --category-b --rig-a --rig-b]`. It emits per-band
+<id> --rig-a <rig> --rig-b <rig> [--category-a --category-b]` (rig omitted → the guard
+is skipped and `warnings` says so). It emits per-band
 `quanta_delta` / `dev_db_delta`, `tilt_a_db`/`tilt_b_db`/`tilt_delta_db`, a
 `summary` of `a_more_in` / `b_more_in` / `similar_in`, and a `comparable` flag with
 `comparability_notes`. **Narrate from that output — don't eyeball two curves.**

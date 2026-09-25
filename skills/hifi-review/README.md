@@ -8,7 +8,7 @@
 
 **好在哪** ——
 - 带耦合腔感知的频响分析（711 ≠ 5128）+ 峰谷扫描，量感与风格都从曲线落到 dB。
-- 「共识 ≠ 测量」的防注水门：绝不把评测共识当成测量背书。
+- 「共识 ≠ 测量」的防注水门：`attribute` 标为技术力（soundstage、soundstage_high 等）的结论只能标「共识」，绝不当成测量背书。
 - 媒体名单按风格取向**动态判断**，而非死分桶 —— 测量背书的高可信、印象主导的纠偏。
 - 每条结论都追溯到证据，并标注 `measured | consensus | prior` 与置信度。
 
@@ -17,4 +17,6 @@
 
 **安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/hifi-review ~/.claude/skills/`）。
 
-完整说明见 [SKILL.md](SKILL.md)。
+**已知局限** —— `validate_output.py` 只查结构（schema、每条结论都挂在已列出的来源上、`attribute` 为技术力的结论标为共识——它读标签不读句子，没打技术力标签的结论会漏过），不判断结论是否站得住（如「可闻差异」是否成立，这由 Step 8 按判断卡自读）；L1 golden 是引擎在合成曲线上自己冻结的回归基线，只证明确定性与不回退，不证明准确。1.1.1 仍未修的已知缺口：`coloration_high` 这类染色 / 齿音 id 标成 measured 仍会放行；`compare.py` 在耦合腔（rig）缺失或拼错时仍给出 `comparable: true`，只在 `warnings` 里记一条——判断两条曲线能否比较要看 warnings，不能只看这个标志。两臂对照（3 例，对裸 Opus 5.5）：2 例本 skill 更好（优势在耦合腔 / 目标曲线匹配），1 例持平，0 例更差。
+
+当前版本 1.1.1，变更见 [CHANGELOG.md](CHANGELOG.md)。完整说明见 [SKILL.md](SKILL.md)。

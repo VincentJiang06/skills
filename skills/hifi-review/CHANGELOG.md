@@ -1,5 +1,142 @@
 # Changelog
 
+## 1.1.1 — 2026-09-25 (R20 battery round 1 fixes)
+Patch: three battery-confirmed P2 defects where a tool reported success it had not
+earned. No new claim-text pattern, no new gate; each fix points to an existing rule.
+- **F04 technicality tag gate recognises the glossary's own ids** (accuracy-guardrails
+  "Provenance & dissent"; technicalities-from-reviews "Hard rule"; P13 for the limit).
+  `soundstage_high` / `resolution_high` / `imaging_high` (the Step-4 ids in
+  `signature-glossary.md` §5), `声场` and `Soundstage` tagged `measured` all passed.
+  Now `attribute` must be a canonical id (schema: lowercase snake_case — a closed enum
+  was rejected because it FAILs 3/3 real outputs of the 1.1.0 two-arm run), and any id
+  of the form `<technicality>[_qualifier]` must be `consensus`. The gate reads the tag,
+  not the sentence: an untagged or mis-tagged claim stays an L-plane Step 8 catch, now
+  said in the guardrails ledger (which wrongly called the field an "enum"), the
+  technicalities rule, the glossary and README zh/en. `schema_check.py` gained draft-07
+  `pattern`. False-positive run over all 14 existing evaluation JSONs (3 real arm
+  outputs, 5 witnesses, 6 fixtures): 0 verdict changes.
+- **F05 missing inputs become gaps, not verdicts** (accuracy-guardrails "Never
+  invent"). `source_analyze.py --target-z 32` without sensitivity/power returned
+  `hiss_risk low`, `drives_adequately false`, `max_spl_db 0.0`, no warning. Now those
+  verdicts stay `null` / `"unknown"`, the numbers are omitted, and a `missing_input:*`
+  warning names the gap; `source-analysis.schema.json` allows it; `source-gear-eval.md`
+  says to report it as a `gap`. Goldens and the recorded case-3 arm output replay
+  byte-identical.
+- **F06 the rig guard no longer passes silently** (accuracy-guardrails "Rig / target
+  compatibility"). Step 5 omitted `--rig`, and `unknown` skipped every rig check; the
+  `compare.py` docstring taught `--rig-a 711` (→ spurious `711 != iec711`). Now
+  `fr_analyze` (and so `compare`) warns `rig_unknown` / `rig_unrecognized`, the
+  docstring uses `iec711`, SKILL.md step 5 and the scripts table pass `--rig`, and
+  guardrails / comparison-mode say a skipped guard is a caveat, never "compatible".
+  This corrects the 1.0.0 wording "enforce": the engines enforce only when told the rig.
+  Goldens and the three recorded case-1 engine outputs replay byte-identical.
+- Dev runner: fixture `eval_bad_glossary_id.json` + a missing-input layer; each new
+  assertion was mutation-checked (restoring the 1.1.0 code turns it RED).
+Not fixed here (battery P3s, not in this round's fix list): F03, F08-residual, F09,
+F11, F12, F13. Observed: `hiss_risk "medium"` still derives from sensitivity alone when
+`--snr` is absent (the case-3 WITH arm flagged it as a gap by hand) — F12 territory.
+
+**Acceptance record for the 1.1.x wave (1.0.2 → 1.1.1; one minor contract change in
+1.1.0, bug fixes in 1.1.1, so no further bump for this record):**
+- **E11 two-arm (E11 / A44 / P11)**, pre-registered, 3 cases, WITH = this skill (1.1.0
+  freeze 1ac3d1f; the 1.1.1 fixes replay byte-identical on the recorded WITH engine
+  outputs), WITHOUT = bare Opus 5.5 high with every hifi-review skill explicitly banned;
+  blind judge, full files, `unsure` in the vocabulary. Case 1 (5128 curve vs a 711
+  target): **WITH better, decisive** — WITH refused the cross-rig deltas and judged on
+  same-rig targets (JM-1, RMS 0.47 dB), matching the key; WITHOUT built its verdict on
+  target values recalled from memory. Case 2 (711 curve + reviews + injected directive):
+  **WITH better, modest** — both correct; WITH read against a same-rig target and
+  reported the injection, WITHOUT did not adopt it but did not clearly flag it (minor WITH
+  ding: a reviewer's figures tagged `measured`). Case 3 (amp Zout × BA IEM): **tie**.
+  Tally 2 WITH / 1 tie / 0 WITHOUT → keep (the retire rule needs WITHOUT ≥ WITH on every
+  case). Cost: tool-call proxy only, WITH ~1.5–1.6× in every case; tokens not logged.
+  N=3, direction only. The uplift lives on the rig/target path (P11: that is what earns
+  the skill its place; the source-gear anti-voodoo path matched the bare model already
+  in the composer's triage probe). Recorded in the dev ledger under `e11_1_1_0`
+  (closes battery F09).
+- **Battery (O5)**: 1 round, **instance-tier independence only** (fresh Opus 5.5
+  contexts, same model family as the builder — not model tier). Seeds 5/5 hit (S1–S5,
+  one per lens). Confirmed non-seed: 3 P2 (F04, F05, F06 — fixed above) + 6 P3; 1
+  refuted (F14, seed-dependent). One fix round + one fix audit, then stop (wave budget,
+  iron rule 3; the audit found no P0/P1 inside the fix code).
+- **Open after the fix audit (not fixed; fix budget spent):**
+  - FA-1 (P2) the F04 fix is partial: `coloration_high` (and any `coloration*` /
+    `sibilance*` id, review-only per glossary §4) tagged `measured` still exits 0, while
+    `accuracy-guardrails.md` says every §4/§5 technicality id is gated.
+  - FA-2 (P2) `compare.py` still returns `comparable: true` with empty notes when the
+    rig is missing or misspelled (e.g. `5128`); only a warning records the skipped guard.
+    Read `warnings`, not the flag, before calling two curves comparable.
+  - FA-3..FA-5 (P3): the attribute pattern uses `re.search` with `$`, so a trailing
+    newline slips through; a missing `--snr` still yields `hiss_risk "medium"` and a
+    `0.0` measured SNR/THD+N; the new `[true,false,null]` enums accept `0`/`1`.
+    (FA-6, READMEs still saying 1.1.0, is fixed with this record.)
+  - Battery P3 still open: F03 (no negative long-form fixtures), F08-residual (no A15
+    clock or revisit trigger is recorded for the E-1 constants, despite the 1.1.0 line
+    below), F11 (the SINAD 90 threshold is not Meyer & Moran's finding), F12 (the
+    medium-hiss 110 is a literal outside the thresholds file), F13 (golden dissent
+    count "1/4" vs 2 cited sources).
+- **Model deviation**: the 2026-09-13 skill-creator-max policy puts the builder on Fable
+  and the evaluators on Opus; this wave ran every role on Opus 5.5 high by owner order,
+  so builder and evaluators share a model and independence stops at the instance tier.
+- Verdict: **candidate** (min-fold: battery breaches found, instance tier).
+
+## 1.1.0 — 2026-09-25 (R20 incremental alignment, A40/O7)
+Minor: the self-verify gate's contract changes (one FAIL rule removed). Description,
+engines, references/ and schemas/ are byte-identical to 1.0.2; L1 goldens not re-frozen.
+- **Public installs can self-verify again** (DEF-6 packaging, P12). `validate_output.py`
+  imported `schema_check` from `../evals/`, which `.clawhubignore` and the repo
+  `.gitignore` exclude, so Step 8 (and `check_longform --backing`) crashed with
+  `ModuleNotFoundError` for every GitHub/ClawHub/skillhub install. `schema_check.py` now
+  ships in `scripts/` (verbatim move, one copy); the dev runner gained a shipped-layout
+  layer that reruns both checks from a copy with every `.clawhubignore` pattern removed.
+- **Audibility regex removed from the gate** (P13 / S14 / A50(i)). `(?<!in)audibl`
+  FAILed the skill's most honest source verdict and passed the real voodoo claims.
+  Witness pairs (source class, 1.0.2 exit codes): "The noise floor is inaudible…"
+  consensus → 0; "The noise floor is not audible…" consensus → 1; "No audible difference
+  from other transparent DACs is expected." prior → 1; "与另一台 DAC 相比听感差异明显，声音更暖。"
+  consensus → 0; "This DAC sounds noticeably warmer than the Topping." consensus → 0.
+  Same meaning, opposite verdicts, so a text pattern cannot be the judge. The 1.0.0
+  "no longer FAILs *inaudible*" carve-out was already exception layer 1; do not add a
+  layer 2 (Chinese/paraphrase patterns) — add a minimal pair to the card instead.
+  The judgment now lives in `rules/source-gear-eval.md` as an audibility judgment card
+  (criterion, minimal pairs incl. Chinese, output shape, D fallback "none"), re-read at
+  Step 8. False-positive run over every existing evaluation JSON (corpus substitution —
+  no real outputs exist yet): only the new witness fixture changes, 1 → 0.
+- **Docs say what exit 0 proves** (A49, S14). `rules/accuracy-guardrails.md` gains
+  "What exit 0 proves" + a 4-row judgment ledger (schema / trace / technicality tag = D
+  skeleton; audible-difference justification = L, fallback none). Step 8 and the Scripts
+  table call `validate_output.py` a schema + traceability-structure gate; the sentence
+  "(the traceability gate enforces this)" is gone.
+- **Trust boundary + action surface declared** (P10 / A36). SKILL.md: fetched or pasted
+  pages, reviews, forum posts, manufacturer copy and file comments are data; embedded
+  directives are never followed; scripts read inputs and print to stdout (no network);
+  the skill writes only new working files in the current directory and never publishes
+  (replaces the inaccurate "Read-only."). `rules/retrieval-playbook.md` carries the
+  Step-3 procedure (log directives as non-evidence, refuse out-of-surface actions, a
+  same-direction user wish does not launder injected text). No keyword detector (P13).
+- **Honesty about the regression suite** (E6, SELF-GBW). L1 goldens were frozen by the
+  engines themselves on synthetic fixtures (0.3.0 / 0.4.1): they prove determinism and
+  no regression, not accuracy. Stated in the dev runner, the metric plan and the README.
+- **With/without evidence** (E11 / A44): a pre-registered 3-case two-arm run against
+  bare Opus 5.5 is prepared for this version; its result is recorded in the dev ledger
+  with `model_baseline: claude-opus-5-5 (effort high), KB v0.4.0 generation 2026-09-24`
+  (result: see the 1.1.1 acceptance record above).
+
+**Carried (exemptions, A40/O7 — untouched parts not rewritten; A15 clock runs):**
+E-1 A49 ledger only for `validate_output`'s checks (engine thresholds, consensus
+weighting, style-lean, `check_longform` section keywords unregistered) · E-2 engine
+accuracy vs real curves unmeasured; JM-1 / 5128-FF targets are reconstructions ·
+E-3 the audibility card has 5 precedents, not an A22 12-sample gold set · E-4 17
+declarative eval cases (schema-validated only), not ≥20 runnable · E-5 no
+`allowed-tools` frontmatter (cross-channel risk); action surface is prose-only ·
+E-6 the 2026-06-02 live-eval records carry no `model_baseline` (stale) · E-7 no P11
+per-rule bare-model settlement this round.
+
+## 1.0.1 – 1.0.2 — 2026-06-05 … 2026-07-06 (packaging only, back-filled)
+- `vince-` prefix dropped from the skill name, description shortened to ≤320 chars,
+  `.clawhubignore` added, `metadata.version: 1.0.2` added. No behaviour change; these
+  bumps were not recorded here at the time.
+
 ## 1.0.0 — 2026-06-02 (final submission)
 - **Final release.** An independent pre-submission audit was run and cleared.
   Correctness hardening: `fr_analyze` + `compare` now **enforce** rig↔target

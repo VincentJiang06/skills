@@ -4,7 +4,9 @@ per-band 量感 delta, tilt delta, who-has-more-where, comparability guard.
 
 Usage:
   python3 scripts/compare.py <fr_a.csv> <fr_b.csv> --target harman_ie_2019 \
-      [--device-a A --device-b B --rig-a 711 --rig-b 711 --category-a iem --category-b tws]
+      --rig-a iec711 --rig-b iec711 [--device-a A --device-b B --category-a iem --category-b tws]
+Rig ids are the targets.json rigs (iec711 / gras_43ag / bk5128); an omitted or
+unrecognized rig skips the rig guard and is reported in `warnings`.
 """
 import argparse, json, os, sys
 
@@ -37,7 +39,8 @@ def main():
 
     A = analyze(args.fr_a, args.target, args.ra, args.da, args.ca)
     B = analyze(args.fr_b, args.target, args.rb, args.db, args.cb)
-    tgt_rig = load_json("targets.json")["targets"].get(args.target, {}).get("rig", "")
+    targets = load_json("targets.json")["targets"]
+    tgt_rig, rigs = targets.get(args.target, {}).get("rig", ""), {t.get("rig") for t in targets.values()}
 
     comparable, notes = True, []
     if (args.ca in IN_EAR) != (args.cb in IN_EAR):
@@ -48,7 +51,7 @@ def main():
         notes.append("devices on different rigs (%s vs %s) - not directly comparable" % (args.ra, args.rb))
     if tgt_rig:
         for nm, r in (("A", args.ra), ("B", args.rb)):
-            if r != "unknown" and r != tgt_rig:
+            if r in rigs and r != tgt_rig:
                 notes.append("%s rig (%s) != target rig (%s) - rig/target mismatch" % (nm, r, tgt_rig))
 
     band_deltas, a_more, b_more, similar = [], [], [], []

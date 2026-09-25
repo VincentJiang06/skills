@@ -11,11 +11,11 @@
         "snr_db": {"type": "number"}, "zout_ohm": {"type": "number"}}},
     "competence_tier": {"enum": ["transparent", "very_good", "adequate", "compromised"]},
     "system_matching": {"type": "object",
-      "required": ["target_z_ohm", "damping_factor", "damping_ok", "max_spl_db", "drives_adequately", "hiss_risk"],
+      "required": ["target_z_ohm", "damping_ok", "drives_adequately", "hiss_risk"],
       "additionalProperties": false,
       "properties": {"target_z_ohm": {"type": "number"}, "target_sens_db_mw": {"type": "number"},
-        "damping_factor": {"type": "number"}, "damping_ok": {"type": "boolean"},
-        "max_spl_db": {"type": "number"}, "drives_adequately": {"type": "boolean"},
+        "damping_factor": {"type": "number"}, "damping_ok": {"enum": [true, false, null]},
+        "max_spl_db": {"type": "number"}, "drives_adequately": {"enum": [true, false, null]},
         "hiss_risk": {"enum": ["low", "medium", "high", "unknown"]}}},
     "warnings": {"type": "array", "items": {"type": "string"}}
   }
