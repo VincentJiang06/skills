@@ -135,7 +135,7 @@ export function generate(scanResult) {
   push("");
   push("| Field | Current (Skyline) | After (WebView) | Action |");
   push("|---|---|---|---|");
-  push(`| renderer | \`${esc(rc.renderer || "(unset)")}\` | \`webview\` | ${summary.already_migrated ? "already webview" : "**flip**"} |`);
+  push(`| renderer | \`${esc(rc.renderer || "(unset)")}\` | \`webview\` | ${summary.already_migrated ? "already webview" : rc.renderer === "skyline" ? "**flip**" : "no app edit (flip the page pins below)"} |`);
   push(`| componentFramework | \`${esc(rc.componentFramework || "(unset)")}\` | \`${esc(rc.componentFramework || "(unset)")}\` | keep (glass-easel ok on WebView) |`);
   push(`| rendererOptions.skyline | ${rc.rendererOptions && rc.rendererOptions.skyline ? "present" : "—"} | ignored | keep or strip |`);
   push(`| window.navigationStyle | \`${esc(rc.navigationStyle || "(unset)")}\` | \`${esc(rc.navigationStyle || "(unset)")}\` | keep |`);
