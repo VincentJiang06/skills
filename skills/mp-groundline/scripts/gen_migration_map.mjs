@@ -34,7 +34,7 @@ const MAPPING_ROWS = [
   ["`word-break: break-all`", "`overflow-wrap: anywhere` works", "keep", "skyline-wxss"],
   ["`backdrop-filter`", "supported", "keep", "skyline-wxss"],
   ["`componentFramework: \"glass-easel\"`", "supported on WebView", "keep", "skyline-config app-config.md"],
-  ["`rendererOptions.skyline`", "ignored by WebView", "keep/strip", "skyline-config app-config.md"],
+  ["`rendererOptions.skyline`", "ignored by WebView; without `defaultDisplayBlock`/`defaultContentBox` Skyline defaults to flex + border-box, so the flip shifts default layout", "keep/strip + verify layout", "skyline-config app-config.md; skyline wxss.html"],
   ["camera tap-mask", "taps may bubble", "verify", "field workaround"]
 ];
 
@@ -142,6 +142,15 @@ export function generate(scanResult) {
   push(`| style | \`${esc(rc.style || "(unset)")}\` | \`${esc(rc.style || "(unset)")}\` | keep |`);
   push(`| lazyCodeLoading | \`${esc(rc.lazyCodeLoading || "(unset)")}\` | \`${esc(rc.lazyCodeLoading || "(unset)")}\` | keep |`);
   push("");
+  // Skyline defaults every node to flex (column) + border-box unless these two
+  // opt-ins are set; WebView defaults to block + content-box. Missing flags mean
+  // the flip changes the default layout of every node.
+  const sky = (rc.rendererOptions && rc.rendererOptions.skyline) || {};
+  const missing = ["defaultDisplayBlock", "defaultContentBox"].filter((k) => sky[k] !== true);
+  if (!summary.already_migrated && missing.length) {
+    push(`> **Default layout shift:** app.json \`rendererOptions.skyline\` does not set ${missing.map((k) => `\`${k}: true\``).join(" / ")}. Skyline then lays nodes out as flex (column) with border-box; WebView uses block with content-box. Expect the flip to change the default layout of every node (page jsons may set their own rendererOptions). Check it first at Step 4; if the shift is global, one app.wxss default rule restoring the Skyline defaults is the smallest fix, not per-page edits.`);
+    push("");
+  }
   const pinned = Array.isArray(rc.page_overrides) ? rc.page_overrides : [];
   const toFlip = pinned.filter((po) => po.needs_flip);
   if (toFlip.length) {

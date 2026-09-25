@@ -28,8 +28,19 @@ below marks it Skyline-only.
 | `renderer: "skyline"` | `renderer: "webview"` (the default) | **mechanical** (the core flip) | S-CONFIG: renderer 可选值 webview(默认)/skyline |
 | page json pinned to `renderer: "skyline"` (any non-webview pin) | `"webview"` on that page | **mechanical** (distinct per page; the app flip does not reach it; a Skyline pin under an unset/webview app is still a migration target) | S-OVERVIEW FAQ: Skyline 支持按页面/分包粒度开启 → page json carries its own renderer |
 | `componentFramework: "glass-easel"` | supported on WebView | **keep** | S-CONFIG: glass-easel 是 Skyline 必需；WebView 亦支持 glass-easel |
-| `rendererOptions.skyline.*` (defaultDisplayBlock / defaultContentBox / disableABTest / tagNameStyleIsolation) | ignored by WebView | **keep** (or strip) | S-CONFIG: rendererOptions 嵌套在 rendererOptions.skyline 下，仅 Skyline 读取 |
+| `rendererOptions.skyline.*` (defaultDisplayBlock / defaultContentBox / disableABTest / tagNameStyleIsolation) | ignored by WebView | **keep** (or strip) — but see the layout note below | S-CONFIG: rendererOptions 嵌套在 rendererOptions.skyline 下，仅 Skyline 读取 |
 | `window.navigationStyle: "custom"` | native nav available, custom still works | **keep** | S-CONFIG: Skyline 必须 custom；WebView 两者皆可，保持一致就 keep |
+
+> **Default layout shift (defaultDisplayBlock / defaultContentBox).** Skyline lays
+> every node out as `display: flex` (column) with `box-sizing: border-box` by default;
+> the two `rendererOptions.skyline` switches opt into WebView's block / content-box
+> defaults (first-party: developers.weixin.qq.com/miniprogram/dev/framework/runtime/skyline/wxss.html,
+> fetched 2026-09-25). A program **without** them was laid out under flex +
+> border-box, so the flip changes the default layout of every node — a global shift,
+> not a per-page delta. The MIGRATION-MAP warns when either flag is missing. Verify at
+> Step 4 first; if the shift is confirmed and global, one `app.wxss` default rule that
+> restores the Skyline defaults is the smallest fix (`rules/minimal-fix-protocol.md`),
+> not edits page by page. Page jsons can carry their own `rendererOptions`.
 
 ## Hard Skyline-only features (→ rewrite — no WebView equivalent)
 

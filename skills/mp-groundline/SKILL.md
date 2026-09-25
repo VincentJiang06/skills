@@ -75,7 +75,9 @@ pinned to Skyline — the app flip does not reach it): `renderer → "webview"`.
 already pinned to `"webview"` needs no edit.
 Keep `glass-easel`, `style:"v2"`, `navigationStyle:"custom"`, `lazyCodeLoading`,
 per-page `disableScroll`; keep or strip `rendererOptions.skyline` (ignored by
-WebView).
+WebView). If it lacks `defaultDisplayBlock`/`defaultContentBox: true`, Skyline was
+laying nodes out as flex + border-box: expect a global layout shift after the flip
+(the map warns; `references/skyline-to-webview.md`).
 
 ### Step 4 — Verify  → load `rules/verify-with-vince-mp.md`
 Use the system `vince-mp` CLI (the tool `mp-cli-sup` drives — do **NOT**
