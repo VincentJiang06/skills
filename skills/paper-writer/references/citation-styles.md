@@ -10,8 +10,7 @@ another style's formatting.
 Supported in v1: **APA 7**, **MLA 9**, **Chicago (author-date)**, **IEEE**, **GB/T 7714**.
 
 `check_citations.py --style` resolution modes (each style is keyed where that style puts
-the year; the lead surname may be any script, e.g. Özdemir, 王某某, and may start lowercase,
-e.g. hooks, boyd, d'Alembert — write it as the author does):
+the year; the lead surname may be any script, e.g. Özdemir, 王某某):
 - `apa`: `(Surname, YYYY)` / `Surname (YYYY)` / `Surname and Surname (YYYY)` ↔ entry
   `Surname, I. (YYYY).` — `(n.d.)`, `(in press)`, `(YYYY, Month D)` accepted. Same author +
   same year needs the a/b suffix in both places.

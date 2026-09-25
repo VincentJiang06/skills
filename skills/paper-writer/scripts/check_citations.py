@@ -75,15 +75,13 @@ def norm_year(y: str) -> str:
     return re.sub(r"[^0-9a-z]", "", y.lower())   # "n.d." -> "nd", "2006a" -> "2006a"
 
 
-def lead_name(text: str, known=None):
+def lead_name(text: str):
     """First name token that does not start lowercase ('see', 'van', 'et al') and is not
-    a bare Latin initial ('J.' in '(J. Smith, 2020)'). Else a lowercase surname (hooks,
-    d'Alembert; FA-4): an entry's author slot (known=None) or a listed surname (known)."""
-    toks = NAME_TOKEN_RE.findall(text)
-    for tok in toks:
+    a bare Latin initial ('J.' in the APA form '(J. Smith, 2020)')."""
+    for tok in NAME_TOKEN_RE.findall(text):
         if not tok[0].islower() and (len(tok) > 1 or not tok.isascii()):
             return tok
-    return next((t for t in toks if known is None or norm_name(t) in known), None)
+    return None
 
 # GB/T 7714 literature-type tags (文献类型标志): [J] journal, [M] monograph,
 # [D] dissertation, [C] conference, plus the other standard single-letter and
@@ -141,7 +139,7 @@ def intext_authordate_keys(body: str, ref_names=frozenset()):
             if not m:
                 continue
             prefix = chunk[:m.start()].rstrip().rstrip(",，").rstrip()
-            name = lead_name(prefix, ref_names)
+            name = lead_name(prefix)
             # the year must follow a name-like token directly: "(Study 2, N = 1800)" is not a cite
             if not name or not re.search(r"[^\W\d_]\.?$|\]$", prefix):
                 continue
@@ -155,9 +153,8 @@ def intext_authordate_keys(body: str, ref_names=frozenset()):
         nm = re.search(rf"({NAME})(?:\s+(?:and|&)\s+({NAME}))?$", before)
         if not nm:
             continue
-        def skip(t): return t[0].islower() and norm_name(t) not in ref_names   # 'in', not 'hooks'
-        name = nm.group(2) if nm.group(2) and skip(nm.group(1)) else nm.group(1)
-        if not skip(name):
+        name = nm.group(2) if nm.group(2) and nm.group(1)[0].islower() else nm.group(1)
+        if not name[0].islower():
             keys.add((resolve_name(name, ref_names), norm_year(m.group(1))))
     return keys
 
