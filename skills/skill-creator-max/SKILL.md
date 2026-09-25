@@ -165,6 +165,10 @@ a KB revision (may weaken/overturn an existing article). The conductor self-gate
 through `scripts/validate_decision` (min-fold ceiling, O-L0→human adjudicator, learning-record
 completeness). Detail: `references/orchestration-anchors.md` §5–§6.
 
+**Owner-facing register.** An existing record is the owner's: extend it in place (append, keep its
+format; a value it never recorded stays unknown, never assumed), never convert or replace it. Tell
+the owner each rule in plain words; an internal ID (K3, A51) only in brackets after.
+
 ## Modules (on-demand; §1 table maps role → pack → gate)
 
 - Schemas: `schemas/{skill-spec,structure-contract,evidence-dossier,compression-report,decision-record}.json`
