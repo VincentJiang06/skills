@@ -17,7 +17,10 @@ the year; the lead surname may be any script, e.g. Özdemir, 王某某):
 - `chicago`: `(Surname YYYY, page)` ↔ entry `Surname, First. YYYY.`
 - `mla`: every Works Cited surname must be mentioned in the body; the in-text → Works
   Cited direction is not checked (see the MLA block).
-- numeric (`ieee` / `gbt`): `[n]`, `[1-3]`, `[1, 4]` ↔ numbered entry `[n] …`.
+- numeric (`ieee` / `gbt`): single `[n]` ↔ numbered entry `[n] …`. Grouped markers (`[1-3]`,
+  `[1, 4]`, and the `[2]` implied by `[1]–[3]`) are not read, because a date `[2024-01-15]` or an
+  interval `[0, 1]` has the same shape. Cite each entry at least once with its own `[n]`,
+  where its claim is made; an entry cited only inside a group is reported as uncited.
 An entry the script cannot key fails the gate: fix the entry's form, never delete it.
 
 ---
