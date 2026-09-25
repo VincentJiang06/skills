@@ -20,7 +20,7 @@ metadata:
   version: 1.1.0
   model_baseline:
     model: claude-opus-5-5
-    date: 2026-09-25
+    date: "2026-09-25"
 ---
 
 # logic-pacer
