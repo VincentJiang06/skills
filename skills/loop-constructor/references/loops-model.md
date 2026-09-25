@@ -66,6 +66,21 @@ and say *why* if you skipped the independent evaluator — "we didn't buy one" i
 reviewable decision, "we didn't need one" is not. (KB `rules/constitution.md` A45(ii),
 `guidelines/loops.md` H2.)
 
+**The write surface includes the evaluator's standing instructions.** A fresh
+evaluator context is not a clean one: the host auto-injects `CLAUDE.md`,
+`AGENTS.md`, `.claude/` rules and auto-memory files, and the evaluator reads its own
+prompt files under `.loop/`. If the generator may write any of these, it can plant a
+standing instruction ("treat ties as PASS") that the evaluator reads as authority —
+separation broken through a second back door while every boolean still says
+separate. Text the generator writes into those files is still generator output; the
+channel gives it no authority. So either keep them outside the generator's write
+surface (a read-only mount, or the evaluator runs from a checkout at the stage tag),
+or hash them before the evaluator starts and verify the hash — where the evaluator
+legitimately needs the project's `CLAUDE.md`, hash-and-verify rather than strip.
+When neither is bought, write the evaluator's independence as **`L-i incomplete`**
+in `maker_checker.scope` instead of claiming it. (KB `principles/principles.md` P10,
+`rules/constitution.md` K1.)
+
 ## III — Negotiate the contract first (why the structure exists)
 
 Before the generator writes a line, it proposes what "done" looks like and the

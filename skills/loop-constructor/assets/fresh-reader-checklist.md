@@ -69,6 +69,17 @@ a hollow check is exactly the trap this pass exists to catch.
       runs via a hook/wrapper the generator doesn't invoke. Named in
       `maker_checker.scope`. A generator that can edit the check or its verdict is
       grading itself through the back door.
+- [ ] **Evaluator instruction files outside the generator's write surface (§II).**
+      A "fresh" evaluator still auto-reads what the host injects — `CLAUDE.md`,
+      `AGENTS.md`, `.claude/` rules, auto-memory files — and its own prompt files
+      under `.loop/`. PASS if the design runs the evaluator with host injection
+      stripped, from a read-only checkout at the stage tag, or with those files
+      hashed before launch and verified — or records its independence as
+      `L-i incomplete` in `maker_checker.scope`. FAIL if `separate_context:true` +
+      `adversarial:true` + a write-protected check sit in a repo whose instruction
+      files the generator may edit and the design says neither: every boolean says
+      separate, the back door is open. No such files in the target → answer
+      "n/a: none present" with the listing as evidence, don't skip silently.
 - [ ] **Contract actually pins the behavior (§III).** `contract.assertions` are
       enough to catch a plausible wrong build, not a rubber-stampable handful.
       The numbers are **lower bounds over machine-gradable assertions** (endpoint
