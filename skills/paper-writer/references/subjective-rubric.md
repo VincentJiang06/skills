@@ -10,8 +10,12 @@ reference has the same incentive when "double-checking" it).
 
 ## Judging protocol (applies to all three dimensions)
 - **Independence:** the judge must not share source with the builder or the graded output.
-  Vendor-tier independence (a different-vendor judge) is the specified production
-  configuration; a stronger same-family judge is NOT a substitute.
+  Vendor-tier independence (a different-vendor judge) is the specified configuration for
+  eval-time judging; a stronger same-family judge is NOT a substitute. The runtime citation
+  verifier (`references/verifier-brief.md`) is a different instrument and is only
+  instance-tier independent (a fresh same-family context), and the reply says so. Label
+  mapping: its OVERSTATED falls under this rubric's MISATTRIBUTED; its UNSURE is this
+  rubric's Unknown.
 - **Unknown exit (mandatory):** the judge MAY return `Unknown` when it genuinely cannot
   verify (e.g. a source it cannot look up). A judge forced to score everything is suspect.
   But dumping hard cases into Unknown is gaming — the Unknown rate is capped and audited.
