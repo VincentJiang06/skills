@@ -13,7 +13,9 @@ Measurements:
   1. length ratio     non-whitespace chars(rewrite)/chars(source); target <= ~1.3x (a FLAG)
   2. token presence   ALWAYS ON, corpus-independent. Candidates are chosen by orthographic
                       structure only (no word lists, no NER):
-                        - every digit-run (>=2 digits) — dates/numbers;
+                        - every run of >=2 ASCII digits — dates/numbers. Chinese numerals
+                          (十九, 一八三五, 三, 几千万) are NOT candidates: changed CJK dates/counts
+                          are owed to the model's fidelity re-read (SKILL.md verify step 3);
                         - CJK-dominant source (CJK chars >= Latin letters): every Latin token
                           (in Chinese prose a Latin token is almost always a name/term);
                         - Latin-dominant source: only tokens with an uppercase letter that are
@@ -58,9 +60,10 @@ _LETTER_RE = re.compile(r"[A-Za-z]")
 # punctuation before the token, after peeling opening quotes/brackets/list markers.
 _TERMINALS = ".!?。！？…"
 _OPENERS = "\"'([{“‘「『《〈*_#-"
-RULE_CJK = "CJK-dominant source: every Latin token + every digit-run"
+RULE_CJK = ("CJK-dominant source: every Latin token + every run of >=2 ASCII digits; "
+            "Chinese numerals (十九, 一八三五, 三) are NOT script-checked")
 RULE_LATIN = ("Latin-dominant source: capitalised non-sentence-initial tokens + internal-caps "
-              "tokens + every digit-run; sentence-initial names are NOT script-checked")
+              "tokens + every run of >=2 ASCII digits; sentence-initial names are NOT script-checked")
 
 
 def _nonspace_len(text: str) -> int:

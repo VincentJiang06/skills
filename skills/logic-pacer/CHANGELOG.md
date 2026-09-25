@@ -24,6 +24,15 @@ contract and the verify adjudication behaviour change. Each item names its ancho
 - **New silent-failure class stated, not hidden**: a sentence-initial English name is not a
   candidate. The report names the candidate rule and verify step 1 says so; step 3 re-reads
   every attribution (INV-fidelity-no-silent-alteration; failure_cost c).
+- **Battery fix F-R2: Chinese numerals disclosed as unchecked** (P10: the stated contract must
+  match what the script does; INV-fidelity-no-silent-alteration; failure_cost c). Number
+  candidates are runs of >=2 ASCII digits, so 十九→二十, 一八三五→一八四零, 三→两 gave zero hits
+  while SKILL.md said "every digit-run". Now SKILL.md verify step 1, the report's
+  `candidate_rule` text and both READMEs (boundary + ledger J4) say Chinese numerals are not
+  script-checked; step 3 re-reads every Chinese-numeral date and count. Deliberately no new
+  numeral matcher (iron rule 2 / P13: whether 三个 and 两个 is a real change or a legitimate
+  trim is a judgment, and the fix default is prose). Candidate selection is unchanged: FP
+  re-measured on R1-R7, every reading identical to before the fix.
 - **Verify step 4 adjudicates every hit** (DEF-surface-flags-loud): each absent token is
   marked as a dropped name/number/attribution to confirm or a trim of a non-name, never
   silently deleted; zero hits is not "fidelity clean".

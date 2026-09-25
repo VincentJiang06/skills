@@ -137,9 +137,10 @@ is to make silent failures LOUD.
 1. **Evidence script (execute — do NOT read into context):**
    `python3 scripts/pace_checks.py --source <src> --rewrite <rew> [--terms <list.json>]`.
    It reports FLAGS, never pass/fail: the length ratio, and which source names/numbers are
-   absent from the rewrite. Candidates: every digit-run; in a CJK-dominant source every Latin
-   token; in a Latin-dominant source only capitalised mid-sentence tokens and acronyms —
-   **sentence-initial names are not script-checked.** Register/对齐词汇 is checked only with
+   absent from the rewrite. Candidates: every run of >=2 ASCII digits; in a CJK-dominant source
+   every Latin token; in a Latin-dominant source only capitalised mid-sentence tokens and
+   acronyms — **sentence-initial names are not script-checked, and neither are Chinese numerals**
+   (十九世纪, 一八三五年, 三个): check those in step 3. Register/对齐词汇 is checked only with
    `--terms` (a JSON `{ "protected_terms": [...], "downgrade_pairs": [[hi, lo], ...] }` you
    author for the node); without it the script says "not checked".
 2. **Blind probe (FRESH subagent):** a fresh subagent runs
@@ -147,7 +148,8 @@ is to make silent failures LOUD.
    curse-of-knowledge this skill fights). It flags any residual >=2-move leap. If no subagent
    can be dispatched, say "blind probe not run" — never self-grade in its place.
 3. **Fidelity + voice** are your judgment (the script cannot see a stance inversion that keeps
-   the same entities). Re-read the pivot claims and every attribution against the source.
+   the same entities). Re-read the pivot claims, every attribution, and every Chinese-numeral
+   date or count against the source.
 4. **Adjudicate every script hit, then surface every flag** (DEF-surface-flags-loud). Mark each
    absent token as a dropped name/number/attribution for the author to confirm, or a legitimate
    trim of a non-name — never delete a hit silently. Zero hits is NOT "fidelity clean".
