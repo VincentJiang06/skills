@@ -45,9 +45,9 @@ An entry the script cannot key fails the gate: fix the entry's form, never delet
 ## Chicago (author-date)
 - In-text: `(Surname YYYY, page)`.
 - Reference list: `Surname, First. YYYY. "Title." *Journal* vol (issue): pages. DOI.`
-- Example: `Zhang, Feng. 2019. "Development of CRISPR-Cas Systems for Genome Editing."
-  Nature Reviews Molecular Cell Biology 20: 490–507.
-  https://doi.org/10.1038/s41580-019-0131-5`
+- Example: `Pickar-Oliver, Adrian, and Charles A. Gersbach. 2019. "The Next Generation of
+  CRISPR–Cas Technologies and Applications." Nature Reviews Molecular Cell Biology 20 (8):
+  490–507. https://doi.org/10.1038/s41580-019-0131-5`
 
 ## IEEE (numeric)
 - In-text: bracketed number `[1]`, numbered in order of first appearance.
