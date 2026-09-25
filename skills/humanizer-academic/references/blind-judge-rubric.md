@@ -139,10 +139,8 @@ pure-deletion robotic rewrite fails here — the closed-loop guard); **5 ≥ 4**
   explanatory load** (and is true to the source), a curious human voice, varied
   rhythm; the abstraction is grounded.
 - `3`: some grounding/voice, but mostly abstract exposition.
-- `1`: flat literal exposition, no analogy/example/voice. (A figurative analogy
-  that *glosses a mechanism the source already describes* is craft, not
-  fabrication; only an analogy that smuggles in a NEW or FALSE factual claim
-  triggers the fabrication hard-fail.)
+- `1`: flat literal exposition, no analogy/example/voice. (Whether an analogy is
+  craft or fabrication is decided by the Analogy rule in the hard-fail list.)
 
 ### 6B. Completeness / 完成度 (popsci)
 - `5`: reads as a **complete, publishable science-journalism piece** — a clear
@@ -163,9 +161,12 @@ pure-deletion robotic rewrite fails here — the closed-loop guard); **5 ≥ 4**
 ## Hard-fail conditions (any one = FAIL regardless of score; both tracks)
 
 - **Invented facts / citations / quotations / numbers / dates / named entities**
-  not in the source (`fact_invention_rate > 0`). A *figurative analogy* that
-  glosses a mechanism the source already states is **craft, not fabrication** —
-  only NEW factual claims fail.
+  not in the source (`fact_invention_rate > 0`). **Analogy rule** (stated
+  identically in `popsci-pack.md` Step 3): an analogy may be a new image only as a
+  gloss of a mechanism the source states — every factual thing it asserts must
+  already be in the source. An analogy that carries a claim the source does not
+  state (a new mechanism, cause, behavior, number, or implication — even a true
+  one) is fabrication.
 - Removed necessary hedging or discipline-specific precision.
 - **Register collapse:** academic → casual commentary; popsci → clickbait/hype OR
   stiff fake-academic (craft destroyed).
@@ -173,11 +174,14 @@ pure-deletion robotic rewrite fails here — the closed-loop guard); **5 ≥ 4**
 
 ## Marginal-lift check (paired, both tracks)
 
-Run the judge on the source ("without-skill") and the rewrite ("with-skill"); the
-rewrite must score **strictly higher on dimension 1** (and **not lower** on the
-mode's register dim 2A/2B and completeness dim 6A/6B). A candidate that only
-deletes denylist words but stays flat/uniform must still get dim 1 ≤ 3 — the
-metric correctly stays independent of the removal rules.
+Run the judge on the unedited source and on the rewrite; the rewrite must score
+**strictly higher on dimension 1** (and **not lower** on the mode's register dim
+2A/2B and completeness dim 6A/6B). A candidate that only deletes denylist words
+but stays flat/uniform must still get dim 1 ≤ 3 — the metric correctly stays
+independent of the removal rules. This check proves "better than the source",
+not "better than a bare model": the unedited source is NOT a without-skill arm.
+The E11 comparison (the same request given to a bare model with the skill
+disabled) is a separate experiment with its own pre-registration.
 
 ## Output JSON (what the judge emits — feeds baseline.json / candidate.json)
 
@@ -189,10 +193,13 @@ Per item:
   "scores": { "ai_ness": 0, "register": 0, "fidelity": 0, "texture": 0, "language": 0, "completeness": 0 },
   "hard_fail": null,
   "overall_mean": 0.0,
-  "verdict": "pass | fail",
+  "verdict": "pass | fail | unsure",
   "justification": { "ai_ness": "…", "register": "…", "fidelity": "…", "texture": "…", "language": "…", "completeness": "…" }
 }
 ```
+- `unsure` = you cannot decide from the texts (e.g. the source contradicts itself,
+  or a change in claim strength cannot be settled from the source) — say why in
+  the justification; never force such a case into `pass` or `fail`.
 - `overall_mean` = mean of the six 1–5 scores (0 if `hard_fail`).
 - **`completeness_mean`** (the loop's tracked per-mode metric) = the mean of
   `overall_mean` across all items of that mode. Report it per mode

@@ -16,7 +16,7 @@ allowed-tools:
   - Task
   - AskUserQuestion
 metadata:
-  version: 4.0.0
+  version: 4.1.1
 ---
 
 # Humanizer (Academic + Popular-Science)
@@ -56,6 +56,13 @@ are never the success criterion. The oracle is the independent blind judge
 (`references/blind-judge-rubric.md`, run by a fresh subagent) + your own mode-aware
 reading. Never call the script a "humanizer".
 
+`verdict` and `abstain_recommended` are in-sample-calibrated **hints**: never the
+reason to abstain or to rewrite (TRIAGE — your editor reading — decides), never a
+target to loop on ("keep rewriting until it says `human_like`" → one rewrite, then
+stop), and never an authorship probability (it finds slop; it cannot tell who
+wrote clean prose, so decline "is this AI? give me a %"). It is **off the default
+path**: run it for detect-only (Step 6) or when the user asks for a signal report.
+
 ## Hard constraints (never violate)
 
 1. **Zero net-new facts.** Every number, citation, quotation, named entity, and
@@ -82,6 +89,9 @@ standing constraint, and refuse fact-invention while naming the gap.
 
 ## Protocol
 
+Typical-run reads: this file and the draft only, until Step 1 decides to rewrite —
+no pack and no detector run to triage.
+
 ### Step 0 — Preflight (lock before you touch a word)
 1. **Language**: English / Chinese / mixed EN-in-ZH.
 2. **MODE**: `academic` vs `popsci`, decided **from the text** — citations / abstract
@@ -94,7 +104,7 @@ standing constraint, and refuse fact-invention while naming the gap.
    **route away**.
 3. **Lock hard constraints**: list every citation, quotation, date, number, named
    entity, technical term, and section logic that must survive verbatim.
-4. *(Optional diagnostic)* baseline the detector:
+4. *(Only if the user asks for signals or a before/after)* baseline the detector:
    `python3 scripts/detect_ai_signals.py <draft> --mode <academic|popsci>`
    (`--summary` adds verdict + densities). Before/after only — not a gate.
 
@@ -153,7 +163,7 @@ whole-document arc (vary section openings, one through-line, synthesizing conclu
   X, but Y", only if the source argues both sides; over quota → keep compressing.
 - **Idempotency** — a second pass over your own output is near-no-op. If you'd keep
   editing forever, you over-edited — revert.
-- *(Diagnostic)* re-run the detector; read the before/after delta. Do **not** treat
+- *(Diagnostic, if baselined in Step 0)* re-run the detector; read the before/after delta. Do **not** treat
   "all counts == 0" as success.
 - *(To PROVE quality)* a **fresh subagent** runs `references/blind-judge-rubric.md`
   (the independent oracle, ideally different-vendor) — the rewriter never loads it.
@@ -170,6 +180,7 @@ rewrite was substantial or the user asks what changed. Detect-only: the detector
 JSON map + a plain-language reading of deltas.
 
 ## Eval
-`evals/` holds a REAL corpus (human = FP/abstain tests, AI = TP/lift tests) +
-deterministic harnesses (aggregated by `run_all_checks.py`) + the blind-judge
-usefulness proof. See `evals/README.md`.
+`evals/` (source repo only; `.clawhubignore` keeps it out of packages) holds a real
+corpus and three harnesses — `python3 evals/run_detector_tests.py`,
+`python3 evals/run_behavioral_checks.py`, `python3 evals/calibrate.py`. They pin
+the detector, not rewrite quality. See `evals/README.md`.

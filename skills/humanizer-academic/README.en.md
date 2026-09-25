@@ -1,15 +1,18 @@
 # humanizer-academic
 
-> Rewrite academic prose to strip AI-writing signals — while keeping the scholarly register and never inventing facts.
+> Rewrite serious nonfiction (academic or serious popular science) to strip AI-writing signals — while keeping its register and never inventing facts.
 
 **English** · [简体中文](README.md)
 
-**What it does** — Rewrites academic / scholarly / professional prose (English, Chinese, or mixed EN-in-ZH) to remove AI-writing signals while preserving scholarly register and never inventing facts.
+**What it does** — Rewrites serious nonfiction (English, Chinese, or mixed EN-in-ZH) to remove AI-writing signals, never inventing facts. Two modes: `academic` (thesis, abstract, literature review, research or policy report; keeps the formal, hedged register) and `popsci` (serious popular science; keeps questions, analogy and "you", but an analogy may only gloss a mechanism the source states, never carry a claim it does not). Text that already reads human comes back unchanged.
+
+**Version status (4.1.1, release candidate, rated candidate; not yet merged or deployed, installs still run 4.0.0)** — R20 incremental alignment: the detector's verdict is a hint that never decides whether to rewrite, and it is off the default path; the numeric fact-invention check compares numbers exactly; the popsci analogy rule is one sentence shared by the pack and the blind-judge rubric, and every worked example in the popsci pack now obeys it; the academic pack defers to the same rule on fabrication and forbids adding analogies as a register rule (that ban lives in prose only; the blind-judge rubric does not check it). 4.1.0 was never released; under the owner's ruling ("这七个你都继续去做把他们做完" — finish all of them) a third fix round closed the release blockers, and the release check passed (release_ok, no P0/P1). Two-arm run (3 cases, same-model judge, not blinded): better fidelity than the bare model in 3/3, no humanness win (1 tie, 1 narrow loss), cost not measured by the pre-registered instrument — recorded, not a release blocker. Note: `evals/` is gitignored, so some fixes exist only in the local copy. Open P3s are listed in the CHANGELOG.
 
 **Why it's good** —
 - Removes signal on three layers — **lexical + structural + statistical burstiness** — not a word denylist.
 - More than subtraction: it adds defined **human texture** (authorial stance, source-grounded specificity, syntactic/paragraph variance) — never casual, never invented.
 - The bundled script only **DETECTS** — it never humanizes and is never the "humanizer" itself.
+- The detector is **off the default path**: it runs for detect-only or when the user asks for a signal report; the editor reading decides whether to rewrite.
 - Success is scored by an **independent blind judge**, not "count the patterns I deleted."
 
 **Architecture (v4.0.0, mode-split structural rebuild)** — the references are re-carved along the exclusivity axis: mode-primary — `references/academic-pack.md` / `references/popsci-pack.md` (each self-contained); language-secondary — `references/lexical-en.md` / `references/lexical-zh.md`; shared non-exclusive — `references/structural-signals.md`; the blind-judge rubric stays standalone. Content was **losslessly absorbed** (32/32 coverage check; the detector script and rubric are byte-identical). Measured wins: always-loaded SKILL.md 2,868→2,432 tok (−15%); the abstain path (the most common invocation) ~−35%; the academic-EN rewrite path ~−39% (an academic job no longer loads popsci content or the Chinese lexicon). The fact-fidelity guard is also hardened: two worked NEGATIVES (a behavioral-inference case + a named-entity-parallel case) + a sharpened Step-5 no-new-facts scan — the rebuild found a fact-invention that shipped v3.2.0 itself had missed (the hemoglobin case); v4.0.0 catches it. Honest note: the v4.0.0 win is **structural** — quality held rather than jumped (blind-judge A/B, 12 files: false-positive 0, fact-invention 0, ai_ness lift ≥ baseline; academic completeness genuinely improved, +0.25 mean with one longform 4→5; popsci equal).

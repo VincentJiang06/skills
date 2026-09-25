@@ -150,8 +150,13 @@ Even while keeping the voice lively, the rewrite must hold the line on:
 
 **EN — before (clickbait popsci):**
 > 🤯 Have you ever wondered why the sky is blue? Buckle up, because the answer will BLOW
-> YOUR MIND! Here are 5 incredible facts about light that scientists don't want you to
-> miss. The future of physics is bright — let's dive in!
+> YOUR MIND! Here are 3 incredible facts about light that scientists don't want you to
+> miss. Fact 1: air scatters short wavelengths WAY more strongly than long ones! Fact 2:
+> look straight up at midday and you're seeing sunlight bounced sideways by the
+> atmosphere — mostly the blue end of it! Fact 3: near the horizon at dusk, the light has
+> traveled through far more air, the blue has scattered away, and what's left is red —
+> the SAME reason the sky is blue makes a sunset red! 🌅 The future of physics is bright
+> — let's dive in!
 
 **EN — after (serious popsci, voice intact):**
 > The sky is blue for the same reason a sunset is red: air scatters short wavelengths
@@ -162,7 +167,9 @@ Even while keeping the voice lively, the rewrite must hold the line on:
 
 > Note what survived: a rhetorical framing, a second-person "you", a vivid contrast, a
 > concrete everyday observation. What went: the emoji, the hype, the fake hook, the
-> listicle promise, the empty uplift.
+> listicle promise, the empty uplift. What was added: nothing — every claim in the After
+> (scattering, midday blue, the longer path at dusk, the shared reason) is already in the
+> Before; only the hype wrapper came off (Analogy rule, Step 3).
 
 ---
 
@@ -188,8 +195,10 @@ pieces), or a thoughtful 科普 column: clear, example-driven, honest about unce
 - 空泛升华尾 — "科学的魅力是无穷的"、"未来可期"、"让我们拭目以待"。
 
 **ZH — before (标题党):**
-> 震惊！99% 的人都不知道，为什么天是蓝的？看完涨知识！硬核科普一文看懂，建议收藏！
-> 科学的魅力真是无穷啊，让我们一起拭目以待！🚀
+> 震惊！99% 的人都不知道，为什么天是蓝的？看完涨知识！硬核科普一文看懂：空气对短波长
+> 的散射远远强于长波长！正午抬头，你看到的是被大气向各个方向"弹"过来的阳光，以蓝光为
+> 主！黄昏时阳光要穿过厚得多的空气，蓝光早就散射殆尽，剩下的就是红——天为什么是蓝的、
+> 日落为什么是红的，竟然是同一件事！建议收藏！科学的魅力真是无穷啊，让我们一起拭目以待！🚀
 
 **ZH — after (严肃中文科普，声音保留):**
 > 天为什么是蓝的？说到底，和日落为什么是红的是同一件事。空气对短波长的散射远强
@@ -198,6 +207,8 @@ pieces), or a thoughtful 科普 column: clear, example-driven, honest about unce
 
 > 保留了：一个真问题式的开头、第二人称"你"、一个生活化的对照、诚实直接的解释。
 > 去掉了：震惊体、营销钩子、收藏号召、表情、空洞升华。
+> 新增了：没有——改后稿里的每条说法（散射强弱、正午的蓝、黄昏穿过更厚的空气、蓝与红同因）
+> Before 都已写明，只拆掉了标题党包装（见 Step 3 的 Analogy rule）。
 
 ---
 
@@ -205,14 +216,21 @@ pieces), or a thoughtful 科普 column: clear, example-driven, honest about unce
 
 SUBTRACT alone leaves prose scrubbed but flat. **Once a rewrite is triggered, the ADD
 below is required, not optional**, bounded hard by zero net-new facts: **never invent** a
-number, case, study, quote, analogy, or implication. Specificity is **retrieval from the
+number, case, study, quote, or implication. Specificity is **retrieval from the
 source**, never generation.
+
+> **Analogy rule** (stated identically in `blind-judge-rubric.md`, hard-fail list):
+> an analogy may be a new image only as a gloss of a mechanism the source states —
+> every factual thing it asserts must already be in the source. An analogy that carries
+> a claim the source does not state (a new mechanism, cause, behavior, number, or
+> implication — even a true one) is fabrication.
 
 **Do at least both moves, every triggered popsci rewrite:**
 
-1. **Let ONE real, source-grounded analogy or concrete example carry a key point** — pick
-   the single best one the source already implies and let it do the explanatory work
-   instead of restating the mechanism abstractly. Preserve existing craft (rhetorical Q,
+1. **Let ONE real, source-grounded analogy or concrete example carry a key point** — the
+   source's own if it has one, otherwise a gloss of a mechanism it states (Analogy rule
+   above) — and let it do the explanatory work instead of restating the mechanism
+   abstractly. Preserve existing craft (rhetorical Q,
    "you", analogy) — removing it is a false positive.
 2. **Replace any generic uplift close with a grounded one** — swap "the future is bright"
    / "未来可期" / "拭目以待" for an open question, real next step, or concrete implication
@@ -222,24 +240,29 @@ source**, never generation.
 ### Popsci worked example
 > The ADD is: (1) let **one** real, source-grounded analogy/example carry the key point,
 > and (2) replace a generic uplift close with a grounded one (an open question or real
-> implication **already in the source**). Never invent the analogy or the implication.
+> implication **already in the source**). The analogy obeys the Analogy rule; the
+> implication is never invented. The After below asserts nothing its Before does not.
 
 **Before (SUBTRACT done — hype gone — but explanation abstract + uplift close):**
-> Vaccines work by preparing the immune system in advance. The immune system is able to
-> recognize and respond to threats more effectively after this preparation. Ultimately,
-> the future of immunology is incredibly bright.
+> Vaccines work by exposing the immune system to a harmless form or piece of a pathogen.
+> After this exposure, the immune system is able to recognize the real pathogen and
+> respond to it more quickly. For some vaccines this protection wanes over time, which is
+> why booster doses are given, and how fast it wanes varies between vaccines and is still
+> being studied. Ultimately, the future of immunology is bright.
 
 **After (one analogy carries it; grounded close; voice intact):**
-> A vaccine is a wanted poster handed to your immune system: it shows the pathogen's face
-> without the crime, so the next time the real thing shows up, the response is already
-> drawn up and fast. Why do some vaccines need boosters, then? Because that memory fades
-> at different rates — which is exactly what the source's antibody-decay curves are
-> tracking.
+> A vaccine is a wanted poster for your immune system: it shows a harmless form or piece
+> of the pathogen, so when the real thing turns up it is recognized and met faster. Why
+> do some vaccines get boosters, then? Because for them that protection wanes, and how
+> fast it wanes differs from one vaccine to the next — a rate still being studied.
 
-> What changed: the abstract "recognize and respond" became **one** carrying analogy (the
-> wanted poster); the empty "future is bright" close became a real open question answered
-> from the source's own decay data. Craft kept (second person, a genuine rhetorical
-> question); no hype, no invented fact.
+> What changed: the abstract "recognize and respond" became **one** carrying analogy. The
+> wanted poster is a new image, but everything it asserts (a harmless form is shown,
+> later recognition, a faster response) is in the Before. The empty "future is bright"
+> close became a real open question, answered only from the Before's own waning
+> sentence. Adding "memory cells" or "antibody levels" here would be a new mechanism —
+> a hard fail even though true. Craft kept (second person, a genuine rhetorical
+> question); no hype, no invented fact, and the close stops where the source stops.
 
 ---
 
@@ -274,7 +297,7 @@ length and **no** new content: varied section openings, a single through-line, a
 ## ADD checklist (run after SUBTRACT, before the final register re-check)
 
 - [ ] Does **one** real, **source-grounded** analogy/example carry the key point (not the
-      mechanism restated abstractly)?
+      mechanism restated abstractly), asserting nothing the source does not (Analogy rule)?
 - [ ] Is any generic uplift close replaced with a **grounded** one (open question / real
       implication **already in the source**) — and **zero** new facts?
 - [ ] Is the craft **preserved** (rhetorical Q, "you", analogy) and the register still

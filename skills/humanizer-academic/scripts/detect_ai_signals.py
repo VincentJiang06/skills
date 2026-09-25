@@ -28,9 +28,9 @@ text (the "too many false positives" complaint). v3 fixes this with:
      three-item list of numbers/data is not a "forced triad".
   4. LENGTH NORMALIZATION — everything is reported per-1000-tokens, so a long
      paper does not automatically out-score a short one.
-  5. AN EXPLICIT VERDICT — `human_like` / `some_signals` / `ai_like`, calibrated
-     per mode, with `abstain_recommended` so "this reads human; no rewrite
-     needed" is a first-class output instead of an always-rewrite default.
+  5. A COARSE VERDICT — `human_like` / `some_signals` / `ai_like`, calibrated
+     per mode IN-SAMPLE, plus `abstain_recommended`. Both are HINTS (evidence for
+     the editor), never the reason to abstain or to rewrite: SKILL.md TRIAGE decides.
 
 `detect_signals(text, language="auto", mode="auto")` returns:
   - "language":  "en" | "zh"
@@ -41,14 +41,15 @@ text (the "too many false positives" complaint). v3 fixes this with:
   - "statistical": {sentence_cv, paragraph_cv, n_sentences, n_paragraphs, means}
   - "density":     per-1000-token rates for each tier + structure
   - "verdict":     "human_like" | "some_signals" | "ai_like"
-  - "abstain_recommended": bool   (True iff verdict == "human_like")
+  - "abstain_recommended": bool   (True iff verdict == "human_like"; a hint only)
 
 Tokenization (language-aware, deterministic):
   a token = one CJK char [一-鿿] OR one run of [A-Za-z0-9]+.
 
 NOTE ON PROVENANCE: every pattern family below is an AUTHORED HEURISTIC, not a
 sourced/learned classifier. The verdict thresholds are CALIBRATED against the
-real human/AI corpus in evals/corpus/ (see evals/calibrate.py). Diagnostic only.
+real human/AI corpus in evals/corpus/ (see evals/calibrate.py) — in-sample, so
+never a terminal judge. Diagnostic only.
 
 CLI:  python3 scripts/detect_ai_signals.py [FILE] [--mode academic|popsci|auto]
       [--language en|zh|auto] [--summary]
@@ -499,7 +500,7 @@ def _dedupe_overlap(structural: dict, lexical: dict) -> None:
 # per-1000-token rates. CALIBRATED in evals/calibrate.py against the real
 # human/AI corpus. The detector is a SLOP-finder, not an AI classifier: modern
 # serious AI prose and serious human prose overlap on every regex/statistical
-# feature (verified empirically), so the strong "ai_like" trigger requires clear
+# feature (verified empirically), so the strong "ai_like" reading requires clear
 # slop (high-precision hits) OR extreme ambiguous density across many families —
 # tuned so the HUMAN corpus never reaches "ai_like" (zero strong false positive).
 # The clean cases the detector cannot separate are resolved by the LLM blind
@@ -525,9 +526,9 @@ def _verdict(mode: str, n_tokens: int, hp: int, amb: int, amb_families: int) -> 
     per1k = 1000.0 / n_tokens
     hp_rate = hp * per1k
     amb_rate = amb * per1k
-    # STRONG trigger (drives a rewrite): clear slop, or extreme ambiguous
-    # density spread across many families (templated AI). Human prose never
-    # reaches here in the calibration corpus.
+    # STRONG signal (evidence for the editor's TRIAGE, not a decision): clear slop,
+    # or extreme ambiguous density spread across many families (templated AI).
+    # Human prose never reaches here in the (in-sample) calibration corpus.
     if hp_rate >= th["hp_ai"]:
         return "ai_like"
     if amb_rate >= th["amb_ai"] and amb_families >= th["ai_families"]:
