@@ -18,8 +18,11 @@ measurable signals — not ceremony. Grounded in skill-principle `pillar.metrics
 
 ## Trustworthiness (the speed-safety guards)
 
-- **claim-traceability rate** — % of load-bearing claims with a resolving citation.
-  Target **100%** (enforced structurally by `scripts/check_answer.mjs`).
+- **claim-traceability rate** — % of load-bearing claims whose citation resolves
+  **and** whose cited page actually supports the claim. Target **100%**. Measured by
+  a reader on a labeled set, not by the script: `scripts/check_answer.mjs` only
+  requires ≥ 1 visible `[n]` in the Answer + Key-evidence region that resolves to a
+  listed source (a structural floor, not per-claim coverage or support).
 - **confident-wrong rate** — % of **High-confidence** answers that are wrong on a
   labeled set. Target **~0**. This is the metric that justifies the speed: fast is
   only acceptable if fast-and-wrong is rare.
@@ -37,4 +40,9 @@ measurable signals — not ceremony. Grounded in skill-principle `pillar.metrics
 Paired runs (skill-principle `procedure.paired_skill_eval`): hold model/tasks
 constant, run a labeled question set (a mix of simple, complex, contested,
 volatile, and unanswerable), and record the above. The deterministic validator
-gives traceability for free; speed and correctness need the labeled set.
+only confirms the answer's structure (fields, resolving citations, source count);
+traceability, speed and correctness all need the labeled set. The paired arm must
+be the bare model with this skill explicitly disabled — the value of the skill is
+the with-minus-without difference, not a green validator. Stamp every
+measurement with the base model and effort it ran on; a base-model change expires
+it — rerun before relying on it.
