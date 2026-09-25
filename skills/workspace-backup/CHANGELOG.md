@@ -67,7 +67,7 @@ measurements were taken from.
   3 正例 + 5 个近形负例的分类器、离机密钥闸门且不误伤本地目的地、用**真实捕获**的
   disk7 plist 渲染"与 Time Machine 共盘"、写保护降级、报告的离机/扣住/删除开关/模式措辞）。
   7 条全部**先在 c2a922b 的脚本快照上跑红**（`runs/workspace-backup/engineer/red-log-pristine-c2a922b.txt`）。
-  `--selftest` 19 → **24** 个变异体全部被抓（新增：关掉云识别、密钥闸门退回 portable-only、
+  `--selftest` 21 → **24** 个变异体（README 旧写 19/17，均已过时）全部被抓（新增：关掉云识别、密钥闸门退回 portable-only、
   删除开关恒 OFF）。
 - **误报实测（铁律 7 / A50(ii)）**：分类器跑遍全部现有真实语料——现行 config.json 两个目的地、
   config-musicplayer.json、首跑默认两个路径、生产 journal 里出现过的目的地——**只命中
