@@ -4,7 +4,128 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
-## 4.1.0 — NOT released: E11 gate_failed, effective verdict `draft` (2026-09-25)
+## 4.1.1 — release candidate, effective verdict `candidate` (2026-09-25)
+
+4.1.0 plus fix round 3. **4.1.0 was never released**; 4.1.1 is the first version of
+the R20 line meant to ship. Authority: owner ruling (Vince, 2026-09-25, in chat)
+"这七个你都继续去做把他们做完" — a third fix round under iron law 3, scoped to
+finishing the release; every other judgment delegated to the conductor. Nothing is
+merged, pushed or deployed by this entry; shipped installs stay 4.0.0 until the
+conductor merges.
+
+Versioning: **patch** (4.1.0 → 4.1.1). Round 3 changed runtime *examples* and one
+wording in `academic-pack.md`; no rule, threshold, script or check changed, and
+default aggressiveness and register floors are unchanged. Kept a new number rather
+than reusing 4.1.0 because the 4.1.0 label already names different content
+(ad6ed5c) — one number, one content (iron law 5). Minor rejected: no new contract.
+
+### Fixed (round 3, prose only, each a minimal targeted fix; no revert)
+Revert was not the better move for any item: all three defects already exist in
+installed 4.0.0, so reverting the F09 rule would only re-open F09.
+
+- **Every register-floor example in `popsci-pack.md` now obeys the Analogy rule**
+  (fix-audit P2, owner-authorized fix round 3; hard constraint 1, SKILL.md Step 5
+  "does the source state it", P13 — prose, no new gate). The EN and ZH sky/sunset
+  examples had a claim-free clickbait Before and an After that asserted scattering,
+  the midday blue, the longer dusk path and "same reason as a sunset" — every one a
+  new claim, in a file loaded on every popsci rewrite. Least-risk fix: the Befores
+  now carry those facts inside the hype wrapper, the Afters are unchanged, and each
+  note says nothing was added. Fresh judge (claude-opus-5-5, no skill, rule given,
+  `unsure` allowed): old EN `fail` (10 new_claim rows), old ZH `fail` (9); new EN
+  and ZH `pass` (0 new_claim); run dir `battery/fixes/R3-sky/`. The vaccine Before,
+  labelled "hype gone", drops its leftover "incredibly" (fix-audit P3).
+
+- **Academic pack no longer contradicts the judge on analogies** (fix-audit P3,
+  round 3; SKILL.md mode table "vivid analogy is a register slip" + the both-tracks Analogy rule; prose
+  only). `academic-pack.md` Step 3 listed "analogy" among things never to invent,
+  while the rubric's hard-fail list (both tracks) says a faithful gloss is not
+  fabrication. Step 3 now defers the fabrication question to the Analogy rule and
+  states the academic ban separately, as a register rule: never add a new analogy in
+  academic mode, even a faithful gloss. Rewrite behavior is unchanged (academic
+  still adds no analogy). Fresh reader (claude-opus-5-5, no skill, `unsure`
+  allowed) on SKILL.md table + Step 3 + hard-fail list: old `conflict`, new
+  `consistent`; run dir `battery/fixes/R3-academic/`. Scope, corrected by the
+  round-3 fix-audit: this closes the *wording* conflict only. The academic "no new
+  analogy, even a faithful gloss" ban is a prose register rule that no oracle
+  enforces — rubric dim 2A never mentions analogies and the hard-fail list passes a
+  faithful gloss — so the round-3 fix log's "enforced by rubric dim 2A" is wrong and
+  B16 `passed: true` records the reader's consistency verdict, not enforcement.
+
+- **Popsci worked exemplar no longer self-passes invented details** (fix-audit P3 +
+  battery F08, round 3; hard constraint 1, SKILL.md Step 5; eval evidence only —
+  `evals/worked/` is not loaded at runtime). The black-holes rewrite added "for
+  millions of years", "hanging at the horizon, never quite crossing", a glowing ring
+  around the shadow, equations failing "past the horizon" and "less a settled fact"
+  (against the source's "firmly established") while its notes said "every fact
+  traces to the source". The rewrite now adds no claim the source lacks; its notes cite
+  the shared Analogy rule, record the correction, and call their scores a maker
+  self-score, not a blind-judge result. Fresh judge: old `fail` (4 new_claim,
+  2 unsure), new `pass` (0/0). Scope, corrected by the round-3 fix-audit: that
+  judge checked **additions only**. The new rewrite still drops the source hedge
+  "In principle, if you could watch" (now the imperative "Watch a clock fall toward
+  one", as in installed 4.0.0) and drops the "decades of theory → firmly established"
+  sentence, while its front matter says "same facts as source" and its notes
+  self-score fidelity 5 — open P3 (silent loss; eval evidence, not runtime).
+  Three judge-verified regression cases added to `evals/eval-cases.json` (B14 runtime pack examples, B15 this exemplar, B16
+  academic pack vs judge), 18 → 21. `evals/` is gitignored, so these edits live in
+  the local copy; the exact patch is `battery/fixes/R3-blackholes/evals-round3.patch`
+  in the run directory. No script or check changed (scripts 1706 lines); harness
+  22/22, 129/129, calibrate PASS (strong FP 0/27).
+
+### Round-3 fix-audit (1 pass, fresh claude-opus-5-5, instance tier)
+- No P0/P1. Nothing in round 3's own content reached P0 (iron law 3 not
+  triggered); no fourth round — the P3s below are carried, not fixed.
+- P3 silent_loss — black-holes exemplar drops a source hedge and a source claim
+  while claiming "same facts" (see the exemplar bullet above). Verified by the
+  recorder: source l.17 "In principle, if you could watch…", rewrite l.24 "Watch a
+  clock fall toward one…". Not a regression (installed drops the same hedge).
+- P3 false_pass — academic "no new analogy" ban unenforced by the oracle; the fix
+  log and the former headline overstated it (see the academic-pack bullet above).
+- A third finding (kind `new_false_positive`) arrived truncated in the conductor's
+  record and is not in the run directory; its content is **unverified**. The audit
+  result lists only P3 severities.
+
+### Release check (fresh, installed 4.0.0 vs this candidate): `release_ok: true`
+- All three blockers reproduced on both versions and are better in the candidate
+  (sky/sunset examples: judge old EN/ZH `fail`, new `pass`; academic Step 3:
+  conflict gone, academic still adds no analogy; black-holes: 0 added claims).
+- No open P0/P1 (battery ADJUDICATION: 12 confirmed, 2 × P2 + 10 × P3).
+- Offline main path works: `detect_ai_signals.py --summary` gives the same verdicts
+  as installed on the Kimi Chi fixture, the GPT Eng fixture and the black-holes
+  corpus file (`ai_like`, `human_like`/abstain, `human_like`/abstain).
+- Harness re-run by the recorder at this version: run_behavioral_checks 22/22,
+  run_detector_tests 129/129, calibrate PASS (strong FP 0/27 human, slop recall
+  4/4). Scripts 1706 lines (pre-wave 1715); eval cases 18 → 21 (+16.7%).
+
+### Status reading
+- Effective verdict **`candidate`** = min(re-audit `candidate`, battery cap
+  `candidate`). The re-audit moves from `draft` (4.1.0) to `candidate` by the
+  conductor's delegated judgment under the owner ruling: the E11 S2 (humanness)
+  miss and the unmeasured S4 are **recorded, not blockers** — the skill's measured
+  value is fidelity (WITH preferred 3/3) and abstention (S3 pass), and the release
+  blockers (P2 + two P3) are closed. `industrial` is out of reach: the battery found
+  breaches and ran at instance tier only.
+
+### Open items (carried into the release, none P0/P1)
+- Round-3 audit P3s: black-holes silent loss; academic analogy ban unenforced.
+- E11: S2 miss, S4 not measured by its instrument, judge not blinded, anchors
+  unrecorded (see 4.1.0 "E11 result").
+- Fix-audit P3: F05 guard misses numbers only in the ZH fixture's URL hashes (72,
+  3881) and numbers written as words; popsci worked pair outside its pair list.
+- Battery P3s: F02-R, F07 (gpt-en / kimi-zh notes still titled blind-judge
+  self-score), F10, F11, F12, F13 (academic-pack "same facts" examples add IMF,
+  property, "next five years"; burstiness example adds 7.4% — runtime-loaded, same
+  class as the fixed sky/sunset example, pre-existing in installed), F14, F15, F16
+  residue.
+- Independence instance tier only; model-policy deviation (all roles
+  claude-opus-5-5).
+- **Packaging**: `skills/*/evals/` is gitignored, so the F05 guard fix, the
+  black-holes exemplar fix and eval cases B14–B16 exist only in the worktree's
+  local `evals/`, not in git. Deploy from the worktree directory or apply the patches
+  listed in the run directory's `LOCAL-HANDOFF.md`; a plain git checkout would bring
+  back the old exemplar and the vacuous numeric guard.
+
+## 4.1.0 — never released (superseded by 4.1.1): E11 gate_failed, effective verdict `draft` (2026-09-25)
 
 Incremental alignment to the skill-philosophy KB v0.4.0 (R20 wave, 2026-09-25,
 built on claude-opus-5-5). Minor bump: the S2 settlement KEPT the contrast-frame
@@ -20,7 +141,8 @@ The conductor bumped anyway, because the branch content already differs in
 behavior from shipped 4.0.0 (detector off the default path, one analogy rule,
 exact numeric guard); one version number on two different contents breaks version
 discipline (iron law 5). "Not released" is carried by this heading and by the
-unmerged branch; whether 4.1.0 ships is the owner's call.
+unmerged branch; whether 4.1.0 ships is the owner's call. (Superseded: the owner
+ruled a third fix round; see 4.1.1.)
 
 ### Changed
 - **Detector verdict is evidence, never a trigger** (P13/S14, A50). SKILL.md
@@ -90,45 +212,6 @@ unmerged branch; whether 4.1.0 ships is the owner's call.
   rule given, `unsure` allowed) rated the old example `fail` (6 new claims) and the
   new one `pass` (8/8 supported); run dir `battery/fixes/F09/`.
 
-- **Every register-floor example in `popsci-pack.md` now obeys the Analogy rule**
-  (fix-audit P2, owner-authorized fix round 3; hard constraint 1, SKILL.md Step 5
-  "does the source state it", P13 — prose, no new gate). The EN and ZH sky/sunset
-  examples had a claim-free clickbait Before and an After that asserted scattering,
-  the midday blue, the longer dusk path and "same reason as a sunset" — every one a
-  new claim, in a file loaded on every popsci rewrite. Least-risk fix: the Befores
-  now carry those facts inside the hype wrapper, the Afters are unchanged, and each
-  note says nothing was added. Fresh judge (claude-opus-5-5, no skill, rule given,
-  `unsure` allowed): old EN `fail` (10 new_claim rows), old ZH `fail` (9); new EN
-  and ZH `pass` (0 new_claim); run dir `battery/fixes/R3-sky/`. The vaccine Before,
-  labelled "hype gone", drops its leftover "incredibly" (fix-audit P3).
-
-- **Academic pack and judge agree on analogies** (fix-audit P3, round 3; SKILL.md
-  mode table "vivid analogy is a register slip" + the both-tracks Analogy rule; prose
-  only). `academic-pack.md` Step 3 listed "analogy" among things never to invent,
-  while the rubric's hard-fail list (both tracks) says a faithful gloss is not
-  fabrication. Step 3 now defers the fabrication question to the Analogy rule and
-  states the academic ban separately, as a register rule: never add a new analogy in
-  academic mode, even a faithful gloss. Rewrite behavior is unchanged (academic
-  still adds no analogy). Fresh reader (claude-opus-5-5, no skill, `unsure`
-  allowed) on SKILL.md table + Step 3 + hard-fail list: old `conflict`, new
-  `consistent`; run dir `battery/fixes/R3-academic/`.
-
-- **Popsci worked exemplar no longer self-passes invented details** (fix-audit P3 +
-  battery F08, round 3; hard constraint 1, SKILL.md Step 5; eval evidence only —
-  `evals/worked/` is not loaded at runtime). The black-holes rewrite added "for
-  millions of years", "hanging at the horizon, never quite crossing", a glowing ring
-  around the shadow, equations failing "past the horizon" and "less a settled fact"
-  (against the source's "firmly established") while its notes said "every fact
-  traces to the source". The rewrite now keeps only source claims; its notes cite
-  the shared Analogy rule, record the correction, and call their scores a maker
-  self-score, not a blind-judge result. Fresh judge: old `fail` (4 new_claim,
-  2 unsure), new `pass` (0/0). Three judge-verified regression cases added to
-  `evals/eval-cases.json` (B14 runtime pack examples, B15 this exemplar, B16
-  academic pack vs judge), 18 → 21. `evals/` is gitignored, so these edits live in
-  the local copy; the exact patch is `battery/fixes/R3-blackholes/evals-round3.patch`
-  in the run directory. No script or check changed (scripts 1706 lines); harness
-  22/22, 129/129, calibrate PASS (strong FP 0/27).
-
 - (conductor, docs only) `_meta.json` said 3.0.0 while SKILL.md said 4.0.0; both
   now read 4.1.0. README.md / README.en.md "What it does" now names the `popsci`
   mode that has existed since 4.0.0 (battery F16 part; owner README rule, A37).
@@ -183,20 +266,20 @@ disabled; one fresh judge, `unsure` allowed (iron law 6).
 - Fix-audit (one pass); the owner then authorized a third fix round ("这七个你都继续去做
   把他们做完", 2026-09-25) for the release blockers:
   - **P2** `popsci-pack.md` register-floor sky/sunset example asserted what its
-    Before never stated — **fixed in round 3** (see Fixed).
+    Before never stated — **fixed in 4.1.1** (round 3).
   - P3 `academic-pack.md` Step 3 "never invent … analogy" vs the rubric's
-    both-tracks gloss rule — **fixed in round 3**.
+    both-tracks gloss rule — **fixed in 4.1.1** (wording only; see its audit note).
   - P3 `evals/worked/popsci-en-blackholes` notes kept the old analogy wording and
     self-passed a rewrite with source-absent details (also battery F08) — **fixed in
-    round 3**.
+    4.1.1** (additions only; see its audit note).
   - P3 the F05 guard still passes numbers that appear only in the ZH fixture's URL
     hashes (e.g. 72, 3881) and numbers written as words; the popsci worked pair is
     outside its pair list.
   - P3 the vaccine example's Before still said "incredibly bright" — **fixed in
-    round 3**.
+    4.1.1**.
 - Battery P3s left open: F02-R (borderline "change nothing else" vs required ADD),
   F07 (worked-note scores are maker self-scores cited as verification; the
-  black-holes notes are relabelled in round 3, the gpt-en/kimi-zh notes are not), F10
+  black-holes notes are relabelled in 4.1.1, the gpt-en/kimi-zh notes are not), F10
   (dash quota lacks its EN qualifier and loads for ZH), F11 (one high-precision hit
   in a short text gives `ai_like` in detect-only output), F12, F13 (runtime "same
   facts" examples add facts), F14 (eval-cases cite non-existent check names),

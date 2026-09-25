@@ -16,7 +16,7 @@ allowed-tools:
   - Task
   - AskUserQuestion
 metadata:
-  version: 4.1.0
+  version: 4.1.1
 ---
 
 # Humanizer (Academic + Popular-Science)
