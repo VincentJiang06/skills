@@ -1,5 +1,65 @@
 # Changelog — mp-groundline
 
+## 0.2.0 — 2026-09-25 (R20 wave, battery fix round)
+
+One fix round on the battery-confirmed defects (instance-tier battery, adjudicated).
+Minor bump: the scanner contract gains two additive fields and `already_migrated`
+is redefined. Each line names the principle it follows.
+
+- **F01/F02 (P1) — page renderer pins are measured against the target `webview`**
+  (prime directive "flag, never silently drop"; skyline-to-webview.md S-OVERVIEW:
+  Skyline is adopted per page/subpackage; scan-protocol invariant "already webview ⇒
+  mechanical==0"). Before, a page json pinned to `skyline` under a skyline app gave no
+  finding (it equalled the app renderer), so on a real 352-page program 107 Skyline
+  pages were missed while 221 webview-pinned pages were listed as needing work; and a
+  skyline page under an unset app came back `already_migrated:true` with mechanical>0.
+  Now every non-webview pin is a `page_renderer_override` (mechanical); a webview pin
+  under a skyline app is listed in `page_overrides` with the new `needs_flip:false` and
+  is no finding; `already_migrated` needs the app **and** every page off Skyline. The
+  map lists the pins to flip, counts the webview pins as informational, and does not
+  ask for an app.json flip when only pages pin Skyline. SKILL.md Preflight/Step 3,
+  scan-protocol, scanner-contract and skyline-to-webview updated to match.
+- **F05 — piped scan output no longer cut at 64 KiB** (SKILL.md Step 2 documents the
+  `scan | gen_migration_map` pipe; "blocker, not a silent skip"). `process.exit()` right
+  after `stdout.write` truncated a pipe at 65,536 bytes with exit 0; the CLI now sets
+  `process.exitCode`.
+- **F06 — the program's own `packOptions.ignore` folders are skipped and reported**
+  (flag, never silently drop: the skip is listed; P13/A50: a structural presence check
+  on the program's declared config, no semantic judgment). On the real program 1,149 of
+  2,399 findings were `dist/` build copies. Only `type:"folder"` entries are honored,
+  resolved against `miniprogramRoot` (first-party project.config doc). New additive
+  output field `ignored_dirs`; the map header names each skipped folder.
+- **F07 — default-layout shift warning** (evidence-bound map: every verdict traces to a
+  source; minimal-fix rules 1–2). First-party Skyline wxss doc: Skyline defaults to flex
+  (column) + border-box unless `rendererOptions.skyline.defaultDisplayBlock` /
+  `defaultContentBox` are set. The old "ignored, keep/strip" label hid that the flip
+  shifts every node's default layout. Prose in skyline-to-webview.md and Step 3; the
+  map warns when either flag is missing (a presence check on scan data, no new finding
+  category) and names one app.wxss default rule as the smallest fix once Step 4
+  confirms a global shift.
+- **F11 — JS comment stripper ends `'…'`/`"…"` strings at a newline** (flag, never
+  silently drop). A quote inside a regex literal (`/['"]/g`) opened a false string that
+  ran on, so a later `'wx://bottom-sheet'` lost its `//` to comment stripping and the
+  rewrite vanished. Regex literals are still not parsed; a rewrite token on the same
+  line after such a regex is a documented known limit.
+- **F10 — harness (local-only, gitignored; hand-off patch in the R20 run dir).** The
+  mislabelled edge of `scan_page_override_distinct` now matches its fixture; the
+  fixtures that only ever pinned `webview` pages (page-override, subpackages,
+  page-override-dedupe) now pin `skyline` where they test discovery/dedupe; five new
+  cases (`scan_page_skyline_unset_app`, `cli_scan_pipe_large_output`,
+  `scan_pack_ignore_folder`, `scan_js_regex_quote_no_drop`,
+  `gen_skyline_default_layout_warning`). All of them were red on 0.1.2. 44 → 49 cases.
+- **Real-corpus false-positive measurement** (iron rule 7): 30 existing fixtures +
+  2 deep-scan Skyline programs: summaries unchanged. wxa.cli.im: −1,149 `dist/` rows,
+  −221 webview-pin rows, +107 Skyline-pin rows, −4 rows in two other `packOptions.ignore`
+  folders (`pages/scan-index`, not declared in the current app.json;
+  `pages/code-others/protect/list`); every change is explained.
+- Growth: scan.mjs 591 → 624, gen_migration_map.mjs 223 → 243, cases 44 → 49 (all
+  under the +50% ceiling).
+
+**Known limit added:** a program that switches `app.json`/`project.config.json` per
+build variant is scanned in its current variant only; scan each variant separately.
+
 ## 0.1.2 — 2026-09-25 (R20 wave, freeze tier: incident-driven patch)
 
 Scope is three verified incidents. Everything else is carried as-is (A40 freeze).

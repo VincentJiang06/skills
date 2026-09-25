@@ -15,7 +15,7 @@
 **When to use** — "migrate this mini program off Skyline to WebView" · "generate the skyline→webview migration doc"; or call `/mp-groundline`.
 **Not for** — live runtime debugging (→ mp-cli-sup); DEVELOPING Skyline components / worklet animations / custom routes (→ skyline-* skills, opposite direction); webview→skyline reverse migration; perf-only optimization with no renderer change; modernizing / reverting a workaround unless explicitly asked; non-WeChat work.
 
-**Dependency & maintenance** — Step 4 verification needs the system `vince-mp` CLI (driven by `mp-cli-sup`); without DevTools or vince-mp the MIGRATION-MAP marks every page UNVERIFIED and never claims "consistent". The local `validate-skill` checks skill structure and the synthetic harness only — it does not prove a real migration is consistent.
+**Dependency & maintenance** — Step 4 verification needs the system `vince-mp` CLI (driven by `mp-cli-sup`); without DevTools or vince-mp the MIGRATION-MAP marks every page UNVERIFIED and never claims "consistent". The scanner measures page-level `renderer` pins against the `webview` target (a program that adopted Skyline page by page is a migration target) and skips the program's own `packOptions.ignore` folders, listing them in the map. The local `validate-skill` checks skill structure and the synthetic harness only — it does not prove a real migration is consistent.
 **Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/mp-groundline ~/.claude/skills/`).
 
 Full spec: [SKILL.md](SKILL.md)

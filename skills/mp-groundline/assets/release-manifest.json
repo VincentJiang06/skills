@@ -4,7 +4,7 @@
   "skill": {
     "id": "skill.mp-groundline",
     "name": "mp-groundline",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "owner": "Vince",
     "source_uri": "skills/mp-groundline",
     "artifact_uri": "skills/mp-groundline",
@@ -16,11 +16,11 @@
     ]
   },
   "change": {
-    "change_type": "patch",
-    "summary_zh": "0.1.2 冻结档事故修补：validate-skill 骨架检查修复（`>-` 解析、vince- 前缀、mp-cli-sup 字面量），Step 4 前置条件 + 降级路径（无验证 → UNVERIFIED，不称一致），发布门条件只列真实会跑的检查。",
-    "summary_en": "0.1.2 freeze-tier incident patch: validate-skill skeleton-check fixes (`>-` parse, vince- prefix, mp-cli-sup literal); Step 4 precondition + degraded path (no verification -> UNVERIFIED, never 'consistent'); release-gate conditions list only checks that actually run.",
+    "change_type": "minor",
+    "summary_zh": "0.2.0 battery 修复轮：页面级 renderer 以迁移目标 webview 衡量（F01/F02，含 needs_flip 字段与 already_migrated 新定义）；CLI 管道输出不再截断（F05）；跳过并报告 packOptions.ignore 文件夹（F06，新增 ignored_dirs 字段）；缺 Skyline 默认布局开关时地图提示全局布局变化（F07）；JS 注释剥离器引号串遇换行终止（F11）。",
+    "summary_en": "0.2.0 battery fix round: page renderer pins measured against the webview target (F01/F02; new needs_flip field, already_migrated redefined); piped CLI output no longer truncated (F05); packOptions.ignore folders skipped and reported (F06; new ignored_dirs field); map warns of a global layout shift when Skyline default-layout flags are absent (F07); JS comment stripper ends quote strings at a newline (F11).",
     "breaking_change": false,
-    "public_behavior_contract_changed": false,
+    "public_behavior_contract_changed": true,
     "changelog_path": "CHANGELOG.md"
   },
   "release_gate": {
@@ -28,7 +28,7 @@
     "passed": false,
     "gate_conditions": [
       "validate-skill green (scripts/validate-skill.mjs, local-only) on the dev checkout AND re-run on each install root after every deploy",
-      "deterministic eval harness green (node evals/run_all.mjs -> exit 0, 44/44; includes the generator structure/injection cases)",
+      "deterministic eval harness green (node evals/run_all.mjs -> exit 0, 49/49; includes the generator structure/injection cases)",
       "E11 with/without two-arm evidence (A44) recorded in assets/metric-plan.json"
     ],
     "failed_check_ids": [
