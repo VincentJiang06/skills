@@ -32,7 +32,9 @@ runbooks, the stale rule was copied into every design it emitted.
   the fix area); fix-area growth >50% over the last green baseline (fix area, not the
   whole diff); a third exception layer on one threshold; a second implementation copy
   of one root cause; 2 fix rounds on one defect class per version. Each counter's
-  plane is stated (P13).
+  plane is stated (P13). They count what the evaluator/attacker re-opens after a fix
+  was presented as done — pre-green retries of a stage's own check stay the
+  (autonomous) restart counter, so the escalate-first order does not starve restart.
 - **Re-plane is the owner's disposition after the stop, not an action** (**H4** shadow
   3, **P13**/**S14**) — every fixer-signature escalate carries the plane question
   ("can a deterministic rule judge this stably at all?"); there is deliberately no
