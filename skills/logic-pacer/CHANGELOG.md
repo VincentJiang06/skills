@@ -47,8 +47,14 @@ contract and the verify adjudication behaviour change. Each item names its ancho
 - **1.0.0 evidence claims have no artifact on disk**: `run_harness.py`, the 24-case corpus and
   "probe 4/4" below are self-reports only; no file was found in the installed skill, the source
   repo or the dev worktrees (P10). They are annotated here, not rewritten.
-- **E11 two-arm run (A14/E11)**: three cases prepared (ZH in-distribution, EN held-out, ZH
-  held-out genre); verdicts are recorded at settlement by the conductor, pending at this commit.
+- **E11 two-arm run (A14/E11)**: three cases (ZH in-distribution, EN held-out, ZH held-out
+  genre). Run 1 bound to the pre-battery-fix commit and was judged 3 WITH wins / 0 losses, but
+  its judge saw the arm directory names (blinding leak) and no verdicts/cost file was written,
+  so it counts as direction only (run dir `arms/_archive/run1-b24ce38/`, P10). Run 2 is staged
+  on this release's text with the same pre-registered acceptance line; its verdicts are
+  recorded at settlement by the conductor, pending at this commit.
+- **FP register R6** (iron rule 7): the six run-1 arm outputs, 1.0.0 check 4 ordinary-word hits
+  -> 1.1.0 check 0; the judge found no name or number lost in either arm.
 - Model-policy deviation: builder, judges and labeller are the same model (Opus 5.5) at the
   owner's direction; independence is instance-tier only.
 - Carried under exemption: description length (E1), A-F tutorial settlement (E2), CJK anchor
