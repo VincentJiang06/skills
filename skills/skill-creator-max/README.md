@@ -23,6 +23,16 @@
 5. **编排摩擦 + 同作者相关性** —— 一个 skill 免去跨 skill 交接；每角色**全新上下文派发**从构造上就把构建者和评判者去相关。
 6. **description / 可移植性** —— 六厂交集 schema + description 长度纪律 + 硬 anti-trigger。
 
+**v1.3.2（R20 升级波的发布记录，行为不变）** —— 结论：有效等级 `candidate`，流水线 `stopped_unmet`，修复预算已用完。
+- **两臂 E11（3 例，只作方向参考）**
+  - 保真度：带 skill 赢 2 例、平 1 例、输 0 例。
+  - 产出物：带 skill 只赢 1 例（预注册要求至少 2 例，未达标）。
+  - 成本：按工具调用次数算约 2.7 倍、0.9 倍、2.2 倍。
+  - 不建议退役。
+- **battery**：instance 档，种子 5/5 命中，确认 3 个 P2 和 15 个 P3，已在 1.3.1 修掉三个 P2。
+- **修复审计发现 1 个新 P2**：`clean` 能达到之后，`validate_decision` 只按 battery 结论封顶，不看独立档位，也不看是不是只做了冒烟测试或整轮作废。所以 instance 档加上 clean 会被这道门逼成 `industrial`。在修好之前，指挥官手动封顶到 `candidate`，并写明原因。
+- **独立性只到 instance 档**：本波按 owner 指令全部使用 Opus 5.5 high，偏离 2026-09-13 的模型策略（构建用 fable、评判用 opus），已如实登记为偏离。
+
 **v1.3.1（1.3.0 battery 第 1 轮修复，只修三处 P2）** —— SkillSpec 的留空字段只能由 unknowns/disputes 条目用显式 `field` 键认领（原来是在自由文本里做子串匹配，discovery plan 里提到 "trigger" 就算认领了）；`red_before_green` 写明是自报，"红早于绿、同一批用例翻转"由指挥官第 3 关读红日志、battery 抽查来查，门本身查不到；battery 的 `clean` 定义为"没有裁决后的 P1/P2"（P3 和 flag 只记录，不拦）。
 
 **v1.3.0 新增（对齐 philosophy KB v0.4.0 / R20，增量对齐）** ——

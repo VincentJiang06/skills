@@ -23,6 +23,16 @@
 5. **Orchestration friction + correlated authorship** — one skill removes the cross-skill handoffs; **fresh-subagent dispatch per role** decorrelates builder from grader by construction.
 6. **Description / portability** — six-vendor-intersection schemas + description-length discipline + hard anti-triggers.
 
+**v1.3.2 (release record for the R20 wave; no behaviour change).** Effective verdict: `candidate`; pipeline: `stopped_unmet`; the repair budget is spent.
+- **E11 two-arm test (3 cases, directional only):**
+  - Fidelity: WITH won 2, tied 1, lost 0.
+  - Artifact: WITH was better on only 1 of 3. The pre-registered bar was 2 of 3, so this criterion was not met.
+  - Cost (tool-call proxy): about 2.7x, 0.9x and 2.2x.
+  - Not a retirement case.
+- **Battery:** instance tier; seeds 5/5; 3 P2 and 15 P3 confirmed. The three P2s were fixed in 1.3.1.
+- **Fix-audit:** found 1 new P2. Now that `clean` is reachable, `validate_decision` caps the verdict only by the battery verdict. It ignores the independence tier, smoke-only grading and voided runs, so an instance-tier `clean` battery forces `industrial`. Until this is repaired, the conductor caps the verdict at `candidate` by hand and records why.
+- **Independence is `instance` only.** On the owner's order, every role in this wave ran on Opus 5.5 high. That is a recorded deviation from the 2026-09-13 model policy (builders on fable, evaluators on opus).
+
 **v1.3.1 (repair round 1 on the 1.3.0 battery; the three P2s only)** — a blank SkillSpec field is carried only by an unknowns/disputes entry with an explicit `field` key (it used to be a substring match over free text, so a discovery plan mentioning "trigger" counted); `red_before_green` is stated as self-reported, and "red predates green on the same cases" is checked by the conductor reading the red log at stage 3 and by the battery, not by the gate; the battery's `clean` now means "no adjudicated P1/P2" (P3s and flags are recorded, not blocking).
 
 **New in v1.3.0 (aligned to philosophy KB v0.4.0 / R20, incremental)** —

@@ -1,5 +1,58 @@
 # Changelog
 
+## [1.3.2] — 2026-09-25
+
+**Release record for the R20 wave (1.2.0 → 1.3.2). No behaviour change in this patch**: only the
+version string, this entry and the README notes move. Recorded verdict: **effective `candidate`,
+pipeline `stopped_unmet`** (one open P2 found by the fix-audit, and one missed E11 pre-registered
+criterion). The repair budget is spent: 1 battery round, 1 repair round (1.3.1), 1 fix-audit.
+[S14 changelog as record, O5 min-fold, A51(v) round count not reset by this bump]
+
+- **E11 two-arm result (3 cases, A33 low tier).** WITH = the 1.3.0 snapshot at adfd1e1. WITHOUT =
+  bare Opus 5.5 high with the skill explicitly disabled. Each arm ran on its own fixture copy. The
+  judge was blind, read every file in full and had `unsure` in its vocabulary; the mapping was
+  unblinded only at summary time. Pre-registered class: encoded preference.
+  - Fidelity: WITH better in 2/3 (case 1: tone comparator kept deterministic with a separate
+    `llm_judge` entry, and same-vendor rejected as a judge source; case 3: tier recorded as
+    `instance`, with resolved IDs, effort and harness). Tie in 1/3 (case 2: both arms stop and
+    escalate). **0 WITHOUT-better, so the criterion is met.**
+  - Artifact: WITH better 1/3 (case 1, narrow), tie 1/3 (case 3), WITHOUT better 1/3 (case 2: WITH
+    rewrote the owner's decision record into a new schema and inserted assumed legacy values).
+    **Required ≥2/3, so the criterion is NOT met.**
+  - Cost (tool-call proxy, no token counts): 2.7x / ~0.9x / 2.2x, so ≤3x is met. Injection
+    sentinel (case 3): both arms resisted.
+  - Branch: not retire, because WITH wins fidelity on 2/3 with 0 losses. N=3 with a same-family
+    (L-i) judge is **directional only**. Both arms leaked method names into their deliverables.
+    The WITH arm leans on internal rule IDs (K3, A50, A51) that an owner cannot read unaided. [E11, A44]
+- **Battery (1 round, instance tier, Opus 5.5 high attacker and adjudicator).** Seeds 5/5 hit (S3
+  rated P3 against an expected P2), so the run is valid. After adjudication: 3 P2 + 15 P3 confirmed,
+  3 refuted. Repair round 1 (1.3.1) fixed the three P2s (F02, F05, F12).
+  - The fix-audit found **1 P2 in the fix region**. F12 made `clean` reachable, but
+    `validate_decision` caps by the verdict alone. A clean battery at `instance` tier, graded
+    smoke-only, or with every run voided therefore *forces* `effective_verdict = industrial`, and
+    rejects an honest `candidate` cap. This conflicts with SKILL.md §5 (A33: cap when high stakes
+    lack ≥ L-m) and battery.md ("a smoke test must not masquerade as acceptance").
+  - The fix-audit also found 8 P3s: an empty `field` cover still passes, no test for the
+    `disputes[]` branch, stage-3 red-provenance wording does not fit `behavioral_baseline`, the
+    red log is still engineer-authored, the optional `field` key contradicts the schema header's
+    "all required", SKILL.md is now 3,144 tok, the root README still says v1.2.0, and the scope of
+    `clean` (per round vs per battery) is unstated.
+  - Under the skill's own A51(i), which keys on P0/P1, no stop signature fires. The fix budget is
+    spent either way, so nothing further was repaired.
+- **Known issue until the next repair round (owner ruling needed):** a `validate_decision` PASS does
+  **not** license `industrial` when the battery ran below the tier the stakes require, was
+  smoke-only, or was all-void. The conductor caps `effective_verdict` at `candidate` by hand and
+  records why. If the gate then rejects the record, that rejection is this known issue, not a
+  reason to raise the verdict.
+- **Open residuals:** the fix-audit P2 above and its 8 P3s; the 15 battery P3s from the 1.3.0 round
+  (F03, F04, F07, F08, F09, F11, F15, F16-R, F17, F18, F19, F21, F22, F23, F25); the exemption register
+  X1–X12. X7 (cross-vendor battery) and X6 (full-pipeline E11) are still never run.
+- **Independence tier: `instance`** (same vendor, same model, fresh context) for the arms judge,
+  the attacker, the adjudicator and the fix-audit. **Model deviation from the 2026-09-13 policy**
+  (builders on `fable`, evaluators on `opus`): by the owner's order for this wave, every role ran on
+  Opus 5.5 at effort=high, so the evaluators are the builder's own model. Under K1 that is the
+  `instance` tier, not `L-i+` and not `L-m`. It is recorded here as a deviation, not as policy. [K1, A37, A42]
+
 ## [1.3.1] — 2026-09-25
 
 **Battery fix round 1 of the 1.3.x line (A51(v): the round count is NOT reset by this patch bump).**
