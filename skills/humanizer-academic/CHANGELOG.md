@@ -4,7 +4,7 @@ Versioning: the rewrite **behavior** is the public contract. A **breaking change
 is any shift in default rewrite aggressiveness or in the register floor (the
 minimum formality the skill preserves). Those bump the major version.
 
-## 4.1.0 — candidate, NOT released: E11 gate_failed (2026-09-25)
+## 4.1.0 — NOT released: E11 gate_failed, effective verdict `draft` (2026-09-25)
 
 Incremental alignment to the skill-philosophy KB v0.4.0 (R20 wave, 2026-09-25,
 built on claude-opus-5-5). Minor bump: the S2 settlement KEPT the contrast-frame
