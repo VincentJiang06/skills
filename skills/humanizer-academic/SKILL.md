@@ -176,9 +176,7 @@ rewrite was substantial or the user asks what changed. Detect-only: the detector
 JSON map + a plain-language reading of deltas.
 
 ## Eval
-`evals/` lives in the source repo only (`.clawhubignore` keeps it out of published
-packages). It holds a REAL corpus (human = FP/abstain tests, AI = lift tests) and
-three deterministic harnesses: `python3 evals/run_detector_tests.py`,
-`python3 evals/run_behavioral_checks.py`, `python3 evals/calibrate.py` (detector
-false positives on the human corpus). They pin the detector, not rewrite quality —
-quality is the blind judge's call. See `evals/README.md`.
+`evals/` (source repo only; `.clawhubignore` keeps it out of packages) holds a real
+corpus and three harnesses — `python3 evals/run_detector_tests.py`,
+`python3 evals/run_behavioral_checks.py`, `python3 evals/calibrate.py`. They pin
+the detector, not rewrite quality. See `evals/README.md`.

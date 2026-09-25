@@ -43,7 +43,7 @@ logical link survives (`references/lexical-en.md` §10a–10b, `references/lexic
 
 ### MANDATORY quota move (not advisory): contrast-frame compression
 
-<!-- model_baseline: claude-opus-5-5 / effort high / Claude Code 2.1.280 / 2026-09-25; settled S2 kept; residences: SKILL.md Step 2+5, lexical-en §7b, lexical-zh §2, structural-signals A6 (change all six together or none). Probe: a bare Opus 5.5 asked only to "make it read less like AI" still left 4, 4 and 2 contrast frames in 3/3 frame-dense drafts, so this quota still changes behavior. -->
+<!-- model_baseline: claude-opus-5-5 / effort high / Claude Code 2.1.280 / 2026-09-25; settled S2 kept; residences: SKILL.md Step 2+5, lexical-en §7b, lexical-zh §2, structural-signals A6 (change together) -->
 
 "不是……而是……/并非……而是……/这不仅是……更是……/X 的本质是……/真正的 X 是……" and
 EN "not just X, but Y" / "It's not X. It's Y." / "less about X than Y" —

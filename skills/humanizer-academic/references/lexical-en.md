@@ -68,7 +68,7 @@ Default fix: replace with the next concrete step, limitation, or forecast if one
 
 ## 6. AI-vocabulary phrase tells
 
-<!-- model_baseline: claude-opus-5-5 / effort high / Claude Code 2.1.280 / 2026-09-25; settled S1 (A42/Z8): the two single-word bullets of 4.0.0 (34 words: delve, pivotal, testament, notably, leverage, ...) were DELETED — a bare Opus 5.5 asked only to "make it read less like AI" removed 100% of 12 sampled listed words (36/36 occurrences) in 3/3 drafts, so the list no longer changed the rewriter's behavior. Text archived in the R20 upgrade run record. Re-probe on the next base-model change. -->
+<!-- model_baseline: claude-opus-5-5 / effort high / Claude Code 2.1.280 / 2026-09-25; settled S1: single-word lists deleted (a bare model removed 36/36 listed-word occurrences in 3/3 probes); re-probe on base-model change -->
 
 Near-certain phrase tells (measured 4,000–31,000× over-represented in AI text):
 "serves as a testament", "vibrant/rich tapestry", "in the ever-evolving
