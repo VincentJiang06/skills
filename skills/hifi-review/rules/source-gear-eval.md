@@ -17,6 +17,10 @@ level — **differences above that are engineering/feature, not sound**.
 - **Power vs load**: `max_spl ≈ sensitivity(dB/mW) + 10·log10(power_mW)`; target
   ~110 dB peak headroom. Under-powered → dynamic compression, not "weak bass".
 - **Hiss**: very sensitive IEMs + a high noise floor / high `zout` → audible hiss.
+- **Missing input = gap** (accuracy-guardrails "never invent"): without `--target-z`,
+  `--target-sens` or `--power` the engine leaves that verdict `null` / `"unknown"` and
+  emits a `missing_input:*` warning. Report it as a `gap` — never as "fails to drive" or
+  "no hiss".
 
 ## Chip / topology (priors only)
 DAC chip family (ESS Sabre, AKM Velvet, Cirrus, TI/BB, R-2R ladder, FPGA) and amp

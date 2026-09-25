@@ -44,9 +44,11 @@ def main():
     tier = tier_for(args.sinad, cfg["competence_tiers_by_sinad_db"])
     warnings = []
 
-    sm = {"target_z_ohm": args.tz, "damping_factor": 0.0, "damping_ok": False,
-          "max_spl_db": 0.0, "drives_adequately": False, "hiss_risk": "unknown"}
-    if args.tz > 0:
+    # A missing input leaves its verdict null/"unknown" + a warning: a gap, never a pass/fail.
+    sm = {"target_z_ohm": args.tz, "damping_ok": None, "drives_adequately": None, "hiss_risk": "unknown"}
+    if args.tz <= 0:
+        warnings.append("missing_input:target_z (system matching not computed)")
+    else:
         df = round(args.tz / args.zout, 1) if args.zout > 0 else 9999.0
         sm["damping_factor"] = df
         sm["damping_ok"] = args.zout <= args.tz / cfg["output_impedance_rule"]["damping_factor_min"]
@@ -62,12 +64,14 @@ def main():
                 sm["drives_adequately"] = sm["max_spl_db"] >= cfg["drive_target_spl_db"]
                 if not sm["drives_adequately"]:
                     warnings.append("insufficient_power_for_%s_ohm" % int(args.tz))
+        if sm["drives_adequately"] is None:
+            warnings.append("missing_input:target_sens_or_power (drive not computed)")
         hr = cfg.get("hiss_risk_rule", {})
         if args.tsens >= hr.get("high_if_target_sens_db_mw_gte", 1e9) and args.snr and args.snr < hr.get("and_snr_db_lt", 0):
             sm["hiss_risk"] = "high"
         elif args.tsens >= 110:
             sm["hiss_risk"] = "medium"
-        else:
+        elif args.tsens > 0:
             sm["hiss_risk"] = "low"
         if args.tsens > 0:
             sm["target_sens_db_mw"] = args.tsens
