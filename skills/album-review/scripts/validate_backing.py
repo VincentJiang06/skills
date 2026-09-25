@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Traceability + schema gate for an album-review backing JSON. Exit 1 on any violation.
+"""Schema + source_id reference-integrity gate for an album-review backing JSON.
+Exit 1 on any violation. Read-only: reads the backing + schema, prints a verdict.
 
-Rule: every FACT-class claim (kind=="fact") must carry >=1 source_id, and every
-source_id it cites must exist in evidence[]. Interpretation claims (kind=="interpretation")
-need no source. A fabricated fact — one whose source_id is absent from evidence[] —
-FAILs the gate (green-but-wrong is caught)."""
+Checks: the backing is schema-valid; every kind=="fact" claim carries >=1 source_id;
+every cited source_id exists in evidence[]. Interpretation claims need no source.
+Does NOT check (judge reads, rules/judge-must-flag.md): that an evidence entry is real
+or supports the claim, that the fact/interpretation label is honest, or that the prose
+matches the backing. Exit 0 = references resolve, never "no fabricated facts"."""
 import json
 import os
 import sys
@@ -26,7 +28,7 @@ def check(doc, schema):
                 errs.append(f"claims[{i}]: fact-class claim has no source_id (untraceable)")
             for sid in sids:
                 if sid not in ev_ids:
-                    errs.append(f"claims[{i}]: source_id '{sid}' not in evidence (fabricated)")
+                    errs.append(f"claims[{i}]: source_id '{sid}' not in evidence (dangling reference)")
         else:
             # interpretation: still reject a dangling source reference if present.
             for sid in sids:

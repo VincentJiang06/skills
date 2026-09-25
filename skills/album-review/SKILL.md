@@ -14,7 +14,7 @@ metadata:
 Produce ONE extremely-high-quality long-form 乐评 (10,000–15,000 中文字符) from a
 **primary credit + album name**. Deep multi-pass research grounds every
 discographic fact; strong reasoning forms the critical thesis; a deterministic
-validator gates length, section coverage, and claim→evidence traceability before
+validator gates length, section coverage, and claim→evidence reference integrity before
 anything ships. Speed is not a concern — quality and honesty are the only bars.
 
 **Locked decisions** (do not re-litigate):
@@ -33,7 +33,11 @@ anything ships. Speed is not a concern — quality and honesty are the only bars
   never by the validator. **Exit 0 is evidence of length, never of substance.**
 - **Emit a backing JSON** (`claims[]` + `evidence[]`) alongside the prose, so the
   traceability gate is machine-checkable. A fact-class claim whose `source_id` is
-  absent from `evidence[]` FAILs the gate.
+  absent from `evidence[]` FAILs the gate. **Scope:** the gate checks reference
+  integrity only (fact-labelled claims carry an id that resolves); whether the
+  evidence supports the claim, whether the fact/interpretation label is honest, and
+  whether the prose matches the backing are a human/judge read
+  (`rules/judge-must-flag.md`). Exit 0 never means "no fabricated facts".
 - **Research access:** at runtime USE web/search tools (WebSearch/WebFetch) for the
   fan-out when available; degrade honestly to caller-supplied material when offline
   (set `trace.research_mode`). Never fabricate to fill a gap or hit the floor.
@@ -90,8 +94,9 @@ anything ships. Speed is not a concern — quality and honesty are the only bars
 
 - **Length + section + traceability** are enforced by `scripts/check_review.py`
   (CJK-字 window, genre-adapted section linter) + `scripts/validate_backing.py`
-  (every fact-class claim's `source_id` must exist in `evidence[]`). Ship is
-  blocked on any non-zero exit.
+  (every fact-class claim's `source_id` must exist in `evidence[]` — reference
+  integrity, not support; see the Scope note above). Ship is blocked on any
+  non-zero exit.
 - **No buying/price/transaction advice; read-only research.**
 - **Honest degradation** for thin-info albums (explicit 资料不足, zero invented
   specifics).
@@ -117,7 +122,7 @@ precision vs adjacent skills (album-review vs hifi-review vs lyric-translation).
 | File | Usage |
 |------|-------|
 | `scripts/check_review.py` | `python3 scripts/check_review.py <review.md> [--class standard\|classical] [--min 10000 --max 15000] [--backing <backing.json>]` — CJK-字 window + section linter + traceability gate. Exit 1 on any violation. |
-| `scripts/validate_backing.py` | `python3 scripts/validate_backing.py <backing.json>` — schema + claim→evidence traceability. Exit 1 on any untraced/fabricated fact. |
+| `scripts/validate_backing.py` | `python3 scripts/validate_backing.py <backing.json>` — schema + every fact-labelled claim has a `source_id` that resolves in `evidence[]`. Exit 1 on a missing or dangling id; does not check support or label honesty. Imports `scripts/schema_check.py`. Read-only. |
 
 ## Assets
 

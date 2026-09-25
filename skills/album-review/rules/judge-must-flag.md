@@ -1,7 +1,8 @@
 # Judge-must-flag registry
 
 Fixtures in this list are **negatives that the deterministic gate cannot catch**.
-Each one exits 0 from `scripts/check_review.py` and is nevertheless unshippable.
+Each one exits 0 from the deterministic gate (`scripts/check_review.py` /
+`scripts/validate_backing.py`) and is nevertheless unshippable.
 They exist to keep a known blind spot **visible** instead of silently absent.
 
 **How this list is enforced.** `evals/run_all.py` checks only what a machine can
@@ -23,6 +24,7 @@ judge means the judging is broken, not that the fixtures got better.
 
 | Fixture | Deterministic gate | Why a judge must reject it |
 |---|---|---|
+| `fixtures/backing_mislabeled_fact.json` | **exits 0** (`validate_backing.py`; synthetic album) | One specific recording fact (drummer + studio + date) is labelled `kind:"interpretation"` with no source; the gate trusts the writer's label. It stands for the three backing blind spots: **label honesty**, **self-declared evidence** (an invented `evidence[]` entry resolves and passes), and **prose↔backing correspondence** (never compared). The gate does catch unsourced fact-labelled claims and dangling ids (`untraced_fact`, `fabricated_evidence_ref`) — it cannot see these three. |
 | `fixtures/repetition_padded_10k.md` | **exits 0** (10,500 字, all 9 standard sections present) | The entire body is one ~150-字 paragraph repeated to the floor. The 汉字 counter sees 10,500 字 of content; a reader sees one paragraph. It says nothing about any album, carries no thesis, no per-track analysis, no evidence. Shipping it would be the length contract satisfied and the review contract destroyed. |
 
 ## Related, and deliberately NOT in this list

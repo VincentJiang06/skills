@@ -37,8 +37,11 @@ caller-supplied material and set `trace.research_mode = "offline_caller_supplied
 - **Map:** every fact-class claim (`kind:"fact"`, `fact_class` ∈ track_list /
   personnel / recording_date / recording_venue / label / release_form / release_date /
   credit) carries ≥1 `source_id` present in `evidence[]`. Interpretation
-  (`kind:"interpretation"`) is tagged separately and needs no source. This is exactly
-  what `scripts/validate_backing.py` enforces.
+  (`kind:"interpretation"`) is tagged separately and needs no source.
+  `scripts/validate_backing.py` enforces only that fact-labelled claims carry an id
+  that resolves in `evidence[]`; whether the evidence supports the claim and whether
+  the fact/interpretation label is honest are not machine-checked — tag honestly
+  (`rules/judge-must-flag.md`).
 
 ## 4. Honest degradation (obscure / thin-info albums)
 
