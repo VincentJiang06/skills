@@ -9,7 +9,16 @@ harness is `evals/run_all.mjs` (imports the mechanism, never re-implements it).
 ```bash
 node scripts/kb_audit.mjs <project-dir>          # human JSON, exit!=0 on any HARD violation
 node scripts/kb_audit.mjs <project-dir> --json   # same JSON to stdout
+node scripts/kb_audit.mjs ~/.claude/projects/<project> --json   # Claude Code: the memory parent
 ```
+
+**Claude Code: run it twice.** Auto memory lives at `~/.claude/projects/<project>/memory/`,
+outside the project, so a run on the project dir evaluates **zero** memory gates.
+Run it again on the memory parent `~/.claude/projects/<project>`: there only the memory
+gates count; `claude_md_missing` and the docs-side gates are N/A (`claude_md_missing`
+on the memory parent is a known false positive). **`hardGatesEvaluated: 0` means
+"memory gates not run", never "passed".** A violation never authorizes a C1–C4 action;
+fixes that need them go through 「待确认提案」 (see `rules/controls.md` §4).
 
 Importable from JS:
 
@@ -56,6 +65,8 @@ can fire if both exceed). The aggregate `summary.hardGatePassRate` and
 
 - No memory layer (Codex/OpenClaw, no `memory/MEMORY.md` and no root `MEMORY.md`)
   → all memory-side gates `skipped: no memory layer`, exits clean on docs-only gates.
+  On a Claude Code **project** dir this skip means "look in `~/.claude/projects/<project>`",
+  not "there is no memory".
 - No `docs/` directory → inversion `skipped: no docs/`.
 
 ## Relative-time leakage policy (the exemption rule)

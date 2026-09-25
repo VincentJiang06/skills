@@ -57,7 +57,7 @@ SKILL.md 是薄编排层；重内容拆进 `rules/`，遇到对应步骤再读�
 
 每步只列名字 + 一句话，完整动作清单见对应模块。第零步详解在 [rules/preflight-sizing.md](rules/preflight-sizing.md)；第一~五步详解在 [rules/sync-protocol.md](rules/sync-protocol.md)。
 
-- **第零步：尺寸体检（防膨胀）** —— 任何同步动作之前先跑确定性闸门 `node scripts/kb_audit.mjs <project-dir> --json`，别靠肉眼 `wc`/`grep`/`du`。HARD 违规（退出码非 0）阻断本次"同步完成"；超尺寸修复优先级高于补漏。
+- **第零步：尺寸体检（防膨胀）** —— 任何同步动作之前先跑确定性闸门 `node scripts/kb_audit.mjs <project-dir> --json`，别靠肉眼 `wc`/`grep`/`du`；Claude Code 上再对记忆父目录 `~/.claude/projects/<project>` 跑一次（只跑项目目录时记忆闸门一个都没评估，见 preflight-sizing）。HARD 违规（退出码非 0）阻断本次"同步完成"；超尺寸修复优先级高于补漏。
 - **第一步：盘点现状** —— 强制机械式枚举，先 `ls` 再判断；列出记忆文件 + 每个项目的 docs，输出一张「评估过/要改/不用改」文件清单，漏一个不行；每条候选写入标写入者 user / processed / self（定义见 sync-protocol 第一步）。
 - **第二步：识别变更** —— 用"变更影响矩阵"思考：新事实会波及哪些文档层级；重点查这次是不是**跨项目**（上下游两边 docs 都要对齐）。完整映射见 [references/sync-matrix.md](references/sync-matrix.md)。
 - **第三步：实际修改** —— 真的用 Edit/Write 落地事实类与用户陈述类改动，描述不算完成；C1–C4（agent 来源的行为类写入 / 毕业进 CLAUDE.md·AGENTS.md / 记忆删除或墓碑 / 批量重写）收成一份「待确认提案」一次性交给用户，只落本次运行里用户确认的条目；顺序 docs/ → CLAUDE.md/AGENTS.md → 记忆；编辑原则：减优于加、合并优于追加、删除优于保留、毕业优于内部挪腾。**记忆侧只做增量 delta（禁整份重写"让它更简洁"），且整理必须含删除/墓碑（落盘前走提案）**（[rules/memory-lifecycle.md](rules/memory-lifecycle.md)）。

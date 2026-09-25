@@ -8,7 +8,10 @@
 
 ```bash
 node scripts/kb_audit.mjs <project-dir> --json
+node scripts/kb_audit.mjs ~/.claude/projects/<project> --json   # Claude Code：再对记忆父目录跑一次
 ```
+
+**Claude Code 的记忆不在项目里**：auto memory 在 `~/.claude/projects/<project>/memory/`（项目外）。只对项目目录跑时，所有记忆闸门都是 `skipped: no memory layer`，`hardGatesEvaluated 0`、`hardGatePassRate 1`——这是**记忆闸门没跑**，不是通过（2026-09-25 在一个真实项目上实测到这种空跑）。所以 Claude Code 上要对记忆父目录再跑一次：那一次只看记忆闸门；`claude_md_missing` 和 docs 侧闸门在记忆父目录上不适用（`claude_md_missing` 在那里是已知误报）。
 
 它会输出 `{ violations:[{gate,severity,file,detail}], hardFail, skipped, summary }` 并在**任何 HARD 违规时退出码非 0**。HARD 闸门（MEMORY.md ≤25000 字节 且 ≤200 行、索引断链）阻断本次"同步完成"——它们没过，补再多增量同步都是徒劳（超尺寸部分静默丢失）。SOFT 闸门（单条记忆 >100 行、CLAUDE.md 过大、相对时间遗留、memory>docs 倒挂）只警告、不阻断，但要记进摘要的「未处理」。闸门清单、退出码、相对时间豁免规则见 [rules/kb-audit-usage.md](kb-audit-usage.md)。
 
@@ -19,7 +22,7 @@ node scripts/kb_audit.mjs <project-dir> --json
 | 文件 | 上限 | 超过怎么办 |
 |---|---|---|
 | `CLAUDE.md` / `AGENTS.md` | ~300 行 / ~15KB（软，看 adherence） | 先精简：扫顶部 blockquote / 历史叙事段 → 删 / 迁 docs；项目概览只留 1-3 行 + 速查表，不做"提醒下次会话"用。（CLAUDE.md 是全量加载，不会被截断，但越长 adherence 越差） |
-| 记忆索引 `MEMORY.md` | **≤200 行 且 ≤25KB（硬）** | Claude Code 只加载 `MEMORY.md` 的前 200 行或前 25KB（先到先算），**超出部分在会话开始时静默不加载——等于没记**。务必压在 ~150 行 / ~18KB 留缓冲。压法不是硬删，是下面的「毕业」机制：详细机制提升进 docs、索引只留一行指针 |
+| 记忆索引 `MEMORY.md` | **≤200 行 且 ≤25KB（硬）** | Claude Code 只加载 `MEMORY.md` 的前 200 行或前 25KB（先到先算；宿主事实，2026-09-25 对照 code.claude.com/docs/en/memory 复核，Claude Code 2.1.280；宿主现在对超限的 `MEMORY.md` 写入也会报错），**超出部分在会话开始时静默不加载——等于没记**。务必压在 ~150 行 / ~18KB 留缓冲。压法不是硬删，是下面的「毕业」机制：详细机制提升进 docs、索引只留一行指针 |
 | 单条 memory 文件 | ~100 行（软） | 通常在塞多件事 / 写成事故复盘 → 拆 / 删；**若是稳定机制说明，提升进 docs 再把记忆缩成 reference 指针** |
 | `docs/<single>.md` | ~1500 行（软） | 切分成多文件，加目录索引 |
 
@@ -28,5 +31,7 @@ node scripts/kb_audit.mjs <project-dir> --json
 **超尺寸是这个 skill 的最高优先级，大于"补本次会话漏掉的同步"。** 原因：`MEMORY.md` 超 25KB 的部分根本不进上下文（静默丢失），超尺寸的 CLAUDE.md 让真正的规则被叙事段挤出 adherence——两种情况下，同步再补都徒劳。
 
 **精简的形态是增量 delta，不是全文重写。** 超尺寸时也**不要**"重写一遍让它更简洁"——那是 brevity bias + context collapse 的入口（细节被逐轮磨掉）。正确动作是按[毕业机制](graduation-mechanism.md)把具体条目搬进 docs、索引项缩成一行指针。跨条目重组**只有在这张表的硬预算被突破时**才允许发起，且动手前必须写下显式保留规则（点名这次不许丢的命令 / 版本号 / 路径 / 失败条件 / 日期），否则模型重构时默认压缩内容。详见 [rules/memory-lifecycle.md](memory-lifecycle.md)。
+
+**第零步只诊断、只提案**：为压尺寸而做的 `MEMORY.md` 跨条目重组是 C4 批量重写，毕业进 CLAUDE.md/AGENTS.md 是 C2，删记忆是 C3——都进「待确认提案」，用户确认后才动（[sync-protocol.md](sync-protocol.md) 第一步）。
 
 **执行顺序**：先精简（破除膨胀）→ 再做本次会话增量同步（补漏）。两件事不能合并——精简时心态是"什么不该在这"，补漏时心态是"什么该补到这"，混着做会两头不到位。
