@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """check_citations.py — the STRUCTURAL integrity gate. Deterministic, stdlib
-only. Pass (exit 0) = zero orphans in either direction AND every reference
+only. Pass (exit 0) = no FAIL-class orphan in either direction AND every reference
 carries a well-formed identifier AND no per-style format violation on checked
 entries. Any structural defect = exit 1. Malformed invocation = exit 2.
 
@@ -22,8 +22,9 @@ Styles (key = lead surname, Unicode; year rule per style):
   mla      -> Works Cited surname must appear in the body; the in-text -> entry
               direction is NOT checked ((Surname page) has the form of (Figure 2)).
   ieee/gbt -> [n] (single markers only; groups unread) <-> "[n] ..."
-  A reference entry that yields no key FAILS (never silently skipped): an entry the
-  gate cannot key is also an entry the verifier checklist cannot name.
+  A reference entry that yields no key FAILS (never silently skipped). Two shapes a string
+  rule cannot settle print as REVIEW (exit unaffected; the verifier decides, SKILL.md):
+  a lower-case-initial surname (hooks, boyd) and a narrative year + , ; : with no entry.
 
 Stateless pure function of file + flags.
 """
@@ -130,8 +131,8 @@ def resolve_name(name: str, ref_names) -> str:
 
 
 def intext_authordate_keys(body: str, ref_names=frozenset()):
-    """(surname, year) keys cited in the body (APA / Chicago)."""
-    keys = set()
+    """(keys, soft): soft = seen only as a narrative year + , ; : ("Katrina (2005; cat. 5)")."""
+    keys, soft = set(), set()
     # parenthetical: (Surname, 2012; Surname & Surname, 2014a, 2015) / (Surname 2012, 816)
     for inner in re.findall(r"[(（]([^()（）]*)[)）]", body):
         for chunk in re.split(r"[;；]", inner):
@@ -146,8 +147,8 @@ def intext_authordate_keys(body: str, ref_names=frozenset()):
             years = [m.group(1)] + re.findall(rf"^[,，]\s*({YEAR})(?![\w])", chunk[m.end():])
             keys.update((resolve_name(name, ref_names), norm_year(y)) for y in years)
     # narrative: Surname [and|& Surname] [et al.] ['s] (2012[, p. 4]) -> the FIRST surname.
-    # The year must close the parens or take a page/second year: "Recession (2008–2009)" is not a cite.
-    for m in re.finditer(rf"[(（]\s*({YEAR})(?=\s*[)）,，;；:：])", body):
+    # The year must close the parens (hard key) or take , ; : (soft key); "(2008–2009)" is neither.
+    for m in re.finditer(rf"[(（]\s*({YEAR})(?=\s*([)）,，;；:：]))", body):
         before = body[max(0, m.start() - 80):m.start()].rstrip()
         before = re.sub(r"(?:\s+et\s+al\.?|['’]s)$", "", before)
         nm = re.search(rf"({NAME})(?:\s+(?:and|&)\s+({NAME}))?$", before)
@@ -155,8 +156,8 @@ def intext_authordate_keys(body: str, ref_names=frozenset()):
             continue
         name = nm.group(2) if nm.group(2) and nm.group(1)[0].islower() else nm.group(1)
         if not name[0].islower():
-            keys.add((resolve_name(name, ref_names), norm_year(m.group(1))))
-    return keys
+            (keys if m.group(2) in ")）" else soft).add((resolve_name(name, ref_names), norm_year(m.group(1))))
+    return keys, soft - keys
 
 
 def ref_authordate_keys(ref_lines, style="apa"):
@@ -180,11 +181,15 @@ def ref_authordate_keys(ref_lines, style="apa"):
 
 
 def check_authordate(body, ref_lines, style):
-    problems = []
+    problems, reviews = [], []   # reviews: (ledger id or None, message) -> verifier, never a FAIL
     refs = ref_authordate_keys(ref_lines, style)
     ref_keys = {k for k, _ in refs if k}
     for k, entry in refs:
-        if k is None:
+        head = NAME_TOKEN_RE.match(entry)   # "hooks, b." -> 'hooks'; an initial ("e. Okafor") stays a FAIL
+        if k is None and head and len(head[0]) > 1 and not lead_name(re.split(r"[,.(（]", entry, maxsplit=1)[0]):
+            reviews.append((None, f"lower-case-initial surname '{head[0]}' (as bell hooks, danah boyd): the gate "
+                                  f"cannot key this entry or check that it is cited: {entry[:60]}..."))
+        elif k is None:
             where = {"apa": "a lead surname, then a (YYYY)/(n.d.) date", "chicago":
                      "'Surname, First. YYYY.'", "mla": "a lead author surname"}[style]
             problems.append(f"{style} format: cannot key this entry (needs {where}); "
@@ -193,15 +198,15 @@ def check_authordate(body, ref_lines, style):
         # MLA in-text is (Surname page): "(Figure 2)" has the same form, so the
         # in-text -> Works Cited direction is not structurally decidable (left to the
         # verifier + J9). Checked: every Works Cited surname is mentioned in the body.
-        intext = {k for k in ref_keys if re.search(rf"(?<!\w){re.escape(k[0])}(?!\w)", body.lower())}
-        orphans_intext = set()
+        intext, soft = {k for k in ref_keys if re.search(rf"(?<!\w){re.escape(k[0])}(?!\w)", body.lower())}, set()
     else:
-        intext = intext_authordate_keys(body, frozenset(k[0] for k in ref_keys))
-        orphans_intext = intext - ref_keys
-    orphans_refs = ref_keys - intext
-    for k in sorted(orphans_intext):
+        intext, soft = intext_authordate_keys(body, frozenset(k[0] for k in ref_keys))
+    for k in sorted(intext - ref_keys):
         problems.append(f"orphan in-text citation with no reference entry: {k[0]} ({k[1]})")
-    for k in sorted(orphans_refs):
+    for k in sorted(soft - ref_keys):
+        reviews.append((f"<REVIEW:{k[0]}_{k[1]}>", f"narrative year followed by , ; : with no entry: {k[0]} ({k[1]}, …); "
+                        f"'Katrina (2005; category 5)' is no citation, 'Smith (2012, p. 4)' is one"))
+    for k in sorted(ref_keys - intext - soft):
         problems.append(f"uncited reference entry (reverse orphan): {k[0]} ({k[1]})")
 
     for entry in ref_lines:
@@ -213,7 +218,7 @@ def check_authordate(body, ref_lines, style):
             problems.append(f"{style} format: reference carries a GB/T literature-type tag "
                             f"(wrong style's format for {style}): {entry[:70]}...")
 
-    return problems, len(ref_lines), len(intext)
+    return problems, reviews, len(ref_lines), len(intext | soft)
 
 
 # ---------------------------------------------------------------- numeric
@@ -229,10 +234,7 @@ def check_numeric(body, ref_lines, style):
         if m:
             listed[int(m.group(1))] = entry
         else:
-            # wrong-style rejection: a numeric-style reference list entry that
-            # does not begin with a `[n]` marker is malformed for this style
-            # (e.g. an author-date `Surname, I. (YYYY)` entry pasted into an
-            # IEEE/GB/T list).
+            # wrong-style rejection: e.g. an author-date `Surname, I. (YYYY)` entry in an IEEE/GB/T list
             problems.append(f"{style} format: reference entry not in numeric `[n] …` form "
                             f"(wrong style's format): {entry[:70]}...")
     listed_nums = set(listed)
@@ -245,15 +247,12 @@ def check_numeric(body, ref_lines, style):
     for n, entry in listed.items():
         if not has_identifier(entry):
             problems.append(f"reference [{n}] lacks a well-formed DOI/URL/ISBN")
-        # GB/T 7714 format: every reference must carry a literature-type tag
-        # ([J]/[M]/[D]/[C]…). This is a real per-style rule the docs state
-        # (references/citation-styles.md, GB/T block) — an entry lacking it is a
-        # style-format violation (battery F3).
+        # GB/T 7714: every entry carries a literature-type tag (citation-styles.md GB/T block; battery F3)
         if style == "gbt" and not GBT_TYPETAG_RE.search(entry):
             problems.append(f"gbt format: reference [{n}] missing a literature-type tag "
                             f"[J]/[M]/[D]/[C]…: {entry[:70]}...")
 
-    return problems, len(listed), len(cited)
+    return problems, [], len(listed), len(cited)
 
 
 def main() -> int:
@@ -274,20 +273,15 @@ def main() -> int:
         print("CITATIONS: FAIL — no reference list found")
         return 1
 
-    if args.style in NUMERIC_STYLES:
-        problems, nref, ncite = check_numeric(body, ref_lines, args.style)
-    else:
-        problems, nref, ncite = check_authordate(body, ref_lines, args.style)
-
-    if problems:
-        print(f"CITATIONS: FAIL — style={args.style} refs={nref} intext={ncite}")
-        for p in problems:
-            print(f"  - {p}")
-        return 1
-    print(f"CITATIONS: PASS — style={args.style} refs={nref} intext={ncite}; "
-          f"zero orphans, all identifiers well-formed "
-          f"(NOTE: form only; existence/support = source_fidelity)")
-    return 0
+    check = check_numeric if args.style in NUMERIC_STYLES else check_authordate
+    problems, reviews, nref, ncite = check(body, ref_lines, args.style)
+    print(f"CITATIONS: {'FAIL' if problems else 'PASS'} — style={args.style} refs={nref} intext={ncite}"
+          + (f" review={len(reviews)}" if reviews else "") + ("" if problems else "; zero FAIL-class orphans, "
+             "all identifiers well-formed (NOTE: form only; existence/support = source_fidelity)"))
+    for p in problems + [f"REVIEW (not a FAIL; the independent verifier decides, verdict in the ledger): {m}"
+                         for _, m in reviews]:
+        print(f"  - {p}")
+    return 1 if problems else 0
 
 
 if __name__ == "__main__":

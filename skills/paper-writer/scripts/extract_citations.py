@@ -17,7 +17,8 @@ Two jobs, one deterministic script (stdlib only):
       independent verifier). What this script checks DETERMINISTICALLY is only
       that the ledger is COMPLETE and INTERNALLY CONSISTENT:
 
-        - every extracted citation has a ledger entry, and
+        - every extracted id has a ledger entry (incl. <REVIEW:…> narrative years that
+          check_citations could not settle; NOT_A_CITATION is terminal for those only), and
         - that entry's verdict is terminal: RESOLVED or SOURCE_NEEDED, and
         - if any verdict is SOURCE_NEEDED, the paper carries at least one
           [SOURCE NEEDED] / [需要来源] marker (whole-paper check, NOT per-id).
@@ -85,6 +86,7 @@ def extract_citations(text: str, style: str):
             if seen[cid] > 1:
                 cid = f"{cid}_{seen[cid]}"
             out.append((cid, first_identifier(entry), entry))
+        out += [(rid, "<NO ENTRY>", msg) for rid, msg in cc.check_authordate(body, ref_lines, style)[1] if rid]
     return out
 
 
@@ -120,12 +122,13 @@ def run_verify(text: str, citations, ledger_path: str) -> int:
     entries = ledger.get("citations") or {}
     has_marker = bool(SOURCE_NEEDED_MARKER_RE.search(text))
 
-    unresolved = []
-    source_needed = []
+    unresolved, source_needed, not_cites = [], [], []
     for cid, ident, entry in citations:
         rec = entries.get(cid)
         verdict = (rec or {}).get("verdict") if isinstance(rec, dict) else None
-        if verdict not in TERMINAL_VERDICTS:
+        if verdict == "NOT_A_CITATION" and cid.startswith("<REVIEW:"):
+            not_cites.append(cid)   # the ledger's author read it as a narrative year
+        elif verdict not in TERMINAL_VERDICTS:
             unresolved.append((cid, verdict or "MISSING"))
         elif verdict == "SOURCE_NEEDED":
             if not has_marker:
@@ -135,7 +138,8 @@ def run_verify(text: str, citations, ledger_path: str) -> int:
             else:
                 source_needed.append(cid)
 
-    total = len(citations)
+    total = len(citations) - len(not_cites)
+    tail = f" {len(not_cites)} REVIEW item(s) judged not a citation by the ledger's author." if not_cites else ""
     if unresolved:
         print(f"VERIFY: BLOCK — {len(unresolved)}/{total} citation(s) UNRESOLVED; "
               f"a 'citations resolve' report may NOT be emitted.")
@@ -148,14 +152,14 @@ def run_verify(text: str, citations, ledger_path: str) -> int:
         print(f"VERIFY: PASS (ledger complete and internally consistent) — {total} dispositioned; "
               f"{len(source_needed)} marked [SOURCE NEEDED] and dropped, "
               f"{total - len(source_needed)} RESOLVED. "
-              f"Report MUST say 'N marked [SOURCE NEEDED]' — NOT 'all resolve'.")
+              f"Report MUST say 'N marked [SOURCE NEEDED]' — NOT 'all resolve'.{tail}")
         for cid in source_needed:
             print(f"  - id={cid}: SOURCE_NEEDED (claim marked + dropped)")
         return 0
 
     print(f"VERIFY: PASS — ledger complete and internally consistent: all {total} citation(s) "
           f"carry verdict RESOLVED. This script did not check existence or support; the "
-          f"ledger's author did (name them in the report).")
+          f"ledger's author did (name them in the report).{tail}")
     return 0
 
 

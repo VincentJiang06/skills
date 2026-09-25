@@ -21,7 +21,10 @@ the year; the lead surname may be any script, e.g. Özdemir, 王某某):
   `[1, 4]`, and the `[2]` implied by `[1]–[3]`) are not read, because a date `[2024-01-15]` or an
   interval `[0, 1]` has the same shape. Cite each entry at least once with its own `[n]`,
   where its claim is made; an entry cited only inside a group is reported as uncited.
-An entry the script cannot key fails the gate: fix the entry's form, never delete it.
+An entry the script cannot key fails the gate: fix the entry's form, never delete it. Two shapes
+print `REVIEW` instead (exit unaffected; SKILL.md "REVIEW route"): an entry led by a
+lower-case-initial surname (`hooks, b.`, `boyd, danah.`; keep the name as written), and a
+narrative year followed by `,` `;` `:` with no entry (`Katrina (2005; category 5)`).
 
 ---
 

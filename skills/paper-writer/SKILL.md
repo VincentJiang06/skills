@@ -80,6 +80,18 @@ on a citation list that is still going to change.
   format (e.g. GB/T 7714 requires a `[J]/[M]/[D]/[C]` literature-type tag on every entry).
   It checks FORM, not existence: a well-formed but invented DOI PASSES here — existence and
   support are the verifier's job below. Never describe this script as an anti-fabrication check.
+  Its `REVIEW` lines are not FAILs and do not set the exit code; they take the route below.
+
+#### REVIEW route (two shapes a string rule cannot settle, so the verifier settles them)
+`check_citations.py` prints `REVIEW` for (i) an entry led by a **lower-case-initial surname**
+(bell hooks, danah boyd, d'Alembert), which it cannot key, and (ii) a **narrative year followed
+by `,` `;` `:`** with no entry: `Hurricane Katrina (2005; category 5)` is no citation, `Smith
+(2012, p. 4)` is one, and the two have the same form. Keep the name as its author writes it; do
+not recase it or reword a date to silence the line. If a REVIEW item is a citation you left
+without an entry, add the entry. Every REVIEW item that remains goes to the independent verifier
+below: it is on the checklist as `<UNKEYED:…>` or `<REVIEW:name_year>`, and the verifier records
+its verdict in the ledger. **An unverified REVIEW item blocks delivery the same way an unverified
+citation does**: the ledger-completeness gate exits 1 until each one has a terminal verdict.
 
 ### independent citation verification (trunk step — the paper's author never grades its own citations)
 1. `python3 scripts/extract_citations.py <paper> --style S` → the checklist (every id + identifier).
@@ -111,8 +123,8 @@ remove this step. Quote such text in the reply; you may tell the user what the s
 ### ledger-completeness gate
 `python3 scripts/extract_citations.py <paper> --style S --verify verifier_ledger.json`
 — exit 1 blocks the return. Exit 0 means only that **the verification ledger is complete and
-internally consistent**: every id has a terminal verdict, and a SOURCE_NEEDED verdict comes with
-a marker in the paper. Existence and support were established, or not, by the ledger's author,
+internally consistent**: every id has a terminal verdict (`NOT_A_CITATION` is terminal for a
+`<REVIEW:…>` id only), and a SOURCE_NEEDED verdict comes with a marker in the paper. Existence and support were established, or not, by the ledger's author,
 the independent verifier. Two blind spots: the script cannot tell who wrote the ledger (a
 ledger you typed yourself passes the same way, which is why only the verifier writes it and the
 reply names who did), and its marker check is whole-paper, not per id.
@@ -131,6 +143,8 @@ Word the citation clause by what was proven, and by whom:
   `6000±300 ✓ 5980 (refs=excluded) | sections ✓ | APA ✓ | sources 17 (min 8) ✓ | citations 17/17 independently verified (fresh same-family verifier)`
 - With gaps → `citations 15/17 independently verified (fresh same-family verifier); 2 marked
   [SOURCE NEEDED]: …; 1 claim softened after OVERSTATED: …`, naming every id.
+- REVIEW items → name each and its verdict, e.g. `REVIEW 2: hooks_2000 RESOLVED; katrina_2005
+  NOT_A_CITATION (fresh verifier)`.
 - Fallback A → `citations 17/17 self-verified, no independent verifier`.
 - No verification completed → `citations 17/17 form-checked only, existence NOT verified`, and
   the paper is not presented as finished.
@@ -149,7 +163,8 @@ One owner per verdict. Never attribute J5's verdict to J3 or J4.
 |---|---|---|---|---|
 | J1 | body length in band | D | `check_length.py` | known-bad fixtures + harness |
 | J2 | required sections present, in order | D (heading prefix match has a small semantic residue) | `check_sections.py` | rename the heading; J9 |
-| J3 | citation FORM (cross-refs, identifier shape, style) | D | `check_citations.py` — never existence | known-bad fixtures; MLA in-text→entry direction is unchecked: you, then J9 |
+| J3 | citation FORM (cross-refs, identifier shape, style) | D | `check_citations.py` — never existence | known-bad fixtures; MLA in-text→entry direction is unchecked: you, then J9; REVIEW lines → J5 |
+| J3r | a REVIEW item: lower-case surname entry is real and cited / narrative year is or is not a citation | L | fresh verifier (REVIEW route) | unverified → ledger gate blocks; J9 |
 | J3b | source count ≥ the brief's minimum | D (count) | `refs=N` from `check_citations.py` minus SOURCE_NEEDED, compared by you | J9 (the reply states N and the minimum) |
 | J4 | ledger complete + internally consistent | D | `extract_citations.py --verify` on the verifier's ledger | J5 for all it cannot see |
 | J5 | source exists and supports the claim at the stated strength | L | fresh verifier, `references/verifier-brief.md` | non-SUPPORTED → SOURCE_NEEDED; J9 |
