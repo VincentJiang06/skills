@@ -102,11 +102,43 @@ v1.0.0 的事实层在 2026-09-22（Opus 5.5 成为默认 Opus，Claude Code 2.1
   F13（省略的 agent effort 不按模型默认值推出）· F14（`{"agents":[null]}` 崩溃、退出码 1 而非 2）· F15（`max` 指引引的是
   Opus 4.7 表）。均为 P3，按铁律 3 不在修复审计之后继续加码。
 
+### 收尾 / Finalization (E11 · battery · 遗留 · 独立性 · 模型偏离)
+
+- **README 拆分**：`README.md` 改为中文、新增同步的 `README.en.md`（结束 EX-8）；两份都加了"已知遗留"一节。
+  README 原句"报 `advisor-pairing-unverified`，不放行"读起来像拦截，而代码只发 warning、退出码 0——改为"**警告**，
+  只报不拦、但不当成已验证"（修复审计 P3，文档与代码对齐 → P11 双向结算、A50 只报不拦）。只改文字，无行为改动。
+- **E11 两臂（3 例，instance 档，盲评逐例全文读）**：case 1 **胜**（WITH 6/6 陷阱；WITHOUT 把搜索降到 Haiku/Sonnet `low`、
+  把 Opus 5.5 默认 effort 说反、给 Haiku 4.5 设 effort）；case 2 **负**（窄；六陷阱持平，按 O1 判——WITH 给无配对行的
+  Opus 5.5 配了 `claude-fable-5-1` advisor，照写会 400；病根在旧文案"unverified: try it"，已在 1fab415 改为"无行 ⇒ 默认不挂"，
+  **修后未重跑两臂**）；case 3 **胜**（WITHOUT 明确"Keep it"保留 Haiku `effort: low`）。预注册验收"无一例负"**未满足**；
+  退役条件（三例皆平且 WITHOUT 全对）不成立——保留，不建议退役。成本：case 1 WITH 输出短约 30%，其余两例工具调用与篇幅相近。
+- **Battery**：第 1 轮种子 5/5、14 条确认（P2 ×2：F06、F07；P3 ×12）、0 驳回、无 P0/P1 → 修复轮；修复审计种子 5/5、
+  8 条确认（P2 ×1 = F07，出在上一修复轮 4cb3941 自己的代码里；P3 ×7）、3 条驳回 → 按 conductor 派单只修 F07（54bb431）；
+  对 F07 修复的再审计又找到 1 条 P2 + 2 条 P3，**全部出在 F07 修复本身**（同一"修门→打门"形态，第二次）——铁律 3 的硬停只针对 P0，
+  形式上未触发，但修复预算已用完，**不再修**。
+- **开放遗留（登记，未修）**：
+  - **P2 advisor 警告重复**（F07 修复引入）：advisor 是别名（`opus`）或表外模型（`claude-opus-5-5`）时，会话行已报一次，
+    逐 agent 分支又给每个不同的子代理模型各报一次（会话 sonnet-5 + advisor `opus` + 4 个子代理：旧 1 条 → 新 5 条；8 个 → 9 条）。
+    违背本脚本自己的"一条事实一条发现"（P-collapse）。正确判定应是：只有子代理模型无行、且 advisor **在表里**时才逐 agent 报。
+  - **P3 误报账覆盖面说过头**：上面 F07 一节的"变化只有……"只对所抽的 53 个方案成立——其中没有一个是"别名/表外 advisor +
+    多个不同模型的子代理"组合，所以上一条的 1→9 回归没被量到（铁律 7：误报账的结论只对所量语料成立）。
+  - P3 ×7（修复审计）：F02 `max-tokens-low` 无夹具、C3 对阈值不敏感 · F03 两条断言守着已删除的 `advisor-weaker` ·
+    F11 别名"无模型专属判定"措辞与 haiku 别名判定不一致 · F12 会话行不做 effort/thinking 检查 · F13 省略的 agent effort 不按模型
+    默认值推出 · F14 `{"agents":[null]}` 退出码 1 而非 2 · F15 `max` 指引引的是 Opus 4.7 表。
+  - 测量债：trigger-cases 没有 runner，触发准确率未测；E11 case 2 修后未重跑。
+  - 以上全部登记为下一次 A42 复核事件（任何点版本或同名换权重）的首查项，F07 修复代码排第一。
+- **独立性如实登记**：battery 三次（第 1 轮、修复审计、F07 再审计）与 E11 评委全部是 Opus 5.5 fresh context——**instance 档**，
+  不是 model 档（同厂同模型，可能共享盲点）。
+- **模型偏离**：skill-creator-max 2026-09-13 模型策略要求 builder 用 Fable、评价者用 Opus；本波 owner 明令全部 Opus 5.5 high，
+  builder、attacker、裁决者、评委同模型——登记为偏离。
+- 测试（收尾时重跑）：`node evals/run_all.mjs` GREEN 37/37；`check_plan.mjs --selftest` GREEN 26/26。
+  规模：脚本 406 → 504 行（+24.1%），用例记录 29 → 38（+31.0%），均在 +50% 红线内。
+
 ### 豁免登记 / Exemption register (not re-verified this wave; re-review at the next A42 event or 2 review periods)
 
 EX-1 两条轴、搜索推论、钳制、报告格式（核心设计，未过期）· EX-2 Opus 4.x / Sonnet 4.6 / Sonnet 5 / Haiku 4.5 行 ·
 EX-3 Codex 映射与通用运行时表 · EX-4 组织级 effort 钳制 · EX-5 opusplan / ultracode · EX-6 Opus 5 行为笔记 ·
-EX-7 description 与 17 条触发用例未改 · EX-8 README 仍为单个双语文件（未拆 README.en.md）· EX-9 未被改动文字牵动的 C1–C5 正则。
+EX-7 description 与 17 条触发用例未改 · EX-8（已结束：收尾时拆出 README.en.md）· EX-9 未被改动文字牵动的 C1–C5 正则。
 
 ### 驳回 / Rejected
 
