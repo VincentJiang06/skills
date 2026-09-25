@@ -7,14 +7,19 @@
 // PASS this before the legacy is touched.
 //
 // THE ANCHOR: a pure grep/heuristic gate CANNOT prove semantic faithfulness, so
-// it never rubber-stamps. It does three things only a deterministic check does
-// well — tie each documented symbol to a real definition (ORPHAN / BAD_SOURCE_REF),
-// prove no exported symbol was silently dropped (COVERAGE_HOLE), and refuse to be
-// gamed (CONTRADICTION / EXCESSIVE_EXCLUSIONS) — and for everything ambiguous it
-// raises a NEEDS_RECONCILE *flag* that BLOCKS the gate until the agent fixes the
-// contract. Flags are the "agent must reconcile" handoff; they are never an
-// auto-pass. (develop-principle: principle.executable_acceptance,
-// principle.claim_evidence_traceability, anti_pattern.reward_hacking.)
+// it never rubber-stamps and never rules on design intent. It does only skeleton
+// checks a deterministic check does well — tie each documented symbol to a real
+// definition (ORPHAN / BAD_SOURCE_REF), prove no exported symbol was silently
+// dropped (COVERAGE_HOLE), and require a same-line reason on every exclusion of a
+// strongly-exported symbol (EXCLUSION_NEEDS_REASON: presence only). For everything
+// ambiguous it raises a *flag* that BLOCKS until the agent fixes the contract.
+// "Is this excluded symbol really not a public interface?" is a SEMANTIC question
+// with a witness pair (a public def and a package-internal helper look identical
+// here), so the gate does not answer it: it emits non-blocking reviews[] evidence
+// (STRONG_EXPORT_EXCLUDED, HIGH_EXCLUSION_RATIO) for the fresh-reader exclusion
+// card (references/protocol.md) and the user. Reviews never change ok, the exit
+// code, or coverage. (KB: P13 / S14 / A50(i); principle.executable_acceptance,
+// principle.claim_evidence_traceability.)
 //
 // Usage:
 //   node scripts/verify_contracts.mjs <project-root> [--scope <subdir>] [--contract <path>]
@@ -23,7 +28,8 @@
 // Programmatic (what evals/run_all.mjs imports — the SAME logic, not a copy):
 //   import { validate } from "./verify_contracts.mjs"
 //   validate({ contractText, files, scope, exclusions }) ->
-//     { ok, fails:[{tag,symbol,detail}], flags:[{tag,symbol,detail}], coverage:{documented,excluded,extracted,ratio} }
+//     { ok, fails:[{tag,symbol,detail}], flags:[…], reviews:[…], coverage:{documented,excluded,extracted,ratio} }
+//   exclusions override entries: {name, reason} (a bare string = no reason); same reason grammar as the contract.
 //
 // Deterministic & idempotent: a pure function of its inputs — no clock, no
 // random, no hidden state, sorted outputs. Never throws on bad input; malformed
@@ -324,6 +330,8 @@ function extractSurface(files, scope) {
 // Parse a gate-parseable interfaces.md:
 //  - documented rows:  | `name` | `signature` | `path:line` |
 //  - exclusions:       under a "## Intentionally internal" heading, `- `name` — reason`
+//    reason = the text after the closing backtick of the FIRST backticked identifier
+//    on that list-item line (continuation lines are not read).
 function parseContract(contractText) {
   const documented = [];
   const exclusions = [];
@@ -353,7 +361,7 @@ function parseContract(contractText) {
     // exclusions list item under an "internal" section
     if (section.includes("internal") && /^[-*]\s+/.test(line)) {
       const m = line.match(/`([A-Za-z_$][\w$]*)`/);
-      if (m) exclusions.push({ name: m[1] });
+      if (m) exclusions.push({ name: m[1], reason: line.slice(m.index + m[0].length) });
     }
   }
   return { documented, exclusions };
@@ -362,6 +370,16 @@ function parseContract(contractText) {
 // ---- the gate -------------------------------------------------------------
 
 const EXCLUSION_RATIO_CEILING = 0.5;
+
+// THE reason grammar (one implementation, used by both the parsed-contract path and
+// the caller `exclusions` override path): strip leading whitespace and separators
+// — – - : ： , ， ( （ ; a reason is present iff >= 1 Unicode letter remains
+// (so CJK counts). Separator-only / whitespace-only / digits-only = no reason.
+// Presence only: reason QUALITY is a semantic judgment for the fresh-reader card.
+function reasonOf(raw) {
+  const rest = (typeof raw === "string" ? raw : "").replace(/^[\s—–\-:：,，(（]+/u, "").trim();
+  return /\p{L}/u.test(rest) ? rest : "";
+}
 
 function sortIssues(arr) {
   return arr
@@ -374,6 +392,7 @@ function sortIssues(arr) {
 export function validate(input) {
   const fails = [];
   const flags = [];
+  const reviews = [];
   let coverage = { documented: 0, excluded: 0, extracted: 0, ratio: 1 };
   try {
     const obj = input && typeof input === "object" ? input : {};
@@ -382,20 +401,20 @@ export function validate(input) {
 
     if (typeof contractText !== "string") {
       fails.push({ tag: "MALFORMED", symbol: null, detail: "contractText must be a string" });
-      return { ok: false, fails: sortIssues(fails), flags, coverage };
+      return { ok: false, fails: sortIssues(fails), flags, reviews, coverage };
     }
 
     const parsed = parseContract(contractText);
     // allow caller to override/augment exclusions (spec contract), else use parsed
     const exclusions =
       Array.isArray(obj.exclusions) && obj.exclusions.length
-        ? obj.exclusions.map((x) => (typeof x === "string" ? { name: x } : x)).filter((x) => x && x.name)
+        ? obj.exclusions.map((x) => (typeof x === "string" ? { name: x, reason: "" } : x)).filter((x) => x && x.name)
         : parsed.exclusions;
     const documented = parsed.documented;
 
     if (documented.length === 0 && exclusions.length === 0) {
       fails.push({ tag: "EMPTY_CONTRACT", symbol: null, detail: "no documented interfaces and no exclusions parsed" });
-      return { ok: false, fails: sortIssues(fails), flags, coverage };
+      return { ok: false, fails: sortIssues(fails), flags, reviews, coverage };
     }
 
     const { surface, flags: extractionFlags } = extractSurface(files, scope);
@@ -445,19 +464,29 @@ export function validate(input) {
       }
     }
 
-    // 3) anti-gaming on the exclusions
+    // 3) exclusions of strongly-exported symbols: reason PRESENCE is the skeleton
+    //    check (blocking flag); whether the symbol is really internal is NOT decided
+    //    here — each becomes a non-blocking review for the fresh-reader card.
+    const reasonByName = new Map();
     for (const x of exclusions) {
-      const locs = surfaceByName.get(x.name);
-      if (locs && locs.some((l) => l.confidence === "strong")) {
-        fails.push({ tag: "CONTRADICTION", symbol: x.name, detail: "listed intentionally-internal but the code clearly exports it" });
+      const r = reasonOf(x.reason);
+      if (!reasonByName.has(x.name) || (r && !reasonByName.get(x.name))) reasonByName.set(x.name, r);
+    }
+    for (const [name, reason] of reasonByName) {
+      const strong = (surfaceByName.get(name) || []).filter((l) => l.confidence === "strong");
+      if (!strong.length) continue;
+      if (!reason) {
+        flags.push({ tag: "EXCLUSION_NEEDS_REASON", symbol: name, detail: "strongly-exported symbol listed intentionally-internal with no reason: state why it is not a public interface (a fresh reader will verify) or document it" });
+      } else {
+        reviews.push({ tag: "STRONG_EXPORT_EXCLUDED", symbol: name, detail: `strong export at ${strong.map((l) => l.file + ":" + l.line).join(", ")}; reason: "${reason}"` });
       }
     }
     const excludedInSurface = [...exclusionNames].filter((n) => surfaceByName.has(n)).length;
     if (surfaceNames.length > 0 && excludedInSurface / surfaceNames.length > EXCLUSION_RATIO_CEILING) {
-      fails.push({
-        tag: "EXCESSIVE_EXCLUSIONS",
+      reviews.push({
+        tag: "HIGH_EXCLUSION_RATIO",
         symbol: null,
-        detail: `${excludedInSurface}/${surfaceNames.length} of the public surface is marked intentionally-internal (> ${EXCLUSION_RATIO_CEILING}) — the contract is gaming coverage`,
+        detail: `${excludedInSurface}/${surfaceNames.length} of the extracted surface is listed intentionally-internal (> ${EXCLUSION_RATIO_CEILING}); information for the fresh-reader and the user`,
       });
     }
 
@@ -472,13 +501,14 @@ export function validate(input) {
       ok: false,
       fails: sortIssues([{ tag: "MALFORMED", symbol: null, detail: "unexpected: " + (e && e.message) }].concat(fails)),
       flags: sortIssues(flags),
+      reviews: sortIssues(reviews),
       coverage,
     };
   }
 
   const sFails = sortIssues(fails);
   const sFlags = sortIssues(flags);
-  return { ok: sFails.length === 0 && sFlags.length === 0, fails: sFails, flags: sFlags, coverage };
+  return { ok: sFails.length === 0 && sFlags.length === 0, fails: sFails, flags: sFlags, reviews: sortIssues(reviews), coverage };
 }
 
 // ---- CLI ------------------------------------------------------------------
@@ -536,10 +566,12 @@ async function main() {
   const r = validate({ contractText, files, scope });
   for (const f of r.fails) console.log(`FAIL  [${f.tag}] ${f.symbol || ""} — ${f.detail}`);
   for (const f of r.flags) console.log(`FLAG  [${f.tag}] ${f.symbol || ""} — ${f.detail} (agent must reconcile)`);
+  for (const f of r.reviews) console.log(`REVIEW [${f.tag}] ${f.symbol || ""} — ${f.detail} (${f.tag === "HIGH_EXCLUSION_RATIO" ? "information" : "fresh-reader must adjudicate"})`);
   const cov = r.coverage;
   console.log(`\ncoverage: ${cov.documented} documented / ${cov.excluded} excluded / ${cov.extracted} extracted — ratio ${cov.ratio.toFixed(3)}`);
   if (r.ok) {
-    console.log("PASS — contract matches the code surface (0 fails, 0 unreconciled flags)");
+    const nr = r.reviews.length ? `; ${r.reviews.length} review item(s)` : "";
+    console.log(`PASS — contract matches the code surface (0 fails, 0 unreconciled flags)${nr}`);
     process.exit(0);
   }
   console.log(`\nNOT PASSING — ${r.fails.length} fail(s), ${r.flags.length} flag(s) to reconcile`);
