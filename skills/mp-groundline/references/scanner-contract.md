@@ -28,7 +28,7 @@ and looks for `app.json` directly under it.
   "ok": true,                       // false only on a structured blocker (see Errors)
   "error": null,                    // string when ok=false, else null
   "miniprogramRoot": "miniprogram/",// resolved value (relative to root), or "." 
-  "ignored_dirs": ["miniprogram/dist"], // packOptions.ignore folders met and NOT walked (relative to root), sorted; [] if none
+  "ignored_dirs": ["miniprogram/dist"], // packOptions.ignore folders met and NOT walked (relative to root; a folder holding a declared page is walked), sorted; [] if none
   "renderer_config": {
     "renderer": "skyline",          // "skyline" | "webview" | null (unset → webview default)
     "componentFramework": "glass-easel",   // or null
@@ -220,7 +220,9 @@ are not in the uploaded package, so they are not migration sites — typically a
 `dist/` build copy that would otherwise double every finding. Other ignore types
 (`file`/`suffix`/`prefix`/`regexp`/`glob`) are not honored. Each skipped folder is
 listed in `ignored_dirs` and in the MIGRATION-MAP header. Page-json renderer pins
-are still read from `app.json` regardless. A program that swaps `app.json` /
+are still read from `app.json` regardless, and a folder that holds a page `app.json`
+declares (in `pages` or a subpackage) is **walked anyway**: that page is flipped, so
+its content is scanned, never dropped (eval `scan_pack_ignore_declared_page`). A program that swaps `app.json` /
 `project.config.json` per build variant is scanned in its current variant only —
 scan each variant separately. (Eval: `scan_pack_ignore_folder`.)
 

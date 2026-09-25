@@ -16,7 +16,8 @@ each page `.json` (including subpackage pages from **both** `subPackages` and
 `subpackages`), walks `.wxml/.wxss/.less/.js/.ts/.wxs` (skipping `node_modules`,
 `miniprogram_npm`, and every `packOptions.ignore` entry of type `folder` — e.g. a
 `dist/` build copy that never ships; those are listed in `ignored_dirs` and in the
-map header, never skipped silently), and prints `{ ok, error, miniprogramRoot,
+map header, never skipped silently; a folder holding a page `app.json` declares is
+scanned anyway), and prints `{ ok, error, miniprogramRoot,
 ignored_dirs, renderer_config, findings[], summary }`. On a blocker it prints a structured error and exits 1.
 
 ## The four actions

@@ -276,7 +276,8 @@ export function scan(root) {
   // Folders the program itself excludes from its upload package never ship, so
   // their files (typically build output such as dist/) are not migration sites.
   // Only type "folder" is honored; the path is relative to miniprogramRoot
-  // (project.config.json doc). Every skipped folder is reported in ignored_dirs.
+  // (project.config.json doc). Every skipped folder is reported in ignored_dirs;
+  // a folder holding a declared page is un-skipped below, once pages are known.
   const skipAbs = new Set();
   for (const e of packIgnore) {
     if (e && e.type === "folder" && typeof e.value === "string" && e.value.trim()) {
@@ -404,6 +405,13 @@ export function scan(root) {
         note: `Page pins renderer "${pageRenderer}" — flip this page json to "webview"; the app-level flip does not reach it.`
       });
     }
+  }
+
+  // A packOptions.ignore folder that holds a page app.json still declares is
+  // scanned anyway: that page is flipped, so its content must not be dropped.
+  for (const page of pages) {
+    const dir = path.dirname(path.join(mpAbs, String(page)));
+    for (const s of skipAbs) if (dir === s || dir.startsWith(s + path.sep)) skipAbs.delete(s);
   }
 
   // ── scan source files ──
