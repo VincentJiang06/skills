@@ -98,6 +98,10 @@ untouched); every item names the principle it answers to.
 - No regex/lint for token-in-argv or gate wording in docs (semantic; iron rule 2). No `allowed-tools`
   (it widens rather than restricts in Claude Code). No deletion of procedural rules for Opus 5.5 without
   WITHOUT-arm evidence (A39/A42; U3 in MAINTENANCE.md).
+- Battery F07 / F08 (P3) left open, queued in MAINTENANCE.md: tightening `eval_cases_integrity` (empty criteria,
+  one-character `task_zh` pass) or turning `check_release_gate`'s program denylist into an allowlist would be new
+  code inside a D gate during a fix round, for defects that change no run (the eval cases have no runner; the
+  required gate core still executes). Fix rounds stay prose (iron rules 3/4, **A51**).
 
 ## 0.2.2
 

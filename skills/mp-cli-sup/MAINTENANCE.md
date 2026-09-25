@@ -128,6 +128,10 @@ Planes: **D** deterministic code · **L** LLM judgment · **H** human. D→L = c
   `vince-mp env token <token>`". The skill tells the agent to relay only the env-variable part (the `env token <value>`
   form leaks through argv / shell history). Rewording the hint to name only `VINCE_MP_ADMIN_TOKEN` belongs in the next
   CLI release, made from the main checkout where the CLI's test suite exists.
+- **F07 / F08 (battery 2026-09-25, P3)**: J14 `eval_cases_integrity` accepts `acceptance_criteria: []` and a
+  one-character `task_zh`; `check_release_gate` admits any extra evidence command not on its program denylist
+  (`node -e 0` passes). Neither changes a run today. Fix in 0.4.0 with a seed per change and an fp run over the
+  current eval-cases / manifest history.
 - **U1**: is the constant `data`/`callPageMethod` `STEP_TIMEOUT` a property of DevTools 2.01.2510290 or of wxa.cli.im?
   Resolve at the next live session on a second project (`vince-mp data` on two pages); record date + build in
   `references/evidence-and-failures.md`.
