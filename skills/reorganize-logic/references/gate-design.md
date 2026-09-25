@@ -45,7 +45,8 @@ string = no reason) and runs through the same reason grammar.
   destructuring)/let/var/class/type/interface/enum`, `export default function`,
   multi-line `export { a, b as c }` (+ `from` re-exports), `export * as ns from`,
   resolved `export * from './local'` (followed across files), `module.exports.x` /
-  `exports.x` / computed `exports['x']`, `module.exports = { … }` and
+  `exports.x` / computed `exports['x']`, `module.exports = <ident>` (strong export of that
+  binding), `module.exports = { … }` and
   `Object.assign(module.exports, { … })` object literals (brace-balanced, multi-line,
   with getter/setter/async/generator members), and `Object.defineProperty(exports,
   'x', …)`. Plus Python top-level `def`/`class`, Go exported `func`, Java/C# `public`

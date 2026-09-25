@@ -53,6 +53,8 @@ const SURFACE_MATCHERS = [
   { re: new RegExp(`^\\s*export\\s+(?:type|interface|enum)\\s+(${NAME})`), conf: "strong" },
   { re: new RegExp(`^\\s*module\\.exports\\.(${NAME})\\s*=`), conf: "strong" },
   { re: new RegExp(`^\\s*exports\\.(${NAME})\\s*=`), conf: "strong" },
+  // whole-module export of one binding: `module.exports = f;` makes f a strong export
+  { re: new RegExp(`^\\s*module\\.exports\\s*=\\s*(${NAME})\\s*;?\\s*$`), conf: "strong" },
   // computed string-key assignment: exports['x'] = / module.exports["x"] =
   { re: new RegExp(`^\\s*(?:module\\.)?exports\\[['"](${NAME})['"]\\]\\s*=`), conf: "strong" },
   // Object.defineProperty(exports|module.exports, 'x', …)
