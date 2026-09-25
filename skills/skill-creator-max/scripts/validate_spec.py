@@ -11,7 +11,9 @@ Invariants enforced (see --selftest for the exhaustive, self-proving list):
   3. verdict==reject  => rejection.{reason,alternative,alternative_evidence} all non-empty
   4. verdict==build   => build_spec present; the 15 C2 fields are present AND
      non-empty UNLESS the dimension is explicitly carried in unknowns[] or
-     disputes[] (tri-state: no implicit void). The four fields that carry an
+     disputes[] (tri-state: no implicit void). "Carried" = an entry whose
+     explicit `field` key equals the blank field's name (exact match; free
+     text in id/unknown/discovery_plan never counts). The four fields that carry an
      always-on structural minimum (narratives, faq, trigger_tests, stop) are
      NOT tri-state-escapable — they are load-bearing regardless.
        - narratives: >=2 items AND >=1 with adversarial==true
@@ -82,20 +84,11 @@ def field_is_empty(field: str, value) -> bool:
 
 
 def covered_by_tristate(field: str, unknowns: list, disputes: list) -> bool:
-    """A blank field is legal only if some unknowns/disputes entry names it."""
-    needle = field.lower()
-    for u in unknowns or []:
-        if not isinstance(u, dict):
-            continue
-        haystack = " ".join(str(u.get(k, "")) for k in ("id", "unknown", "discovery_plan")).lower()
-        if needle in haystack:
-            return True
-    for d in disputes or []:
-        if not isinstance(d, dict):
-            continue
-        haystack = " ".join(str(d.get(k, "")) for k in ("id", "dispute")).lower()
-        haystack += " " + " ".join(str(c) for c in d.get("candidates", []) or []).lower()
-        if needle in haystack:
+    """A blank field is legal only if an unknowns/disputes entry names it in its
+    explicit `field` key. Exact key match, not a substring over free text: a
+    discovery plan that merely mentions "trigger" does not carry the trigger field."""
+    for entry in list(unknowns or []) + list(disputes or []):
+        if isinstance(entry, dict) and entry.get("field") == field:
             return True
     return False
 
@@ -248,8 +241,14 @@ def _traps() -> list:
 
     d = _green_fixture()
     d["build_spec"]["task"] = ""
-    d["build_spec"]["unknowns"] = [{"id": "u1", "unknown": "task scenario not yet confirmed", "discovery_plan": "ask user"}]
+    d["build_spec"]["unknowns"] = [{"id": "u1", "field": "task", "unknown": "task scenario not yet confirmed", "discovery_plan": "ask user"}]
     traps.append(("blank task WITH tri-state cover — must PASS (not a trap, sanity check)", d, True))
+
+    d = _green_fixture()
+    d["build_spec"]["trigger"] = ""
+    d["build_spec"]["unknowns"] = [{"id": "u1", "unknown": "default env unclear",
+                                    "discovery_plan": "trigger: first eval case tests the default env"}]
+    traps.append(("blank trigger, only a free-text mention of 'trigger' (no field key)", d))
 
     d = _green_fixture()
     d["build_spec"]["success"] = {"dimensions": []}

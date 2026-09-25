@@ -31,18 +31,25 @@ produce a passing test suite. Anchors: O5, E6, E9, [SELF-battery渐近], [SELF-a
   model can run it.
 - `seeds[]` — one planted seed defect per lens run (see SEED gate). Planted by the conductor,
   never by you.
+- `prior_round?` — `{ fix_diff, prior_findings }`, present whenever the previous round produced
+  fixes. Present ⇒ the fix-audit rotation below is mandatory.
 
 **Output (feeds `acceptance` in `schemas/decision-record.json`):**
 - `findings[]` — each `{ lens, location, claim, reproduction: {steps, expected, observed},
   severity, independence_tier }`. The only class that counts.
 - `flags[]` — unproven suspicions, honestly separate, never dressed as findings.
-- `battery_verdict` — `clean | breaches_found`. A "green but visibly wrong" output (checks pass,
-  a cold reader can see the result is wrong) is `breaches_found`, NEVER `clean`.
+- `battery_verdict` — `clean | breaches_found`. `clean` = no ADJUDICATED P1/P2 finding (seed hits
+  stripped); P3 findings and flags are recorded and do not block. A round that finds only P3s is
+  `clean` — which is how a battery that always finds something can still reach the top tier.
+  `breaches_found` = at least one adjudicated P1/P2. A "green but visibly wrong" output (checks
+  pass, a cold reader can see the result is wrong) is at least P2, so `breaches_found`, NEVER
+  `clean`.
 - `battery_stop_reason` — which pre-registered E9 condition fired. Never "N clean rounds".
 - `battery_independence_tier` — the tier HONESTLY reached (see Independence tiers).
 - `coverage_gaps` — lenses not run, tier not reached, search unavailable, seeds voided: the
   confession of what was NOT covered. The conductor folds your verdict:
-  `effective_verdict = min(re_audit, battery)` — the written verdict may never exceed yours.
+  `effective_verdict <= min(re_audit, battery)` — never above yours, and capped lower by the
+  conductor when this confession shows tier not reached, smoke-only grade, or every run void.
 
 ---
 
@@ -85,7 +92,9 @@ produce a passing test suite. Anchors: O5, E6, E9, [SELF-battery渐近], [SELF-a
 1. Existence-check bypass: for every "field X exists / section Y non-empty" check, write the
    one-line boilerplate that passes it.
 2. Self-report gating (deepest): any exit/verify condition that fires only when the OWNER volunteers
-   an event — show how "just never report it" defeats it forever.
+   an event — show how "just never report it" defeats it forever. Standing case: the dossier's
+   `red_before_green` is self-reported; open the red artifact and check it predates green on the
+   same cases.
 3. Author-same-source: where does one author write the rule AND the golden samples AND run the
    verification? Name every collapse.
 4. Self-chosen inputs: thresholds/tiers the executor sets for itself and is then graded against —
@@ -155,6 +164,36 @@ evaluators and gates themselves**:
 
 ---
 
+## Fix-audit rotation (mandatory when the previous round produced fixes)
+
+Distillation source: **vince-attacker 0.7.0** (`SKILL.md` §Fix-audit rotation +
+`references/fix-audit.md`). When vince-attacker ≥ 0.7.0 is the dispatched attacker, ITS text
+governs; this section is the standalone fallback (no external skill needed) — re-sync it when the
+attacker's version moves.
+
+The fix is the least-attacked text in the target: it was written after the last attacker left, by
+someone who already believed they understood the defect. So round N produced fixes ⇒ round N+1
+re-aims the five lenses at the **fix diff**, from a context that did NOT write the fixes. Not a
+sixth lens — the object changes, not the failure class.
+
+- **Material first.** Take `prior_round.fix_diff` (or `git diff <last-round boundary>..HEAD --
+  <target>`) and `prior_round.prior_findings`; build a table: prior item · claimed status · diff
+  hunk implementing it. No diff available ⇒ write `fix_audit: no-baseline` in `coverage_gaps` and
+  do NOT run the pass from the fixer's summary of its own fix.
+- **Four axes.** (A) Propagation — grep the fixed claim/number/term across the whole target; an
+  untouched higher-rank sibling (spec, description, SKILL.md, README) still stating the defect is a
+  finding. (B) New defect — read added lines as never-reviewed text; watch for direction reversal
+  (bound loosened instead of tightened) and scope creep. (C) Camouflage — re-run the original
+  reproduction verbatim; still breaks ⇒ the fix is cosmetic, severity = the original's; softened
+  wording that makes the repro inapplicable is a finding. (D) Silently skipped — a prior item with
+  no fix and no written won't-fix/deferred adjudication is a process finding.
+- **Hand-off, not another swing.** A P0/P1 inside the previous round's fix, or a ≥P2 regression in
+  the fix region, is an A51(i) stop signature for the conductor: report it plainly, never soften it
+  to keep the fix→attack cycle running.
+- `coverage_gaps` states fix-audit status: `run` / `not-applicable` / `no-baseline` / `skipped`.
+
+---
+
 ## PROVE-OR-FLAG (the bar — no exceptions)
 
 An item is a **FINDING** only if ALL three hold:
@@ -181,8 +220,9 @@ the author's model family (model-level self-preference is quantified and does no
 capability). At low stakes where only same-tier adjudication was available, say so in coverage_gaps.
 
 **Known false-finding traps:** a "contradiction" that is a governed tension in the skill's own
-tensions doc; re-reporting something fixed in a prior round (check revision lineage first);
-asserting fabrication without a first-party fetch. All three are not-a-finding.
+tensions doc; re-reporting a prior-round item whose fix you VERIFIED in the diff (an item whose fix
+is absent, partial or cosmetic in the diff is a finding again — fix-audit axis C); asserting
+fabrication without a first-party fetch. All three are not-a-finding.
 
 ---
 

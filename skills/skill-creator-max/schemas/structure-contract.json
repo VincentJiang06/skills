@@ -81,6 +81,22 @@
         "refuse_categories": {"type": "array", "items": {"type": "string"}, "description": "S10 R13: irreversible-harm / policy-red-line inputs that must be refused, not downgraded"},
         "injection_test_dimensions": {"type": "array", "items": {"type": "string"}, "description": "must cover both content-embedded fake instructions AND compaction-eviction (S10 x Z5 cross-surface)"}
       }
+    },
+    "judgment_ledger": {
+      "type": "array",
+      "description": "S14/A49 (added 1.3.0, OPTIONAL — deliberately not in root required so pre-1.3.0 contracts stay valid): one row per judgment the built skill makes. D only when the verdict information is in the string (existence/count/verbatim/structural isomorphism/hash); semantic judgments default to L; one final residence per judgment; every D row names its fallback (skeleton: known-bad sample + non-vacuity selftest; semantic: an L row with calibration or an H row — 'the attacker will look' is not a fallback). The conductor spot-checks rows at the stage-2 gate; validate_structure does not read this property.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "judgment", "plane", "executor", "fallback"],
+        "properties": {
+          "id": {"type": "string"},
+          "judgment": {"type": "string", "description": "the question being decided, e.g. 'is every numeral of the source present verbatim in the rewrite?'"},
+          "plane": {"type": "string", "enum": ["D", "L", "H", "D->L", "L->D"], "description": "D deterministic code / L LLM judgment / H human / D->L code produces evidence, LLM decides / L->D LLM proposes, code enforces a skeleton"},
+          "executor": {"type": "string", "description": "the script / judgment card / role / human that executes it"},
+          "fallback": {"type": "string", "description": "what catches this row's misses (see description above)"}
+        }
+      }
     }
   }
 }

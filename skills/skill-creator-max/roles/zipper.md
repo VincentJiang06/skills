@@ -94,7 +94,12 @@ is refusing to answer — the tail moved house, the ranking question stayed unan
 - [ ] Every item moved out of the high-frequency layer carries a move-out reason (low-freq /
       low-harm / pointer suffices) → `importance_ranking`.
 - [ ] Deletion is legal for content the model does by default (Z3 GOOD case) — that is the
-      positive-asset lossy compression of the charter.
+      positive-asset lossy compression of the charter. But settlement is TWO-WAY (Z8/P11):
+      "the model does this by default" needs bare-model evidence (a probe or a two-arm delta
+      on the current base) before the line goes, and per model version you ADD BACK the named
+      failure modes the current base still shows. The A42(iv) exempt zone — trust boundary,
+      injection defence, action-surface governance, evidence-discipline obligations (incl. the
+      A50 admission items and A51 stop signatures) — is never deleted as default-known.
 - [ ] Acceptance question: can a reader of the high-frequency layer alone judge what matters
       most, without external context?
 

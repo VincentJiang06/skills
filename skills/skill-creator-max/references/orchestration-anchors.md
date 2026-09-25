@@ -37,17 +37,21 @@ second-order spot-checks on the artifact's most-gameable fields (empty `rejected
 it is a hypothesis, recorded in the Decision Record, and **voided + corrected** if the repair there
 doesn't clear the failure (the router is itself audited, P5).
 
+This table is consulted only AFTER the stop check and H4 order in SKILL.md §3 (the stop signatures
+live there alone — none are restated here). Read the rows top-down; the first row is checked first.
+
 | Failure symptom | Most likely smallest term | Route to |
 |---|---|---|
+| audit readings do not converge / a D-plane check cannot discriminate a judgment whose information is not in the string | the judgment sits in the wrong plane (P13/S14), not a weak threshold | re-plane (owner/gate ruling; fresh context) |
 | eval red concentrated in an under-specified area | spec has high Unknowns density / blank field | composer |
 | skill can't be built as specified (unbuildable design) | structure over/under-decomposed, wrong altitude | guidance |
-| green suite that never went red / evaluator can't discriminate | Evidence Dossier: red-light or evaluator-calibration missing | engineer |
+| green suite that never went red / evaluator lacks red-light or calibration (the judgment itself is in the right plane) | Evidence Dossier: red-light or evaluator-calibration missing | engineer |
 | behavior degrades only under context pressure | E-L3 pressure sentinel absent | engineer |
 | token bloat / always-loaded body too heavy | Compression Report never ran or gate-1 failed | zipper |
 | trigger fires wrong / sibling over-trigger | spec.trigger_tests weak (no near-miss negatives / neighbors) | composer |
 | a "green but visibly wrong" output slipped a gate | battery independence too low (instance-tier where model needed) | conductor/battery |
 
-Anchors: [PLT-定理1][SELF-debugloop].
+Anchors: [PLT-定理1][SELF-debugloop]; re-plane row: P13, S14, H4, [SELF-caoliao军备赛].
 
 ---
 

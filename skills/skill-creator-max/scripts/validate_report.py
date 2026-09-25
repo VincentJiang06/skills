@@ -11,9 +11,13 @@ only.
 Invariants enforced (see --selftest for the exhaustive, self-proving list):
   1. layers[] covers at least E-L0..E-L4, each present with a verdict.
   2. evaluator_calibration[] each: golden_sample_count>0. If evaluator_kind==
-     "deterministic" (a byte/numeric comparator), the four judge-bias checks
+     "deterministic" (a SKELETON check whose verdict information is in the
+     string — existence/count/verbatim/structural isomorphism/hash, byte or
+     numeric compare; NOT any script exit code), the four judge-bias checks
      below are EXEMPT — those fields are vacuous for a deterministic
-     evaluator and may hold honest neutral values. Otherwise (evaluator_kind
+     evaluator and may hold honest neutral values. This script honours the
+     label; it does NOT confirm it. The conductor confirms or rejects the
+     label at the stage-3 gate (K3, SKILL.md §1). Otherwise (evaluator_kind
      =="llm_judge", or the field is absent/unknown — default to strict):
      has_unknown_exit==true; different_source_from_builder==true;
      model_baseline non-empty; audit_dimensions contains a style/verbosity
@@ -104,8 +108,9 @@ def validate(data: dict, target_dir: str) -> list:
         if not (isinstance(c.get("golden_sample_count"), int) and c.get("golden_sample_count") > 0):
             v.append(f"evaluator_calibration[{i}] ({name}) golden_sample_count must be > 0")
 
-        # deterministic byte/numeric comparators are exempt from the
-        # judge-bias checks below — those fields are vacuous for them and
+        # deterministic (skeleton) comparators are exempt from the
+        # judge-bias checks below — the label is conductor-confirmed at the
+        # stage-3 gate, not by this script; those fields are vacuous for them and
         # may honestly hold neutral values (false / "" / empty). Anything
         # else (llm_judge, or evaluator_kind absent/unknown) defaults to the
         # strict path for safety.
@@ -196,7 +201,7 @@ def _green_fixture(tmpdir: str) -> dict:
             {
                 "evaluator": "judge-A", "evaluator_kind": "llm_judge",
                 "golden_sample_count": 20, "alignment_rate": 0.9,
-                "model_baseline": "claude-opus-4.8", "unknown_rate": 0.05,
+                "model_baseline": "claude-opus-5-5 · effort=high · claude-code 2.x", "unknown_rate": 0.05,
                 "has_unknown_exit": True, "different_source_from_builder": True,
                 "audit_dimensions": ["position bias", "style/verbosity bias"],
             }

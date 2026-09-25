@@ -23,6 +23,43 @@
 5. **Orchestration friction + correlated authorship** — one skill removes the cross-skill handoffs; **fresh-subagent dispatch per role** decorrelates builder from grader by construction.
 6. **Description / portability** — six-vendor-intersection schemas + description-length discipline + hard anti-triggers.
 
+**v1.3.4 (release record for repair round 3; no behaviour change)** — round 3 was authorized by the owner's ruling of 2026-09-25 ("这七个你都继续去做把他们做完"). Effective verdict: `candidate`, releasable at `candidate` (not `industrial`); pipeline: `stopped_unmet`.
+- **Round-3 audit** (instance tier): 2 P2, 1 P3, no P0/P1.
+  - P2, open: when every lens run misses its seed (all void), the battery counts nothing and is `clean` by definition, so the gate lets `industrial` through. Only the conductor's prose caps it. Proposed next-round fix: define "no valid run" as `not_run`.
+  - P2, present since 1.2.0: a `battery_verdict` or `re_audit_verdict` outside its enum (`Clean`, `None`, an annotated string) skips the ceiling check and lets `industrial` through. The installed 1.2.0 behaves the same, so it is not a regression.
+- **Fallback check:** round 3 introduced neither P2, so nothing was reverted. Undoing round 3 would only reopen FA-1.
+- **Release check passed:**
+  - FA-1 gate: on 13 cases the candidate never does worse than installed. An honest `candidate` is no longer rejected, and no new over-claim gets through.
+  - E11 cases 1 and 2, re-run once each (directional only): in case 2 the installed version rewrote the owner's record into its own format; the candidate extended it in place, with no internal rule IDs.
+  - All five selftests pass; harness 52/52.
+- **Known issue:** a gate PASS does not mean `industrial`. When every run was void, the tier is short, or only a smoke test ran, the conductor caps at `candidate` by hand; both verdict fields must be written exactly as the enum spells them.
+
+**v1.3.3 (repair round 3 of the 1.3.x line, authorized by the owner on 2026-09-25; only the two items that held the release back)** —
+- **FA-1 fixed:** `validate_decision` checks a ceiling: `effective_verdict` may not exceed `min(re_audit, battery)`; equality is no longer required. The old equality check, once `clean` became reachable, forced a clean battery at instance tier, smoke-only or all-void up to `industrial` and rejected an honest `candidate`. Caps below the ceiling (tier short of the stakes, smoke-only, every run void) are the conductor's call, recorded with the reason; a gate PASS alone never means `industrial`. On all 35 real Decision Records the old and new verdicts are identical: 0 new false positives.
+- **E11 artifact miss fixed in prose:** SKILL.md §7 adds an owner-facing register: an existing record is the owner's, so extend it in place, keep its format, leave a value it never recorded unknown, and never convert or replace it; tell the owner each rule in plain words, with an internal ID (K3, A51) only in brackets after. E11 has not been re-run to confirm it.
+- SKILL.md 3,186 tok (cap 3,200); scripts 2,220 -> 2,236 lines.
+
+**v1.3.2 (release record for the R20 wave; no behaviour change).** Effective verdict: `candidate`; pipeline: `stopped_unmet`; the repair budget is spent.
+- **E11 two-arm test (3 cases, directional only):**
+  - Fidelity: WITH won 2, tied 1, lost 0.
+  - Artifact: WITH was better on only 1 of 3. The pre-registered bar was 2 of 3, so this criterion was not met.
+  - Cost (tool-call proxy): about 2.7x, 0.9x and 2.2x.
+  - Not a retirement case.
+- **Battery:** instance tier; seeds 5/5; 3 P2 and 15 P3 confirmed. The three P2s were fixed in 1.3.1.
+- **Fix-audit:** found 1 new P2. Now that `clean` is reachable, `validate_decision` caps the verdict only by the battery verdict. It ignores the independence tier, smoke-only grading and voided runs, so an instance-tier `clean` battery forces `industrial`. Until this is repaired, the conductor caps the verdict at `candidate` by hand and records why.
+- **Independence is `instance` only.** On the owner's order, every role in this wave ran on Opus 5.5 high. That is a recorded deviation from the 2026-09-13 model policy (builders on fable, evaluators on opus).
+
+**v1.3.1 (repair round 1 on the 1.3.0 battery; the three P2s only)** — a blank SkillSpec field is carried only by an unknowns/disputes entry with an explicit `field` key (it used to be a substring match over free text, so a discovery plan mentioning "trigger" counted); `red_before_green` is stated as self-reported, and "red predates green on the same cases" is checked by the conductor reading the red log at stage 3 and by the battery, not by the gate; the battery's `clean` now means "no adjudicated P1/P2" (P3s and flags are recorded, not blocking).
+
+**New in v1.3.0 (aligned to philosophy KB v0.4.0 / R20, incremental)** —
+
+- **`deterministic` is for skeleton checks only**: the verdict information must be in the string (existence / count / verbatim / structural isomorphism / hash, byte or numeric compare). A script exit code over an approximation of meaning (similarity, threshold, regex) is `llm_judge` with full calibration, or report-only evidence, unless it shows the A50 three items (separability witness, false positives on all real corpus, lineage). The label is the engineer's **proposal**; the conductor confirms it at the stage-3 gate and records it in the Decision Record.
+- **Judgment ledger**: guidance registers each judgment of the built skill with its plane (D/L/H/D→L/L→D), executor and fallback; the schema property is optional, so older contracts stay valid; the conductor spot-checks it at stage 2.
+- **Stop signatures (A51) + four-way routing (H4)**: at most 2 repair rounds per skill version (not reset by a new author, session or self-bumped version); a P0/P1 inside the previous fix, >50% growth, a third exception layer on one threshold, or a second copy of one root cause stops the loop and goes to the owner. Routing is escalate → re-plane → loopback → restart, first match wins; re-plane is an owner/gate ruling, never a way around the round cap. Iron laws 3/4 now hold outside `skill-developer/` too.
+- **Battery fix-audit**: after a round with fixes, the next round aims the five lenses at the fix diff (distilled from vince-attacker 0.7.0; the attacker's text governs when it is the one dispatched).
+- **E11 instrument checklist + three-branch acceptance**; the model policy now sets **effort explicitly** (evaluators at least high) and uses K1 tier labels correctly (Opus judging Fable = L-i+, not L-m); `model_baseline` = resolved model ID + effort + harness version.
+- Also: the trust boundary covers relayed third-party text, subagent output, relayed authorizations and agent-self-written persistent text; memory writes are admitted by writer; the zipper needs bare-model evidence before deleting "default-known" text and never deletes the A42(iv) exempt zone; `(M3)` → `(K3)`. No L0 validator logic changed and no new mechanical gate was added.
+
 **New in v1.2.0 (aligned to philosophy KB v0.3.0 / R17)** —
 
 - **composer gains a step on what a spec can and cannot buy (C10)**: a core clause is

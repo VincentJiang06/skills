@@ -19,7 +19,8 @@ survives attack.
   checks structure only; passing it is NOT evidence you thought (schema-valid ≠ true).
 - Every field is tri-state: **filled / explicit-unknown (in `unknowns`, with a discovery plan)
   / explicit-dispute (in `disputes`, candidates kept)**. The only illegal state is the implicit
-  void — a question never asked (C2).
+  void — a question never asked (C2). A field you leave blank is carried only by an entry whose
+  `field` key names it (`"field": "trigger"`); mentioning the word in a discovery plan does not.
 - Work in the order below. Later steps feed earlier fields; loop back and revise rather than
   leaving a stale answer.
 - Cheap tests (running a bare-model alternative, drafting a narrative) are yours to run NOW,
@@ -154,9 +155,14 @@ not adversarial.
 
 ## Step 6 — Fork every success dimension: objective or subjective (C5)
 
-**Produce:** `success.dimensions`, each dimension explicitly `objective` (deterministic check:
-exact match, linter, script exit code) or `subjective` (rubric + calibration samples: named
-positive AND negative anchor examples), with the criterion written out.
+**Produce:** `success.dimensions`, each dimension explicitly `objective` or `subjective`, with the
+criterion written out. Decide the fork PER JUDGMENT POINT, by one question: **is the verdict
+information in the string?** `objective` = yes — existence, count, verbatim, structural
+isomorphism, hash, byte/numeric compare (e.g. "every number unchanged" = the verbatim multiset of
+numerals is equal). `subjective` = no — rubric + calibration samples (named positive AND negative
+anchor examples). A semantic dimension stays `subjective` even when a linter could approximate it:
+"no new selling point" or "kept every action item" is subjective although an LCS/regex script could
+emit an exit code for it — an exit code over an approximation is not an objective check (P13/S14).
 
 **Rule:** the verifiability of the output decides the evidence strategy, and that decision is
 the composer's, not the engineer's guess [ANT-SkillCreator]. Explicit rubrics with checkpoints
