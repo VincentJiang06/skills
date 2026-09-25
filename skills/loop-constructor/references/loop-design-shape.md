@@ -62,7 +62,8 @@ Entering a loop means the task is big enough to decompose, so the skill emits a
 **staged** design: every task is a tree/sequence of gated sub-loops. The flat
 shape above is **not deprecated** — it is the atomic unit (one stage *is* a flat
 loop), and the linter still accepts a lone flat object for back-compat. But the
-9-step protocol produces the staged shape below.
+selection procedure (SELECT → NEGOTIATE → FILL → VERIFY, D0–D7) produces the staged
+shape below.
 
 ```json
 {
@@ -276,7 +277,7 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 | `stages[i].feedback_signal.passing_but_wrong` | missing/empty — record the passing-but-WRONG implementation the check would wrongly accept (or `"none: <why exhaustive>"`); presence is structural, the fresh-reader judges whether it's real |
 | `stages[i].stop_conditions.failure` | not a non-empty list of **non-empty strings** (`[null]` / `[""]` / `[0]` FAIL) |
 | `stages[i].stop_conditions.max_iterations` | missing, or not a positive integer **≤ 10000** (an effectively-infinite cap is no cap) |
-| `stages[i].stop_conditions.on_failure` | `action` not `loopback`/`escalate`/`abort`; a `loopback` whose `to` is missing, unresolved, the stage **itself**, or **not an upstream stage** (must be a transitive `depends_on` ancestor); or an `escalate`/`abort` carrying a stray `to` |
+| `stages[i].stop_conditions.on_failure` | `action` not `loopback`/`escalate`/`abort`/`restart`; a `loopback` whose `to` is missing, unresolved, the stage **itself**, or **not an upstream stage** (must be a transitive `depends_on` ancestor); or an `escalate`/`abort` carrying a stray `to` |
 | `stages[i].depends_on` | present but not an array, **or** references a stage id that does not exist |
 | `stages.reachability` | the `depends_on` edges form a cycle (no enterable root ⇒ cannot terminate) |
 | `hybrid.*` | a top-level `feedback_signal` / `definition_of_done` / `loop_pattern` alongside `stages[]` (per-loop fields belong inside a stage) |
