@@ -52,6 +52,17 @@ untouched); every item names the principle it answers to.
 - SKILL.md "Verifying the skill" + "Stopping the hardening loop" moved to MAINTENANCE.md: always-loaded SKILL.md
   2,107 → 1,818 tokens (measure_tokens.py) even after adding the four Core-rules lines. — **P1**, **S2**.
 
+### Changed — load path (zipper pass)
+- SKILL.md "Command map" and "Modules" sections folded into the Load protocol (they restated its file list);
+  cli-contract.md "At-a-glance command map" removed: it repeated the sections above it in the same file and
+  listed `eval` under **Read**, contradicting the `eval`-is-an-act rule and the tier table. runtime-protocol.md
+  no longer says to load cli-contract.md "only when exact schema is needed"; it now agrees with SKILL.md
+  (load both before the first command). Always-loaded SKILL.md 1,818 → 1,624 tokens; every trigger path
+  −537 tokens (measure_tokens.py). No invariant or trust-boundary line touched; regression harness unchanged
+  (13/13, self-test 14/14); fresh-model recall/decision probes 17/18 + 1 unsure → 18/18, and the
+  contradictions the old text made every probe run point out are gone. — **P1** (context economy), **P7**
+  (compress behavior, not text), **Z2/Z3**, **A36** (one tier classification, not two).
+
 ### Deliberately NOT done
 - No CLI execution-layer lock (`--confirm-production`): the agent could add the flag itself — the governed
   object cannot authorize itself (S13). Honest level = rule layer; README recommends an OS/sandbox deny on

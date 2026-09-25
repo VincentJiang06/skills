@@ -55,14 +55,6 @@ Every command returns JSON and accepts `--workspace-root <dir>` and `--port <n>`
 The session is keyed per **workspace-root**, NOT per port — to debug two projects at once give each
 its own `--workspace-root`; `--port` alone will reuse the live session and not switch targets.
 
-## Command map (load `references/cli-contract.md` for exact schema)
-
-The full command surface — session lifecycle, the read/act/diagnose/one-shot
-shorthands, the at-a-glance grouped map, plus the exact step list and error codes —
-lives in `references/cli-contract.md`. **Load it before building or running any
-`vince-mp` command** (its "At-a-glance command map" section is the grouped
-index; the sections below it are the exact schema).
-
 ## Core rules
 
 - Use the system `vince-mp` command as the only backend.
@@ -83,19 +75,13 @@ index; the sections below it are the exact schema).
 ## Load protocol
 
 1. Read this file first.
-2. Before running `vince-mp` or building workflow JSON, load `rules/runtime-protocol.md`.
-3. For exact command/step/error schema, load `references/cli-contract.md`.
-4. For uid interaction or single-element screenshots, load `rules/ui-element-workflow.md`.
-5. For Skyline Canvas/Camera/media, load `references/skyline-media.md`.
-6. For connect/session/snapshot/console/network edge cases + failures, load `references/evidence-and-failures.md` — also for `STEP_TIMEOUT` on `data`/`scan`, a wedged camera page, or pulling server logs.
-
-## Modules
-
-- `rules/runtime-protocol.md` — session-first execution protocol + hard safety rules; read before running the CLI.
-- `rules/ui-element-workflow.md` — uid + `elementScreenshot` workflow; uids persist in a session, stale only after navigation/mutation.
-- `references/cli-contract.md` — exact command surface, session ops, shorthands, connection/workflow JSON, step list, error codes.
-- `references/skyline-media.md` — Skyline snapshot protocol + Canvas/Camera/media instrumentation & mocks.
-- `references/evidence-and-failures.md` — connect/session edge cases, uid lifetime, console/network caveats, failure codes.
+2. Before running `vince-mp` or building workflow JSON, load `rules/runtime-protocol.md` (session-first
+   protocol, action-surface tiers, hard safety rules) **and** `references/cli-contract.md` (exact command
+   surface, session ops, shorthands, connection/workflow JSON, step list, error codes).
+3. For uid interaction or single-element screenshots, load `rules/ui-element-workflow.md` (uids persist in a
+   session, stale only after navigation/mutation).
+4. For Skyline Canvas/Camera/media, load `references/skyline-media.md` (snapshot protocol, instrumentation, mocks).
+5. For connect/session/snapshot/console/network edge cases + failures, load `references/evidence-and-failures.md` — also for `STEP_TIMEOUT` on `data`/`scan`, a wedged camera page, or pulling server logs.
 
 ## Maintainers
 

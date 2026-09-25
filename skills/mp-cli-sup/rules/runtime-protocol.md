@@ -11,8 +11,8 @@ vince-mp <command> --json
 ```
 
 Apply CLI discipline: structured JSON in/out, standard error codes, explicit side effects,
-explicit path boundaries, narrow commands. Load `references/cli-contract.md` only when exact
-command/step/error schema is needed; otherwise keep this high-level protocol in context.
+explicit path boundaries, narrow commands. The exact command/step/error schema is
+`references/cli-contract.md`, loaded alongside this file (SKILL.md Load protocol step 2).
 
 ## Execution protocol
 
