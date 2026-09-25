@@ -109,6 +109,47 @@ fix round is prose and golden edits only; `scripts/` are still byte-identical to
   lists 40 of 101 cases; there is no trigger/routing coverage). Evals are not edited
   this wave.
 
+### Acceptance evidence (recorded at close; no further edits to skill behaviour)
+- **Battery round 2 = the fix audit** (instance tier: same model family, fresh context;
+  sealed seeds, one per lens) hit **5/5 seeds** and confirmed **11 findings, all P3, no
+  P0/P1/P2**; 10 refuted, 9 flags not promoted. Iron rule 3 / A51 did not fire: F08 and
+  F10 sit in the previous fix round's area but are P3 residuals, not P0s. The fix
+  budget (1 round) was already spent, so all 11 stay open (listed below).
+- **E11 two arms, round 2** (3 cases, WITHOUT arm explicitly barred from both
+  loop-constructor skills, separate fixture copies per arm, blind judge reading full
+  files, `unsure` in the vocabulary): WITH better in **3/3** cases (case 1 decided by
+  routing (c) and trust boundary (d), though WITHOUT caught two live P0s that WITH missed on
+  outcome (a); case 2 WITH better on (c)/(d); case 3 WITH narrowly better on (d), and
+  WITHOUT slightly ahead on executability (b)). Round 1 (before the fix round) was WITH 1/3;
+  it is archived, not overwritten. Caveats: the host CLAUDE.md contaminated both arms
+  (iron rule 3 is in it), so read the (c) gap as a lower bound; the judge was unblinded
+  only at summary; no token counts were recorded, so the pre-registered cost gate
+  could not be evaluated (WITH deliverables are about 3x the bytes, mostly a duplicated
+  JSON). The weakness shared by the WITH arms: the designs name harness tools the
+  executor must write first. Not retire: the skill shows value on routing and the
+  trust boundary.
+- **Independence tier = instance.** **Model deviation:** the skill-creator-max
+  2026-09-13 policy asks for a Fable builder and Opus evaluators. On owner order, every
+  role in this wave (builder, attacker, adjudicator, judge) ran on Opus 5.5 high, so the
+  evaluators are the builder's model. Effective verdict: **candidate**. The battery found
+  P3s and does not allow a higher verdict.
+- **Open P3 residuals (battery round 2):** F08 the renderer's Terminal-states line
+  "a failure branch fires: stop" is unscoped and can read as terminal for stage-level
+  branches that route by On-failure (renderer string; codex too) · F10 the staged golden
+  calls itself "Multi-module" but has 9 machine assertions against the module floor of
+  12. It was sized at the endpoint row (≥8), and the README now says so · F13 the §III contract
+  bounds are self-cited through KB A45 (grade S, unmeasured) · F14 §VIII tells the
+  designer to cite skill-philosophy KB files a clean install does not ship (needs a
+  degrade path) · F19 D5's minimum-progress gate omits the H5 deferred-delivery form
+  (turn ends with work backgrounded) · F21 A45(i) "seen red before the run" is not
+  carried to per-stage checks · F22 "≈20 assertions" / linter message read as targets,
+  not floors · F23 the fresh-reader checklist has no `unsure` answer · F24 the C69 eval
+  label still says "5 machine" (now 9) · F25 the runbook preamble is iteration-first
+  and contradicts D6 completeness-first (renderer string; codex too) · F26 the D7 sweep
+  misses named magnitudes with no value ("p99 under budget"). Each has a prose or
+  string fix hint in `runs/loop-constructor/battery/ADJUDICATION.md`. None needs a new
+  mechanical gate.
+
 ### Compatibility
 - Every pre-0.5 lint-green design still exits 0 (no linter change). **Persisted pre-0.5
   runbooks keep the old routing** and still lint green — only the fresh-reader §V box
@@ -129,7 +170,9 @@ fix round is prose and golden edits only; `scripts/` are still byte-identical to
   D5 / restart-bullet / checklist / golden / §II / §VIII / Controls changes (including
   the fix round above: §V counter placement, D3 single rule, D2/D7 wording, the
   checklist residual and author-review lines, golden F7/F8/F19/F20 repairs, doc drift)
-  and add its codex-specific `AGENTS.md` write-surface clause.
+  and add its codex-specific `AGENTS.md` write-surface clause. When the open P3s
+  F08 / F25 (renderer strings) and F14 / F19 / F21 / F22 / F23 / F26 (prose) are fixed here,
+  make the same fixes in the codex variant.
 
 ## 0.4.0 — 2026-08-20
 
