@@ -4,7 +4,7 @@ description: >-
   跟课程进度逐讲伴读：拿到一讲 PDF 就写顺原讲义顺序的中文伴读文档（每 1–3 页一节、讲透、标考试怎么考与证据级别），并把新知识落进课程文件夹 study/记忆库；追问已入库概念、期末统一总结。用于"给这个 PPT 写辅助文档""把 lecture N 入库""write a companion doc for this lecture"；触发词 $course-study。不代写要提交的作业答卷（同型题只在附录里演练并标明来源）；物理题的费曼式讲解归 $feynman-physics-distiller；「总结今天的记忆」不属本 skill。
 license: MIT
 metadata:
-  version: 4.2.0
+  version: 4.2.1
   language: zh
   domains: [education, study]
 ---
