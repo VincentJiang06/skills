@@ -1,43 +1,38 @@
 #!/usr/bin/env python3
-"""extract_citations.py — the citation-EXISTENCE verification apparatus.
+"""extract_citations.py — citation checklist emitter + ledger-COMPLETENESS gate.
 
 Two jobs, one deterministic script (stdlib only):
 
   (1) CHECKLIST EMISSION (default, no --verify):
       Emit the full, machine-readable checklist of every distinct citation the
       paper carries — each reference entry with its stable citation-id and the
-      identifier (DOI/URL/ISBN) the agent must resolve. This is the worklist for
-      the MANDATORY existence check: the agent looks up EACH id, confirms it
-      resolves to a real, matching source, and records a per-id verdict in a
-      verification ledger (JSON). Exit 0 on a readable paper with >=1 citation.
+      identifier (DOI/URL/ISBN). This is the worklist handed to the independent
+      citation verifier (a fresh, non-fork subagent; see SKILL.md), which looks
+      up EACH id and records a per-id verdict in its verification ledger (JSON).
+      Exit 0 on a readable paper with >=1 citation.
 
-  (2) VERIFY GATE (--verify LEDGER.json): the OUT-OF-BAND BLOCK.
-      Existence itself cannot be checked by a pure stdlib script — it needs a
-      real lookup, which the agent performs. What this script enforces
-      DETERMINISTICALLY is that the checklist was actually COMPLETED and is
-      internally consistent, so a green "citations resolve" report can NEVER be
-      emitted from the draft's own say-so:
+  (2) LEDGER-COMPLETENESS GATE (--verify LEDGER.json): a D-plane skeleton check.
+      Existence and support cannot be checked by a pure stdlib script — they need
+      a real lookup and a judgment, which belong to the LEDGER'S AUTHOR (the
+      independent verifier). What this script checks DETERMINISTICALLY is only
+      that the ledger is COMPLETE and INTERNALLY CONSISTENT:
 
-        - every extracted citation MUST have a ledger entry, and
-        - that entry's verdict MUST be terminal: RESOLVED (looked up, real,
-          supports the claim) or SOURCE_NEEDED (could not verify -> claim marked
-          [SOURCE NEEDED]/[需要来源] in the paper and dropped, NEVER shipped as
-          resolved), and
-        - a SOURCE_NEEDED verdict MUST be backed by an actual [SOURCE NEEDED] /
-          [需要来源] marker in the paper (else it was silently shipped as if
-          resolved -> inconsistent -> BLOCK).
+        - every extracted id has a ledger entry (incl. <REVIEW:…> narrative years that
+          check_citations could not settle; NOT_A_CITATION is terminal for those only), and
+        - that entry's verdict is terminal: RESOLVED or SOURCE_NEEDED, and
+        - if any verdict is SOURCE_NEEDED, the paper carries at least one
+          [SOURCE NEEDED] / [需要来源] marker (whole-paper check, NOT per-id).
 
       Any citation that is undispositioned, PENDING, missing from the ledger, or
-      inconsistent is UNRESOLVED. exit 1 (BLOCK) + the unresolved count if any
-      remain; else exit 0. A missing ledger file blocks everything (exit 1).
+      inconsistent is UNRESOLVED -> exit 1 (BLOCK). A missing ledger blocks
+      everything. Else exit 0.
 
-      The gate opens ONLY when the checklist is 100% dispositioned. The report may
-      then print "resolve/valid" — but only when unresolved==0 AND source_needed==0;
-      with source_needed>0 the report must say "N marked [SOURCE NEEDED]", never
-      "all resolve". This is the F1 fix: form-checked-green is not existence-green.
+      What exit 0 does NOT establish: that any source exists or supports its
+      claim, or who wrote the ledger (a ledger typed by the paper's own author
+      passes just the same). Those are established — or not — by whoever wrote
+      the ledger; the reply must name that (see SKILL.md "Who decides what").
 
-Malformed invocation = exit 2 (argparse). Existence is NEVER asserted by this
-script; it asserts only that the human/agent existence check was completed.
+Malformed invocation = exit 2 (argparse).
 """
 from __future__ import annotations
 
@@ -60,7 +55,7 @@ SOURCE_NEEDED_MARKER_RE = re.compile(r"\[SOURCE NEEDED[^\]]*\]|\[需要来源[^\
 def first_identifier(entry: str) -> str:
     m = cc.DOI_RE.search(entry)
     if m:
-        return "doi:" + m.group(0)
+        return "doi:" + m.group(0).rstrip(".,;")   # sentence-final period is not part of the DOI
     m = cc.URL_RE.search(entry)
     if m:
         return m.group(0)
@@ -81,8 +76,17 @@ def extract_citations(text: str, style: str):
             cid = f"[{m.group(1)}]" if m else f"<UNNUMBERED:{entry[:20]}>"
             out.append((cid, first_identifier(entry), entry))
     else:
-        for (surname, year), entry in cc.ref_authordate_keys(ref_lines):
-            out.append((f"{surname}_{year}", first_identifier(entry), entry))
+        # Fail closed (PW-F04): an entry with no key is listed as <UNKEYED:…> and needs
+        # a verdict like any other. Year suffixes stay in the id (2006a / 2006b), and any
+        # remaining collision gets _2, _3 so each entry has its own verdict (PW-F05).
+        seen = {}
+        for key, entry in cc.ref_authordate_keys(ref_lines, style):
+            cid = "_".join(p for p in key if p) if key else f"<UNKEYED:{entry[:20]}>"
+            seen[cid] = seen.get(cid, 0) + 1
+            if seen[cid] > 1:
+                cid = f"{cid}_{seen[cid]}"
+            out.append((cid, first_identifier(entry), entry))
+        out += [(rid, "<NO ENTRY>", msg) for rid, msg in cc.check_authordate(body, ref_lines, style)[1] if rid]
     return out
 
 
@@ -118,12 +122,13 @@ def run_verify(text: str, citations, ledger_path: str) -> int:
     entries = ledger.get("citations") or {}
     has_marker = bool(SOURCE_NEEDED_MARKER_RE.search(text))
 
-    unresolved = []
-    source_needed = []
+    unresolved, source_needed, not_cites = [], [], []
     for cid, ident, entry in citations:
         rec = entries.get(cid)
         verdict = (rec or {}).get("verdict") if isinstance(rec, dict) else None
-        if verdict not in TERMINAL_VERDICTS:
+        if verdict == "NOT_A_CITATION" and cid.startswith("<REVIEW:"):
+            not_cites.append(cid)   # the ledger's author read it as a narrative year
+        elif verdict not in TERMINAL_VERDICTS:
             unresolved.append((cid, verdict or "MISSING"))
         elif verdict == "SOURCE_NEEDED":
             if not has_marker:
@@ -133,7 +138,8 @@ def run_verify(text: str, citations, ledger_path: str) -> int:
             else:
                 source_needed.append(cid)
 
-    total = len(citations)
+    total = len(citations) - len(not_cites)
+    tail = f" {len(not_cites)} REVIEW item(s) judged not a citation by the ledger's author." if not_cites else ""
     if unresolved:
         print(f"VERIFY: BLOCK — {len(unresolved)}/{total} citation(s) UNRESOLVED; "
               f"a 'citations resolve' report may NOT be emitted.")
@@ -143,25 +149,26 @@ def run_verify(text: str, citations, ledger_path: str) -> int:
         return 1
 
     if source_needed:
-        print(f"VERIFY: PASS (checklist complete) — {total} dispositioned; "
+        print(f"VERIFY: PASS (ledger complete and internally consistent) — {total} dispositioned; "
               f"{len(source_needed)} marked [SOURCE NEEDED] and dropped, "
               f"{total - len(source_needed)} RESOLVED. "
-              f"Report MUST say 'N marked [SOURCE NEEDED]' — NOT 'all resolve'.")
+              f"Report MUST say 'N marked [SOURCE NEEDED]' — NOT 'all resolve'.{tail}")
         for cid in source_needed:
             print(f"  - id={cid}: SOURCE_NEEDED (claim marked + dropped)")
         return 0
 
-    print(f"VERIFY: PASS — all {total} citation(s) RESOLVED (looked up, real, matching). "
-          f"Report may state 'citations {total}/{total} resolve'.")
+    print(f"VERIFY: PASS — ledger complete and internally consistent: all {total} citation(s) "
+          f"carry verdict RESOLVED. This script did not check existence or support; the "
+          f"ledger's author did (name them in the report).{tail}")
     return 0
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Citation-existence checklist + verify gate (existence check, not form).")
+    ap = argparse.ArgumentParser(description="Citation checklist + ledger-completeness gate (checks the ledger is complete and consistent; does not check existence).")
     ap.add_argument("paper", help="path to the paper (markdown)")
     ap.add_argument("--style", choices=sorted(cc.AUTHOR_DATE_STYLES | cc.NUMERIC_STYLES), required=True)
     ap.add_argument("--verify", metavar="LEDGER", default=None,
-                    help="verification ledger JSON; run the out-of-band existence gate instead of emitting the checklist")
+                    help="verification ledger JSON; run the ledger-completeness gate instead of emitting the checklist")
     args = ap.parse_args()
 
     try:

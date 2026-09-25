@@ -9,10 +9,22 @@ another style's formatting.
 
 Supported in v1: **APA 7**, **MLA 9**, **Chicago (author-date)**, **IEEE**, **GB/T 7714**.
 
-`check_citations.py --style` resolution modes:
-- author-date (`apa` / `mla` / `chicago`): in-text `(Surname, YYYY)` ↔ reference keyed by
-  leading surname + year.
-- numeric (`ieee` / `gbt`): in-text `[n]` ↔ numbered reference entry `[n] …`.
+`check_citations.py --style` resolution modes (each style is keyed where that style puts
+the year; the lead surname may be any script, e.g. Özdemir, 王某某):
+- `apa`: `(Surname, YYYY)` / `Surname (YYYY)` / `Surname and Surname (YYYY)` ↔ entry
+  `Surname, I. (YYYY).` — `(n.d.)`, `(in press)`, `(YYYY, Month D)` accepted. Same author +
+  same year needs the a/b suffix in both places.
+- `chicago`: `(Surname YYYY, page)` ↔ entry `Surname, First. YYYY.`
+- `mla`: every Works Cited surname must be mentioned in the body; the in-text → Works
+  Cited direction is not checked (see the MLA block).
+- numeric (`ieee` / `gbt`): single `[n]` ↔ numbered entry `[n] …`. Grouped markers (`[1-3]`,
+  `[1, 4]`, and the `[2]` implied by `[1]–[3]`) are not read, because a date `[2024-01-15]` or an
+  interval `[0, 1]` has the same shape. Cite each entry at least once with its own `[n]`,
+  where its claim is made; an entry cited only inside a group is reported as uncited.
+An entry the script cannot key fails the gate: fix the entry's form, never delete it. Two shapes
+print `REVIEW` instead (exit unaffected; SKILL.md "REVIEW route"): an entry led by a
+lower-case-initial surname (`hooks, b.`, `boyd, danah.`; keep the name as written), and a
+narrative year followed by `,` `;` `:` with no entry (`Katrina (2005; category 5)`).
 
 ---
 
@@ -33,16 +45,17 @@ Supported in v1: **APA 7**, **MLA 9**, **Chicago (author-date)**, **IEEE**, **GB
 - Example: `Doudna, Jennifer A., and Emmanuelle Charpentier. "The New Frontier of Genome
   Engineering with CRISPR-Cas9." Science, vol. 346, no. 6213, 2014, 1258096.
   https://doi.org/10.1126/science.1258096`
-- NOTE: `check_citations.py` resolves MLA in author-date mode (surname + year); a pure
-  author-page paper still needs a datestamp in each reference entry for the structural
-  cross-reference — a known v1 limitation recorded as growth debt.
+- Gate: `check_citations.py --style mla` checks only that every Works Cited surname appears
+  in the body. `(Surname page)` has the same shape as `(Figure 2)`, so a parenthetical cite
+  with no Works Cited entry is NOT caught, and the verifier checks only listed entries.
+  Before returning, confirm yourself that every `(Surname page)` has an entry.
 
 ## Chicago (author-date)
 - In-text: `(Surname YYYY, page)`.
 - Reference list: `Surname, First. YYYY. "Title." *Journal* vol (issue): pages. DOI.`
-- Example: `Zhang, Feng. 2019. "Development of CRISPR-Cas Systems for Genome Editing."
-  Nature Reviews Molecular Cell Biology 20: 490–507.
-  https://doi.org/10.1038/s41580-019-0131-5`
+- Example: `Pickar-Oliver, Adrian, and Charles A. Gersbach. 2019. "The Next Generation of
+  CRISPR–Cas Technologies and Applications." Nature Reviews Molecular Cell Biology 20 (8):
+  490–507. https://doi.org/10.1038/s41580-019-0131-5`
 
 ## IEEE (numeric)
 - In-text: bracketed number `[1]`, numbered in order of first appearance.
