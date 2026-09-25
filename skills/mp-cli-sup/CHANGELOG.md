@@ -37,7 +37,7 @@ untouched); every item names the principle it answers to.
   `run_all.mjs` and `validate-skill.mjs` only accepted `>`, so every SKILL.md parsed as length 2 and the release
   gate could not close (0.2.2 shipped red). One identical root-cause regex in both parsers now accepts
   `>` `>-` `>+` `|` `|-` `|+` or a plain scalar; the self-test gains a seed that exercises the description branch.
-  fp-scan over all 25 historical versions: 0 false positives (baseline parser: 8). — skeleton check (**A50**
+  fp-scan over every committed version (28 incl. this upgrade): 0 false positives (baseline parser: 10). — skeleton check (**A50**
   exempt from (i)), **iron rule 7**.
 - Stop-loop cap example "≤ 6 rounds" contradicted A51(v); now "≤ 2 fix rounds per skill version, not reset by a
   new session". — **A51(v)**.
