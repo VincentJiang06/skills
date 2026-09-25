@@ -8,9 +8,10 @@ untouched); every item names the principle it answers to.
 ### Changed — trust boundary (A42(iv) closed class, never settled away)
 - **Admin token never passes through the agent.** The docs used to teach `vince-mp env token <ADMIN_TOKEN>`
   (value in argv → visible in `ps`/shell history, then written to `~/.vince-mp/config.json` by the agent).
-  Now: the user sets `VINCE_MP_ADMIN_TOKEN` in the agent's launch environment or runs `env token` in their own
-  terminal; the agent learns presence only from `ADMIN_TOKEN_REQUIRED`; a token pasted into chat is not used and
-  rotation is recommended. The CLI already read the variable, so no CLI change was needed. — **S13** credential line.
+  Now: the user sets `VINCE_MP_ADMIN_TOKEN` in the agent's launch environment, typed without echo or shell
+  history (`read -rs VINCE_MP_ADMIN_TOKEN && export VINCE_MP_ADMIN_TOKEN`); `env token <value>` is recommended to
+  nobody, because it is the same argv/history leak; the agent learns presence only from `ADMIN_TOKEN_REQUIRED`; a
+  token pasted into chat is not used and rotation is recommended. The CLI already read the variable, so no CLI change was needed. — **S13** credential line.
 - **Production gate bound to the action.** `env use caoliaoProdIm`, and `logs` while any env whose host is
   `data.cli.im` (or an unknown host) is selected, need the user's go-ahead for that concrete action; `env current`
   runs before every `logs` because the selection persists across sessions; the previous env is restored and
@@ -42,6 +43,15 @@ untouched); every item names the principle it answers to.
   exempt from (i)), **iron rule 7**.
 - Stop-loop cap example "≤ 6 rounds" contradicted A51(v); now "≤ 2 fix rounds per skill version, not reset by a
   new session". — **A51(v)**.
+
+### Fixed — battery round 1 (fix round 1 of ≤ 2 for 0.3.0, A51(v))
+- **N02 (P2) — the docs still taught the token-in-argv path to the user.** README.md / README.en.md told the user to
+  run `vince-mp env token <token>` in their own terminal, and the CLI hint relay passed the same advice on; the value
+  then sits in `ps` and shell history, the leak this release exists to close. SKILL.md's bare "run `vince-mp env
+  token`" would have failed anyway (`INVALID_ARGUMENT`: `env token` requires a value). All six places now name one
+  channel — `VINCE_MP_ADMIN_TOKEN` in the launch environment, entered without history — and tell the agent to relay
+  only the env-variable part of the CLI's `ADMIN_TOKEN_REQUIRED` hint. Prose only; no CLI change (the CLI already
+  reads the variable). — **S13** credential line, **A36**.
 
 ### Changed — verification planes
 - `safety_contract_documented` is **report-only** (D→L): a verb-list regex judging doc polarity is a semantic

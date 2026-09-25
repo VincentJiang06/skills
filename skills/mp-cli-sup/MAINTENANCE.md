@@ -125,8 +125,9 @@ Planes: **D** deterministic code · **L** LLM judgment · **H** human. D→L = c
 ## Open items
 
 - **D1 (b)**: the CLI's own `ADMIN_TOKEN_REQUIRED` suggestion (`tools/vince-mp-cli/src/backend.js`) still says "or run
-  `vince-mp env token <token>`". The skill tells the agent to relay it to the human. Rewording the hint to address the
-  user belongs in the next CLI release, made from the main checkout where the CLI's test suite exists.
+  `vince-mp env token <token>`". The skill tells the agent to relay only the env-variable part (the `env token <value>`
+  form leaks through argv / shell history). Rewording the hint to name only `VINCE_MP_ADMIN_TOKEN` belongs in the next
+  CLI release, made from the main checkout where the CLI's test suite exists.
 - **U1**: is the constant `data`/`callPageMethod` `STEP_TIMEOUT` a property of DevTools 2.01.2510290 or of wxa.cli.im?
   Resolve at the next live session on a second project (`vince-mp data` on two pages); record date + build in
   `references/evidence-and-failures.md`.

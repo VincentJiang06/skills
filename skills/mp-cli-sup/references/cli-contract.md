@@ -57,9 +57,11 @@ vince-mp logs --request-id <id> | --user-id <id> | --code <n> [--route r] [--sin
 
 Token channel: the CLI resolves the admin token from `--token`, then `VINCE_MP_ADMIN_TOKEN`, then the value
 `env token` stored in `~/.vince-mp/config.json`. **The agent uses none of these with a value**: the user sets
-`VINCE_MP_ADMIN_TOKEN` in the environment that launches the agent, or runs `env token` in their own terminal.
-`ADMIN_TOKEN_REQUIRED` tells the agent the token is absent (name-only check); its "run `env token <token>`"
-suggestion is addressed to the human — relay it, don't act on it. `env use` persists the selection across
+`VINCE_MP_ADMIN_TOKEN` in the environment that launches the agent, entered without echo or shell history
+(`read -rs VINCE_MP_ADMIN_TOKEN && export VINCE_MP_ADMIN_TOKEN`). `env token <value>` is not recommended to
+anyone: the value sits in argv (`ps`) and shell history. `ADMIN_TOKEN_REQUIRED` tells the agent the token is
+absent (name-only check); relay only its env-variable path to the human (older CLI hints also say "run
+`env token <token>`" — don't pass that part on), and don't act on the hint yourself. `env use` persists the selection across
 sessions; production-target envs and `logs` against them need an action-bound go-ahead (SKILL.md Core rules).
 
 ## One-shot / explicit-connection commands
