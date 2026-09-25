@@ -9,7 +9,8 @@
  * eval-cases.json are judgment-based trajectory cases, not runnable.
  *
  * Modes:
- *   node run_all.mjs                 # check the real skill dir; exit 0 iff all checks pass
+ *   node run_all.mjs                 # check the real skill dir; exit 0 iff all REQUIRED checks pass
+ *                                    #   (report-only checks print WARN and never change the exit)
  *   node run_all.mjs --target <dir>  # check an arbitrary skill copy
  *   node run_all.mjs --self-test     # PROVE non-vacuity: for every check, seed a passing
  *                                    #   and a failing copy of the real skill and confirm the
@@ -286,6 +287,11 @@ const CHECKS = [
   {
     id: "safety_contract_documented",
     title: "the CLI safety contract (attach-forbidden fields + no-implicit side effects) is reflected in the docs with correct polarity",
+    // REPORT-ONLY (D->L, 0.3.0): polarity of a doc sentence is a semantic judgment (P13/A50(i)); a
+    // verb-list regex may only raise evidence. A failure prints WARN and never touches the exit code or
+    // the N/N denominator; the terminal judgment is the polarity card in MAINTENANCE.md. Frozen: no new
+    // verbs/branches — escapes go to the battery L lens, not to another regex round (A51(iii)).
+    reportOnly: true,
     run(ctx) {
       const problems = [];
       const t = ctx.docText;
@@ -401,7 +407,7 @@ function freshCopy(srcDir) {
 
 function runAll(targetDir, caps) {
   const ctx = buildCtx(targetDir, caps);
-  return CHECKS.map((c) => { const r = c.run(ctx); return { id: c.id, title: c.title, ok: !!r.ok, msg: r.msg }; });
+  return CHECKS.map((c) => { const r = c.run(ctx); return { id: c.id, title: c.title, ok: !!r.ok, reportOnly: !!c.reportOnly, msg: r.msg }; });
 }
 
 function selfTest(caps, baseDir) {
@@ -460,10 +466,13 @@ if (wantSelfTest) {
 }
 
 const results = runAll(targetDir, caps);
-const failed = results.filter((r) => !r.ok);
+const required = results.filter((r) => !r.reportOnly);
+const failed = required.filter((r) => !r.ok);
+const warned = results.filter((r) => r.reportOnly && !r.ok);
 if (wantJson) console.log(JSON.stringify({ mode: "run", target: targetDir, results }, null, 2));
 else {
-  for (const r of results) console.log(`${r.ok ? "PASS" : "FAIL"} ${r.id}: ${r.msg}`);
-  console.log(`\n${results.length - failed.length}/${results.length} checks passed` + (failed.length ? ` — FAILING: ${failed.map((f) => f.id).join(", ")}` : ""));
+  for (const r of results) console.log(`${r.ok ? (r.reportOnly ? "OK  " : "PASS") : (r.reportOnly ? "WARN" : "FAIL")} ${r.id}${r.reportOnly ? " [report-only]" : ""}: ${r.msg}`);
+  console.log(`\n${required.length - failed.length}/${required.length} checks passed` + (failed.length ? ` — FAILING: ${failed.map((f) => f.id).join(", ")}` : "") +
+    ` · report-only: ${results.length - required.length - warned.length} ok, ${warned.length} WARN` + (warned.length ? ` (${warned.map((w) => w.id).join(", ")} — apply the MAINTENANCE.md judgment card)` : ""));
 }
 process.exit(failed.length === 0 ? 0 : 1);
