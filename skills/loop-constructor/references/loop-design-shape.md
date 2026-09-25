@@ -189,13 +189,18 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 - **`restart`** (LOOPS.md §V — *Let The Loop Restart*) — a stage `on_failure.action`
   meaning *discard this stage's work and re-derive it from the contract* rather than
   patching a codebase that has become archaeology. It carries no `to` (it throws its
-  own work away and re-enters — it does not reset an upstream gate). Restart is not
-  a human-escalation trigger: insert a human only when the **contract** is wrong,
-  not when a build is. Its trigger — "patching has stalled" — must be **quantified in
-  the stop conditions before the run** ("2 consecutive same-class failures", "a
-  top-severity defect inside the previous iteration's own fix"), never judged
-  in-flight; the linter cannot check this, the fresh-reader does
-  (`references/loops-model.md` §V).
+  own work away and re-enters — it does not reset an upstream gate). A restart of the
+  stage's own stalled work is autonomous: don't put a human in its way. Its trigger —
+  "patching has stalled" — must be **quantified in the stop conditions before the
+  run** ("2 consecutive same-class failures"), never judged in-flight. A top-severity
+  defect inside the previous iteration's own fix is **not** a restart trigger: it is a
+  fixer signature, and it goes to the outer `stop_conditions.escalate` (stop; the
+  owner first asks whether the judgment should be mechanized at all). **There is no
+  `re-plane` action, on purpose**: re-plane is the owner's/gate's disposition after an
+  escalate stop, not a route the loop may take, so the enum stays
+  `loopback | escalate | abort | restart` — a request for `on_failure: re-plane` is
+  declined and the plane question goes into the escalate trigger instead. The linter
+  cannot check any of this, the fresh-reader does (`references/loops-model.md` §V).
 - **`parameter_provenance`** (D7 — *number provenance*) — the declaration that
   classifies the design's numbers: one top-level key, exactly two arrays. An empty
   block is an affirmative claim ("this design has no empirical parameters"): legal

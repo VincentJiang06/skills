@@ -81,16 +81,29 @@ a hollow check is exactly the trap this pass exists to catch.
       non-machine-checkable residue, not a way to dodge grading (the linter already
       refuses to count them toward its floor). Every stage DoD traces back to the
       contract rather than restating the spec.
-- [ ] **Restart vs escalate (§V).** A stage that can become archaeology has a
-      `restart` route (discard + re-derive from the contract), and the design does
-      NOT put a human in the way of a restart — human escalation is reserved for a
-      **wrong contract**, not a broken build.
+- [ ] **Failure routing (§V).** Each exit is chosen by what the failure accuses,
+      in the order **escalate → re-plane → loopback → restart** (first hit wins). A
+      stage that can become archaeology has a `restart` route, and a restart of its
+      own stalled work stays autonomous — no human in its way. **FAIL** if any fixer
+      signature (a P0/P1 inside the previous iteration's own fix; fix-area growth
+      >50% over the last green baseline; a third exception layer on one threshold;
+      a second implementation copy of one root cause; 2 fix rounds on one defect
+      class) routes to `restart` or `loopback` — including "restart the stage in a
+      FRESH context from the contract", which honours re-entry discipline but stays
+      in the same plane and skips the owner stop. **FAIL** if re-plane appears as
+      something the loop may do by itself (e.g. `on_failure: re-plane`), or if the
+      "impossible / blocked → escalate" exit is sealed ("never ask the human" copied
+      into `stop_conditions`). **PARTIAL — fix before emit** if a fixer-signature
+      escalate carries no plane question ("can a deterministic rule judge this
+      stably at all?"). A pasted pre-0.5 design lints green while carrying
+      "own fix → restart" — this box is the only catch; flag it for re-routing.
 - [ ] **The stall trigger is a pre-registered counter (§V).** "Patching has stalled"
       is written as a number *before* iteration 1 ("2 consecutive same-class
-      failures → restart"; "a top-severity defect inside the previous iteration's own
-      fix → restart"), not left to in-flight judgment. If I can only find prose that
-      says the agent should "consider restarting when progress slows", the route will
-      never fire — optimism defers it every round.
+      failures → restart"; "a P0/P1 inside the previous iteration's own fix → STOP,
+      escalate"), not left to in-flight judgment. If I can only find prose that
+      says the agent should "consider restarting when progress slows" or "escalate
+      to a human if stuck", the route will never fire — optimism defers it every
+      round.
 - [ ] **Stop condition closes on BOTH sides (D5).** There is a **zero-change gate**
       ("N consecutive iterations with zero new changes → stop", the anti-arms-race
       brake) AND a **minimum-progress floor** below which an early "done / can't

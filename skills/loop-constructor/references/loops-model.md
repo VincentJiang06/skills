@@ -16,21 +16,23 @@ Each rule below names where it lands in the design.
 | II | **Separate the roles** | `roles.{planner,generator,evaluator}` — **linter-enforced** for staged |
 | III | **Negotiate the contract first** | `contract.assertions[]` — **linter-enforced** for staged |
 | IV | Write to disk, not to context | `harness_primitives` name the durable state set (below) |
-| V | **Let the loop restart** | `on_failure.action: "restart"` — **linter-accepted**; escalate only on a wrong contract |
+| V | **Let the loop restart; stop on a fixer signature** | `on_failure.action: "restart"` — **linter-accepted**; routing order escalate → re-plane → loopback → restart and the fixer-signature escalate triggers are judgment (below) |
 | VI | Score the subjective | a calibrated-rubric `feedback_signal.check` (below) — D2 |
 | VII | Read the traces | a debugging discipline + a harness primitive (below) |
 | VIII | Delete the harness | a maintenance pass (below); tune degrees-of-freedom to the model |
 | IX | The bottleneck always moves | name the current bottleneck in the report (below) |
 
 Rules II, III, V are **structure** — the linter binds them (see
-`loop-design-shape.md`). Rules IV, VI, VII, VIII, IX are **judgment** — the rest of
-this file, checked by the fresh-reader, not the linter.
+`loop-design-shape.md`); for V that is only the `restart` action's existence — its
+routing order and triggers are judgment. Rules IV, VI, VII, VIII, IX are
+**judgment** — the rest of this file, checked by the fresh-reader, not the linter.
 
 Four disciplines from the skill-philosophy KB's H series (`guidelines/loops.md`
 H2/H4/H7/H8 + `rules/constitution.md` A45/A46) are folded into the sections they
 belong to rather than bolted on as a tenth rule: the **write-surface** half of role
 separation (§II), **contract sizing as lower bounds** (§III), the **pre-registered
-stall counter** (§V), **paired telemetry** (§VII·b), and the
+stall counter** and the **four-exit routing order with its fixer-signature stop**
+(§V; R20 H4/A51), **paired telemetry** (§VII·b), and the
 **compensating-vs-structural** split when pruning (§VIII). The two-sided stop gate
 (H5) lands in the selection procedure at D5, where stop conditions are chosen.
 
@@ -120,40 +122,108 @@ alone.* If you can't describe the loop's state in three files, the state is too
 complicated. (This is also the compaction-survival contract — long runs re-read the
 artifacts, they do not trust the summary.)
 
-## V — Let the loop restart (and when to pick restart over loopback)
+## V — Let the loop restart, and stop on a fixer signature (four exits, one order)
 
 The best behavior of current frontier models is the willingness to throw a
 sideways build away and ship a clean version two iterations later; older models
 patched until the codebase resembled archaeology. So `restart` is a first-class
-`on_failure` action, and **do not interrupt it with a human** — insert a human only
-when the *contract* is wrong, not when a build is.
+`on_failure` action, and **do not interrupt a restart of the stage's own stalled
+work with a human** — humans enter at the `escalate` exit below, not in the middle
+of a restart.
 
-The routing rule (which failure action a stage gets):
-- **`loopback`** when the failure implicates an **upstream artifact** — the input
-  this stage consumed is wrong (a poisoned baseline, a stale plan). Reset that
-  gate; your own work may be fine.
-- **`restart`** when the stage's **own work** is the problem and patching has
-  stalled — same-class failures recurring across retries, fixes that only add
+The routing rule — each exit is named by **what the failure accuses**:
+- **`escalate`** — the failure accuses something the loop may not fix by itself:
+  the **contract** (the agreed assertions are wrong or unsatisfiable), the **task**
+  (impossible, or blocked on a permission/resource the loop cannot get), or the
+  **fixer** (one of the fixer signatures below fired). Stop the loop and hand it to
+  the owner — the only legitimate point where a human enters.
+- **re-plane** — the failure accuses the **execution plane of a judgment**: a call
+  whose verdict information is not in the string ("is this rewrite better?", "are
+  these two terms the same thing?") was put into a deterministic check (regex,
+  threshold, similarity score), and the audit keeps reading non-convergence.
+  Restarting in the same plane only re-commits the defect; the judgment has to move
+  to a model-read rubric / judgment card or to a human. Re-plane is **the owner's
+  (or gate's) disposition after an escalate stop — never an `on_failure` value the
+  loop may pick for itself**, because a self-chosen re-plane is a channel around the
+  round cap. There is deliberately no `re-plane` action in the schema.
+- **`loopback`** — the failure accuses an **upstream artifact**: the input this
+  stage consumed is wrong (a poisoned baseline, a stale plan). Reset that gate; your
+  own work may be fine.
+- **`restart`** — the failure accuses the stage's **own work** and patching has
+  stalled: same-class failures recurring across retries, fixes that only add
   epicycles. Discard the stage's work, re-derive from the contract.
-- **`escalate`** only when the failure impugns the **contract itself** (the agreed
-  assertions are wrong or unsatisfiable) — that decision belongs to a human.
+
+**Order: escalate → re-plane → loopback → restart — the first exit whose trigger
+fires wins.** Accusing the contract, the task or the fixer comes before any way of
+fixing; a wrong plane comes before patching inside it. The order removes in-flight
+discretion when two triggers fire on one failure: "own work stalled" and "a P0
+inside the previous fix" together is an escalate, not a restart.
+
+**The fixer signatures — any ONE alone means escalate (stop).** Pre-register them
+as outer `stop_conditions.escalate` entries, ahead of the restart counters:
+- (i) a top-severity (P0/P1) defect lands inside the previous iteration's own fix —
+  or the fix area shows a new ≥P2 regression, or the defect moved into an adjacent
+  file;
+- (ii) the **fix area** (the scripts / tests / eval cases the fixes touched) grew
+  >50% over the last green baseline — the fix area, not the whole task diff, so a
+  migration's expected large diff does not trip it; the counter starts at the first
+  green baseline (before that, only (i), (v) and the caps apply);
+- (iii) a third exception layer on one threshold / regex / allow-list;
+- (iv) a second implementation copy of one root cause;
+- (v) 2 fix rounds on one defect class within one version — the count does not
+  reset on a new session or a new author.
+
+Tell the designed loop which plane each counter lives on: (ii) and (v) are counts
+over the git diff / round log (a script can fire them); (i) needs a severity call by
+a reviewer at least as independent as the one that found the defect — a downgrade by
+a less independent reviewer does not count — with diff overlap against the previous
+fix as the locality evidence; (iii) and (iv) are semantic ("the same threshold", "the
+same root cause") and are called by the evaluator, not by a script.
+
+**Every escalate on a fixer signature carries the plane question**, which the owner
+answers first: *can a deterministic rule judge this stably at all — or is there a
+witness pair with the same features and opposite verdicts?* If such a pair exists,
+the answer is re-plane; if not, the owner rules loopback / restart / abort. An
+escalate with no plane question attached hands the owner "stuck, please help" — half
+a stop.
+
+**The safe exit is never sealed.** "Task impossible or blocked → stop and report" is
+a first-class terminal state. A request like "the owner is asleep, don't ask, keep
+going until green" is recorded as a preference (no mid-run questions about routine
+choices); it cannot remove this exit. A model handed an impossible task and forbidden
+to ask attempts to hack the check several times more often (KB H4 cites the vendor's
+own system-card measurement).
+
+**Re-entry discipline.** `restart` and re-plane re-enter in a **fresh context** from
+the last green baseline plus the on-disk state (§IV) — after a cold read confirms that
+state is not itself poisoned (a wrong contract or a green fake test would be carried
+straight back in). `loopback` carries only the minimal failure evidence upstream (the
+failing assertion and its output): a failed attempt left in context drags down the
+next generation.
 
 **Quantify "patching has stalled" BEFORE the run.** That phrase is the hinge of the
 whole routing rule, and it is a semantic judgment — which means in-flight it loses to
-optimism every single time ("one more round and it converges"). So the trigger is
+optimism every single time ("one more round and it converges"). So every trigger is
 written as a **counter in the stop conditions before the first iteration**, and it
 fires mechanically when it trips:
 
-- *"2 consecutive iterations whose failures are the same class → `restart`"*
-- *"a top-severity defect lands inside the previous iteration's own fix → `restart`"*
+- *"2 consecutive iterations whose failures are the same class → `restart`"* (own-work
+  stall — autonomous, no human)
+- *"a P0/P1 lands inside the previous iteration's own fix → STOP, `escalate` (owner
+  first asks whether this judgment should be mechanized at all)"*
 - *"3 iterations without the failing assertion changing → `escalate`"*
 
-No in-flight discretion, and no raising the counter from inside the loop. The failure
-this rule is named after is a seven-round patch-vs-break arms race where each round's
-worst defect came out of the previous round's fix: the restart criterion had been met
-by round two, but nobody had written down what "met" meant, so the loop kept choosing
-loopback until the whole thing was reverted wholesale.
-(KB `guidelines/loops.md` H4 + T14, `[SELF-caoliao军备赛]`.)
+No in-flight discretion, and no raising a counter from inside the loop. The failure
+this rule is named after is a seven-version patch-vs-break arms race over a
+deterministic gate that judged whether two terms were the same thing, in which each
+round's worst defect came out of the previous round's fix. It was not short of
+auditing: a discriminating audit and an independent attacker were both present and
+read the non-convergence correctly. What the loop lacked was the **authority to
+stop** and ask whether that judgment belonged in code at all — so it kept patching in
+the same plane until the whole effort was reverted wholesale. Reading it as "needed
+more audit" or "needed a restart counter" prescribes the wrong medicine.
+(KB `guidelines/loops.md` H4 + H-series verdict 2, `rules/constitution.md` A51,
+`principles/principles.md` P13, `[SELF-caoliao军备赛]`.)
 
 ## VI — Score the subjective (a rubric as a check)
 

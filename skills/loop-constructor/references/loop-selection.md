@@ -209,19 +209,29 @@ Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
   `loopback` to an **upstream** stage (a `depends_on` ancestor), `escalate`,
   `abort`, or **`restart`** (discard this stage's work and re-derive it from the
   contract — LOOPS.md §V; the right move when a build has become archaeology, and a
-  frontier model often ships a clean rewrite faster than it patches). A `restart`
-  is autonomous, not an escalation: **don't insert a human to interrupt a restart —
-  insert one only when the *contract* is wrong, not when a build is.**
+  frontier model often ships a clean rewrite faster than it patches). Pick the exit
+  by **what the failure accuses**, in the order of `loops-model.md` §V:
+  **escalate → re-plane → loopback → restart, first hit wins.** A `restart` of the
+  stage's own stalled work is autonomous — **don't insert a human to interrupt it.**
+  Insert one at `escalate`, which has three grounds: the **contract** is wrong, the
+  **task** is impossible or blocked, or a **fixer signature** fired (§V lists the
+  five). Re-plane is not an `on_failure` value: it is the owner's disposition after
+  an escalate stop, never a route the loop takes by itself.
 - **Quantify the routing trigger BEFORE the run.** `restart`'s condition — "patching
   has stalled" — is a semantic judgment, and in flight it loses to optimism every
-  time. Write it as a **counter in the stop conditions before iteration 1** and let it
-  fire mechanically: *"2 consecutive iterations with same-class failures → restart"*,
-  *"a top-severity defect lands inside the previous iteration's own fix → restart"*,
-  *"3 iterations without the failing assertion changing → escalate"*. No in-flight
-  discretion; no raising the counter from inside the loop. (The named failure: a
-  seven-round patch-vs-break arms race whose restart criterion was met at round two,
-  but was never written down, so the loop kept choosing `loopback` until the whole
-  effort was reverted. KB `guidelines/loops.md` H4 + T14.)
+  time. Write every trigger as a **counter in the stop conditions before iteration 1**
+  and let it fire mechanically: *"2 consecutive iterations whose failures are the
+  same class → `restart`"* (own-work stall), *"a P0/P1 lands inside the previous
+  iteration's own fix → STOP, `escalate` (owner first asks whether this judgment
+  should be mechanized at all)"*, *"3 iterations without the failing assertion
+  changing → `escalate`"*. Pre-register §V's fixer signatures as the first
+  `stop_conditions.escalate` entries, ahead of the restart counters, and never seal
+  the "impossible / blocked → escalate" exit. No in-flight discretion; no raising a
+  counter from inside the loop. (The named failure: a seven-version patch-vs-break
+  arms race over a deterministic gate; the audit and an independent attacker were
+  present and read the non-convergence correctly — what the loop lacked was the
+  authority to stop and ask whether the judgment belonged in code at all. KB
+  `guidelines/loops.md` H4 + H-series verdict 2, `rules/constitution.md` A51.)
 - **Design-level**: an outer `max_iterations` budget, a non-empty `failure`
   branch list, `escalate` triggers, and a non-empty `success` state.
 - **Close the stop condition on BOTH sides.** A stop condition that only guards one

@@ -41,6 +41,15 @@ bars…) because every skill surface pushed numeric completeness and nothing off
 - Verified zero new FAILs on: both pre-0.4 goldens (archived), fable-debug-review,
   arp-build. All 69 archived eval ids preserved verbatim; 30 new red-proven cases.
 
+### Lifecycle summary (moved verbatim from SKILL.md in 0.5.0)
+- **`0.4.0` — parameter provenance (non-breaking).** SELECT closes with D7;
+  staged designs declare `parameter_provenance` `{fixed[], derived[]}`; the linter
+  gains an additive `warns[]` channel (absence on staged = WARN, never FAIL; exit
+  codes unchanged; flat absence silent) plus strict shape + cross-reference FAILs
+  when the key is present; the renderer prints a provenance table only for
+  declaration-bearing designs (declaration-free output byte-identical). Every
+  pre-0.4 lint-green design still exits 0. Evidence + details: `CHANGELOG.md`.
+
 ## 0.3.0 — 2026-07-31
 
 Aligned with the **skill-philosophy KB v0.3.0 (R17) H series** (循环工程). Six prose

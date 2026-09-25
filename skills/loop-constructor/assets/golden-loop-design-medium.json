@@ -27,6 +27,12 @@
         "why": "pre-registered routing triggers (D5): in-flight they lose to optimism every time; changed only outside the loop between runs (re-examine per design)"
       },
       {
+        "name": "fixer_signature_counters",
+        "value_or_location": "stop_conditions.escalate[0]: 'P0/P1 inside the previous iteration's own fix', 'files/tests the fixes touched grew >50% over the last green baseline', 'a third exception layer', 'a second implementation copy', '2 fix rounds on the same defect class'",
+        "class": "decision",
+        "why": "stop authority, not a world-claim: any one alone stops the loop for the owner's plane question (loops-model.md §V); pre-registered, changed only outside the loop (re-examine per design)"
+      },
+      {
         "name": "ratelimit_threshold_boundary",
         "value_or_location": "contract A2: HTTP 200 at/below the configured threshold, 429 strictly past it (the 101st request in the example window)",
         "class": "definitional",
@@ -128,7 +134,7 @@
   "human_placement": "on_the_loop",
   "maker_checker": {
     "separate_checker": true,
-    "scope": "fresh-context reviewer sees only the diff + the per-stage acceptance checks; flags correctness / stated-requirement gaps only, especially any behavior change to existing endpoints"
+    "scope": "fresh-context reviewer sees only the diff + the per-stage acceptance checks; flags correctness / stated-requirement gaps only, especially any behavior change to existing endpoints. The reviewer and the stage checks run from a read-only checkout at the stage tag; CLAUDE.md, AGENTS.md, .claude/ rules and the .loop/ evaluator prompt are hashed before launch and verified, so the generator cannot plant standing instructions the reviewer would auto-read"
   },
   "roles": {
     "planner": { "mandate": "turn the goal into the staged spec + the contract; never write middleware or test code" },
@@ -162,9 +168,11 @@
       "any stage exhausts its max_iterations without passing its check",
       "a downstream stage forces a redesign of an already-accepted upstream stage twice",
       "2 consecutive outer iterations produce zero new changes (zero-change gate: the loop is spinning, stop rather than keep buying iterations)",
-      "2 consecutive iterations fail in the same class, or a failure lands inside the previous iteration's own fix (pre-registered stall counter -> restart the stage, do not patch forward)"
+      "2 consecutive iterations fail in the same class (pre-registered own-work stall counter -> restart the stage from the contract in a fresh context, do not patch forward)"
     ],
     "escalate": [
+      "fixer signature (any one alone): a P0/P1 defect lands inside the previous iteration's own fix, or the files/tests the fixes touched grew >50% over the last green baseline, or a third exception layer lands on one threshold/allow-list, or a second implementation copy of one root cause appears, or 2 fix rounds hit the same defect class -> STOP before any further round; the owner first asks whether this judgment is mechanizable at all (re-plane) and only then rules loopback / restart / abort",
+      "the task turns out impossible or blocked on something the loop cannot obtain -> stop and report (safe exit; never sealed by a 'don't ask' instruction)",
       "a public-API/response-schema change becomes necessary",
       "production permission or real traffic is required to verify",
       "the load target only reproduces against prod",

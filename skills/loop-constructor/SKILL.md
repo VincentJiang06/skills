@@ -162,11 +162,13 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
   the evaluator is a fresh context told the artifact is broken. Required for staged.
 - **Negotiate the contract; grade it, not the spec.** Agree the testable assertions
   before building (§III); too few lets the evaluator rubber-stamp. Required for staged.
-- **Restart beats archaeology.** Where a build can rot into a patch-pile, route
-  `on_failure: restart` (discard + re-derive from the contract, §V) — and don't
-  human-interrupt a restart; escalate only a **wrong contract**, not a broken build.
-  Its trigger is a **counter fixed before the run** ("2 consecutive same-class
-  failures"), never an in-flight call.
+- **Route failures by what they accuse (§V):** escalate → re-plane → loopback →
+  restart, first hit wins. Restarting the stage's own stalled work stays autonomous
+  (no human). Escalate = stop for the owner on a wrong contract, an impossible or
+  blocked task (never sealed), or a fixer signature such as a P0/P1 inside the
+  previous fix; the owner first asks whether the judgment should be mechanized at
+  all — re-plane is theirs, never an `on_failure` the loop picks. Every trigger is a
+  **counter fixed before the run**, never an in-flight call.
 - **Stop on both sides.** `stop_conditions` carries a zero-change gate ("N iterations
   with zero new changes → stop", the anti-arms-race brake) *and* a minimum-progress
   floor below which an early stop escalates instead of counting as done (D5).
@@ -189,12 +191,7 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
   to (a new required field, a renamed key) — staged consumers must re-author. `0.2.0`
   added `roles` + `contract` (required for staged) and the `restart` action; the
   flat atomic shape stays back-compatible.
-- **`0.4.0` — parameter provenance (non-breaking).** SELECT closes with D7;
-  staged designs declare `parameter_provenance` `{fixed[], derived[]}`; the linter
-  gains an additive `warns[]` channel (absence on staged = WARN, never FAIL; exit
-  codes unchanged; flat absence silent) plus strict shape + cross-reference FAILs
-  when the key is present; the renderer prints a provenance table only for
-  declaration-bearing designs (declaration-free output byte-identical). Every
-  pre-0.4 lint-green design still exits 0. Evidence + details: `CHANGELOG.md`.
+- **`0.4.0` — parameter provenance (non-breaking);** summary + evidence in
+  `CHANGELOG.md`.
 - **Rollback** = `git restore` the skill dir; the skill only writes design artifacts
   under the target's `.loop/` and never executes a loop, so a bad design is inert.
