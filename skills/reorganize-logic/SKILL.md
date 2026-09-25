@@ -7,7 +7,7 @@ description: >-
   "$reorganize-logic". Do-NOT use for doc sync / cleanup (this REBUILDS and deletes
   legacy) → neat.
 metadata:
-  version: 0.3.2
+  version: 0.3.3
 ---
 
 # reorganize-logic
@@ -129,7 +129,7 @@ adjudicate every `STRONG_EXPORT_EXCLUDED` item.
 | `references/contract-format.md` | Read at step 4 before writing `interfaces.md`, and when the gate prints `FLAG [EXCLUSION_NEEDS_REASON]`: the gate-parseable format, the exclusion reason rule, the Mermaid conventions. |
 | `references/gate-design.md` | Read when a FAIL/FLAG/REVIEW tag needs interpreting, or when deciding whether a language/form is supported (escalate): the verdict table with its Plane column and the judgment ledger. |
 | `scripts/verify_contracts.mjs` | Executed at step 5 — never read into context, never edited during a task. Pure `validate({contractText, files, scope, exclusions})` + CLI. |
-| `evals/run_all.mjs` | Dev-time only, local (gitignored), 33 cases over the real `validate` and the CLI walk; never run or edited during a user task. |
+| `evals/run_all.mjs` | Dev-time only, local (gitignored), 37 cases over the real `validate` and the CLI walk; never run or edited during a user task. |
 | `assets/golden/` | Copy from when authoring `interfaces.md`; smoke-test the CLI (`pass/`, and `fail/`: orphan + coverage hole). |
 
 ## Lifecycle

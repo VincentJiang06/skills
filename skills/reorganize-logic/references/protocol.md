@@ -65,8 +65,9 @@ derive serially in the main thread:
    reads shallow, raise effort for the running model rather than padding prompts.
 
 If a context compaction hits the **main thread** mid-rebuild, it re-reads the on-disk
-artifacts (the `_legacy-context.md` and whatever contracts are already written) to
-rebuild its own state, and re-reads SKILL.md Controls — never trust the summary.
+artifacts (the `_legacy-context.md`, whatever contracts are already written, and
+`_exclusion-review.md` if it exists) to rebuild its own state, and re-reads SKILL.md
+Controls — never trust the summary.
 (Main-thread recovery only; the derivation subagents are short-lived and stay
 legacy-blind regardless.) Walk **every** entry point the Explore pass found —
 exhaustively, not a sample: an interface nobody extracted is never documented.
