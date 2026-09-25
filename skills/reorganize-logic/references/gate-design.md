@@ -89,6 +89,18 @@ string = no reason) and runs through the same reason grammar.
 | J16 | derivation/reader isolation achieved | L self-report in the reply | agent | dev-time battery check |
 | J17 | export-form recognition, strong/weak confidence | D feature extraction, not a verdict | extractor | consumed only by J3/J5/J8 |
 
+## Which files the CLI reads
+
+The CLI walks the project root (or the `--scope` dir) for code files. It skips, at
+any depth, dirs that are never source: `node_modules`, `.git`, `__pycache__`,
+`.venv*`, `venv`, `.uv-cache`, `site-packages`, tool caches, `.loop`, `.skill-*`.
+Output-named dirs (`dist`, `build`, `coverage`, `vendor`, `target`, `out`) are
+skipped only directly under the project root, so `src/build/` is read. Everything
+the project-root `.gitignore` ignores is skipped too (git semantics for that one
+file; nested `.gitignore` files are not read). When unsure, the walk reads: an extra
+file can only add a visible `COVERAGE_HOLE`, never hide one. A file set the walk
+cannot express (several roots, custom skips) is escalate (d) in `protocol.md`.
+
 ## Coverage threshold (not mere presence)
 
 `coverage.ratio = (surface symbols that are documented OR excluded) / (surface

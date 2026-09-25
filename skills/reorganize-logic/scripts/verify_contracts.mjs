@@ -555,9 +555,43 @@ export function validate(input) {
 // ---- CLI ------------------------------------------------------------------
 
 const CODE_EXT = new Set([".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".py", ".go", ".java", ".cs", ".rb", ".php", ".rs"]);
-const SKIP_DIR = new Set(["node_modules", ".git", "dist", "build", "coverage", ".loop", ".cache", "vendor", "__pycache__"]);
+// Never source, skipped at any depth (dependency installs, VCS, caches, virtualenvs).
+const SKIP_DIR = new Set(["node_modules", ".git", "__pycache__", ".venv", "venv", ".uv-cache", "site-packages", ".tox", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".loop", ".cache", ".next", ".nuxt", ".turbo"]);
+// Usually build output, but also a legitimate source-dir name (src/build): skipped only
+// directly under the project root. Deeper output dirs are skipped when the root
+// .gitignore says so; otherwise they are read (fail-closed: extra surface, never a hole).
+const ROOT_SKIP = new Set(["dist", "build", "coverage", "vendor", "target", "out"]);
 
-async function readTree(root, rel, files, fs, path) {
+// The project-root .gitignore, git semantics for one file: `#` comments, `!` negation
+// (last match wins; git cannot re-include below an excluded dir, and neither do we),
+// trailing `/` = dir only, a `/` elsewhere anchors to the root, `*` `?` `**` globs.
+// Nested .gitignore files and global excludes are not read.
+function gitignoreRules(text) {
+  const rules = [];
+  for (let l of String(text).split("\n")) {
+    l = l.replace(/\s+$/, "");
+    if (!l || l.startsWith("#")) continue;
+    const neg = l.startsWith("!");
+    if (neg) l = l.slice(1);
+    const dirOnly = l.endsWith("/");
+    l = l.replace(/\/+$/, "");
+    const anchored = l.includes("/");
+    l = l.replace(/^\//, "");
+    const src = l
+      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+      .replace(/\*\*\//g, "\u0001").replace(/\/\*\*$/, "\u0002").replace(/\*/g, "[^/]*").replace(/\?/g, "[^/]")
+      .replace(/\u0001/g, "(?:.*/)?").replace(/\u0002/g, "/.*");
+    rules.push({ neg, dirOnly, re: new RegExp(anchored ? `^${src}$` : `(?:^|/)${src}$`) });
+  }
+  return rules;
+}
+function gitIgnored(rules, rel, isDir) {
+  let hit = false;
+  for (const r of rules) if ((!r.dirOnly || isDir) && r.re.test(rel)) hit = !r.neg;
+  return hit;
+}
+
+async function readTree(root, rel, files, fs, path, rules) {
   let entries;
   try {
     entries = await fs.readdir(path.join(root, rel), { withFileTypes: true });
@@ -567,9 +601,10 @@ async function readTree(root, rel, files, fs, path) {
   for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     const r = rel ? rel + "/" + e.name : e.name;
     if (e.isDirectory()) {
-      if (SKIP_DIR.has(e.name) || e.name.startsWith(".skill-") || r === "docs/contracts") continue;
-      await readTree(root, r, files, fs, path);
-    } else if (e.isFile() && CODE_EXT.has(path.extname(e.name))) {
+      if (SKIP_DIR.has(e.name) || e.name.startsWith(".venv") || e.name.startsWith(".skill-")) continue;
+      if (ROOT_SKIP.has(r) || r === "docs/contracts" || gitIgnored(rules, r, true)) continue;
+      await readTree(root, r, files, fs, path, rules);
+    } else if (e.isFile() && CODE_EXT.has(path.extname(e.name)) && !gitIgnored(rules, r, false)) {
       try {
         files[r] = await fs.readFile(path.join(root, r), "utf8");
       } catch { /* skip unreadable */ }
@@ -602,7 +637,11 @@ async function main() {
   }
 
   const files = {};
-  await readTree(root, scope || "", files, fs, path);
+  let ignoreText = "";
+  try {
+    ignoreText = await fs.readFile(path.join(root, ".gitignore"), "utf8");
+  } catch { /* no root .gitignore */ }
+  await readTree(root, scope || "", files, fs, path, gitignoreRules(ignoreText));
 
   const r = validate({ contractText, files, scope });
   for (const f of r.fails) console.log(`FAIL  [${f.tag}] ${f.symbol || ""} — ${f.detail}`);
