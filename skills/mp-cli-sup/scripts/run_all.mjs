@@ -159,7 +159,9 @@ const CHECKS = [
       const fm = ctx.skillMd.match(/^---\n([\s\S]*?)\n---\n/);
       if (!fm) return { ok: false, msg: "no YAML frontmatter" };
       if (!/^name:\s*(?:vince-)?mp-cli-sup\s*$/m.test(fm[1])) return { ok: false, msg: "name is not mp-cli-sup / vince-mp-cli-sup" };
-      const dm = fm[1].match(/^description:\s*(?:>\s*\n([\s\S]*)|(.+))$/m);
+      // YAML block scalars (`>` `>-` `>+` `|` `|-` `|+`, optional indent digit) or a plain scalar;
+      // a block captures only its indented continuation lines (root cause of the 2026-06-23 13/14 red).
+      const dm = fm[1].match(/^description:[ \t]*(?:[>|][-+1-9]{0,2}[ \t]*\n((?:[ \t]+.*\n?|[ \t]*\n)+)|(\S.*))/m);
       const desc = dm ? (dm[1] || dm[2] || "").replace(/\s+/g, " ").trim() : "";
       if (desc.length < 80) return { ok: false, msg: `description too short (${desc.length})` };
       const refs = ["rules/runtime-protocol.md", "rules/ui-element-workflow.md", "references/cli-contract.md", "references/skyline-media.md", "references/evidence-and-failures.md"];
@@ -168,6 +170,8 @@ const CHECKS = [
     },
     mkPass() {},
     mkFail(dir) { editText(dir, "SKILL.md", (s) => s.replace(/^name:.*$/m, "name: wrong-name")); },
+    // exercises the description branch: a genuinely short `>-` description must fail
+    mkFail2(dir) { editText(dir, "SKILL.md", (s) => s.replace(/^description:[\s\S]*?(?=^metadata:)/m, "description: >-\n  Debug MPs.\n")); },
   },
   {
     id: "assets_identify_skill",
