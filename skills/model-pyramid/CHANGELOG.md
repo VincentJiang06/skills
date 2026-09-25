@@ -91,7 +91,7 @@ v1.0.0 的事实层在 2026-09-22（Opus 5.5 成为默认 Opus，Claude Code 2.1
   一条、只报不拦）；`inherit` 就是会话模型，不重复报。→ SKILL.md "no pairing row ⇒ no advisor" 与 orchestration.md
   "subagents re-run the pairing check against their own model"（P11 双向结算：检查器与文档说同一件事）；表格事实、不新增语义
   判断（P13）；A50（只报不拦）。先红后绿：新夹具 p21 + selftest 2 项（`battery/fix2/F07-red.log`）。
-  误报账（铁律 7）：53 个既有方案（20 夹具 + 24 selftest 方案 + P-collapse + E11 case-3 三份 + 4 个审计复现）新旧对跑，
+  误报账（铁律 7）：53 个既有方案（20 夹具 + 25 selftest 方案 + P-collapse + E11 case-3 三份 + 4 个审计复现）新旧对跑，
   变化只有：F07 复现 2 条（目标行为）；E11 case-3 的 `claude-opus-6` 子代理多一条 unverified（未知模型的配对本就不可查，
   与会话层对未知模型的处理一致）；别名子代理（`sonnet`）多一条 unverified（与会话层别名处理一致）。量测中抓到一处
   自身误报——`"model":"inherit"` 被当成独立模型报 unverified——已在提交前排除并加 selftest 守住。
