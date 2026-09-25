@@ -59,7 +59,8 @@ write a stamp value that no calibration run produced. Minimum set — MUST inclu
 3. A real cheat script that passes an existence check → **FINDING**.
 4. "This feels under-specified" with no exhibited double-bind → **FLAG**.
 5. ★ A contradiction where one side is a *governed tension* (in the target's tensions doc) →
-   **FLAG / not-a-finding** (re-reporting a governed tension is noise).
+   **FLAG / not-a-finding** (re-reporting a governed tension is noise). But a runnable cheat that
+   gets past the governing clause → **FINDING** at its own severity: the clause did not govern it.
 6. Fetched source contradicts claim at stated strength → **FINDING**.
 7. ★ A fabrication asserted without a first-party fetch → **FLAG** (the attacker committing the
    evidence sin it hunts).
@@ -117,7 +118,7 @@ Each lens prompt ≤ ~850 tokens (tiktoken cl100k), hard ceiling 1000 — restat
 stated "~600" that all five lenses already exceeded (637–753 measured); 850–1000 is logged in the
 CHANGELOG add-ledger, and the authority sentence is never traded away for budget. This rubric's
 body (outside the golden samples) was stated "≤ ~900" but measured 1,304 at 0.7.0 and 1,511 at
-0.8.0; golden samples measure 825 (16 samples; 527 for 14 at 0.7.0). Measured, not estimated —
+0.8.0; golden samples measure 855 (16 samples at 0.8.2; 825 at 0.8.0; 527 for 14 at 0.7.0). Measured, not estimated —
 the figures are the cap now, and any growth is logged in the CHANGELOG add-ledger. If a lens
 needs more, fold, don't grow. Total attacker apparatus target: < 1/3 of the previous attacker's
 weight.

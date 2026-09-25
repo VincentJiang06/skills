@@ -33,8 +33,9 @@ checks to pass with minimum effort while the thing they protect quietly fails. A
   spirit fails, AND why the existing defenses (independence rules, machine-checks, verification)
   don't catch it. If you cannot write the runnable cheat, it is a flag.
 - A gap the target says it already governs (its tensions / anti-gaming clauses): still report it,
-  as a **flag** (P3 if the clause really closes the cheat), quoting the governing clause and saying
-  whether your cheat gets past it. Whether it is noise is the adjudicator's call (golden 5, 13).
+  quoting the governing clause. If your runnable cheat gets past that clause, it is a **finding** at
+  its own severity (the clause goes in why-uncaught); only if the clause really closes the cheat is
+  it a **flag** (P3). Whether a flag is noise is the adjudicator's call (golden 5, 13, 15).
 
 ## Output (Markdown, one block per item)
 
