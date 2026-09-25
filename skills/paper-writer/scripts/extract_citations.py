@@ -54,7 +54,7 @@ SOURCE_NEEDED_MARKER_RE = re.compile(r"\[SOURCE NEEDED[^\]]*\]|\[需要来源[^\
 def first_identifier(entry: str) -> str:
     m = cc.DOI_RE.search(entry)
     if m:
-        return "doi:" + m.group(0)
+        return "doi:" + m.group(0).rstrip(".,;")   # sentence-final period is not part of the DOI
     m = cc.URL_RE.search(entry)
     if m:
         return m.group(0)
@@ -75,8 +75,16 @@ def extract_citations(text: str, style: str):
             cid = f"[{m.group(1)}]" if m else f"<UNNUMBERED:{entry[:20]}>"
             out.append((cid, first_identifier(entry), entry))
     else:
-        for (surname, year), entry in cc.ref_authordate_keys(ref_lines):
-            out.append((f"{surname}_{year}", first_identifier(entry), entry))
+        # Fail closed (PW-F04): an entry with no key is listed as <UNKEYED:…> and needs
+        # a verdict like any other. Year suffixes stay in the id (2006a / 2006b), and any
+        # remaining collision gets _2, _3 so each entry has its own verdict (PW-F05).
+        seen = {}
+        for key, entry in cc.ref_authordate_keys(ref_lines, style):
+            cid = "_".join(p for p in key if p) if key else f"<UNKEYED:{entry[:20]}>"
+            seen[cid] = seen.get(cid, 0) + 1
+            if seen[cid] > 1:
+                cid = f"{cid}_{seen[cid]}"
+            out.append((cid, first_identifier(entry), entry))
     return out
 
 
