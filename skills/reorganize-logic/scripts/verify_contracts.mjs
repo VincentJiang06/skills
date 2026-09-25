@@ -7,14 +7,19 @@
 // PASS this before the legacy is touched.
 //
 // THE ANCHOR: a pure grep/heuristic gate CANNOT prove semantic faithfulness, so
-// it never rubber-stamps. It does three things only a deterministic check does
-// well — tie each documented symbol to a real definition (ORPHAN / BAD_SOURCE_REF),
-// prove no exported symbol was silently dropped (COVERAGE_HOLE), and refuse to be
-// gamed (CONTRADICTION / EXCESSIVE_EXCLUSIONS) — and for everything ambiguous it
-// raises a NEEDS_RECONCILE *flag* that BLOCKS the gate until the agent fixes the
-// contract. Flags are the "agent must reconcile" handoff; they are never an
-// auto-pass. (develop-principle: principle.executable_acceptance,
-// principle.claim_evidence_traceability, anti_pattern.reward_hacking.)
+// it never rubber-stamps and never rules on design intent. It does only skeleton
+// checks a deterministic check does well — tie each documented symbol to a real
+// definition (ORPHAN / BAD_SOURCE_REF), prove no exported symbol was silently
+// dropped (COVERAGE_HOLE), and require a same-line reason on every exclusion of a
+// strongly-exported symbol (EXCLUSION_NEEDS_REASON: presence only). For everything
+// ambiguous it raises a *flag* that BLOCKS until the agent fixes the contract.
+// "Is this excluded symbol really not a public interface?" is a SEMANTIC question
+// with a witness pair (a public def and a package-internal helper look identical
+// here), so the gate does not answer it: it emits non-blocking reviews[] evidence
+// (STRONG_EXPORT_EXCLUDED, HIGH_EXCLUSION_RATIO) for the fresh-reader exclusion
+// card (references/protocol.md) and the user. Reviews never change ok, the exit
+// code, or coverage. (KB: P13 / S14 / A50(i); principle.executable_acceptance,
+// principle.claim_evidence_traceability.)
 //
 // Usage:
 //   node scripts/verify_contracts.mjs <project-root> [--scope <subdir>] [--contract <path>]
@@ -23,7 +28,8 @@
 // Programmatic (what evals/run_all.mjs imports — the SAME logic, not a copy):
 //   import { validate } from "./verify_contracts.mjs"
 //   validate({ contractText, files, scope, exclusions }) ->
-//     { ok, fails:[{tag,symbol,detail}], flags:[{tag,symbol,detail}], coverage:{documented,excluded,extracted,ratio} }
+//     { ok, fails:[{tag,symbol,detail}], flags:[…], reviews:[…], coverage:{documented,excluded,extracted,ratio} }
+//   exclusions override entries: {name, reason} (a bare string = no reason); same reason grammar as the contract.
 //
 // Deterministic & idempotent: a pure function of its inputs — no clock, no
 // random, no hidden state, sorted outputs. Never throws on bad input; malformed
@@ -38,24 +44,31 @@ const NAME = "[A-Za-z_$][\\w$]*";
 
 // Each entry: a per-line matcher returning { names:[...], confidence }.
 // Order matters only for readability; we collect from every matcher that hits.
+// bind: a CommonJS assignment form. It binds a name and may re-export an import
+// (`exports.foo = require('./foo')`), so, like an `export { }` list member, it never
+// makes the name a separate per-file symbol (coverage identity, see validate()).
 const SURFACE_MATCHERS = [
   // --- JS / TS strong exports ---
   { re: new RegExp(`^\\s*export\\s+default\\s+(?:async\\s+)?function\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:async\\s+)?function\\*?\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:const|let|var)\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:abstract\\s+)?class\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:type|interface|enum)\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*module\\.exports\\.(${NAME})\\s*=`), conf: "strong" },
-  { re: new RegExp(`^\\s*exports\\.(${NAME})\\s*=`), conf: "strong" },
+  { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:async\\s+)?function\\*?\\s+(${NAME})`), conf: "strong" },
+  { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const|let|var)\\s+(?!enum\\b)(${NAME})`), conf: "strong" },
+  // an anonymous `export default class extends X` has no name to capture (never `extends`)
+  { re: new RegExp(`^\\s*export\\s+(?:default\\s+|declare\\s+)?(?:abstract\\s+)?class\\s+(?!(?:extends|implements)\\b)(${NAME})`), conf: "strong" },
+  { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const\\s+)?(?:type|interface|enum|namespace)\\s+(${NAME})`), conf: "strong" },
+  { re: new RegExp(`^\\s*module\\.exports\\.(${NAME})\\s*=`), conf: "strong", bind: true },
+  { re: new RegExp(`^\\s*exports\\.(${NAME})\\s*=`), conf: "strong", bind: true },
+  // whole-module export of one binding: `module.exports = f;` makes f a strong export
+  { re: new RegExp(`^\\s*module\\.exports\\s*=\\s*(?!(?:null|undefined|true|false|this|exports|module)\\b)(${NAME})\\s*;?\\s*$`), conf: "strong", bind: true },
   // computed string-key assignment: exports['x'] = / module.exports["x"] =
-  { re: new RegExp(`^\\s*(?:module\\.)?exports\\[['"](${NAME})['"]\\]\\s*=`), conf: "strong" },
+  { re: new RegExp(`^\\s*(?:module\\.)?exports\\[['"](${NAME})['"]\\]\\s*=`), conf: "strong", bind: true },
   // Object.defineProperty(exports|module.exports, 'x', …)
-  { re: new RegExp(`Object\\.defineProperty\\(\\s*(?:module\\.)?exports\\s*,\\s*['"](${NAME})['"]`), conf: "strong" },
+  { re: new RegExp(`Object\\.defineProperty\\(\\s*(?:module\\.)?exports\\s*,\\s*['"](${NAME})['"]`), conf: "strong", bind: true },
   // --- Python top-level (col 0, public = no leading underscore) ---
   { re: new RegExp(`^(?:async\\s+)?def\\s+(${NAME})`), conf: "strong" },
   { re: new RegExp(`^class\\s+(${NAME})`), conf: "strong" },
   // --- Go exported (uppercase first letter) ---
   { re: new RegExp(`^func\\s+(?:\\([^)]*\\)\\s+)?([A-Z]\\w*)`), conf: "strong" },
+  { re: /^type\s+([A-Z]\w*)\b/, conf: "strong", ext: ".go" }, // `type X` is TS/Python syntax too: .go only
   // --- Java / C# members ---
   { re: new RegExp(`^\\s*(?:public|protected)\\s+(?:static\\s+)?(?:[\\w<>\\[\\],?.]+\\s+)+(${NAME})\\s*\\(`), conf: "strong" },
   // --- weak: top-level function declaration with no export keyword (CommonJS) ---
@@ -82,7 +95,7 @@ function splitTopLevel(s, sep) {
 // Names bound by `export const|let|var <decls>` — handles MULTI-declarator
 // (`export const a = 1, b = 2`) and simple destructuring (`export const {a, b} = x`).
 function exportDeclNames(line) {
-  const m = line.match(/^\s*export\s+(?:const|let|var)\s+(.+)$/);
+  const m = line.match(/^\s*export\s+(?:declare\s+)?(?:const|let|var)\s+(?!enum\b)(.+)$/);
   if (!m) return [];
   const out = [];
   for (let seg of splitTopLevel(m[1], ",")) {
@@ -191,6 +204,8 @@ function namedExportLists(content) {
   while ((m = re.exec(content)) !== null) {
     const open = m.index + m[0].length - 1;
     const body = balancedBraceBody(content, open);
+    // every list member is an ALIAS (of a local, an import, or with `from` a module's binding)
+    const from = content.slice(open + body.length + 2).match(/^\s*from\s*['"]([^'"]+)['"]/);
     for (const seg of topLevelSegments(body)) {
       const t = seg.text.trim();
       if (!t) continue;
@@ -200,7 +215,7 @@ function namedExportLists(content) {
       const name = idm[1];
       if (name === "default" || name.startsWith("_")) continue;
       const lead = seg.text.length - seg.text.replace(/^\s*/, "").length;
-      out.push({ name, line: lineOf(content, open + 1 + seg.off + lead) });
+      out.push({ name, line: lineOf(content, open + 1 + seg.off + lead), spec: from ? from[1] : null });
     }
   }
   return out;
@@ -241,11 +256,14 @@ function resolveSpec(fromPath, spec, files) {
   const base = stack.join("/");
   for (const e of ["", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"]) if (base + e in files) return base + e;
   for (const e of [".js", ".mjs", ".cjs", ".ts"]) if (base + "/index" + e in files) return base + "/index" + e;
+  // TS NodeNext/ESM: a specifier written './x.js' names the source './x.ts' (or .tsx/.mts/.cts)
+  const ts = base.replace(/\.([mc]?)js$/, ".$1ts");
+  for (const e of ["", "x"]) if (ts !== base && ts + e in files) return ts + e;
   return null;
 }
 
 // The DIRECT public surface a single file declares (no cross-file resolution yet).
-function directSurface(content) {
+function directSurface(content, path) {
   const entries = [];
   const flags = [];
   const lines = content.split("\n");
@@ -254,23 +272,24 @@ function directSurface(content) {
     const names = [];
     let confidence = "weak";
     for (const mm of SURFACE_MATCHERS) {
+      if (mm.ext && !String(path).endsWith(mm.ext)) continue;
       const hit = line.match(mm.re);
       if (hit && hit[1]) {
-        names.push(hit[1]);
+        names.push({ n: hit[1], bind: mm.bind });
         if (mm.conf === "strong") confidence = "strong";
       }
     }
     const decls = exportDeclNames(line);
     if (decls.length) {
-      for (const n of decls) names.push(n);
+      for (const n of decls) names.push({ n });
       confidence = "strong";
     }
-    for (const name of names) if (!name.startsWith("_")) entries.push({ name, line: i + 1, confidence });
+    for (const { n, bind } of names) if (!n.startsWith("_")) entries.push(bind ? { name: n, line: i + 1, confidence, alias: true } : { name: n, line: i + 1, confidence });
   }
   const obj = objectExportKeys(content);
-  for (const k of obj.keys) entries.push({ name: k.name, line: k.line, confidence: "strong" });
+  for (const k of obj.keys) entries.push({ name: k.name, line: k.line, confidence: "strong", alias: true }); // CommonJS binding
   for (const f of obj.flags) flags.push(f);
-  for (const k of namedExportLists(content)) entries.push({ name: k.name, line: k.line, confidence: "strong" });
+  for (const k of namedExportLists(content)) entries.push({ name: k.name, line: k.line, confidence: "strong", alias: true, spec: k.spec });
   const star = starExports(content);
   for (const k of star.named) entries.push({ name: k.name, line: k.line, confidence: "strong" });
   return { entries, flags, stars: star.stars };
@@ -286,16 +305,17 @@ function extractSurface(files, scope) {
   const direct = {};
   for (const path of paths) {
     const content = files[path];
-    if (typeof content === "string") direct[path] = directSurface(content);
+    if (typeof content === "string") direct[path] = directSurface(content, path);
   }
   const surface = [];
   const flags = [];
   const seen = new Set();
-  const addEntry = (name, file, line, confidence) => {
+  const addEntry = (name, file, line, confidence, e) => {
     const key = name + " " + file + " " + line;
     if (seen.has(key)) return;
     seen.add(key);
-    surface.push({ name, file, line, confidence });
+    // alias = an export-list member; via = the local file an `export { x } from` points at
+    surface.push(e.alias ? { name, file, line, confidence, alias: true, via: e.spec ? resolveSpec(file, e.spec, files) : null } : { name, file, line, confidence });
   };
   const collectStars = (originPath, edges, visited, depth) => {
     for (const edge of edges) {
@@ -306,13 +326,13 @@ function extractSurface(files, scope) {
       }
       if (visited.has(target) || depth > 12) continue;
       visited.add(target);
-      for (const e of direct[target].entries) addEntry(e.name, target, e.line, e.confidence);
+      for (const e of direct[target].entries) addEntry(e.name, target, e.line, e.confidence, e);
       collectStars(target, direct[target].stars, visited, depth + 1);
     }
   };
   for (const path of paths) {
     if (!inScope(path, scope) || !direct[path]) continue;
-    for (const e of direct[path].entries) addEntry(e.name, path, e.line, e.confidence);
+    for (const e of direct[path].entries) addEntry(e.name, path, e.line, e.confidence, e);
     for (const f of direct[path].flags) flags.push({ tag: f.tag, symbol: f.symbol, detail: path + ":" + f.line + " -- " + f.detail });
     collectStars(path, direct[path].stars, new Set([path]), 1);
   }
@@ -324,6 +344,8 @@ function extractSurface(files, scope) {
 // Parse a gate-parseable interfaces.md:
 //  - documented rows:  | `name` | `signature` | `path:line` |
 //  - exclusions:       under a "## Intentionally internal" heading, `- `name` — reason`
+//    reason = the text after the closing backtick of the FIRST backticked identifier
+//    on that list-item line (continuation lines are not read).
 function parseContract(contractText) {
   const documented = [];
   const exclusions = [];
@@ -353,7 +375,7 @@ function parseContract(contractText) {
     // exclusions list item under an "internal" section
     if (section.includes("internal") && /^[-*]\s+/.test(line)) {
       const m = line.match(/`([A-Za-z_$][\w$]*)`/);
-      if (m) exclusions.push({ name: m[1] });
+      if (m) exclusions.push({ name: m[1], reason: line.slice(m.index + m[0].length) });
     }
   }
   return { documented, exclusions };
@@ -362,6 +384,22 @@ function parseContract(contractText) {
 // ---- the gate -------------------------------------------------------------
 
 const EXCLUSION_RATIO_CEILING = 0.5;
+
+// THE reason grammar (one implementation, used by both the parsed-contract path and
+// the caller `exclusions` override path): strip leading whitespace and separators
+// — – - : ： , ， ( （ ; a reason is present iff >= 1 Unicode letter remains
+// (so CJK counts). Separator-only / whitespace-only / digits-only = no reason.
+// Presence only: reason QUALITY is a semantic judgment for the fresh-reader card.
+function reasonOf(raw) {
+  const rest = (typeof raw === "string" ? raw : "").replace(/^[\s—–\-:：,，(（]+/u, "").trim();
+  return /\p{L}/u.test(rest) ? rest : "";
+}
+
+function definedAtLine(content, line, name) {
+  const text = String(content).split("\n")[line - 1] || "";
+  const n = name.replace(/\$/g, "\\$");
+  return new RegExp(`^(?:(?:const|let|var)\\s+${n}\\b|${n}\\s*(?::[^=]*)?=(?!=))`).test(text);
+}
 
 function sortIssues(arr) {
   return arr
@@ -374,6 +412,7 @@ function sortIssues(arr) {
 export function validate(input) {
   const fails = [];
   const flags = [];
+  const reviews = [];
   let coverage = { documented: 0, excluded: 0, extracted: 0, ratio: 1 };
   try {
     const obj = input && typeof input === "object" ? input : {};
@@ -382,20 +421,20 @@ export function validate(input) {
 
     if (typeof contractText !== "string") {
       fails.push({ tag: "MALFORMED", symbol: null, detail: "contractText must be a string" });
-      return { ok: false, fails: sortIssues(fails), flags, coverage };
+      return { ok: false, fails: sortIssues(fails), flags, reviews, coverage };
     }
 
     const parsed = parseContract(contractText);
     // allow caller to override/augment exclusions (spec contract), else use parsed
     const exclusions =
       Array.isArray(obj.exclusions) && obj.exclusions.length
-        ? obj.exclusions.map((x) => (typeof x === "string" ? { name: x } : x)).filter((x) => x && x.name)
+        ? obj.exclusions.map((x) => (typeof x === "string" ? { name: x, reason: "" } : x)).filter((x) => x && x.name)
         : parsed.exclusions;
     const documented = parsed.documented;
 
     if (documented.length === 0 && exclusions.length === 0) {
       fails.push({ tag: "EMPTY_CONTRACT", symbol: null, detail: "no documented interfaces and no exclusions parsed" });
-      return { ok: false, fails: sortIssues(fails), flags, coverage };
+      return { ok: false, fails: sortIssues(fails), flags, reviews, coverage };
     }
 
     const { surface, flags: extractionFlags } = extractSurface(files, scope);
@@ -423,7 +462,11 @@ export function validate(input) {
           fails.push({ tag: "BAD_SOURCE_REF", symbol: d.name, detail: `cited ${d.file}:${d.line}, but defined at ${at}` });
         }
       } else {
-        // not in the extracted surface — orphan, or a near-name typo to reconcile
+        // not in the extracted surface. A row whose cited line assigns/declares the
+        // name at column 0 (`app = FastAPI()`, Go `var X = …`) is tied to a real
+        // definition: existence at the exact cited line, not a publicness verdict.
+        if (definedAtLine(files[d.file], d.line, d.name)) continue;
+        // otherwise orphan, or a near-name typo to reconcile
         const near = surfaceNames.find(
           (s) => s !== d.name && (s.includes(d.name) || d.name.includes(s)) && Math.min(s.length, d.name.length) >= 3
         );
@@ -435,29 +478,64 @@ export function validate(input) {
       }
     }
 
-    // 2) coverage: every surface symbol must be documented or excluded (exact name)
+    // 2) coverage: every surface symbol must be documented or excluded (exact name).
+    //    Identity = (name, defining file): when one name is STRONGLY defined (not an
+    //    export-list alias, not a CommonJS binding, not a weak function) in >= 2 files, those are
+    //    different symbols, and a row covers only the file it cites plus the files
+    //    reached from it through `export { name } from` aliases. One defining file
+    //    (the usual barrel case) = one symbol, so any row of that name covers it.
     let covered = 0;
     for (const name of surfaceNames) {
-      if (documentedNames.has(name) || exclusionNames.has(name)) {
+      if (exclusionNames.has(name)) {
         covered++;
-      } else {
+        continue;
+      }
+      if (!documentedNames.has(name)) {
         fails.push({ tag: "COVERAGE_HOLE", symbol: name, detail: "exported in code but neither documented nor marked intentionally-internal" });
+        continue;
+      }
+      const locs = surfaceByName.get(name);
+      // a .d.ts declares the types of a twin source file; it is not a second definition
+      const defFiles = [...new Set(locs.filter((l) => !l.alias && l.confidence === "strong" && !l.file.endsWith(".d.ts")).map((l) => l.file))];
+      const reached = new Set();
+      const queue = documented.filter((d) => d.name === name).map((d) => d.file);
+      while (queue.length) {
+        const f = queue.pop();
+        if (reached.has(f)) continue;
+        reached.add(f);
+        for (const l of locs) if (l.file === f && l.via) queue.push(l.via);
+      }
+      const missed = defFiles.length > 1 ? defFiles.filter((f) => !reached.has(f)) : [];
+      if (!missed.length) covered++;
+      for (const f of missed) {
+        const at = locs.filter((l) => l.file === f).map((l) => f + ":" + l.line).join(", ");
+        fails.push({ tag: "COVERAGE_HOLE", symbol: name, detail: `a same-named symbol is also defined at ${at}, which no documented row cites: give it its own row or exclude it` });
       }
     }
 
-    // 3) anti-gaming on the exclusions
+    // 3) exclusions of strongly-exported symbols: reason PRESENCE is the skeleton
+    //    check (blocking flag); whether the symbol is really internal is NOT decided
+    //    here — each becomes a non-blocking review for the fresh-reader card.
+    const reasonByName = new Map();
     for (const x of exclusions) {
-      const locs = surfaceByName.get(x.name);
-      if (locs && locs.some((l) => l.confidence === "strong")) {
-        fails.push({ tag: "CONTRADICTION", symbol: x.name, detail: "listed intentionally-internal but the code clearly exports it" });
+      const r = reasonOf(x.reason);
+      if (!reasonByName.has(x.name) || (r && !reasonByName.get(x.name))) reasonByName.set(x.name, r);
+    }
+    for (const [name, reason] of reasonByName) {
+      const strong = (surfaceByName.get(name) || []).filter((l) => l.confidence === "strong");
+      if (!strong.length) continue;
+      if (!reason) {
+        flags.push({ tag: "EXCLUSION_NEEDS_REASON", symbol: name, detail: "strongly-exported symbol listed intentionally-internal with no reason: state why it is not a public interface (a fresh reader will verify) or document it" });
+      } else {
+        reviews.push({ tag: "STRONG_EXPORT_EXCLUDED", symbol: name, detail: `strong export at ${strong.map((l) => l.file + ":" + l.line).join(", ")}; reason: "${reason}"` });
       }
     }
     const excludedInSurface = [...exclusionNames].filter((n) => surfaceByName.has(n)).length;
     if (surfaceNames.length > 0 && excludedInSurface / surfaceNames.length > EXCLUSION_RATIO_CEILING) {
-      fails.push({
-        tag: "EXCESSIVE_EXCLUSIONS",
+      reviews.push({
+        tag: "HIGH_EXCLUSION_RATIO",
         symbol: null,
-        detail: `${excludedInSurface}/${surfaceNames.length} of the public surface is marked intentionally-internal (> ${EXCLUSION_RATIO_CEILING}) — the contract is gaming coverage`,
+        detail: `${excludedInSurface}/${surfaceNames.length} of the extracted surface is listed intentionally-internal (> ${EXCLUSION_RATIO_CEILING}); information for the fresh-reader and the user`,
       });
     }
 
@@ -472,21 +550,40 @@ export function validate(input) {
       ok: false,
       fails: sortIssues([{ tag: "MALFORMED", symbol: null, detail: "unexpected: " + (e && e.message) }].concat(fails)),
       flags: sortIssues(flags),
+      reviews: sortIssues(reviews),
       coverage,
     };
   }
 
   const sFails = sortIssues(fails);
   const sFlags = sortIssues(flags);
-  return { ok: sFails.length === 0 && sFlags.length === 0, fails: sFails, flags: sFlags, coverage };
+  return { ok: sFails.length === 0 && sFlags.length === 0, fails: sFails, flags: sFlags, reviews: sortIssues(reviews), coverage };
 }
 
 // ---- CLI ------------------------------------------------------------------
 
 const CODE_EXT = new Set([".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".py", ".go", ".java", ".cs", ".rb", ".php", ".rs"]);
-const SKIP_DIR = new Set(["node_modules", ".git", "dist", "build", "coverage", ".loop", ".cache", "vendor", "__pycache__"]);
+// Never source, skipped at any depth (dependency installs, VCS, caches, virtualenvs).
+const SKIP_DIR = new Set(["node_modules", ".git", "__pycache__", ".venv", "venv", ".uv-cache", "site-packages", ".tox", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".loop", ".cache", ".next", ".nuxt", ".turbo"]);
+// Usually build output, but also a legitimate source-dir name (src/build): skipped only
+// directly under the project root. Deeper output dirs are skipped when git ignores them.
+const ROOT_SKIP = new Set(["dist", "build", "coverage", "vendor", "target", "out"]);
 
-async function readTree(root, rel, files, fs, path) {
+// What git itself ignores under root: untracked paths matched by any ignore source (nested
+// .gitignore, .git/info/exclude, global excludes). A tracked file is never listed, even when a
+// pattern matches it (`git add -f`). null = git gives no answer here (no repo, no git binary, root
+// inside an ignored dir): then no ignore file is honored and the walk reads (fail-closed).
+function gitIgnoredPaths(root, execFileSync) {
+  try {
+    const out = execFileSync("git", ["-C", root, "ls-files", "-z", "--others", "--ignored", "--exclude-standard", "--directory"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], maxBuffer: 1 << 30 });
+    return new Set(out.split("\0").filter(Boolean).map((p) => p.replace(/\/$/, "")));
+  } catch {
+    return null;
+  }
+}
+
+// skipped = { byName: Map(dir name -> count), ignored: [paths] }, printed so no skip is silent.
+async function readTree(root, rel, files, fs, path, ignored, skipped) {
   let entries;
   try {
     entries = await fs.readdir(path.join(root, rel), { withFileTypes: true });
@@ -495,9 +592,15 @@ async function readTree(root, rel, files, fs, path) {
   }
   for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     const r = rel ? rel + "/" + e.name : e.name;
-    if (e.isDirectory()) {
-      if (SKIP_DIR.has(e.name) || e.name.startsWith(".skill-") || r === "docs/contracts") continue;
-      await readTree(root, r, files, fs, path);
+    if (e.isDirectory() && r === "docs/contracts") continue;
+    if (ignored && ignored.has(r) && (e.isDirectory() || CODE_EXT.has(path.extname(e.name)))) {
+      skipped.ignored.push(r);
+    } else if (e.isDirectory()) {
+      if (SKIP_DIR.has(e.name) || e.name.startsWith(".venv") || e.name.startsWith(".skill-") || ROOT_SKIP.has(r)) {
+        if (e.name !== ".git") skipped.byName.set(e.name, (skipped.byName.get(e.name) || 0) + 1);
+        continue;
+      }
+      await readTree(root, r, files, fs, path, ignored, skipped);
     } else if (e.isFile() && CODE_EXT.has(path.extname(e.name))) {
       try {
         files[r] = await fs.readFile(path.join(root, r), "utf8");
@@ -531,15 +634,24 @@ async function main() {
   }
 
   const files = {};
-  await readTree(root, scope || "", files, fs, path);
+  const skipped = { byName: new Map(), ignored: [] };
+  const { execFileSync } = await import("node:child_process");
+  await readTree(root, scope || "", files, fs, path, gitIgnoredPaths(root, execFileSync), skipped);
 
   const r = validate({ contractText, files, scope });
   for (const f of r.fails) console.log(`FAIL  [${f.tag}] ${f.symbol || ""} — ${f.detail}`);
   for (const f of r.flags) console.log(`FLAG  [${f.tag}] ${f.symbol || ""} — ${f.detail} (agent must reconcile)`);
+  for (const f of r.reviews) console.log(`REVIEW [${f.tag}] ${f.symbol || ""} — ${f.detail} (${f.tag === "HIGH_EXCLUSION_RATIO" ? "information" : "fresh-reader must adjudicate"})`);
   const cov = r.coverage;
+  if (skipped.byName.size || skipped.ignored.length) {
+    const names = [...skipped.byName].map(([n, c]) => n + " x" + c).join(", ") || "no dirs by name";
+    const ign = skipped.ignored;
+    console.log(`\nnot read: ${names}; ${ign.length} path(s) git ignores${ign.length ? " (" + ign.slice(0, 5).join(", ") + (ign.length > 5 ? ", …" : "") + ")" : ""}`);
+  }
   console.log(`\ncoverage: ${cov.documented} documented / ${cov.excluded} excluded / ${cov.extracted} extracted — ratio ${cov.ratio.toFixed(3)}`);
   if (r.ok) {
-    console.log("PASS — contract matches the code surface (0 fails, 0 unreconciled flags)");
+    const nr = r.reviews.length ? `; ${r.reviews.length} review item(s)` : "";
+    console.log(`PASS — contract matches the code surface (0 fails, 0 unreconciled flags)${nr}`);
     process.exit(0);
   }
   console.log(`\nNOT PASSING — ${r.fails.length} fail(s), ${r.flags.length} flag(s) to reconcile`);

@@ -19,7 +19,11 @@ A `## Public interface` table, one row per public symbol, exactly three columns:
 ```
 
 - **Symbol** — the exact public identifier, backticked. Matched by exact name (so
-  `id` is never confused with `uuid`/`idx`).
+  `id` is never confused with `uuid`/`idx`). When the same name is exported from two
+  files (two packages' `apply`, two controllers' `create`), those are two symbols:
+  give each its own row citing its own file, or exclude it. A re-export needs no
+  second row: an ESM barrel (`export { x } from './x'`), a CommonJS barrel
+  (`exports.x = require('./x')`, `module.exports = { x }`), or a `.d.ts` beside its source.
 - **Signature** — human-facing; the gate does not check it (the fresh-reader pass
   does). Keep it real.
 - **Source** — `path:line`, backticked, **relative to the project root** (or to the
@@ -38,14 +42,22 @@ of the contract goes under:
 - `debugDump`  — diagnostics only
 ```
 
-Rules the gate enforces (see `references/gate-design.md`):
-- You **cannot** exclude a symbol the code *clearly exports* (`export function …`,
-  `module.exports.x`, top-level `def`/`class`, exported Go func, `public` member) —
-  that is a `CONTRADICTION`. Exclusions are only for weak/ambiguous surface.
-- You **cannot** exclude more than half the surface — that trips
-  `EXCESSIVE_EXCLUSIONS`. Document interfaces; don't hide them.
-- A symbol whose name starts with `_` is treated as private by convention and is
-  never part of the surface, so it needs no exclusion.
+Rules (see `references/gate-design.md`):
+- A **strongly-exported** symbol (`export function …`, `module.exports.x`, top-level
+  `def`/`class`, exported Go func, `public` member) may be listed intentionally
+  internal **only with a same-line reason** — why it is not a public interface. A
+  fresh reader then verifies the reason against the code (exclusion card,
+  `references/protocol.md`); the gate itself does not judge it.
+- **Reason grammar** (what the gate checks — presence, never quality): the text after
+  the closing backtick of the first backticked identifier on the list-item line, with
+  leading whitespace and separators (`—` `–` `-` `:` `：` `,` `，` `(` `（`) stripped.
+  A reason is present iff at least one letter remains (CJK counts). Separator-only,
+  whitespace-only, or a reason written only on a continuation line = no reason →
+  `FLAG [EXCLUSION_NEEDS_REASON]` (deliberately loud). One exclusion per line.
+- Weak (unexported, ambiguous) surface needs no reason. A symbol whose name starts
+  with `_` is private by convention and never part of the surface.
+- Any heading containing "internal" makes its bullets exclusions — keep backticked
+  bullets out of headings like `## Internal architecture`.
 
 ## `architecture.md` — Mermaid conventions
 
