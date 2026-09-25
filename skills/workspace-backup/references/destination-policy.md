@@ -231,10 +231,17 @@ configured root, and **no file found on removable media can make it one**.
 
 `FOREIGN_MACHINE` and `DEST_ID_MISMATCH` are refuse-**until-confirmed** (exit
 30), not absolute refusals: a path change is exactly what both an accident and
-an attacker look like, so it needs a human turn, recorded in the journal with
-the exact resolved path. Consent recorded that way is re-validated against the
-live marker before any write, so a compacted or hallucinated memory of consent
-cannot authorise one.
+an attacker look like, so it needs a human turn — the user's own sentence naming
+the drive and the effect (widening keys). Then, and only then,
+`init_destination.py --dest-id D --adopt-foreign-marker --confirm` rewrites the
+marker's identity to this machine and dest_id `D` (same six keys; unknown keys
+are dropped and their names journalled) and journals `destination_adopted` with
+the exact resolved path and the previous identity. The consent is not stored as
+a flag anywhere: its only effect is the rewritten marker, which the guard
+re-reads before every write, so a compacted or hallucinated memory of consent
+authorises nothing. Without both flags, init refuses (exit 30) and writes
+nothing. Adoption makes the marker valid, so if `delete_at_destination` is on it
+now applies to this destination too — say so when asking.
 
 Delete-at-destination is refused outright for any destination without a valid
 own marker, and it is decided from a **fresh** guard re-check at copy time, not

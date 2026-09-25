@@ -172,6 +172,8 @@ add himself. Do not retry another way or write a side file the skill then trusts
   re-initialised. It routes to a separate confirmation, because a reformat means
   every memo entry for that destination is void and the next run is a full copy.
   Say that in advance rather than performing it silently.
-* **A drive that names another machine** (`FOREIGN_MACHINE`) needs
-  `--adopt-foreign-marker` plus an explicit yes. Two machines writing one
-  destination root corrupts both memos.
+* **A drive that names another machine** (`FOREIGN_MACHINE`), or a destination
+  whose config id was renamed (`DEST_ID_MISMATCH`), needs the user's explicit
+  yes, then `--adopt-foreign-marker --confirm`, which rewrites the marker and
+  journals `destination_adopted`. Two machines writing one destination root
+  corrupts both memos.
