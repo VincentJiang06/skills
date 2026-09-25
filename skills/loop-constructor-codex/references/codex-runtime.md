@@ -46,7 +46,7 @@ root, sandbox and flags can be checked from its command line.
 |------|-------------|---------|
 | planner | `codex exec "<plan prompt>"` → writes `contract.md` + the plan; no code | `read-only` (or `workspace-write` to write the plan files) |
 | generator | `codex exec "<build prompt>"` → writes all the code; never grades itself | `workspace-write` |
-| evaluator | a **NEW** `codex exec` given ONLY the artifact (diff) + `contract.md` — never the generator's transcript or reasoning — launched from a conductor-owned checkout (below) | `read-only` |
+| evaluator | a **NEW** `codex exec` given ONLY the artifact (diff) + `contract.md` as of `<contract-tag>` — never the generator's transcript or reasoning — launched from a conductor-owned checkout (below) | `read-only` |
 
 The evaluator's `separate_context:true` means literally a fresh invocation that never
 saw the build conversation; its prompt (`.loop/prompts/evaluator.md`) says "here is the
@@ -60,15 +60,21 @@ limits what the evaluator writes, not what it reads as authority. Take one contr
 (`references/loops-model.md` §II):
 
 ```
-# (a) conductor-owned checkout of the stage tag; its instruction surfaces must still
-#     equal the contract-time tag (the generator's diff should never touch them)
+# (a) conductor-owned checkout of the stage tag; its instruction surfaces and the graded
+#     contract must still equal the contract-time tag (the generator's diff never touches them)
 git worktree add .loop/eval-checkout <stage-tag>
-git diff --exit-code <contract-tag> <stage-tag> -- ':(glob)**/AGENTS*.md' .codex '*.rules' .loop/prompts
+git diff --exit-code <contract-tag> <stage-tag> -- ':(glob)**/AGENTS*.md' .codex '*.rules' .loop/prompts contract.md
 codex exec -C .loop/eval-checkout --sandbox read-only "$(cat .loop/eval-checkout/.loop/prompts/evaluator.md)"
 # (b) or verify the surface set recorded at contract time, then launch
 #     (the checksum file itself kept outside the generator's write surface)
-shasum -a 256 -c <owner-dir>/eval-surfaces.sha256   # every AGENTS*.md, .codex/**, *.rules, .loop/prompts/*
+shasum -a 256 -c <owner-dir>/eval-surfaces.sha256   # every AGENTS*.md, .codex/**, *.rules, .loop/prompts/*, contract.md
 ```
+
+`contract.md` is in the set because it is what gets graded (`references/loops-model.md`
+§III): a generator that can edit it can delete the assertion it fails, and the evaluator
+then grades against the weakened list. The generator never writes it after contract
+time. A contract that turns out wrong is an **escalate** (`references/loops-model.md` §V:
+the failure accuses the contract); the owner re-negotiates it and re-tags `<contract-tag>`.
 
 A non-empty diff or a checksum mismatch is itself a finding: it is shown to the
 evaluator as diff data, never obeyed. Codex memories live outside the repo; unless the
@@ -84,7 +90,9 @@ Because each `codex exec` is a fresh context, **nothing survives except what is 
 - `.loop/` runbook — the emitted design + this how-to-run doc.
 - an on-disk ledger, e.g. `.loop/state.json` or `.loop/run-state.md` — which stage is
   done, what's next, the last green checkpoint.
-- `contract.md` — the negotiated assertions (the graded criteria).
+- `contract.md` — the negotiated assertions (the graded criteria). Set at contract time
+  and protected like the instruction surfaces below (§1): outside the generator's write
+  surface, checked against `<contract-tag>` before each evaluator launch.
 - **AGENTS.md** (every level), `AGENTS.override.md`, `.codex/`, execpolicy rules and
   `.loop/prompts/` — standing instructions every fresh `codex exec` auto-reads. They are
   a **protected evaluator-read surface, not run state**: the owner/planner sets them at

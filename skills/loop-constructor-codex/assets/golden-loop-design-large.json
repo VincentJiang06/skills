@@ -210,19 +210,19 @@
   "human_placement": "on_the_loop",
   "maker_checker": {
     "separate_checker": true,
-    "scope": "a fresh-context reviewer sees only the merged diff + the whole-suite check + the repo-wide residual scan; flags any cross-shard regression, an extensionless import, or a module missing from the manifest — not per-module style. The reviewer runs as codex exec -C .loop/eval-checkout (a conductor-owned checkout at the cutover tag) with --sandbox read-only; before launch, git diff --exit-code contract-baseline..cutover over AGENTS.md (every level), AGENTS.override.md, .codex/, execpolicy .rules files and .loop/prompts/ must be empty and their sha256 (recorded at contract time in the owner-held .loop-owner/eval-surfaces.sha256) must verify, so no shard's generator can plant a standing instruction the reviewer would auto-read; a changed file is shown to the reviewer as diff data, never obeyed. Codex memories live outside the checkout, so the reviewer's independence from them is recorded as L-i incomplete. The codex exec isolation flags are not relied on (effect unverified)."
+    "scope": "a fresh-context reviewer sees only the merged diff + the whole-suite check + the repo-wide residual scan; flags any cross-shard regression, an extensionless import, or a module missing from the manifest — not per-module style. The reviewer runs as codex exec -C .loop/eval-checkout (a conductor-owned checkout at the cutover tag) with --sandbox read-only; before launch, git diff --exit-code contract-baseline..cutover over AGENTS.md (every level), AGENTS.override.md, .codex/, execpolicy .rules files, .loop/prompts/ and contract.md must be empty and their sha256 (recorded at contract time in the owner-held .loop-owner/eval-surfaces.sha256) must verify, so no shard's generator can plant a standing instruction the reviewer would auto-read or delete an assertion from the graded contract; a changed file is shown to the reviewer as diff data, never obeyed. Codex memories live outside the checkout, so the reviewer's independence from them is recorded as L-i incomplete. The codex exec isolation flags are not relied on (effect unverified)."
   },
   "roles": {
     "planner": {
       "mandate": "enumerate the module graph, shard the ~40 modules into disjoint independent sets, write the manifest + contract; never convert a module"
     },
     "generator": {
-      "mandate": "in each shard worktree, convert that shard's modules to ESM and keep their tests green; may NOT touch another shard's files, weaken or skip a test, edit AGENTS.md / AGENTS.override.md / .codex/ / .loop/prompts/, or grade its own shard"
+      "mandate": "in each shard worktree, convert that shard's modules to ESM and keep their tests green; may NOT touch another shard's files, weaken or skip a test, edit contract.md / AGENTS.md / AGENTS.override.md / .codex/ / .loop/prompts/, or grade its own shard"
     },
     "evaluator": {
       "separate_context": true,
       "adversarial": true,
-      "mandate": "a fresh read-only codex exec that never saw any shard's conversion, launched from the conductor-owned checkout after the instruction-surface check in maker_checker.scope; given only the merged diff + contract.md; assume the migration is broken and prove it — run the whole suite, run the repo-wide residual scan, hunt extensionless imports and a shared helper converted two ways, and check the manifest covered every module"
+      "mandate": "a fresh read-only codex exec that never saw any shard's conversion, launched from the conductor-owned checkout after the instruction-surface check in maker_checker.scope; given only the merged diff + contract.md as of contract-baseline; assume the migration is broken and prove it — run the whole suite, run the repo-wide residual scan, hunt extensionless imports and a shared helper converted two ways, and check the manifest covered every module"
     }
   },
   "contract": {
@@ -299,8 +299,8 @@
       },
       {
         "id": "A12",
-        "must": "the evaluator instruction surfaces (AGENTS.md at every level, AGENTS.override.md, .codex/, execpolicy .rules, .loop/prompts/) are unchanged since the contract baseline",
-        "check": "git diff --exit-code contract-baseline HEAD -- ':(glob)**/AGENTS*.md' .codex '*.rules' .loop/prompts",
+        "must": "the evaluator instruction surfaces (AGENTS.md at every level, AGENTS.override.md, .codex/, execpolicy .rules, .loop/prompts/) and the graded contract.md are unchanged since the contract baseline",
+        "check": "git diff --exit-code contract-baseline HEAD -- ':(glob)**/AGENTS*.md' .codex '*.rules' .loop/prompts contract.md",
         "stage": "cross-cutting"
       }
     ]
@@ -310,9 +310,9 @@
     "shared on-disk ledger .loop/run-state.json — which shards are done, each shard's last green commit, the merge order — the ONLY cross-process channel (never shared context)",
     "git tag cjs-baseline as the immutable regression + audit reference",
     ".loop/modules.json manifest (module -> shard -> test command) the planner writes and shards read",
-    "contract.md holding the negotiated assertions",
+    "contract.md holding the negotiated assertions, written by the planner at contract time and outside every generator's write surface (A12 + the eval-surfaces.sha256 set); a wrong contract is an escalate, never a generator edit",
     "AGENTS.md standing instruction, set by the planner at contract time and outside every generator's write surface: each codex exec re-reads .loop/run-state.json + its shard slice of the manifest before acting",
-    "git tag contract-baseline + owner-held .loop-owner/eval-surfaces.sha256 (sha256 of every AGENTS*.md, .codex/**, *.rules, .loop/prompts/*), written at contract time and verified before each reviewer launch"
+    "git tag contract-baseline + owner-held .loop-owner/eval-surfaces.sha256 (sha256 of every AGENTS*.md, .codex/**, *.rules, .loop/prompts/*, contract.md), written at contract time and verified before each reviewer launch"
   ],
   "stop_conditions": {
     "success": "characterize is green and pinned, all three conversion shards pass their per-shard check in their own worktrees, and cutover merges them with the whole suite + build + repo-wide residual scan all green",
@@ -326,7 +326,7 @@
       "the task turns out impossible or blocked on something the loop cannot obtain -> stop and report (safe exit; never sealed by a 'don't ask' instruction)",
       "an unresolvable cross-module import cycle blocks independent sharding",
       "the sharding itself is found wrong (a 'module' spans two shards' surfaces, or a shard's module cannot be converted without touching another shard's files)",
-      "the instruction-surface check before a reviewer launch fails (an AGENTS*.md, .codex/ or .loop/prompts/ file changed since contract-baseline)"
+      "the instruction-surface check before a reviewer launch fails (an AGENTS*.md, .codex/, .loop/prompts/ or contract.md file changed since contract-baseline)"
     ],
     "max_iterations": 4
   },

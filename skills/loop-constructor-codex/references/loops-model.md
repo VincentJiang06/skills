@@ -82,7 +82,10 @@ it reads as authority. Text the generator writes into those files is still gener
 output; the channel gives it no authority. So either launch the evaluator with `-C`
 into a conductor-owned checkout at the stage tag, or record the sha256 of that whole
 surface set at contract time and verify it before each evaluator launch; a changed
-file is shown to the evaluator as diff data, never obeyed. Codex's isolation flags
+file is shown to the evaluator as diff data, never obeyed. The graded criteria belong in
+that set too: `contract.md` (§III) is fixed at contract time and outside the generator's
+write surface, and the evaluator grades against the contract-time copy — a generator
+that can edit the contract can delete the assertion it fails. Codex's isolation flags
 (`--ephemeral`, `--disable memories`, `--ignore-rules`, `--ignore-user-config`) exist
 but their effect is unverified, so they are not the control. When neither control is
 bought, write the evaluator's independence as **`L-i incomplete`** in
@@ -136,7 +139,8 @@ crash or a compaction keeps its state in a small, fixed set of files the agent
 re-reads on resume (`concept.external_state_memory`). Name them in
 `harness_primitives`:
 
-- **`contract.md`** — the negotiated assertions (the graded criteria).
+- **`contract.md`** — the negotiated assertions (the graded criteria); fixed at contract
+  time and protected with the evaluator surfaces (§II), never written by the generator.
 - **`progress.md`** / **`feature_list.json`** — what's done, what's next, per stage.
 - **`log.md`** — append-only, one line per operation: `## [YYYY-MM-DD] op | title`.
 

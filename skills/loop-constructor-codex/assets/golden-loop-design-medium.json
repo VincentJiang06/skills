@@ -134,7 +134,7 @@
   "human_placement": "on_the_loop",
   "maker_checker": {
     "separate_checker": true,
-    "scope": "fresh-context reviewer sees only the diff + the per-stage acceptance checks; flags correctness / stated-requirement gaps only, especially any behavior change to existing endpoints. The reviewer and the stage checks run from a read-only checkout at the stage tag; AGENTS.md (every level), AGENTS.override.md, .codex/, execpolicy .rules files and the .loop/prompts/ evaluator prompt are hashed before launch and verified, so the generator cannot plant standing instructions the reviewer would auto-read; Codex memories live outside the checkout, so the reviewer's independence from them is recorded as L-i incomplete"
+    "scope": "fresh-context reviewer sees only the diff + the per-stage acceptance checks; flags correctness / stated-requirement gaps only, especially any behavior change to existing endpoints. The reviewer and the stage checks run from a read-only checkout at the stage tag; AGENTS.md (every level), AGENTS.override.md, .codex/, execpolicy .rules files, the .loop/prompts/ evaluator prompt and the graded contract.md are hashed at contract time and verified before launch, so the generator cannot plant standing instructions the reviewer would auto-read or delete an assertion it fails; Codex memories live outside the checkout, so the reviewer's independence from them is recorded as L-i incomplete"
   },
   "roles": {
     "planner": { "mandate": "turn the goal into the staged spec + the contract; never write middleware or test code" },
