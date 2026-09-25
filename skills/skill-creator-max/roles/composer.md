@@ -154,9 +154,14 @@ not adversarial.
 
 ## Step 6 — Fork every success dimension: objective or subjective (C5)
 
-**Produce:** `success.dimensions`, each dimension explicitly `objective` (deterministic check:
-exact match, linter, script exit code) or `subjective` (rubric + calibration samples: named
-positive AND negative anchor examples), with the criterion written out.
+**Produce:** `success.dimensions`, each dimension explicitly `objective` or `subjective`, with the
+criterion written out. Decide the fork PER JUDGMENT POINT, by one question: **is the verdict
+information in the string?** `objective` = yes — existence, count, verbatim, structural
+isomorphism, hash, byte/numeric compare (e.g. "every number unchanged" = the verbatim multiset of
+numerals is equal). `subjective` = no — rubric + calibration samples (named positive AND negative
+anchor examples). A semantic dimension stays `subjective` even when a linter could approximate it:
+"no new selling point" or "kept every action item" is subjective although an LCS/regex script could
+emit an exit code for it — an exit code over an approximation is not an objective check (P13/S14).
 
 **Rule:** the verifiability of the output decides the evidence strategy, and that decision is
 the composer's, not the engineer's guess [ANT-SkillCreator]. Explicit rubrics with checkpoints
