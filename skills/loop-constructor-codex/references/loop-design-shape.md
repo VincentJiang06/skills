@@ -62,7 +62,8 @@ Entering a loop means the task is big enough to decompose, so the skill emits a
 **staged** design: every task is a tree/sequence of gated sub-loops. The flat
 shape above is **not deprecated** — it is the atomic unit (one stage *is* a flat
 loop), and the linter still accepts a lone flat object for back-compat. But the
-9-step protocol produces the staged shape below.
+selection procedure (SELECT → NEGOTIATE → FILL → VERIFY, D0–D7) produces the staged
+shape below.
 
 ```json
 {
@@ -76,8 +77,29 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
     { "decision": "D3", "answer": "<in_the_loop | on_the_loop>", "why": "<blast × reversibility × feedback>" },
     { "decision": "D4", "answer": "<medium | large>", "why": "<sequential vs independent fan-out>" },
     { "decision": "D5", "answer": "<caps + routing>", "why": "<the guard choices>" },
-    { "decision": "D6", "answer": "<completeness_first | iteration_first>", "why": "<iteration-boundary cost vs check latency; how it tuned caps/pattern/scope/check-thoroughness>" }
+    { "decision": "D6", "answer": "<completeness_first | iteration_first>", "why": "<iteration-boundary cost vs check latency; how it tuned caps/pattern/scope/check-thoroughness>" },
+    { "decision": "D7", "answer": "<N decision / N definitional / N empirical -> <stage> calibrates>", "why": "<the digit sweep: which numbers landed in which class>" }
   ],
+  "parameter_provenance": {
+    "fixed": [
+      { "name": "<slug>", "value_or_location": "<the number, or where it lives>", "class": "decision | definitional", "why": "<one line>", "red_fixture": "<REQUIRED when definitional: the fixture proving the check can FAIL on it>" }
+    ],
+    "derived": [
+      {
+        "name": "<slug>",
+        "formula": "<pre-registered derivation rule — fixed at design time; the VALUE is measured at run time>",
+        "calibrated_by": "<EXISTING stage id — an ordinary stage whose check validates the runtime values artifact>",
+        "consumed_by": ["<stage id — every consumer must have the calibrator as a depends_on ancestor>"],
+        "cadence": "<when re-derived: pre-registered points, never in-flight judgment>",
+        "sample_rule": "<sample + censoring: censored observations enter as LOWER BOUNDS, never dropped>",
+        "drift_policy": {
+          "threshold": "<the instability line — itself class decision, per design; no skill default>",
+          "conservative_direction": "<which way the fallback moves on instability>",
+          "floor_trip": "<predicate on the design's minimum-progress floor; trip routes to ESCALATE (or an honest 'floor n/a: <why>')>"
+        }
+      }
+    ]
+  },
   "stages": [
     {
       "id": "<unique slug — referenced by depends_on>",
@@ -121,12 +143,13 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 }
 ```
 
-- **`selection_log`** — the D0–D6 decision trail from `references/loop-selection.md`
+- **`selection_log`** — the D0–D7 decision trail from `references/loop-selection.md`
   (the **mechanism**): each entry is `{decision, answer, why}`. The linter does
   not gate it, but a design without it is incomplete — it's what makes the chosen
   shape reviewable rather than asserted. Emit it and surface it in the report. D6
   records the iteration profile (completeness-first / iteration-first) as a dial
-  over the existing knobs — not a new linted field.
+  over the existing knobs — not a new linted field; D7 records the number-provenance
+  class counts and which stage calibrates.
 - **`loop_altitude`** — `medium` (sequential gated stages, single-agent) or
   `large` (+ parallel fan-out; see `pattern.multi_agent_orchestra`). `small` is
   **not** a valid altitude.
@@ -167,13 +190,77 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 - **`restart`** (LOOPS.md §V — *Let The Loop Restart*) — a stage `on_failure.action`
   meaning *discard this stage's work and re-derive it from the contract* rather than
   patching a codebase that has become archaeology. It carries no `to` (it throws its
-  own work away and re-enters — it does not reset an upstream gate). Restart is not
-  a human-escalation trigger: insert a human only when the **contract** is wrong,
-  not when a build is. Its trigger — "patching has stalled" — must be **quantified in
-  the stop conditions before the run** ("2 consecutive same-class failures", "a
-  top-severity defect inside the previous iteration's own fix"), never judged
-  in-flight; the linter cannot check this, the fresh-reader does
-  (`references/loops-model.md` §V).
+  own work away and re-enters — it does not reset an upstream gate). A restart of the
+  stage's own stalled work is autonomous: don't put a human in its way. Its trigger —
+  "patching has stalled" — must be **quantified in the stop conditions before the
+  run** ("2 consecutive same-class failures"), never judged in-flight. A top-severity
+  defect inside the previous iteration's own fix is **not** a restart trigger: it is a
+  fixer signature, and it goes to the outer `stop_conditions.escalate` (stop; the
+  owner first asks whether the judgment should be mechanized at all). **There is no
+  `re-plane` action, on purpose**: re-plane is the owner's/gate's disposition after an
+  escalate stop, not a route the loop may take, so the enum stays
+  `loopback | escalate | abort | restart` — a request for `on_failure: re-plane` is
+  declined and the plane question goes into the escalate trigger instead. The linter
+  cannot check any of this, the fresh-reader does (`references/loops-model.md` §V).
+- **`parameter_provenance`** (D7 — *number provenance*) — the declaration that
+  classifies the design's numbers: one top-level key, exactly two arrays. An empty
+  block is an affirmative claim ("this design has no empirical parameters"): legal
+  and honest for a decision-only design, and exactly the claim the numbers-audit
+  falsifies.
+  - **`fixed[]`** — numbers legitimately fixed at design time. Each entry: `name` +
+    `value_or_location` + `class` (`decision` | `definitional`) + one-line `why`;
+    a `definitional` entry additionally carries `red_fixture` (the fixture proving
+    its check can FAIL). `empirical` is **not** a fixed class: an empirical number
+    may appear only as a derived entry. The class definitions and the two
+    classification tests live in D7 (`references/loop-selection.md`) — this file
+    only binds the syntax.
+  - **`derived[]`** — empirical magnitudes (ceilings, timeouts, batch/sample
+    sizes, agreement bars). The **design-time/run-time split**: the DESIGN fixes
+    the contract — `formula`, `calibrated_by`, `consumed_by`, `cadence`,
+    `sample_rule`, `drift_policy{threshold, conservative_direction, floor_trip}` —
+    and the RUN produces the values. **Calibration is an ordinary stage**, not a
+    new stage type: `calibrated_by` names an existing stage, a `depends_on`
+    ancestor of every consumer, and *that stage's own check* validates the runtime
+    values artifact (recommended shape per managed value:
+    `{value, derived_from, measured_at, sample_n}`, named as a `harness_primitive`)
+    and fails on any hand-filled value. Prove that check goes red on a hand-filled
+    fixture before trusting it (`anti_pattern.unexercised_self_check`). The
+    **linter never reads the runtime values file** (validate() is pure, no I/O):
+    validating the artifact is the calibration stage's job.
+  - **Re-derivation is formula-only, and conservative.** Values change only at the
+    declared `cadence` by the declared `formula`; on drift past the (decision-class,
+    per-design) `threshold` the value falls back in its `conservative_direction`;
+    `floor_trip` bounds that conservative ratchet — its trip routes to **escalate**
+    instead of tightening forever ("derived" is not a synonym for "true":
+    `references/loops-model.md` §VIII·b). A parameter whose conservative direction
+    grows *away* from the floor writes an honest `floor n/a: <why>`.
+  - **Flat designs stay fully static.** Absence on flat is silent; a flat derived
+    entry cannot resolve a calibrating stage (no stage graph to order one in) and
+    FAILs — an atomic design wanting derived parameters has found a seam: revisit
+    D1. A fixed-only declaration on flat is legal.
+
+#### What the linter enforces for `parameter_provenance`
+
+**WARN (advisory — never affects `ok`, the exit code, or renderer refusal):**
+
+| Condition | Warns |
+|-----------|-------|
+| STAGED design, `parameter_provenance` key absent | `WARN parameter_provenance: …` — absence is back-compat legal (every pre-0.4 design keeps passing, exit 0); a NEWLY-emitted design is clean only at **zero FAIL and zero WARN** (SKILL.md VERIFY). Flat absence is silent. |
+
+**FAIL (strict when the key is present):**
+
+| Field | FAILs when |
+|-------|------------|
+| `parameter_provenance` | not an object with `fixed[]` **and** `derived[]` arrays (an unfilled half must be `[]`, never missing) |
+| `fixed[i].name` / `.value_or_location` / `.why` | missing/empty |
+| `fixed[i].class` | not `decision`/`definitional` (an `empirical` fixed entry FAILs — declare it derived instead) |
+| `fixed[i].red_fixture` | missing/empty while `class` is `definitional` |
+| `derived[i].name` / `.formula` / `.cadence` / `.sample_rule` | missing/empty |
+| `derived[i].calibrated_by` | missing/empty, or naming a non-existent stage id (on flat: unresolvable by construction) |
+| `derived[i].consumed_by` | not a non-empty array of stage ids; an entry naming a non-existent stage; an entry equal to `calibrated_by` (**self-calibration circle** — a stage may not derive the very bound it runs under); a consumer without the calibrator as a transitive `depends_on` ancestor (**ordering rule** — a consumer cannot run before, or parallel to, its calibrator) |
+| `derived[i].drift_policy` | missing or not an object |
+| `drift_policy.threshold` | missing/empty (non-empty string or finite number) |
+| `drift_policy.conservative_direction` / `.floor_trip` | missing/empty |
 
 ### What the linter enforces for STAGED designs (FAIL rules)
 
@@ -190,7 +277,7 @@ loop), and the linter still accepts a lone flat object for back-compat. But the
 | `stages[i].feedback_signal.passing_but_wrong` | missing/empty — record the passing-but-WRONG implementation the check would wrongly accept (or `"none: <why exhaustive>"`); presence is structural, the fresh-reader judges whether it's real |
 | `stages[i].stop_conditions.failure` | not a non-empty list of **non-empty strings** (`[null]` / `[""]` / `[0]` FAIL) |
 | `stages[i].stop_conditions.max_iterations` | missing, or not a positive integer **≤ 10000** (an effectively-infinite cap is no cap) |
-| `stages[i].stop_conditions.on_failure` | `action` not `loopback`/`escalate`/`abort`; a `loopback` whose `to` is missing, unresolved, the stage **itself**, or **not an upstream stage** (must be a transitive `depends_on` ancestor); or an `escalate`/`abort` carrying a stray `to` |
+| `stages[i].stop_conditions.on_failure` | `action` not `loopback`/`escalate`/`abort`/`restart`; a `loopback` whose `to` is missing, unresolved, the stage **itself**, or **not an upstream stage** (must be a transitive `depends_on` ancestor); or an `escalate`/`abort` carrying a stray `to` |
 | `stages[i].depends_on` | present but not an array, **or** references a stage id that does not exist |
 | `stages.reachability` | the `depends_on` edges form a cycle (no enterable root ⇒ cannot terminate) |
 | `hybrid.*` | a top-level `feedback_signal` / `definition_of_done` / `loop_pattern` alongside `stages[]` (per-loop fields belong inside a stage) |
@@ -218,7 +305,13 @@ A complete staged design → all `PASS`, exit 0. See
 > `roles.evaluator.adversarial`. A design can set them `true` while the mandate
 > prose describes a generator grading itself — the linter makes the separation
 > impossible to *omit*, the fresh-reader/maker-checker make it *true*
-> (`references/loops-model.md` §III, "Honest limit").
+> (`references/loops-model.md` §III, "Honest limit"). The `parameter_provenance`
+> declaration sits on the SAME boundary: the linter validates its shape and stage
+> cross-references but never NLP-classifies prose numbers — an empirical literal
+> hiding in a `must`/`success` string above an empty declaration lints green and
+> is a lie. That residual belongs to the fresh-reader's numbers-audit box and the
+> attacker stage, by design: a lexical number-scanner would false-fire on
+> legitimate definitional numbers and train authors to hide numbers in prose.
 
 ## The loop docs (persisted artifact)
 

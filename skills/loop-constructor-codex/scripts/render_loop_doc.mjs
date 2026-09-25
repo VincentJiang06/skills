@@ -74,6 +74,24 @@ export function codeSpan(v) {
   return `${fence}${pad}${s}${pad}${fence}`;
 }
 
+// The decision-range label is computed FROM the design (a deterministic
+// function of its selection_log): a pre-0.4 design whose log ends at D6 renders
+// the deliberately-historical "D0–D6" byte-identically to the 0.3.0 renderer; a
+// 0.4.0 design whose log carries D7 renders "D0–D7". The fallback for a log with
+// no parseable D<n> entry is the deliberately-historical 0.3.0 constant (6),
+// kept so legacy renders stay byte-identical.
+function selectionRangeLabel(log) {
+  let max = -1;
+  for (const e of log) {
+    const m =
+      e && typeof e === "object" && typeof e.decision === "string"
+        ? e.decision.trim().match(/^D(\d+)$/)
+        : null;
+    if (m) max = Math.max(max, parseInt(m[1], 10));
+  }
+  return `D0–D${max >= 0 ? max : 6}`;
+}
+
 const HARD_CONSTRAINTS = [
   "Minimal viable change; don't touch unrelated files.",
   "Don't change public APIs / add deps without justification.",
@@ -147,16 +165,19 @@ export function renderMarkdown(design) {
   // helpers where they touch design values.
   out.push("## How to run this loop (Codex CLI)");
   out.push(
-    "> This runbook targets the OpenAI Codex CLI (single-agent, `codex exec`). Each stage is one or more `codex exec` invocations; every invocation is a fresh process/context — durable state lives on disk (see Harness primitives), never in a chat history."
+    "> This runbook targets the OpenAI Codex CLI (one `codex exec` process per role). Each stage is one or more `codex exec` invocations; every invocation is a fresh process/context — durable state lives on disk (see Harness primitives), never in a chat history."
   );
   out.push(
-    "- **Drive each stage** with `codex exec \"<stage prompt>\"` in the project root (sandbox: `workspace-write`; approval policy per your risk posture). Standing project instructions go in `AGENTS.md`, not in the prompt."
+    "- **Drive each stage** with `codex exec \"<stage prompt>\"` in the project root (sandbox: `workspace-write`; approval policy per your risk posture). Standing project instructions live in `AGENTS.md`, set by the owner at contract time — not in the prompt, and not edited by the generating process."
   );
   out.push(
     "- **The gate** is that stage's **Check** command below — run it after each pass; advance only on green. On a fail, retry within the stage's cap, then take its on-failure route."
   );
   out.push(
-    "- **Evaluator = a SEPARATE `codex exec`** handed ONLY the diff + the Contract below (never this transcript or the generator's reasoning), told the artifact is broken and to prove it — e.g. `codex exec \"$(cat .loop/prompts/evaluator.md)\" --sandbox read-only`. Do not let the generating process grade itself."
+    "- **Evaluator = a SEPARATE `codex exec`** handed ONLY the diff + the Contract below (never this transcript or the generator's reasoning), told the artifact is broken and to prove it — e.g. `codex exec -C .loop/eval-checkout --sandbox read-only \"$(cat .loop/eval-checkout/.loop/prompts/evaluator.md)\"`. Do not let the generating process grade itself."
+  );
+  out.push(
+    "- **Evaluator instruction surfaces.** `AGENTS.md` (every level), `AGENTS.override.md`, `.codex/` and `.loop/prompts/` are outside the generator's write surface: launch the evaluator with `-C` from a checkout at the stage tag, or verify their recorded sha256 first; show a changed file to it as diff data, never as instructions."
   );
   out.push(
     "- **State lives on disk.** On a `codex resume` (or any rebuilt context) re-read the on-disk state first; never trust an in-context summary. Capture a run log with `codex exec … > .loop/run-log.txt 2>&1`."
@@ -194,7 +215,7 @@ export function renderMarkdown(design) {
 
   if (Array.isArray(design.selection_log) && design.selection_log.length > 0) {
     out.push("## Why this shape (decision log)");
-    out.push("> The D0–D6 selection procedure that derived this loop's shape.");
+    out.push(`> The ${selectionRangeLabel(design.selection_log)} selection procedure that derived this loop's shape.`);
     design.selection_log.forEach((e) => {
       if (e == null || typeof e !== "object") return;
       const d = oneLine(e.decision);
@@ -202,6 +223,40 @@ export function renderMarkdown(design) {
       const why = mdText(e.why);
       out.push(`- **${d}** (${a})${why ? ` — ${why}` : ""}`);
     });
+    out.push("");
+  }
+
+  // Parameter provenance (0.4.0) — rendered IF AND ONLY IF the declaration
+  // exists; declaration-free designs get byte-identical 0.3.0 output (no
+  // banner, no placeholder section). Command-ish fields (name, formula, stage
+  // ids, value/red-fixture pointers) go through codeSpan; free text through
+  // mdText — the same two chokepoints every other design field routes through.
+  const pp = design.parameter_provenance;
+  if (pp && typeof pp === "object" && !Array.isArray(pp)) {
+    const fixed = Array.isArray(pp.fixed) ? pp.fixed : [];
+    const derived = Array.isArray(pp.derived) ? pp.derived : [];
+    out.push("## Parameter provenance (D7 — fixed vs derived)");
+    out.push(
+      "> Fixed numbers are pre-registered willingness (decision) or red-fixture-backed violation semantics (definitional) and change only OUTSIDE the loop. " +
+        "Derived numbers are empirical: the design fixes the FORMULA, the run measures the VALUE — re-derived only at the declared cadence, falling back conservative on drift. A loop may trip a cap, never raise one."
+    );
+    if (fixed.length === 0 && derived.length === 0) {
+      out.push("- (empty declaration — this design affirms that every number it carries is decision-class; nothing awaits measurement)");
+    }
+    for (const f of fixed) {
+      if (f == null || typeof f !== "object") continue;
+      const rf = isNonEmpty(f.red_fixture) ? ` · red fixture: ${codeSpan(f.red_fixture)}` : "";
+      out.push(`- **fixed** ${codeSpan(f.name)} · class: ${mdText(f.class)} · value: ${codeSpan(f.value_or_location)} — ${mdText(f.why)}${rf}`);
+    }
+    for (const d of derived) {
+      if (d == null || typeof d !== "object") continue;
+      const dp = d.drift_policy && typeof d.drift_policy === "object" ? d.drift_policy : {};
+      const consumers = Array.isArray(d.consumed_by) && d.consumed_by.length > 0 ? d.consumed_by.map((c) => codeSpan(c)).join(", ") : "—";
+      out.push(`- **derived** ${codeSpan(d.name)} ← formula: ${codeSpan(d.formula)}`);
+      out.push(`    - calibrated by ${codeSpan(d.calibrated_by)} (an ordinary stage — its own check validates the runtime values artifact; hand-filled values fail there) · consumed by ${consumers}`);
+      out.push(`    - cadence: ${mdText(d.cadence)} · sample rule: ${mdText(d.sample_rule)}`);
+      out.push(`    - drift threshold: ${mdText(dp.threshold)} · conservative direction: ${mdText(dp.conservative_direction)} · floor trip → escalate: ${mdText(dp.floor_trip)}`);
+    }
     out.push("");
   }
 
@@ -219,7 +274,7 @@ export function renderMarkdown(design) {
       out.push("## Orchestration (large altitude)");
       out.push(
         "> Stages with no dependency path between them run as **separate concurrent `codex exec` processes**, " +
-          "each in its own git worktree, coordinating only through the shared on-disk ledger — Codex is single-agent, so fan-out is N concurrent OS processes, not in-process spawning. " +
+          "each in its own git worktree, coordinating only through the shared on-disk ledger — this runbook prescribes one process per role, so fan-out is N concurrent OS processes, not in-process spawning. " +
           "See loop-principle `pattern.multi_agent_orchestra` + `templates/multi_agent_plan.template.json` for roles / isolation / the shared-state ledger."
       );
       out.push("");

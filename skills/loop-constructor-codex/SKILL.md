@@ -6,7 +6,7 @@ description: >-
   runbook. Use-when: "design an agent loop for codex", "$loop-constructor-codex". It
   DESIGNS the loop; it does NOT execute it.
 metadata:
-  version: 0.2.0
+  version: 0.3.0
 ---
 
 # loop-constructor-codex
@@ -41,26 +41,23 @@ reviewable derivation, not judgment-by-vibes.
 The design vocabulary above (roles, contract, separate-context evaluator, restart,
 gate, harness_primitives) is **runtime-neutral** — it names loop-engineering concepts,
 not any runtime's primitives. How each concept *lands on the Codex CLI* lives in
-`references/codex-runtime.md`. Load it during **NEGOTIATE** (roles realization — three
-roles = three separate `codex exec` invocations, the evaluator a fresh read-only one),
-**FILL** (harness_primitives = durable on-disk state; D4 parallelism = concurrent
-`codex exec` processes in git worktrees), and **PERSIST** (the emitted runbook carries a
-"How to run this loop (Codex CLI)" preamble). The design JSON itself stays neutral.
+`references/codex-runtime.md` — load it at NEGOTIATE, FILL and PERSIST (its phase map
+says what each takes). The design JSON itself stays neutral.
 
 ### 1. SELECT — run the decision procedure (`references/loop-selection.md`)
-Answer **D0–D6 in order**; each answer determines part of the shape and is
-recorded with a one-line justification (the **decision log**). The ordered
+Answer **D0–D6 in order** (D7 closes after NEGOTIATE); each answer shapes the
+loop and is recorded with a one-line justification (the **decision log**). The ordered
 decisions: **D0** is-it-a-loop (name the runnable "done?" check or route away) ·
 **D1** decompose (seam test → flat vs staged) · **D2** per-stage pattern + check
 (+ `falsifiable_when`/`passing_but_wrong`) · **D3** autonomy (`in_the_loop` vs
 `on_the_loop`) · **D4** parallelism (`large` fan-out vs `medium` sequential — on
 Codex, fan-out = concurrent `codex exec` processes, never in-process subagents) ·
 **D5** guards (caps + `on_failure` + risk guards) · **D6** iteration profile /
-cadence (completeness-first vs iteration-first, a *dial* that re-tunes D2/D3/D5).
+cadence (completeness-first vs iteration-first, a *dial* that re-tunes D2/D3/D5) ·
+**D7** number provenance (closing sweep: each digit-bearing string classed
+decision | definitional | empirical; empirical ⇒ `derived`, never hand-fixed).
 Load `references/loop-selection.md` and run the full procedure — each D-item there
-is the operational decision rule. The procedure is the **selection method** — it
-replaces altitude-by-vibes with a reviewable derivation. Record the answers as the
-`selection_log` array.
+is the operational decision rule. Record the answers as the `selection_log` array.
 
 ### 2. NEGOTIATE — separate the roles + agree the contract (`references/loops-model.md`)
 Two moves from the LOOPS.md operating model, both **linter-enforced for staged**:
@@ -88,8 +85,9 @@ and design-level `loop_altitude` (+rationale) · `roles` · `contract` ·
 on-disk state so the loop survives context loss — each `codex exec` is fresh; disk
 is the only memory, see `references/codex-runtime.md` §2) · outer `stop_conditions`
 (with a non-empty `success`) · `risk_guards` (map to Codex sandbox / approval
-levers, codex-runtime.md §4). Include the `selection_log`. Reuse KB templates by
-path (`references/loop-principle-map.md`).
+levers, codex-runtime.md §4) · the **`parameter_provenance` declaration** (D7's
+output — FAIL/WARN rules in `references/loop-design-shape.md`). Include the
+`selection_log`. Reuse KB templates by path (`references/loop-principle-map.md`).
 
 ### 4. VERIFY — linter + fresh-reader (eat the dogfood)
 Run the linter on the produced JSON **before** returning it:
@@ -97,6 +95,9 @@ Run the linter on the produced JSON **before** returning it:
 node scripts/lint_loop_design.mjs <produced-design.json>
 ```
 It must print all `PASS` and exit 0. Any `FAIL <field>: <reason>` → fix and re-run.
+For a **newly-emitted design, clean = zero `FAIL` and zero `WARN` lines** — a
+`WARN parameter_provenance` means D7 was skipped (absence is legal only for
+pre-0.4 designs; warns never change the exit code).
 
 Then do the **fresh-reader pass** with the operational template
 `assets/fresh-reader-checklist.md` — the linter checks structure, not *meaning*.
@@ -106,9 +107,11 @@ restatement), `passing_but_wrong` is an honest concrete false-pass, failure
 branches are reachable, and `success` matches what the checks prove. It also
 judges what the linter *structurally* can't: whether the **contract is actually
 sufficient** (≈20 assertions for an app-sized task, not a rubber-stampable
-handful) and the **roles are genuinely separate** (the evaluator never saw the
-impl). A green linter on a hollow check — or a thin contract — is the exact trap
-this pass exists to catch.
+handful), the **roles are genuinely separate** (the evaluator never saw the
+impl), and — the **numbers-audit box** — that every digit-bearing string is
+classified in `parameter_provenance` (an empty declaration above unclassified
+empirical literals is a lie). A green linter on a hollow check — or a thin
+contract — is the exact trap this pass exists to catch.
 
 ### 5. PERSIST — render the runbook
 ```
@@ -117,12 +120,11 @@ node scripts/render_loop_doc.mjs <design.json>   # writes .loop/<slug>.loop.{md,
 `render_loop_doc.mjs` re-validates first and **refuses to emit a runbook for a
 design the linter rejects** — a written `.loop/` doc is itself proof the design
 passed. The emitted Markdown carries a **"How to run this loop (Codex CLI)"**
-preamble (per-stage `codex exec` pattern, evaluator-as-fresh-`codex exec`, re-read-disk
-on `codex resume`; for `large` designs, concurrent `codex exec` + worktrees). A
+preamble (codex-runtime.md phase map). A
 `REFUSED:` line → fix the design and re-run. Tell the user the two paths.
 
 ## Report
-Hand back: the **decision log** (D0–D6), the **roles + negotiated contract**, the
+Hand back: the **decision log** (D0–D7), the **roles + negotiated contract**, the
 loop-design JSON, the lint result (PASS), the fresh-reader verdict, a self-scored
 rubric (`loop-principle/templates/loop_quality_rubric.template.json`), the
 **current bottleneck** (where the weakest link is now — plan / verification / taste;
@@ -149,12 +151,12 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 
 | File | When to load |
 |------|--------------|
-| `references/loop-selection.md` | **Phase 1 (SELECT)** — the D0–D6 decision procedure that derives the loop shape + decision log. |
-| `references/loop-design-shape.md` | **Phase 3 (FILL)** — the exact canonical loop-design JSON keys the linter validates (flat + staged shapes, incl. `roles`/`contract`/`restart` + the persist contract). |
-| `references/loops-model.md` | **Phase 2 (NEGOTIATE)** + judgment layer — the LOOPS.md operating model: separate roles, negotiate the contract, write-to-disk state, score-the-subjective, read-the-traces, delete-the-harness, the moving bottleneck. |
+| `references/loop-selection.md` | **Phase 1 (SELECT)** — the D0–D7 decision procedure that derives the loop shape + decision log. |
+| `references/loop-design-shape.md` | **Phase 3 (FILL)** — the exact canonical loop-design JSON keys the linter validates (flat + staged, incl. `roles`/`contract`/`restart`, `parameter_provenance` + its FAIL/WARN rules, the persist contract). |
+| `references/loops-model.md` | **Phase 2 (NEGOTIATE)** + judgment layer — the LOOPS.md operating model: separate roles, negotiate the contract, write-to-disk state, score-the-subjective, read-the-traces, delete-the-harness (time + information dimension), the moving bottleneck. |
 | `references/codex-runtime.md` | **Codex realization** — how roles/state/parallelism/guards land on `codex exec`. Load during NEGOTIATE (roles), FILL (harness_primitives + D4), PERSIST (runbook preamble). |
 | `references/loop-principle-map.md` | KB grounding: each decision/field → loop-principle node ids + docs + which templates/checklists to reuse, and the query_kb recipe. |
-| `assets/fresh-reader-checklist.md` | **Phase 4 (VERIFY)** — the operational fresh-reader template (per-stage + design-level boxes the linter can't check). |
+| `assets/fresh-reader-checklist.md` | **Phase 4 (VERIFY)** — the operational fresh-reader template (per-stage + design-level boxes the linter can't check, incl. the numbers-audit). |
 | `scripts/lint_loop_design.mjs` | The deterministic verifier. Flat **or** staged. CLI or `import { validate }`. |
 | `scripts/render_loop_doc.mjs` | Renders a linter-valid design into a runnable runbook (with the Codex how-to-run preamble); validates first, refuses invalid. |
 | `assets/golden-loop-design.json` | A passing **flat** fixture (the atomic single-stage unit). |
@@ -167,30 +169,39 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 - **Design-only — persist, don't execute.** Writing the loop-design JSON + the
   runbook to `.loop/` is producing the design *artifact*. Never run the designed
   loop, run the target's code, or modify the loop-principle KB.
-- **Single-agent runtime.** Never design a stage that requires in-process subagents
+- **One process per role.** Never design a stage that requires in-process subagents
   or a Task/Workflow tool; parallelism and fresh-evaluator contexts are realized as
-  separate `codex exec` OS processes (see `references/codex-runtime.md`).
+  separate `codex exec` OS processes (`multi_agent` exists on codex-cli 0.144.4, its
+  isolation is unverified — `references/codex-runtime.md`).
 - **Run the selection procedure.** Don't pick a shape by vibes — derive it from
-  D0–D6 and emit the decision log. A design without a decision log is incomplete.
+  D0–D7 and emit the decision log. A design without a decision log is incomplete.
+- **Don't write numbers nobody measured (D7).** Decision numbers stay
+  pre-registered; definitional ones are fixed with a red fixture; empirical
+  magnitudes are declared `derived` — formula at design time, value at run time.
 - **Emit STAGED** unless D1 genuinely finds 0 seams. The flat shape stays valid
   as the atomic single-stage unit (linter still accepts it).
 - **Separate the roles; the evaluator is adversarial.** planner/generator/evaluator
   are three contexts (§II) — three separate `codex exec` invocations; a model that
   grades its own work turns sycophantic, so the evaluator is a fresh read-only
-  `codex exec` told the artifact is broken. Required for staged.
+  `codex exec` told the artifact is broken. Read-only limits what it writes, not what
+  it obeys: it runs where the generator cannot have edited `AGENTS*.md`/`.codex/`/its
+  prompts (codex-runtime.md §1), or independence is `L-i incomplete`. Required for staged.
 - **Negotiate the contract; grade it, not the spec.** Agree the testable assertions
   before building (§III); too few lets the evaluator rubber-stamp. Required for staged.
-- **Restart beats archaeology.** Where a build can rot into a patch-pile, route
-  `on_failure: restart` (discard the worktree + re-derive from the contract, §V) — and
-  don't human-interrupt a restart; escalate only a **wrong contract**, not a broken build.
-  Its trigger is a **counter fixed before the run** ("2 consecutive same-class
-  failures"), never an in-flight call.
+- **Route failures by what they accuse (§V):** escalate → re-plane → loopback →
+  restart, first hit wins. Restarting the stage's own stalled work stays autonomous
+  (no human). Escalate = stop for the owner on a wrong contract, an impossible or
+  blocked task (never sealed), or a fixer signature such as a P0/P1 inside the
+  previous fix; the owner first asks whether the judgment should be mechanized at
+  all — re-plane is theirs, never an `on_failure` the loop picks. Every trigger is a
+  **counter fixed before the run**, never an in-flight call.
 - **Stop on both sides.** `stop_conditions` carries a zero-change gate ("N iterations
   with zero new changes → stop", the anti-arms-race brake) *and* a minimum-progress
   floor below which an early stop escalates instead of counting as done (D5).
-- **Delete the harness as the model improves** (§VIII). Prune scaffolding the model
-  now does for free; match degrees-of-freedom to the task. A growing-only harness is
-  one you've stopped reading.
+- **Settle the harness both ways at each model or codex-cli release** (§VIII). Delete
+  what the model now does for free, add back that version's named failure modes, stamp
+  each change with `model_baseline` (model id + effort + codex-cli version); match
+  degrees-of-freedom to the task. A growing-only harness is one you've stopped reading.
 - **Reject-on-no-check (per stage).** A stage with no runnable feedback signal
   FAILs the linter; the anchor holds for every stage.
 - **Mandatory caps.** Every stage + the outer loop carry a finite
@@ -202,11 +213,15 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 
 ## Lifecycle
 
-- **version** in frontmatter (`0.2.0`).
-- **Shared schema.** The loop-design JSON schema + `lint_loop_design.mjs` are shared
-  verbatim with `loop-constructor` 0.2.0 — **designs are cross-compatible** between the
-  two skills; only the runtime prose (SKILL.md, codex-runtime.md, the runbook preamble)
-  differs. A change to the schema the linter binds to (a new required field, a renamed
-  key) is the only kind of breaking change.
+- **version** in frontmatter (`0.3.0`); tracks loop-constructor 0.5.0.
+- **Shared schema + linter.** `scripts/lint_loop_design.mjs` = loop-constructor 0.5.0
+  (unchanged since 0.4.0), sha256 `1fec173225e5c671086da11fc6b85bb2183f6da636e0db7d25cdb16ae256fd36` — **designs are cross-compatible** between the
+  two skills; the shared references/assets differ only by the Codex hunks listed in
+  `CHANGELOG.md`, and the renderer adds the Codex preamble. A change to the schema the
+  linter binds to (a new required field, a renamed key) is the only kind of breaking change.
+- **`0.3.0` — routing + evaluator surface (non-breaking).** Pre-0.3 Codex runbooks still
+  lint green but may route "own fix → restart" and leave `AGENTS.md` generator-writable:
+  re-review them with the fresh-reader §V and evaluator-instruction-file boxes; never
+  auto-rewrite. History: `CHANGELOG.md`.
 - **Rollback** = `git restore` the skill dir; the skill only writes design artifacts
   under the target's `.loop/` and never executes a loop, so a bad design is inert.

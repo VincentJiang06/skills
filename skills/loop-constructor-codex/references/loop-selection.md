@@ -1,20 +1,20 @@
-# The loop-selection procedure (D0–D6)
+# The loop-selection procedure (D0–D7)
 
 This is the **mechanism** the skill runs. The old skill said "pick the altitude
 from blast-radius × reversibility × surface-area, decompose into phases, surface
 the KB" — and left every hard call to judgment. This replaces that with an
-**ordered decision procedure**: answer D0–D6 in order and the shape of the loop
+**ordered decision procedure**: answer D0–D7 in order and the shape of the loop
 is determined, with a one-line justification recorded for each. The output of
-running this procedure is the **decision log** (D0–D6 answers) plus the filled
+running this procedure is the **decision log** (D0–D7 answers) plus the filled
 loop-design JSON.
 
 Anchor (never skip): **a loop closes autonomously only when a fast, runnable
 check can answer "is it done?"** — `principle.closed_loop_needs_a_check`. So
 every decision below is downstream of "what check proves this stage is done?".
 
-## D0–D6 at a glance
+## D0–D7 at a glance
 
-Answer **D0–D6 in order**; each answer determines part of the shape and is
+Answer **D0–D7 in order**; each answer determines part of the shape and is
 recorded with a one-line justification (the **decision log**):
 
 - **D0 — Is it a loop?** Name a fast runnable check that answers "done?" without a
@@ -26,7 +26,8 @@ recorded with a one-line justification (the **decision log**):
   cheapest check on the spectrum that still fails on that mode; fill
   `falsifiable_when` + `passing_but_wrong`.
 - **D3 — Autonomy.** `in_the_loop` vs `on_the_loop` from blast-radius ×
-  reversibility × feedback-quality (weakest check wins).
+  reversibility × feedback-quality (a weak check guarding a high-blast or
+  irreversible step puts the human in).
 - **D4 — Parallelism.** Independent stages that benefit from fan-out → `large`
   (multi-agent); else `medium` (sequential).
 - **D5 — Guards.** Per-stage caps + `on_failure` routing; outer budget + failure +
@@ -36,6 +37,10 @@ recorded with a one-line justification (the **decision log**):
   iteration-boundary cost vs check latency, then **re-tunes D2/D3/D5** (pattern,
   caps, scope, check-thoroughness). A *dial*, not a schema field; not
   linter-enforced, so the fresh-reader confirms the knobs match the claimed cadence.
+- **D7 — Number provenance (closing sweep).** Run LAST — after the roles +
+  contract (assertions carry numbers). Sweep every digit-bearing string; class
+  each decision | definitional | empirical; route (pre-register / fix + red
+  fixture / declare `derived`). One selection_log line.
 
 The procedure is the **selection method** — it replaces altitude-by-vibes with a
 reviewable derivation. Record the answers as the `selection_log` array.
@@ -131,7 +136,8 @@ wrong. Watch for these traps (each is a real one independent review has caught):
   thresholds) or it passes via unrelated well-tested code.
 - **Statistical/soak checks without a quantified bound.** "soak surfaces latent
   failures" is empty unless you state the trial count and the residual rate it
-  can detect at that count (e.g. 10⁴ trials catches a ~0.3% residual, not a 0.01%
+  can detect at that count (e.g. 0 failures in 10⁴ trials bounds the residual at
+  about 0.03% at 95% confidence, by the rule of three — it cannot vouch for a 0.01%
   one). Put the number in the check.
 - **A repro that suppresses the bug.** Over-determinizing a concurrency repro
   (fixed schedule) can serialize away the very race it must catch — make RED
@@ -158,7 +164,10 @@ applies — and then strengthen the check until that trap fails it. **And accept
 the honest limit:** for a genuinely hard property, the strongest *machine* check
 may still be gameable; when so, say `machine_verifiable: false` for that clause
 and route it through the maker/checker — an overstated `machine_verifiable: true`
-is itself a hollow gate.
+is itself a hollow gate. A threshold that *defines* the violation (a near-miss
+line, a mismatch tolerance) is a **definitional** number: fix it at design time
+and give it a red fixture that proves the check can FAIL on it (D7 classifies;
+a definitional number with no red fixture is a hollow gate wearing a number).
 
 Grounding: `concept.feedback_signal_spectrum`, `doc.anatomy.loop_anatomy_and_patterns`,
 `anti_pattern.reward_hacking`.
@@ -172,10 +181,12 @@ Score the design (and any high-stakes stage) on three axes:
 - **reversibility** — can you cheaply undo it?
 - **feedback quality** — does the check *truly* catch the failure (or can it pass while wrong)?
 
-> **`in_the_loop`** (human approves each iteration) when **high blast × low
-> reversibility × weak check**. Otherwise **`on_the_loop`** (human reviews at the
-> gates / at the end). When two axes pull opposite ways, the weakest check wins:
-> a check that can pass-while-wrong forces a human in.
+> **`in_the_loop`** (human approves each iteration) when the blast radius is
+> **high and** reversibility is **low**, or when a **weak check** (one that can pass
+> while wrong) guards a high-blast **or** irreversible step. Otherwise
+> **`on_the_loop`** (human reviews at the gates / at the end). A weak check on a
+> low-blast, reversible step does not put a human into every iteration: name it as
+> the current bottleneck (`loops-model.md` §IX) and strengthen the check.
 
 Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`.
 
@@ -187,7 +198,8 @@ Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
 > separate agents at the same time **and** where parallelism actually helps
 > (independent work, no shared-write conflict)?
 
-- **Yes** → `large` — fan-out. In Codex there is no in-process subagent spawning:
+- **Yes** → `large` — fan-out. On Codex this skill prescribes no in-process subagent
+  spawning (codex-cli's `multi_agent` exists, but its isolation is unverified):
   parallelism = **multiple concurrent `codex exec` OS processes**, each in its own git
   worktree, coordinating only through a shared on-disk ledger (never shared context).
   Add roles, worktree isolation, and the shared-state ledger
@@ -205,19 +217,29 @@ Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
   `loopback` to an **upstream** stage (a `depends_on` ancestor), `escalate`,
   `abort`, or **`restart`** (discard this stage's work and re-derive it from the
   contract — LOOPS.md §V; the right move when a build has become archaeology, and a
-  frontier model often ships a clean rewrite faster than it patches). A `restart`
-  is autonomous, not an escalation: **don't insert a human to interrupt a restart —
-  insert one only when the *contract* is wrong, not when a build is.**
+  frontier model often ships a clean rewrite faster than it patches). Pick the exit
+  by **what the failure accuses**, in the order of `loops-model.md` §V:
+  **escalate → re-plane → loopback → restart, first hit wins.** A `restart` of the
+  stage's own stalled work is autonomous — **don't insert a human to interrupt it.**
+  Insert one at `escalate`, which has three grounds: the **contract** is wrong, the
+  **task** is impossible or blocked, or a **fixer signature** fired (§V lists the
+  five). Re-plane is not an `on_failure` value: it is the owner's disposition after
+  an escalate stop, never a route the loop takes by itself.
 - **Quantify the routing trigger BEFORE the run.** `restart`'s condition — "patching
   has stalled" — is a semantic judgment, and in flight it loses to optimism every
-  time. Write it as a **counter in the stop conditions before iteration 1** and let it
-  fire mechanically: *"2 consecutive iterations with same-class failures → restart"*,
-  *"a top-severity defect lands inside the previous iteration's own fix → restart"*,
-  *"3 iterations without the failing assertion changing → escalate"*. No in-flight
-  discretion; no raising the counter from inside the loop. (The named failure: a
-  seven-round patch-vs-break arms race whose restart criterion was met at round two,
-  but was never written down, so the loop kept choosing `loopback` until the whole
-  effort was reverted. KB `guidelines/loops.md` H4 + T14.)
+  time. Write every trigger as a **counter in the stop conditions before iteration 1**
+  and let it fire mechanically: *"2 consecutive iterations whose failures are the
+  same class → `restart`"* (own-work stall), *"a P0/P1 lands inside the previous
+  iteration's own fix → STOP, `escalate` (owner first asks whether this judgment
+  should be mechanized at all)"*, *"3 iterations without the failing assertion
+  changing → `escalate`"*. Pre-register §V's fixer signatures as the first
+  `stop_conditions.escalate` entries, ahead of the restart counters, and never seal
+  the "impossible / blocked → escalate" exit. No in-flight discretion; no raising a
+  counter from inside the loop. (The named failure: a seven-version patch-vs-break
+  arms race over a deterministic gate; the audit and an independent attacker were
+  present and read the non-convergence correctly — what the loop lacked was the
+  authority to stop and ask whether the judgment belonged in code at all. KB
+  `guidelines/loops.md` H4 + H-series verdict 2, `rules/constitution.md` A51.)
 - **Design-level**: an outer `max_iterations` budget, a non-empty `failure`
   branch list, `escalate` triggers, and a non-empty `success` state.
 - **Close the stop condition on BOTH sides.** A stop condition that only guards one
@@ -244,8 +266,15 @@ Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
 - **Risk guards**: name each applicable anti-pattern + a concrete mitigation —
   reward hacking / test overfitting, error amplification, context drift, token
   blowup, permission blast radius, premature over-delegation.
+- **Discovery-work stops are event-defined, not quota-defined.** For a stage whose
+  work has unknown size (find all violations, harvest all callers), the stop is
+  *"K consecutive fruitless rounds → dry"* (`technique.loop_until_dry`), never a
+  fixed quota — a quota for unknown-size work is an imagined empirical magnitude
+  (D7 would class it empirical, and there is nothing to derive it FROM at 0 runs;
+  the K itself is a decision number, pre-registered like every other counter).
 
 Grounding: `procedure.stop_gate`, `procedure.escalation_triggers`,
+`technique.loop_until_dry`,
 `anti_pattern.{reward_hacking,error_amplification,context_drift,token_blowup,permission_blast_radius}`.
 
 ---
@@ -275,6 +304,8 @@ Default to **completeness-first** when iteration boundaries are expensive or the
 check is slow; **iteration-first** when feedback is fast and cheap. Mixed is legal
 — a stage with a slow check can be completeness-first while a sibling with a fast
 check is iteration-first; record the per-stage profile in the stage's rationale.
+Completeness-first means "do each pass fully", never "guess all numbers before
+pass 1" — empirical magnitudes stay derived (D7) even in the most thorough design.
 
 **Honest caveat (the mislabel trap):** the profile is *not* linter-enforced. A
 design can SAY `completeness_first` while carrying high caps + `retry` + a smoke
@@ -288,11 +319,12 @@ Grounding: `pattern.plan_execute_verify`, `pattern.retry_loop`,
 
 ---
 
-## After D0–D6: assign the roles + negotiate the contract
+## After D6, before D7: assign the roles + negotiate the contract
 
-D0–D6 derive the *shape*. Two more moves — the LOOPS.md operating model
+D0 through D6 derive the *shape*. Two more moves — the LOOPS.md operating model
 (`references/loops-model.md`) — turn that shape into a loop that won't converge on
-slop. Both are **linter-enforced for staged designs**:
+slop. Both are **linter-enforced for staged designs** (and both produce numbers,
+which is why D7 runs after them):
 
 - **Assign the three roles (§II).** Fill `roles.{planner,generator,evaluator}` —
   three separate contexts. The **evaluator** is a fresh, adversarial context
@@ -307,12 +339,94 @@ slop. Both are **linter-enforced for staged designs**:
   **The contract, not the original spec, is what the loop grades** — so every stage
   DoD in FILL should trace back to contract assertions, not restate the spec.
 
+## D7 — Number provenance: the closing sweep
+
+Every decision above has been pushing you to *put the number in the check* — and
+that pressure has a failure mode: numbers get written that nobody can know yet.
+D7 is the one decision that closes the procedure: run it **LAST** —
+after D0 through D6 *and* after the roles + contract (assertions carry numbers too).
+
+**The sweep:** grep the draft for every digit-bearing string — caps, counters,
+thresholds, timeouts, budgets, sample sizes, percentages, pool sizes — don't
+trust memory. Classify each:
+
+| Class | What it is | Route |
+|---|---|---|
+| **decision** | willingness — what you are prepared to spend or lose: caps, stall counters, zero-change N, drift thresholds | keep it fixed; pre-register per D5; changed only outside the loop |
+| **definitional** | violation semantics — what counts as broken: a near-miss line, a mismatch tolerance, an acceptance bar | fix it now AND name the red fixture that proves the check fails on it (D2) |
+| **empirical** | a claim about the world: a ceiling, a timeout, a batch size, a sample size, an agreement rate, a crossover point, an anomaly line over an observed rate (its normal base rate is a world-fact) | do **not** write the value — declare it `derived` in `parameter_provenance` |
+
+**Two tests, applied together** (either alone wavers on the hard cases):
+
+- **Refutability** — *could a measurement, in principle, show this number wrong?*
+  Yes → empirical. No, because it encodes what you are willing to spend or lose →
+  decision. Refutable only by changing what "correct" MEANS → definitional.
+- **Change-channel** — *who may legitimately change it, and when?* Inside the loop
+  by the pre-registered formula → empirical. Only outside the loop, by the
+  operator, with evidence, between runs → decision. Only by re-negotiating the
+  contract, owing a red fixture → definitional.
+
+The definitional line, verbatim: **would loosening this number let a
+previously-red artifact pass? then it is definitional — fix it now and give it a
+red fixture.**
+
+**Boundary calls the tests settle:**
+
+- **Caps and stall counters are decision — never derivable.** "One more round and
+  it converges" is exactly the judgment the cap exists to overrule; a cap the loop
+  can re-derive is an optimism amplifier, not a brake. A loop may **trip** a cap,
+  never **raise** one (D5, unchanged). Derived parameters tune **harness
+  magnitudes** — budgets within the operator's outer caps, timeouts, batch/pool
+  sizes, cadences — and NEVER violation semantics. So split the near-synonyms: an
+  iteration cap states willingness (never derived); a usage ceiling sized to what
+  a normal run costs is an empirical anomaly brake — derived inside the outer
+  willingness, shrink-conservative, trip → escalate, never raise.
+- **Drift thresholds are decision.** "Drift >50% → unstable" *looks* refutable
+  (drift is measured!) — but the threshold encodes how much surprise you tolerate
+  before falling back conservative: willingness, not a world-claim. The
+  change-channel test settles it: only the operator may move it, outside the loop,
+  between runs — whereas an empirical value's whole point is that the
+  pre-registered formula moves it *inside* the loop.
+- **A sample size that claims something is empirical; a minimum sample floor is
+  decision.** "A sample of ≥20 verdicts reaches ≥90% agreement" makes variance and
+  attainability claims — measurement can refute it, and you cannot know it at 0
+  runs, so it is `derived`. The minimum sample floor a calibrating stage collects
+  before it trusts a derived value ("≥2 timed runs before the budget is computed")
+  claims nothing about the world — it states how much evidence you insist on — so
+  it is a decision number, marked "re-examine per design".
+- **External facts** (a vendor rate limit, a published price/quota): file as
+  FIXED, class decision or definitional, with a `why` naming the external source
+  and a revisit date. Do not "derive" a published contract from your own run (it
+  would measure the vendor's throttle behavior, not the contract).
+
+**Routing an empirical number:** it becomes a `derived` entry in
+`parameter_provenance` (fields in `references/loop-design-shape.md`):
+the pre-registered formula, the calibrating stage (an ORDINARY stage, an ancestor
+of every consumer, whose own check validates the runtime values artifact), the
+consuming stages, the re-derivation cadence, the sample/censoring rule, and the
+drift policy (threshold + conservative direction + `floor_trip`). If an empirical
+number has **no plausible calibrating stage**, you have found a missing seam — go
+back to D1. And buy the machinery only where it earns its keep
+(`principle.verifier_asymmetry`): derivation is bought where measuring is cheaper
+than the cost of being wrong; on a tiny design, filing everything as
+decision-class with an **empty declaration** (`{fixed: [...], derived: []}`) is
+honest and correct — a manufactured empirical parameter is the same lie in the
+other direction.
+
+**Emit exactly one selection_log line**, e.g.
+`{"decision":"D7","answer":"2 decision / 2 definitional / 1 empirical -> characterize calibrates","why":"<the sweep>"}`.
+
+The skill recommends **no default** for any drift threshold or minimum sample
+floor (the floor above, not a sample size that claims variance): the FIELDS are required, the VALUES are per-design (each is itself a decision number —
+mark it "re-examine per design"; the golden's examples say so too).
+
 ## Output of the procedure
 
-1. The **decision log** — D0–D6, each with the answer + a one-line justification
+1. The **decision log** — D0–D7, each with the answer + a one-line justification
    (this is what makes the shape *reviewable* instead of magic). Emit it as the
    `selection_log` array in the design JSON and in the report. D6 records the
-   chosen iteration profile (completeness-first / iteration-first) and the trade.
+   chosen iteration profile (completeness-first / iteration-first) and the trade;
+   D7 records the class counts + who calibrates.
 2. The filled **staged** (or flat) loop-design JSON per
    `references/loop-design-shape.md`.
 
