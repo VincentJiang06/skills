@@ -20,6 +20,11 @@ gates count; `claude_md_missing` and the docs-side gates are N/A (`claude_md_mis
 on the memory parent is a known false positive). **`hardGatesEvaluated: 0` means
 "memory gates not run", never "passed".** A violation never authorizes a C1–C4 action;
 fixes that need them go through 「待确认提案」 (see `rules/controls.md` §4).
+On the memory parent, `relative_time_leakage` hits are candidates, not verdicts: on
+37 real memory parents (2026-09-25) it raised 24 SOFT flags and about half were not
+time references (`最近使用` = most-recently-used, `最近一帧`, `题目前后` matching `目前`,
+rhetorical `今天还成立吗`). Fix a hit only when it really is a rotting time reference,
+and only in entries this session touches — never a sweep over the whole memory dir.
 
 Importable from JS:
 
