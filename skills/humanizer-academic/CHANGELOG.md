@@ -102,6 +102,17 @@ unmerged branch; whether 4.1.0 ships is the owner's call.
   and ZH `pass` (0 new_claim); run dir `battery/fixes/R3-sky/`. The vaccine Before,
   labelled "hype gone", drops its leftover "incredibly" (fix-audit P3).
 
+- **Academic pack and judge agree on analogies** (fix-audit P3, round 3; SKILL.md
+  mode table "vivid analogy is a register slip" + the both-tracks Analogy rule; prose
+  only). `academic-pack.md` Step 3 listed "analogy" among things never to invent,
+  while the rubric's hard-fail list (both tracks) says a faithful gloss is not
+  fabrication. Step 3 now defers the fabrication question to the Analogy rule and
+  states the academic ban separately, as a register rule: never add a new analogy in
+  academic mode, even a faithful gloss. Rewrite behavior is unchanged (academic
+  still adds no analogy). Fresh reader (claude-opus-5-5, no skill, `unsure`
+  allowed) on SKILL.md table + Step 3 + hard-fail list: old `conflict`, new
+  `consistent`; run dir `battery/fixes/R3-academic/`.
+
 - (conductor, docs only) `_meta.json` said 3.0.0 while SKILL.md said 4.0.0; both
   now read 4.1.0. README.md / README.en.md "What it does" now names the `popsci`
   mode that has existed since 4.0.0 (battery F16 part; owner README rule, A37).
@@ -157,9 +168,8 @@ disabled; one fresh judge, `unsure` allowed (iron law 6).
   把他们做完", 2026-09-25) for the release blockers:
   - **P2** `popsci-pack.md` register-floor sky/sunset example asserted what its
     Before never stated — **fixed in round 3** (see Fixed).
-  - P3 `academic-pack.md` Step 3 still says "never invent … analogy", while the
-    rubric's both-tracks hard-fail list allows a gloss: pack and judge disagree on
-    the academic track.
+  - P3 `academic-pack.md` Step 3 "never invent … analogy" vs the rubric's
+    both-tracks gloss rule — **fixed in round 3**.
   - P3 `evals/worked/popsci-en-blackholes` notes keep the old analogy wording and
     self-pass a rewrite with source-absent details (also battery F08).
   - P3 the F05 guard still passes numbers that appear only in the ZH fixture's URL

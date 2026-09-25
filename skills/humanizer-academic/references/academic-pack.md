@@ -176,9 +176,14 @@ potentially possibly" → "may"). Never convert a meaningful hedge into false ce
 SUBTRACT alone leaves prose scrubbed but flat, stance-less, abstract — still
 machine-reading. **Once a rewrite is triggered, the ADD below is required, not
 optional**, bounded hard by zero net-new facts: **never invent** a number, case,
-study, quote, citation, mechanism, analogy, or implication. Specificity is
+study, quote, citation, mechanism, or implication. Specificity is
 **retrieval from the source**, never generation. If the source has none, keep it
-general (you may name the gap).
+general (you may name the gap). **Analogies:** whether one is fabrication is decided
+by the Analogy rule, the same on both tracks (`blind-judge-rubric.md`, hard-fail
+list: a gloss of a mechanism the source states is not fabrication; one that carries
+a claim the source does not state is). But **do not add a new analogy in academic
+mode at all** — even a faithful gloss is a register slip here (SKILL.md mode table),
+so it is never an academic ADD move.
 
 **Do at least both moves, every triggered academic rewrite:**
 
