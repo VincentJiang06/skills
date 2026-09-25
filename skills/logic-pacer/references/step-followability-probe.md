@@ -36,9 +36,9 @@ Read the rewrite strictly in order. Maintain a "known set" = everything establis
 - **D1 step_followability** (the headline): 5 = a cold reader crosses every juncture with
   <=1 new move and no unexplained entity; 3 = mostly, one shaky juncture; 1 = a load-bearing
   >=2-move leap survives. **Any residual >=2-move leap caps D1 at 2.**
-- **D2 fidelity**: 5 = every source proposition, attribution (Hacking/Foucault/Quetelet),
-  date (1820–1840), and STANCE (constitutive vs descriptive; 误差 as unwanted error) appears
-  with unchanged truth-value; 1 = a claim/stance drifted or inverted. Watch specifically for
+- **D2 fidelity**: 5 = every source proposition, attribution, name, number and STANCE appears
+  with unchanged truth-value (example, Quetelet anchor: Hacking/Foucault/Quetelet, 1820–1840,
+  constitutive vs descriptive, 误差 as unwanted error); 1 = a claim/stance drifted or inverted. Watch specifically for
   a pivot softened while entities stay put — the script cannot see it, you must.
 - **D3 voice_register**: 5 = crisp, professional, peer-to-peer, lean (干练简洁), NOT
   condescending, NOT lecture-y, vocabulary intact; 1 = flattened / hand-holding / dumbed-down.
@@ -61,8 +61,8 @@ PASS iff: no D2 fidelity hard-fail (no stance/claim drift); **D1 >= 4** with **z
 verbosity padding). Otherwise FAIL, or UNKNOWN per above.
 
 ## Calibration anchors (the judge must reproduce these labels)
-The dev harness stores these as raw fixtures under `evals/` (NOT shipped with the installed
-skill); the DESCRIPTIONS below are self-contained and are what the judge calibrates against.
+The descriptions below ARE the anchors (self-contained; no raw fixture files ship with the
+skill).
 Positives (should PASS):
 - **A-POS-1** the canonical well-paced unfold — the after in `worked-example-quetelet.md`.
 Negatives (should FAIL, each a distinct failure mode):
@@ -73,13 +73,6 @@ Negatives (should FAIL, each a distinct failure mode):
 - **A-NEG-3 silent stance inversion** — the bare-prompt baseline whose Foucault paragraph
   turns constitutive into descriptive; D2 must fail. FAIL. (This is the anchor the script
   provably cannot catch — same entities, same count.)
-
-U1 note (unresolved): the exact boundary of "one inferential move" in Chinese expository prose
-is judgment-laden. When two judges disagree on a juncture, that juncture becomes a new boundary
-example added here — the anchor set grows, the rule sharpens.
-
-U3 note (unresolved): until calibration decides an automated cold-reader can gate on its own,
-the probe EMITS a flagged-juncture list for the human rather than auto-passing.
 
 ## Output JSON (per item)
 ```json
