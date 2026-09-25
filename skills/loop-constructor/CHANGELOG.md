@@ -58,7 +58,8 @@ runbooks, the stale rule was copied into every design it emitted.
   (FAILs fixer-signature → restart/loopback, including a fresh-context restart; PARTIAL
   for an escalate without the plane question; FAILs a sealed safe exit); new box
   **"Evaluator instruction files outside the generator's write surface (§II)"**.
-- **Staged golden** (string edits only, keys unchanged, still 0 FAIL / 0 WARN): the
+- **Staged golden** (main pass: string edits only, keys unchanged, still 0 FAIL / 0
+  WARN; the fix round below changed one `on_failure` and added four assertions): the
   own-fix clause left the restart counter; a fixer-signature escalate (with the plane
   question) and a safe-exit escalate lead the escalate list; a matching
   `parameter_provenance.fixed` entry; `maker_checker.scope` states the instruction-file
