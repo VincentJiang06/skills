@@ -1,5 +1,80 @@
 # Changelog — test-driven-development
 
+## 1.1.0 — 2026-09-25 — targeted settlement for Opus 5.5 / Fable 5.1 (incremental alignment, A40/O7)
+
+Settled under claude-opus-5-5, effort high, Claude Code 2.1.280 (R20 upgrade wave;
+KB v0.4.0). Minor bump: the delegation contract and the independence contract change
+behaviour. Nothing in the A42(iv) exempt set moved: the trust boundary, the evidence
+block (command + real output + exit status), the "Banned without a run attached"
+sentence, revert-to-red, enforcement-gates §1 (except one presupposition, below), §2
+and `references/trust-boundary.md` are byte-identical to 1.0.0.
+
+### Changed
+- **Delegation is ADVICE, not a checkbox** (audit A2a → ADC1b "async subagents save
+  time, not quality", ADC2 "don't subagent-recheck yourself on routine tasks", H8
+  stale compensator; owner preference against slow/serial keeps it as advice rather
+  than deleting it). Loop steps 1/3/6 say *delegable*; the section says dispatch when
+  the suite is large or steps parallelize, inline is fine for a small suite, and
+  **delegation changes who runs a step, never whether** — a delegated run still
+  returns command + real output + exit status, or it is not evidence (P5; F1 guard).
+  `modify-mode.md` Step 1/4 and `enforcement-gates.md` §1 (one bullet) and §7 (one
+  bullet) no longer presuppose delegation.
+- **Independence is conditional on a non-fork agent** (audit A2b → ADC5 "fork is on
+  by default and gives up input isolation", P12/H2 verdict separation needs context
+  isolation). The fresh test-author (SKILL.md rationale, `enforcement-gates.md` §4),
+  the verifier (§5) and the §7 closing line now require a fresh agent that is NOT a
+  fork, or a separate session; if the host can only fork or you cannot tell, the
+  report says independence was not achieved. The done-checklist swaps the delegation
+  box for that honesty box. Wording is host-agnostic (no host flag names).
+- **`evals/README.md` scope note** (audit A3 → P13/S14/A50, iron rule 2): the
+  regex/count metrics (`right_size_precision`, `proliferation`, `mock_hygiene`,
+  `stale_convention`) are construction-verified proof on the committed fixtures only;
+  on `--candidate <external path>` they are D->L evidence for a judge or human
+  (witness pair: a legitimate `expect(onSave).toHaveBeenCalledWith(x)` is flagged by
+  `mock_hygiene`). No `grade.py` change. (`evals/` is untracked per repo policy; this
+  entry is the committed record, the conductor syncs the file at merge.)
+- **STALE model_baseline stamp** on the 64K sentinel rubric (audit Q1 / A5 → A37):
+  `model_baseline: claude-fable-5 (2026-07-14)`, re-verify within 4 cycles.
+- SKILL.md 2,836 → 2,835 always-loaded tokens; description byte-identical; harness
+  unchanged (grade.py 808 / run_all.py 187 / build_context.py 148 lines, 10 scenarios,
+  22 checks).
+
+### Evidence
+- E11 two-arm baseline (audit A1 → E11/A44): pre-registered class
+  **encoded-preference**, 3 cases, WITHOUT arm explicitly disables the skill; arms and
+  rubric prepared in the R20 run directory (`runs/test-driven-development/arms/`),
+  run and judged by the conductor. Resolution caveat: N=3, no perturbation arm —
+  direction only, partial A44 compliance.
+
+### Not changed (exemption register, carried under A40)
+E-DESC description 394 chars > 320 target (no trigger-eval budget) · E-TOK SKILL.md
+> 1,500-token warn (orchestrator skeleton) · E-NOSTAMP prose references carry no
+model_baseline · E-PRESSURE "Don't rationalize in either direction" kept pending a
+per-rule A14 probe (audit A2c rejected this round; "Banned" and "irreducible core" are
+the A42(iv) evidence obligation itself) · E-SENTINEL live 64K run not re-run on Opus
+5.5 · E-EVALS evals/ stays untracked · E-JUDGELEDGER no A49 ledger (1.0.0 predates
+A49; this round adds no D-plane gate) · E-SKIPPASS run_all.py still exits 0 when a
+toolchain is absent — count `checks evaluated : 22` / `node-skipped : 0`, not the exit
+code (default python3 without pytest evaluates only 6). Audit A4 (node_modules in
+installs) is a deploy step, forwarded to the conductor.
+
+### Archived (model_baseline: claude-fable-5, 2026-07-14; settled under claude-opus-5-5 effort high, Claude Code 2.1.280) — Z8 archive, not destroy
+SKILL.md 1.0.0 section, verbatim:
+
+> ## Delegate the mechanical parts to subagents
+>
+> Dispatch to subagents — **parallel** when independent — and consume only
+> summaries: suite inventory (native collector — `pytest --collect-only`,
+> `vitest list`; never hand-write a parser), targeted run + failure-parse,
+> stale/duplicate scan, batch case-writing. If the host lacks subagents this
+> degrades to inline — but that loses the correlated-error independence; say so
+> honestly [P5].
+
+SKILL.md 1.0.0 done-checklist item, verbatim: `- [ ] Mechanical steps delegated, not inline-serial.`
+Why removed: delegating a run never bought independence (the delegated agent reports
+what the author asked it to run); independence lives only in §4/§5, now conditioned
+on non-fork agents.
+
 ## 1.0.0 — 2026-07-14 — ground-up rewrite via the skill-creator-max pipeline
 
 Major-version re-grounding: every rule re-derived to a skill-philosophy KB anchor
