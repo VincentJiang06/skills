@@ -106,7 +106,10 @@ a hollow check is exactly the trap this pass exists to catch.
       "impossible / blocked → escalate" exit is sealed ("never ask the human" copied
       into `stop_conditions`). **PARTIAL — fix before emit** if a fixer-signature
       escalate carries no plane question ("can a deterministic rule judge this
-      stably at all?"). A pasted pre-0.5 design lints green while carrying
+      stably at all?"), or if a staged design pre-registers no fixer signature in
+      `stop_conditions.escalate` at all. Pre-green retries of a stage's own check are
+      the restart counter's business, not a fixer signature (§V) — don't FAIL a
+      design for restarting them. A pasted pre-0.5 design lints green while carrying
       "own fix → restart" — this box is the only catch; flag it for re-routing.
 - [ ] **The stall trigger is a pre-registered counter (§V).** "Patching has stalled"
       is written as a number *before* iteration 1 ("2 consecutive same-class

@@ -171,7 +171,7 @@
       "2 consecutive iterations fail in the same class (pre-registered own-work stall counter -> restart the stage from the contract in a fresh context, do not patch forward)"
     ],
     "escalate": [
-      "fixer signature (any one alone): a P0/P1 defect lands inside the previous iteration's own fix, or the files/tests the fixes touched grew >50% over the last green baseline, or a third exception layer lands on one threshold/allow-list, or a second implementation copy of one root cause appears, or 2 fix rounds hit the same defect class -> STOP before any further round; the owner first asks whether this judgment is mechanizable at all (re-plane) and only then rules loopback / restart / abort",
+      "fixer signature (any one alone; counted on fixes already presented as done, not on pre-green retries): a P0/P1 defect lands inside the previous iteration's own fix, or the files/tests the fixes touched grew >50% over the last green baseline, or a third exception layer lands on one threshold/allow-list, or a second implementation copy of one root cause appears, or 2 fix rounds hit the same defect class -> STOP before any further round; the owner first asks whether this judgment is mechanizable at all (re-plane) and only then rules loopback / restart / abort",
       "the task turns out impossible or blocked on something the loop cannot obtain -> stop and report (safe exit; never sealed by a 'don't ask' instruction)",
       "a public-API/response-schema change becomes necessary",
       "production permission or real traffic is required to verify",

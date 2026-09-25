@@ -188,6 +188,13 @@ as outer `stop_conditions.escalate` entries, ahead of the restart counters:
 - (v) 2 fix rounds on one defect class within one version — the count does not
   reset on a new session or a new author.
 
+**Fixer signatures are not the restart counter.** The restart counter counts the
+stage's own check failing across retries *before* it ever went green — that is own
+work stalling, and it restarts without a human. A fixer signature counts what happens
+*after* a fix was presented as done: the evaluator or attacker re-opens it — a new
+P0/P1 inside that fix, the same defect class again, another exception layer. Keep the
+two apart when writing the counters, or (v) will pre-empt every restart.
+
 Tell the designed loop which plane each counter lives on: (ii) and (v) are counts
 over the git diff / round log (a script can fire them); (i) needs a severity call by
 a reviewer at least as independent as the one that found the defect — a downgrade by
