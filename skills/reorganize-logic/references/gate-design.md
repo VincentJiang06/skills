@@ -3,25 +3,28 @@
 The gate is **pure grep/heuristic and language-agnostic** by design (lightest,
 broadest). That choice has a sharp consequence: it **cannot** prove the prose is
 faithful, so it never pretends to. It does only what a deterministic check does
-reliably, and **flags everything ambiguous for Claude** instead of guessing.
+reliably, and **flags everything ambiguous for the agent** instead of guessing.
 
-**The gate is the portable half.** The skill's orchestration is Claude-native (see
-SKILL.md → *Built for Claude*), but `verify_contracts.mjs` is deliberately kept
-language-agnostic node with no Claude dependency: the deterministic tie-to-code must
-run anywhere, be re-runnable in CI, and never depend on a model's judgment. Claude
-does the judgment (derive, synthesize, reconcile, read for faithfulness); the gate
-does the proof. Keep that split — don't push judgment into the gate or proof into Claude.
+**The gate is the portable half.** `verify_contracts.mjs` is language-agnostic node
+with no model dependency: the deterministic tie-to-code must run anywhere, be
+re-runnable in CI, and never depend on a model's judgment. The agent and its fresh
+readers do the judgment (derive, synthesize, reconcile, read for faithfulness,
+adjudicate exclusions); the gate does the proof. Keep that split — don't push
+judgment into the gate or proof into the agent. "Is this symbol a public interface?"
+is a judgment: a public `def` and a package-internal helper look identical to the
+extractor, so the gate only surfaces strong exclusions as REVIEW evidence.
 
 Grounding: `principle.executable_acceptance` (the contract is only trusted once a
 runnable check ties it to the code), `principle.claim_evidence_traceability` (every
 documented symbol must trace to a real `file:line`), `anti_pattern.reward_hacking`
-(a gate that rubber-stamps near-name matches is hacking its own check — so we
-refuse to).
+(a gate that rubber-stamps near-name matches or silently drops exports is hacking
+its own check — so it refuses to; gaming by *exclusion* is judged by the exclusion
+card, not here). KB: P13 / S14 / A49 / A50 (judgment planes, D-plane admission).
 
 ## The pure contract
 
 ```
-validate({ contractText, files, scope, exclusions }) -> { ok, fails[], flags[], coverage }
+validate({ contractText, files, scope, exclusions }) -> { ok, fails[], flags[], reviews[], coverage }
 ```
 
 Pure, deterministic, idempotent (sorted outputs; no clock/random/state). Never
@@ -29,7 +32,9 @@ throws — malformed input returns `ok:false` with a named fail. `evals/run_all.
 imports THIS function (not a copy), so the tests exercise the shipped logic.
 
 `ok === (fails.length === 0 && flags.length === 0)`. **Flags block.** An
-unreconciled flag is not a pass.
+unreconciled flag is not a pass. `reviews[]` never affect `ok`, the exit code, or
+coverage. A caller's `exclusions` override takes `{name, reason}` entries (a bare
+string = no reason) and runs through the same reason grammar.
 
 ## The two surfaces it compares
 
@@ -49,17 +54,36 @@ unreconciled flag is not a pass.
 
 ## Verdicts
 
-| Tag | Class | Means | Fix |
-|---|---|---|---|
-| `ORPHAN` | FAIL | documented symbol not defined anywhere in scope, no near-name | remove/rename the row |
-| `BAD_SOURCE_REF` | FAIL | symbol exists but not at the cited `file:line` (or cited file absent) | fix the ref |
-| `COVERAGE_HOLE` | FAIL | code exports a symbol that is neither documented nor excluded | document it (or exclude with reason) |
-| `CONTRADICTION` | FAIL | a *strongly-exported* symbol is listed intentionally-internal | document it instead |
-| `EXCESSIVE_EXCLUSIONS` | FAIL | >50% of the surface is excluded — gaming coverage | document the interfaces |
-| `EMPTY_CONTRACT` / `MALFORMED` | FAIL | no parseable rows/exclusions, or non-string input | author a real contract |
-| `NEEDS_RECONCILE` | FLAG | documented name has no exact match but a near-name exists (likely typo/wrong symbol) | open the code, pick the right symbol, fix, re-run |
-| `STAR_REEXPORT` | FLAG | `export * from '<external/missing>'` — re-exports an unenumerable surface (fail-closed, never a silent pass) | document the re-exported names explicitly |
-| `UNPARSED_EXPORT` | FLAG | an object-literal export member is unenumerable/unparseable — a spread `...x`, a computed `[k]` key, or anything not resolvable to a static name (fail-closed) | document the real re-exported name(s) explicitly |
+| Tag | Class | Plane | Means | Fix |
+|---|---|---|---|---|
+| `ORPHAN` | FAIL | D (skeleton) | documented symbol not defined anywhere in scope, no near-name | remove/rename the row |
+| `BAD_SOURCE_REF` | FAIL | D (skeleton) | symbol exists but not at the cited `file:line` (or cited file absent) | fix the ref |
+| `COVERAGE_HOLE` | FAIL | D (skeleton) | code exports a symbol that is neither documented nor excluded | document it (or exclude with a reason) |
+| `EMPTY_CONTRACT` / `MALFORMED` | FAIL | D (skeleton) | no parseable rows/exclusions, or non-string input | author a real contract |
+| `EXCLUSION_NEEDS_REASON` | FLAG | D (skeleton) | a *strongly-exported* symbol is listed intentionally-internal with no same-line reason | add the reason, or document it |
+| `NEEDS_RECONCILE` | FLAG | D flag, resolved by L (carried) | documented name has no exact match but a near-name exists (likely typo/wrong symbol) | open the code, pick the right symbol, fix, re-run |
+| `STAR_REEXPORT` | FLAG | D flag, resolved by L (carried) | `export * from '<external/missing>'` — re-exports an unenumerable surface (fail-closed, never a silent pass) | document the re-exported names explicitly; escalate if nothing clears it |
+| `UNPARSED_EXPORT` | FLAG | D flag, resolved by L (carried) | an object-literal export member is unenumerable/unparseable — a spread `...x`, a computed `[k]` key, or anything not resolvable to a static name (fail-closed) | document the real re-exported name(s) explicitly |
+| `STRONG_EXPORT_EXCLUDED` | REVIEW | D->L (evidence) | a strongly-exported symbol is listed internal with a reason; detail = its `file:line`(s) + the reason verbatim | fresh-reader exclusion card decides |
+| `HIGH_EXCLUSION_RATIO` | REVIEW | D->L (evidence) | more than half of the extracted surface is listed internal (one line per run) | information for the reader and the user |
+
+**Judgment ledger** (every judgment in a rebuild has exactly one final residence):
+
+| # | Judgment | Plane | Executor | Backstop |
+|---|---|---|---|---|
+| J1–J4 | ORPHAN / BAD_SOURCE_REF / COVERAGE_HOLE / EMPTY·MALFORMED | D skeleton (existence, exact line, set difference) | `validate()` | `assets/golden/fail` + eval cases |
+| J5 | a strong exclusion carries a same-line reason | D skeleton (presence only, says nothing about truth) | the one reason-grammar function | eval negatives + real-corpus grammar probe read by a non-author |
+| J6 | NEEDS_RECONCILE near-name | D flag → L (agent fixes the name) | `validate()` + agent | clears only with an exact existing name |
+| J7 | STAR_REEXPORT / UNPARSED_EXPORT | D fail-closed flag → L | `validate()` + agent | H via escalate when nothing clears it |
+| J8–J9 | STRONG_EXPORT_EXCLUDED / HIGH_EXCLUSION_RATIO | D→L evidence, non-blocking | `reviews[]` | adjudicated by J10 / read by the user |
+| J10 | is this excluded strong symbol a public interface | L | exclusion card, non-fork fresh reader (`protocol.md`) | H: unsure and overturn disputes go to the user |
+| J11 | prose faithfulness of the three artifacts | L | fresh-reader pass | H: the user reads the contracts |
+| J12 | nothing copied from legacy | L | author discipline + fresh reader | no similarity check (a semantic judgment) |
+| J13 | rebuild vs sync; scope | L | agent | H: ask the user |
+| J14 | deletion approval | H | the user applies the manifest | git |
+| J15 | escalate conditions | L → H | agent (keeps the two-attempt count) | the user decides |
+| J16 | derivation/reader isolation achieved | L self-report in the reply | agent | dev-time battery check |
+| J17 | export-form recognition, strong/weak confidence | D feature extraction, not a verdict | extractor | consumed only by J3/J5/J8 |
 
 ## Coverage threshold (not mere presence)
 
@@ -69,14 +93,16 @@ symbols)`. The gate passes only at **ratio 1.0** with zero flags. Matching is
 `uuid`/`idx`/`valid`. This is what stops a near-name false-positive from inflating
 coverage.
 
-## What the gate canNOT do (Claude must)
+## What the gate canNOT do (the agent must)
 
 - It cannot tell whether a signature or a described behavior is *true* — only that
   the symbol exists at the cited line. → the **fresh-reader pass** (in
   `references/protocol.md`) re-reads each artifact cold.
+- It cannot tell whether an excluded strong symbol is really internal — the exclusion
+  card does (J10).
 - It cannot resolve a `NEEDS_RECONCILE` flag — by design. A near-name might be a
   typo or a genuinely different symbol; the gate refuses to guess and blocks until
-  Claude (or a human) decides. This is the "flag candidates, Claude reconciles"
+  the agent (or a human) decides. This is the "flag candidates, the agent reconciles"
   contract, not a limitation to route around.
 - Its export heuristics cover a wide set of forms (listed under *Extracted public
   surface* above) but are **not exhaustive** — that is inherent to a pure-grep,
@@ -89,14 +115,18 @@ coverage.
     dropped" guarantee holds **for the recognized forms**. For anything beyond them,
     the **fresh-reader pass** (re-reading the code's entry points against the
     contract — mandatory, see `references/protocol.md`) is the completeness backstop.
-  When Claude meets an unrecognized export form, add it to the extractor (with a
-  regression case) rather than trusting a green. This is the documented limit of a
-  pure-grep gate — not a defect to route around.
+  When you meet an unrecognized export form or an unsupported language (e.g. Rust,
+  Kotlin, Swift), do not trust the green and never edit the extractor during a user
+  task: report the form to the owner as a proposal (form, example line, file) and
+  escalate (`protocol.md` step 5). Supported today: the JS/TS forms above, Python
+  top-level `def`/`class`, Go exported `func`, Java/C# `public` members, weak
+  top-level `function`.
 
-## Tracked metrics (asserted by `evals/run_all.mjs`)
+## Tracked metrics (asserted by the local `evals/run_all.mjs`)
 
 - **gate-pass** — exits 0 only with 0 fails AND 0 flags.
 - **coverage-ratio == 1.0** to pass.
 - **near-name false-positive == 0** — every substring collision becomes a FLAG,
   never an auto-pass (case C3/C9).
-- **idempotency == 100%** — repeated runs byte-identical (case C6).
+- **idempotency == 100%** — repeated runs byte-identical, reviews included (case C6).
+- **no coverage leak** — reviews never count as coverage (case C29).

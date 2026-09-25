@@ -7,7 +7,7 @@ description: >-
   "$reorganize-logic". Do-NOT use for doc sync / cleanup (this REBUILDS and deletes
   legacy) → neat.
 metadata:
-  version: 0.2.1
+  version: 0.3.0
 ---
 
 # reorganize-logic
@@ -24,7 +24,9 @@ ties it back to the code. So every documented interface is cross-checked against
 the code's public surface by `scripts/verify_contracts.mjs`, and the new contracts
 are written *before* anything legacy is deleted. *A contract the gate can't tie to
 real code is a hallucination; the gate rejects it. The gate flags everything
-ambiguous for you to reconcile — it never rubber-stamps.*
+ambiguous for you to reconcile — it never rubber-stamps — and it never rules on
+design intent: whether an excluded symbol is really internal is judged by a fresh
+reader against the code, not by the gate.*
 
 ## When this fires (vs neat — the key boundary)
 
@@ -37,31 +39,26 @@ ambiguous for you to reconcile — it never rubber-stamps.*
 If the docs are mostly right → neat. If you'd rather throw them out and
 re-derive from code → this skill.
 
-## Built for Claude (Claude-native orchestration; the gate stays portable)
+## Orchestration (the gate stays portable)
 
-This skill is tuned for **Claude 4.8 in Claude Code** and leans on capabilities a
-generic runtime doesn't have — it is deliberately **not** a portable skill. The one
-portable piece is `verify_contracts.mjs` (language-agnostic node); everything Claude
-*judges* — the re-derivation, the architecture synthesis, the faithfulness pass — is
-where Claude carries the skill:
+The gate is deterministic node (runs anywhere, CI included). The judged work —
+derivation, synthesis, faithfulness, exclusion verdicts — runs like this:
 
-- **Fan out the derivation to subagents.** Re-deriving a whole codebase's surface is
-  the expensive step. Delegate it: an **Explore** subagent to map entry points, then
-  **one derivation subagent per module, in parallel**, each returning its public
-  surface + responsibilities for the main thread to compose. This also keeps the
-  *derivation layer* legacy-blind — a fresh-context subagent that never read the
-  legacy docs cannot copy them (scope + limits in `references/protocol.md`: the
-  composing main thread HAS read the legacy, so the fresh-reader pass stays the
-  prose guard).
-- **Raise effort, don't add scaffolding.** Derivation + architecture synthesis is
-  deep-reading judgment: run at **xhigh** (the floor for this work on 4.8). If a
-  contract reads shallow, raise effort — don't pad the prompt.
-- **Survive compaction from disk.** The rebuild is long; on a context compaction,
-  **re-read the on-disk artifacts** (`_legacy-context.md` + the contracts written so
-  far) rather than trusting the summary. The written files are the durable state.
-- **4.8 is literal — extract exhaustively.** Claude 4.8 will not silently infer an
-  interface you didn't list — a *feature* here. Walk every entry point; the coverage
-  gate + fresh-reader enumerate the surface, they never sample it.
+- **Fan out the derivation.** An Explore subagent maps entry points, then one
+  derivation subagent per module in parallel returns its surface + responsibilities.
+- **Derivers and readers are non-fork.** Spawn every derivation and fresh-reader
+  subagent as a fresh subagent that starts from only the prompt you give it — not a
+  fork of your context, which inherits the legacy docs and your draft. If the host
+  only offers forking, use a separate `claude -p` session. The reply says how
+  isolation was achieved (a self-report, not an enforcement).
+- **Raise effort, don't pad.** If a contract reads shallow, raise effort for the
+  running model rather than padding the prompt; effort names are not equivalent
+  across models.
+- **Survive compaction from disk.** After a compaction, re-read the on-disk artifacts
+  (`_legacy-context.md`, the contracts written so far, `_exclusion-review.md`) AND
+  this skill's Controls — a summary may have evicted a standing constraint.
+- **Walk every entry point.** The coverage gate and the readers enumerate the
+  surface; they never sample it.
 
 ## Protocol
 
@@ -77,9 +74,12 @@ module/dir). Then the 6 steps (detail in `references/protocol.md`):
 4. **Author `docs/contracts/structure.md`** (Mermaid + module map) and
    **`docs/contracts/interfaces.md`** in the strict gate-parseable format
    (`references/contract-format.md`).
-5. **Gate** — `node scripts/verify_contracts.mjs <root> [--scope <dir>]` must PASS.
-   Fix every FAIL; reconcile every FLAG (open the cited code, fix the contract,
-   re-run). A flag blocks the gate on purpose.
+5. **Gate** — `node scripts/verify_contracts.mjs <root> [--scope <dir>]`. FAIL and
+   FLAG block: fix every FAIL, reconcile every FLAG (open the cited code, fix the
+   contract, re-run). REVIEW lines don't block, but every `STRONG_EXPORT_EXCLUDED`
+   item goes through the fresh-reader **exclusion card** before you report. A line
+   clearable only by an untrue statement or by editing code/the gate, one surviving
+   two fix attempts, or a language with no matcher → **escalate** (protocol step 5).
 6. **Emit `docs/contracts/deletion-manifest.md`** — stale legacy to delete/overwrite,
    one reason each. **Never delete anything**; the human approves and applies.
 
@@ -91,11 +91,13 @@ Run the gate on the produced `interfaces.md` **before** reporting:
 node scripts/verify_contracts.mjs <project-root> [--scope <subdir>]
 ```
 
-It must print `PASS` and exit 0. Any `FAIL [tag]` / `FLAG [tag]` line means the
-contract is not yet tied to the code — fix and re-run. Then do the **fresh-reader
-pass** (`references/protocol.md`): the gate checks doc-vs-code *structure*, not
-prose *faithfulness* — re-read each artifact cold and confirm the diagrams,
-responsibilities, and signatures are actually true of the code.
+A `PASS` with exit 0 is **PASS (structural)**: the gate proves doc-vs-code
+*structure* — not prose *faithfulness*, and not whether an excluded symbol is
+really internal. Any `FAIL [tag]` / `FLAG [tag]` line means the contract is not yet
+tied to the code — fix and re-run. The final word needs the **fresh-reader pass**
+and the **exclusion card** verdicts (`references/protocol.md`): non-fork readers
+check the diagrams, responsibilities and signatures against the code, and
+adjudicate every `STRONG_EXPORT_EXCLUDED` item.
 
 ## Controls
 
@@ -104,9 +106,18 @@ responsibilities, and signatures are actually true of the code.
 - **Review-gated deletion.** Write the new contracts first; emit the manifest; never
   delete/overwrite legacy without explicit human approval. Nothing is auto-deleted;
   git is the safety net.
-- **Strict, self-verifying gate.** Return contracts only after
-  `verify_contracts.mjs` PASSes; it FLAGS ambiguous matches and BLOCKS until you
-  reconcile them (no green-but-wrong).
+- **Strict gate, judged exclusions.** Return contracts only after
+  `verify_contracts.mjs` PASSes: FAIL and FLAG block. REVIEW items are adjudicated
+  by a non-fork fresh reader with the exclusion card. The gate proves structure,
+  not publicness. The reply names the gate command it ran (the shipped skill path).
+- **Never edit the checks mid-task.** Never edit, patch, copy-modify, or run a
+  modified copy of `scripts/verify_contracts.mjs` or `evals/` during a user task.
+  An unrecognized export form or unsupported language goes to the owner as a
+  proposal (form, example line, file) — and the run escalates.
+- **No untrue contract for a green gate.** Never write a contract statement you
+  believe untrue, and never edit product code, to clear a gate line — escalate.
+- These controls are a rule layer: no sandbox or hook ships; the host's permission
+  mode is the only enforcement, git the recovery net.
 - **Scopable.** Whole project by default; `--scope <dir>` for cheap re-runs;
   coverage is scoped accordingly.
 
@@ -114,16 +125,16 @@ responsibilities, and signatures are actually true of the code.
 
 | File | When to load |
 |------|--------------|
-| `references/protocol.md` | The 6-step rebuild runbook (scope → compact → re-derive → author 3 artifacts → gate → deletion-manifest) + the fresh-reader pass. |
-| `references/contract-format.md` | The strict gate-parseable `interfaces.md` format, the intentionally-internal exclusions rules, and the `architecture.md`/`structure.md` Mermaid conventions. |
-| `references/gate-design.md` | What `verify_contracts.mjs` proves (the FAIL/FLAG tag table), the coverage threshold, the anti-gaming rules, the KB grounding, and what the gate can't do (so Claude does it). |
-| `scripts/verify_contracts.mjs` | The deterministic gate: pure `validate({contractText, files, scope, exclusions})` + CLI. Never throws; exact-name matching; flags block. |
-| `evals/run_all.mjs` | Re-runnable adversarial battery (26 cases) over the gate; imports the real `validate`. `node evals/run_all.mjs`. |
-| `assets/golden/` | A passing fixture (`pass/`) and a failing one (`fail/`: orphan + coverage hole) to copy from and to smoke-test the CLI. |
+| `references/protocol.md` | Read at the start of every rebuild, after preflight: the 6-step runbook, the fresh-reader pass and the exclusion judgment card (paste the card section verbatim into each exclusion reader's prompt). |
+| `references/contract-format.md` | Read at step 4 before writing `interfaces.md`, and when the gate prints `FLAG [EXCLUSION_NEEDS_REASON]`: the gate-parseable format, the exclusion reason rule, the Mermaid conventions. |
+| `references/gate-design.md` | Read when a FAIL/FLAG/REVIEW tag needs interpreting, or when deciding whether a language/form is supported (escalate): the verdict table with its Plane column and the judgment ledger. |
+| `scripts/verify_contracts.mjs` | Executed at step 5 — never read into context, never edited during a task. Pure `validate({contractText, files, scope, exclusions})` + CLI. |
+| `evals/run_all.mjs` | Dev-time only, local (gitignored), 29 cases over the real `validate`; never run or edited during a user task. |
+| `assets/golden/` | Copy from when authoring `interfaces.md`; smoke-test the CLI (`pass/`, and `fail/`: orphan + coverage hole). |
 
 ## Lifecycle
 
-- **version** in frontmatter (`0.2.0`).
+- **version**: see frontmatter `metadata.version`.
 - **Breaking change** = any change to the gate's input format or the `interfaces.md`
   gate-parseable schema (downstream contracts must be re-authored).
 - **Rollback** = `git restore docs/contracts/`; the deletion-manifest is never
