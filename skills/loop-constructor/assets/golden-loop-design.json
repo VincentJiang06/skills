@@ -1,7 +1,7 @@
 {
   "task": "Fix the intermittent 500 on POST /checkout without changing the response schema",
   "definition_of_done": {
-    "goal": "npm test checkout exits 0 and the 500 no longer reproduces over 50 runs of scripts/repro_checkout.sh",
+    "goal": "npm test checkout exits 0 and the 500 no longer reproduces over 50 runs of scripts/repro_checkout.sh (0 failures in 50 runs bounds the residual repro rate at about 6% at 95% confidence, by the rule of three; a rarer race needs more runs)",
     "machine_verifiable": true
   },
   "loop_pattern": "plan_execute_verify",
