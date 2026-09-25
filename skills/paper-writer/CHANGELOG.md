@@ -34,7 +34,8 @@ only → patch. Description unchanged. Findings and adjudication:
 - **PW-F09 (P2) — false positives on standard APA prose.** `A and B (YYYY)` now takes the first
   surname. A parenthetical year must be 1600–2099 and directly follow a name-like token, so
   `(Study 2, N = 1500)` is not a citation. `n.d.`, `in press`, `(YYYY, Month D)`, `Smith's
-  (2010)`, `(Smith, 2010, 2011)` and particles like `van der Waals` are accepted. Iron rule 7.
+  (2010)`, `(Smith, 2010, 2011)`, `(J. Smith, 2020)` and particles like `van der Waals` are accepted.
+  Iron rule 7.
 - **PW-F10 (P2) — grouped numeric markers.** `[1-3]`, `[1, 4]` and `[2–5, 7]` are expanded, so a
   correctly tagged GB/T or IEEE paper that groups its markers no longer fails with `intext=0`.
 - **PW-F11 (P2) — the brief's source minimum had no owner.** SKILL.md said it "feeds
@@ -54,7 +55,7 @@ only → patch. Description unchanged. Findings and adjudication:
   are zero new hits. One real false positive was removed: `Nesi and Prinstein (2015)` in the
   bare-model arm of case 1. Checklist ids are unchanged on every corpus paper, and all four
   existing ledgers gate exactly as before.
-- Size: `scripts/` went from 608 to 696 lines (+14.5%). Eval cases went from 42 to 56 (harness
+- Size: `scripts/` went from 608 to 697 lines (+14.6%). Eval cases went from 42 to 56 (harness
   28 → 42 plus 14 golden anchors).
 
 ### Not done in this round
