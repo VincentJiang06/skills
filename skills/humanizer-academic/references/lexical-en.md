@@ -66,30 +66,20 @@ Watch for stock "challenges and future prospects" framing and generic endings su
 
 Default fix: replace with the next concrete step, limitation, or forecast if one is actually available.
 
-## 6. AI-vocabulary clusters
+## 6. AI-vocabulary phrase tells
 
-High-frequency post-2023 AI vocabulary often appears in bunches:
-
-- additionally, align with, crucial, delve, enhance / enhancing, fostering,
-  highlight, intricate, landscape, pivotal, showcase / showcasing, testament,
-  underscore, vibrant
-- (corpus-measured excess in academic abstracts, Kobak et al. 2025:) notably,
-  comprehensive, insights, exhibited, multifaceted, nuanced, realm, poised,
-  burgeoning, garnered, elucidate, harness, leverage, seamless, streamline,
-  meticulous(ly), noteworthy, imperative, akin, amidst
+<!-- model_baseline: claude-opus-5-5 / effort high / Claude Code 2.1.280 / 2026-09-25; settled S1 (A42/Z8): the two single-word bullets of 4.0.0 (34 words: delve, pivotal, testament, notably, leverage, ...) were DELETED — a bare Opus 5.5 asked only to "make it read less like AI" removed 100% of 12 sampled listed words (36/36 occurrences) in 3/3 drafts, so the list no longer changed the rewriter's behavior. Text archived in the R20 upgrade run record. Re-probe on the next base-model change. -->
 
 Near-certain phrase tells (measured 4,000–31,000× over-represented in AI text):
 "serves as a testament", "vibrant/rich tapestry", "in the ever-evolving
 landscape of", "provides valuable insights into", "the complex interplay
 of/between", "no discussion would be complete without".
 
-**Era note:** each model generation sheds the most notorious words (delve is
-already fading), so treat this list as decaying evidence. Single words are weak;
-density and co-occurrence matter; and the frame-level tells (§3 participial
-tack-ons, §7b contrast frames, structural layer) age far better than any word
-list. Also: many of these are normal, well-taught academic English — especially
-for non-native writers (detectors flag real ESL prose at several times the
-native-speaker rate). Never rewrite on word-presence alone.
+Weigh density and co-occurrence of such phrases, together with the frame-level
+tells (§3 participial tack-ons, §7b contrast frames, the structural layer), never a
+single word: many words once listed as "AI vocabulary" are normal, well-taught
+academic English, especially for non-native writers (detectors flag real ESL prose
+at several times the native-speaker rate). Never rewrite on word-presence alone.
 
 Default fix: simplify to plain academic prose. Do not flatten legitimate technical meanings.
 
