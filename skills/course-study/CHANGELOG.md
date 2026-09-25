@@ -9,7 +9,7 @@
 - **F4 SKILL.md 按需读取表给 layout.md 的触发时机晚于 layout / companion 自己要求的时机（`SKILL.md` 表第 1 行）**。裁决：修。理由：运行时唯一常驻的是 SKILL.md，L3 文件自己的「何时读」要等被读到才生效；原触发只在「写文件前」，而表第 2 行、`layout.md:1`、`layout.md:15` 都要求它在分拣与读任何 PDF 之前已读——照表执行的 agent 会先分拣、先读 PDF，漏掉 SPEC 约束。修法：同一行前面补「跟课：分拣与读任何 PDF 之前」，原写时触发保留，别的行不动。指向：PHILOSOPHY 判断「结构编码的是动词——何时读什么」+ `layout.md:1`（S2 指针失效）。
 - **评委词表加 unsure（开发期 `evals/cases.md`，不随 skill 发布）**：⑨ 学生视角改为「能 / 部分 / 不能 / unsure」，写明 unsure 何时用、不进分子也不进分母；新增 H 组登记本轮对裸 Opus 5.5 的 E11（手册与量规在流水线运行目录，不进仓库）。指向：顶层铁律 6⑥ + E11 有效性清单。
 - **E11（v4.2.1 对裸 Opus 5.5）**：本版的臂与量规已备好（3 例：CENG3420 L13 Cache 全讲、CSCI3230 L04 Part 3、held-out CSCI3160 L13 Dijkstra；WITH 臂用 4.2.1 的 git 快照，WITHOUT 臂显式禁用一切 skill；分支规则预注册，结果维只算 D1/D2/D8，忠实度维单列），由 conductor 执行；结果与 MDE 说明回填到这里。v4.0 期对裸模型是 11/2/5（18 格），Codex 的 L12 学生盲评裸模型 5/5 对 skill 4+1——本轮用 L12 的干净兄弟讲 L13 复测这一类。
-- **字节**：`SKILL.md` 8192 → 8233 B（上限 10240）；`rules/companion.md` 24914 → 25467、`rules/format.md` 16484 → 16632、`rules/precedents.md` 10429 → 10658（上限 32768）；其余 rules 未动。
+- **字节**：`SKILL.md` 8192 → 8233 B（上限 10240）；`rules/companion.md` 24914 → 25565、`rules/format.md` 16484 → 16632、`rules/precedents.md` 10429 → 10658（上限 32768）；其余 rules 未动。
 - **铁律 7**：`evals/run.sh` 只把 `metadata.version` 的钉值 4.2.0 → 4.2.1（数据跟随版本，检查语义未变）。在全部现有真实语料上改前改后各跑一遍 `--structure`（skill 自身 + 31 个目录：21 个历史臂目录、4 门真实课程的只读扫描、6 个 v4.2 臂课程目录）：31 个目录的输出逐字节相同，差异只在 skill 自扫的版本行与字节数，新增误报 0。
 - **沿用、未动（冻结档豁免登记）**：运行时 prose 体量与可能的过度规定（审计第 2 条，待 E11 结果供 K2 复审定向结算）；`管理/catalog.py` 执行档位未在 SKILL.md 登记；安装副本带着 ROOT/skill 布局的 evals/；校准资产无 model_baseline 戳；run.sh「rules 文件 ≥1000 B」的防掏空代理门；battery r2 的 P3（F5–F10）与六条 flag；description 与触发评测；历史条目里对不上磁盘的字节数（留作历史）。
 
