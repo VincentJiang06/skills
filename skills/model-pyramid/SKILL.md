@@ -15,8 +15,8 @@ metadata:
 # model-pyramid
 
 Pick **model** and **effort** for the session and for every subagent you spawn, then say so
-in one line each. Framing is **right-sizing**: assign what the work needs. This skill
-recommends and reports — it never spawns agents, edits configs, or blocks you.
+in one line each. This skill recommends and reports — it never spawns agents, edits configs,
+or blocks you.
 
 > **Everything numeric here is dated** (stamp: `metadata.model_baseline`). **Any point version
 > (e.g. 5.1, 5.5) or a silent weight swap under the same name** ⇒ re-verify defaults, thinking,
@@ -27,9 +27,9 @@ recommends and reports — it never spawns agents, edits configs, or blocks you.
 - **Claude had the context, tried — at higher effort too — and still got it wrong → capability gap → change the MODEL.**
 - **Claude got it wrong by skipping a file, not running tests, not double-checking → thoroughness gap → change the EFFORT.**
 
-Effort is the main thinking-depth control — **and more**. It governs *all tokens in the response
-— text, tool calls, thinking*: how many files get read and tool calls made, how much gets verified,
-how far a multi-step task runs before checking in. **Lower effort ⇒ fewer tool calls.**
+Effort is the main thinking-depth control — **and more**: it governs *all* response tokens (text,
+tool calls, thinking) — how many files get read, how much gets verified, how far a task runs
+before checking in. **Lower effort ⇒ fewer tool calls.**
 
 ⛔ **The corollary that kills the most common mistake**: search / exploration / repeated tool
 calling is the *last* place to economise on effort. Cutting effort on a search agent buys an
@@ -37,8 +37,8 @@ agent that stops looking. Hold it or raise it (not to `xhigh` by reflex — see 
 
 ## Defaults: start here, move on evidence
 
-1. **Model** — a subagent inherits the session model unless you say otherwise. Inheriting is
-   the correct default; override only for a reason you can name.
+1. **Model** — subagents inherit the session model; that is the correct default. Override only
+   for a reason you can name.
 2. **Effort** — **set it explicitly.** Omitted on the API = *that model's* default: **Opus 5.5
    `medium`**; Fable 5.1, Opus 5, Sonnet 5 `high`; Haiku 4.5 none. A bare Agent-tool call inherits
    the *session's* (`references/runtime-knobs.md`).
@@ -53,7 +53,7 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
 |---|---|---|---|
 | **Peer co-work** — equal-difficulty shards, judge panels, adversarial verifiers, one delegated deep task | inherit | inherit | It is the same work, split. Cutting either knob cuts the work. An *independence* verifier (blind judge, fresh red team) is **non-fork** — a fork (Claude Code default) shares its author's context. |
 | **Search / exploration** — codebase sweep, web research, evidence gathering | inherit | **inherit or raise** | Effort governs tool-call volume. This is the axis you *raise* for search. |
-| **High-volume homogeneous lookups** (~20+ cheap, near-identical) | inherit — *or* drop **one** tier (Opus→Sonnet) | one step down — *or* inherit if the tier dropped | **One knob, not both** (clamp); effort is usually the safer one. `low`'s documented home: "simpler tasks that need the best speed and lowest costs, such as subagents". |
+| **High-volume homogeneous lookups** (~20+ cheap, near-identical) | inherit — *or* drop **one** tier (Opus→Sonnet) | one step down — *or* inherit if the tier dropped | **One knob, not both** (clamp); effort is usually the safer one. |
 | **Long-horizon autonomous run** (>30 min, token budgets in the millions) | Opus 5.5; Fable 5.1 when the gap is capability | `xhigh` | `xhigh` is defined for exactly this. |
 | **Anything else** | inherit | the model's default, written out | No reason to move a knob ⇒ don't move it — but name the level. |
 
@@ -74,16 +74,14 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
   `budget_tokens` ⇒ 400 at *any* effort; lower effort instead. (Opus 5: 400 only at `xhigh`/`max`.)
 - **`max` is for genuinely frontier problems** — elsewhere it adds cost for small gains. On Opus
   5.5, reserve `xhigh`/`max` for a *measured* quality gain.
-- **Effort does not shorten prose** (Opus 5; unverified on 5.5) — want it shorter? Say so.
 
 ## Cost levers that are not "pick a cheaper model"
 
-- **Advisor** — a stronger model consulted *at decision points* rather than running throughout.
-  Fits long multi-step tasks where most turns are routine but plan quality decides the outcome;
-  adds little on short tasks. Legal for *every* model it attaches to; no pairing row
-  (Opus 5.5 today) ⇒ **no advisor** until a test request with that pair succeeds. → `references/orchestration.md`
-- **`opusplan`** — Opus for plan mode, Sonnet for execution. A free structural win when the task
-  genuinely splits that way.
+- **Advisor** — a stronger model consulted only *at decision points*. Fits long multi-step
+  tasks where most turns are routine but plan quality decides the outcome; adds little on short
+  tasks. Legal for *every* model it attaches to; no pairing row (Opus 5.5 today) ⇒ **no advisor**
+  until a test request with that pair succeeds. → `references/orchestration.md`
+- **`opusplan`** — Opus in plan mode, Sonnet for execution: free when the task genuinely splits that way.
 - **Effort down-step** — usually a bigger, safer lever than a model down-step: it degrades
   gracefully and applies per request.
 
@@ -92,7 +90,6 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
 Changing **model or top-level effort invalidates the prompt cache**. Hold one level per cached
 conversation — vary effort *across* workloads, or use **per-message effort (beta)**, which keeps
 the cache on Opus 5.5 / Fable 5.1 / Opus 5.
-(Toggling the advisor does **not** invalidate the cache.)
 
 ## Report
 

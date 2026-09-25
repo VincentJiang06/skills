@@ -74,6 +74,12 @@ v1.0.0 的事实层在 2026-09-22（Opus 5.5 成为默认 Opus，Claude Code 2.1
   不凭"至少同等强"写进生产配置。→ P10；orchestration.md 既有"invalid pair ⇒ 400"。
 - SKILL.md 为守住结构契约的常驻预算（≤ ~1.95k tok ≈ 7,800 B / ≤ 140 行）做了措辞压缩：7,769 B、128 行；删掉的只有
   "推翻 v0.1.0 的 `medium` 下限"一句历史注释（1.0.0 节已记录）。
+- **zipper 压缩（按流水线计量口径 measure_tokens/cl100k 仍超预算 2,061 T → 1,952 T）**：只动 SKILL.md。删掉"Framing is
+  right-sizing"框架句（description 已有）；批量行里的 `low` 文档引文（钳制的 "No hard floor" 行与 model-and-effort.md
+  仍保留）；"effort 不缩短正文"一条移出常驻层（model-and-effort.md Interactions 仍有，与 xhigh/max 决策无关、低危害）；
+  缓存陷阱里"切 advisor 不击穿缓存"括注（orchestration.md 的 Cache note 仍有，advisor 在议时必读该文件）；其余为措辞收紧。
+  F08 的"effort 是 thinking depth 主旋钮"原句保留。run_all 36/36、selftest 24/24、21+1 条决策事实召回探针前后一致。
+  → 结构契约 layering_argument L2 预算；P1 上下文经济；Z3（按失败代价排序，罕见致命项不挤）。
 - **挂起（登记、不追）**：F10（缓存检查要区分 fork 与独立子代理，需新增输入字段、属检查重设计）· F14（文档配对表 ⇄
   脚本 ADVISORS 的绑定检查，属新增机械门，本档不做）· F15（trigger-cases 没有 runner，触发准确率未测——测量债）。
 
