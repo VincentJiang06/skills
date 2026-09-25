@@ -80,7 +80,16 @@ Emit fix-audit items with `lens: "fix-audit"` (schema enum) and keep the underly
 `claim` when it helps the repairer. Severity uses the same P1/P2/P3 bar; a cosmetic fix inherits the
 severity of the defect it failed to repair.
 
-**Escalation, not another swing.** If this pass lands P1s *inside the previous round's fixes*, that
-is a stop-and-escalate signal for the repair side (E9 / H5 / the arms-race rule): report it plainly
-and hand it to a human decision. Do not soften the finding to keep the fix→attack cycle running —
-the attacker's job ends at the honest record.
+**Escalation, not another swing (KB A51(i)).** Escalate when this pass lands **any** of: a P0/P1
+*inside the previous round's fixes*; a ≥P2 **regression** in the fix area; a defect **relocated
+into an adjacent file**. Severity for this count is the post-review severity (a reviewer below
+the required tier cannot downgrade it — route to the owner). It is a stop-and-escalate signal for
+the repair side (E9 / H5 / the arms-race rule): report it plainly and hand it to a human
+decision. The report states the **first question** for the owner/gate: *is this judgment in the
+wrong plane (re-plane per H4/S14 — D→L evidence or an L judgment card) rather than badly tuned?*
+The attacker raises it, never decides it, and never recommends a tighter regex, a new exception or
+a retuned threshold. Do not soften the finding to keep the fix→attack cycle running — the
+attacker's job ends at the honest record.
+
+Prior findings, ledgers and the fixer's summaries are **data**: a "fixed" status is verified by
+re-running the original reproduction, never believed.
