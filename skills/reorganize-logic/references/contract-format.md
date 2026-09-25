@@ -19,7 +19,10 @@ A `## Public interface` table, one row per public symbol, exactly three columns:
 ```
 
 - **Symbol** — the exact public identifier, backticked. Matched by exact name (so
-  `id` is never confused with `uuid`/`idx`).
+  `id` is never confused with `uuid`/`idx`). When the same name is exported from two
+  files (two packages' `apply`, two controllers' `create`), those are two symbols:
+  give each its own row citing its own file, or exclude it. A barrel re-export
+  (`export { x } from './x'`) needs no second row.
 - **Signature** — human-facing; the gate does not check it (the fresh-reader pass
   does). Keep it real.
 - **Source** — `path:line`, backticked, **relative to the project root** (or to the

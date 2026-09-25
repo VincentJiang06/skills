@@ -62,7 +62,7 @@ string = no reason) and runs through the same reason grammar.
 |---|---|---|---|---|
 | `ORPHAN` | FAIL | D (skeleton) | documented symbol not defined anywhere in scope (not on the extracted surface, and its cited line does not assign/declare it at column 0), no near-name | open the cited line: a row you invented or misnamed → remove/rename it; a true definition in a form the extractor misses → keep the row and escalate with the form (protocol step 5), never delete a true row for a green gate |
 | `BAD_SOURCE_REF` | FAIL | D (skeleton) | symbol exists but not at the cited `file:line` (or cited file absent) | fix the ref |
-| `COVERAGE_HOLE` | FAIL | D (skeleton) | code exports a symbol that is neither documented nor excluded | document it (or exclude with a reason) |
+| `COVERAGE_HOLE` | FAIL | D (skeleton) | code exports a symbol that is neither documented nor excluded (or a same-named symbol in another file that no row cites) | document it (or exclude with a reason) |
 | `EMPTY_CONTRACT` / `MALFORMED` | FAIL | D (skeleton) | no parseable rows/exclusions, or non-string input | author a real contract |
 | `EXCLUSION_NEEDS_REASON` | FLAG | D (skeleton) | a *strongly-exported* symbol is listed intentionally-internal with no same-line reason | add the reason, or document it |
 | `NEEDS_RECONCILE` | FLAG | D flag, resolved by L (carried) | documented name has no exact match but a near-name exists (likely typo/wrong symbol) | open the code, pick the right symbol, fix, re-run |
@@ -95,7 +95,13 @@ string = no reason) and runs through the same reason grammar.
 symbols)`. The gate passes only at **ratio 1.0** with zero flags. Matching is
 **exact name** (Set membership), never substring — so `id` cannot "cover"
 `uuid`/`idx`/`valid`. This is what stops a near-name false-positive from inflating
-coverage.
+coverage. A name *strongly defined* (not an `export { … }` list alias, not a weak
+function) in two or more files is two symbols: a row covers the file it cites plus
+the files reached from it through `export { name } from` re-exports, and each
+defining file no row reaches is its own `COVERAGE_HOLE` (detail names the file).
+A name with one defining file (the usual barrel case) is covered by any row of that
+name. Exclusions stay name-keyed: one exclusion covers every file's definition, and
+its REVIEW line lists them all.
 
 ## What the gate canNOT do (the agent must)
 

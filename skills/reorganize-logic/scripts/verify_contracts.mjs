@@ -200,6 +200,8 @@ function namedExportLists(content) {
   while ((m = re.exec(content)) !== null) {
     const open = m.index + m[0].length - 1;
     const body = balancedBraceBody(content, open);
+    // every list member is an ALIAS (of a local, an import, or with `from` a module's binding)
+    const from = content.slice(open + body.length + 2).match(/^\s*from\s*['"]([^'"]+)['"]/);
     for (const seg of topLevelSegments(body)) {
       const t = seg.text.trim();
       if (!t) continue;
@@ -209,7 +211,7 @@ function namedExportLists(content) {
       const name = idm[1];
       if (name === "default" || name.startsWith("_")) continue;
       const lead = seg.text.length - seg.text.replace(/^\s*/, "").length;
-      out.push({ name, line: lineOf(content, open + 1 + seg.off + lead) });
+      out.push({ name, line: lineOf(content, open + 1 + seg.off + lead), spec: from ? from[1] : null });
     }
   }
   return out;
@@ -280,7 +282,7 @@ function directSurface(content, path) {
   const obj = objectExportKeys(content);
   for (const k of obj.keys) entries.push({ name: k.name, line: k.line, confidence: "strong" });
   for (const f of obj.flags) flags.push(f);
-  for (const k of namedExportLists(content)) entries.push({ name: k.name, line: k.line, confidence: "strong" });
+  for (const k of namedExportLists(content)) entries.push({ name: k.name, line: k.line, confidence: "strong", alias: true, spec: k.spec });
   const star = starExports(content);
   for (const k of star.named) entries.push({ name: k.name, line: k.line, confidence: "strong" });
   return { entries, flags, stars: star.stars };
@@ -301,11 +303,12 @@ function extractSurface(files, scope) {
   const surface = [];
   const flags = [];
   const seen = new Set();
-  const addEntry = (name, file, line, confidence) => {
+  const addEntry = (name, file, line, confidence, e) => {
     const key = name + " " + file + " " + line;
     if (seen.has(key)) return;
     seen.add(key);
-    surface.push({ name, file, line, confidence });
+    // alias = an export-list member; via = the local file an `export { x } from` points at
+    surface.push(e.alias ? { name, file, line, confidence, alias: true, via: e.spec ? resolveSpec(file, e.spec, files) : null } : { name, file, line, confidence });
   };
   const collectStars = (originPath, edges, visited, depth) => {
     for (const edge of edges) {
@@ -316,13 +319,13 @@ function extractSurface(files, scope) {
       }
       if (visited.has(target) || depth > 12) continue;
       visited.add(target);
-      for (const e of direct[target].entries) addEntry(e.name, target, e.line, e.confidence);
+      for (const e of direct[target].entries) addEntry(e.name, target, e.line, e.confidence, e);
       collectStars(target, direct[target].stars, visited, depth + 1);
     }
   };
   for (const path of paths) {
     if (!inScope(path, scope) || !direct[path]) continue;
-    for (const e of direct[path].entries) addEntry(e.name, path, e.line, e.confidence);
+    for (const e of direct[path].entries) addEntry(e.name, path, e.line, e.confidence, e);
     for (const f of direct[path].flags) flags.push({ tag: f.tag, symbol: f.symbol, detail: path + ":" + f.line + " -- " + f.detail });
     collectStars(path, direct[path].stars, new Set([path]), 1);
   }
@@ -468,13 +471,37 @@ export function validate(input) {
       }
     }
 
-    // 2) coverage: every surface symbol must be documented or excluded (exact name)
+    // 2) coverage: every surface symbol must be documented or excluded (exact name).
+    //    Identity = (name, defining file): when one name is STRONGLY defined (not an
+    //    export-list alias, not a weak un-exported function) in >= 2 files, those are
+    //    different symbols, and a row covers only the file it cites plus the files
+    //    reached from it through `export { name } from` aliases. One defining file
+    //    (the usual barrel case) = one symbol, so any row of that name covers it.
     let covered = 0;
     for (const name of surfaceNames) {
-      if (documentedNames.has(name) || exclusionNames.has(name)) {
+      if (exclusionNames.has(name)) {
         covered++;
-      } else {
+        continue;
+      }
+      if (!documentedNames.has(name)) {
         fails.push({ tag: "COVERAGE_HOLE", symbol: name, detail: "exported in code but neither documented nor marked intentionally-internal" });
+        continue;
+      }
+      const locs = surfaceByName.get(name);
+      const defFiles = [...new Set(locs.filter((l) => !l.alias && l.confidence === "strong").map((l) => l.file))];
+      const reached = new Set();
+      const queue = documented.filter((d) => d.name === name).map((d) => d.file);
+      while (queue.length) {
+        const f = queue.pop();
+        if (reached.has(f)) continue;
+        reached.add(f);
+        for (const l of locs) if (l.file === f && l.via) queue.push(l.via);
+      }
+      const missed = defFiles.length > 1 ? defFiles.filter((f) => !reached.has(f)) : [];
+      if (!missed.length) covered++;
+      for (const f of missed) {
+        const at = locs.filter((l) => l.file === f).map((l) => f + ":" + l.line).join(", ");
+        fails.push({ tag: "COVERAGE_HOLE", symbol: name, detail: `a same-named symbol is also defined at ${at}, which no documented row cites: give it its own row or exclude it` });
       }
     }
 
