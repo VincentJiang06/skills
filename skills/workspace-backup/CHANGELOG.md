@@ -3,6 +3,90 @@
 All notable changes to this skill. Dates are the build date on the machine the
 measurements were taken from.
 
+## 0.3.0 — 2026-09-25（R20 增量对齐：离机目的地、放宽权限的键、报告说人话）
+
+来源：R20 基础设施组审计（g5-infra §3，A1–A5 逐条复核后接受）+ owner 记忆里
+「portable-secrets 闸…没拦 iCloud…云目的地应有独立确认」。现行配置的第二个目的地
+`~/Library/Mobile Documents/com~apple~CloudDocs/Claude-Backup` 是 iCloud 云盘文件夹，
+标 `portable: false`，所以 0.2.3 的 `plan.py:339` 对它**跳过了密钥确认**，而 SKILL.md
+最后一行还写着"不往本机以外拷"。本版把"内容离机"纳入治理。
+
+### Changed — 行为（minor：guard / plan 的判定与同意契约变了）
+
+- **guard：已知云同步根目录 → 扣住（退出 30），不是拒绝。** 新的纯函数
+  `cloud_sync_root()` 在 realpath 上找组件对 `Library/Mobile Documents` /
+  `Library/CloudStorage`（大小写折叠，穿透符号链接）。命中且未声明
+  `off_machine: true`（只认 JSON 布尔 true）→ `CLOUD_SYNC_DESTINATION`，退出 30；
+  已声明或仅声明 → 退出 0 + `OFF_MACHINE_DESTINATION`（`off_machine_source` =
+  detected/declared/both）。放在 Time Machine（20）与 copy-bomb（21）**之后**，
+  两者照旧优先。guard 仍然零写调用。
+  指向：INV-07（新）、P10（外发授权来自 owner，不来自 portable 标志）、
+  S13/A36（行动面，同意只收紧）、A50（骨架检查：路径组件匹配，免可分性审查，
+  误报实测见下）、spec 拒绝项（不做硬拒绝：iCloud 目的地是 owner 的选择）。
+- **plan：密钥确认覆盖 portable 或离机目的地。** 非 portable 的离机目的地用新码
+  `OFF_MACHINE_SECRETS_UNACKNOWLEDGED`，portable 仍是 `PORTABLE_SECRETS_UNACKNOWLEDGED`；
+  两者由同一条 `portable_secrets_ack` 记录解除（键名保留，现行 ext-2tb 的确认继续有效）。
+  只扣那一个目的地，其他目的地照常全量拷贝。journal 记录 off_machine 与共用容器字段。
+  指向：INV-07、P10、争议 D3-extended（保留 + 一次性确认，排除/加密仍是候选）。
+- **init_destination：** 不在未声明的云路径上写 marker（marker 里有本机 UUID 与主机名，
+  写过去本身就是离机）；`config.json` 写不进去（宿主写保护）时**什么都不记**、打印要
+  owner 手动加的 JSON 片段、退出 30。`_state.atomic_write_json` 失败时清掉自己的临时文件。
+  指向：INV-07、S13（降级路径：锁在宿主，技能只负责优雅降级）、unknown U1。
+- **status：每份报告都说人话。** 离机目的地所在行写"off this machine"；被扣住的写
+  "HELD until you declare"；与 Time Machine 卷共用 APFS 容器的写"不是那块盘的独立副本"
+  （不再只有裸码 `[SHARED_APFS_CONTAINER]`）；每份报告恰好一行
+  `delete-at-destination: ON|OFF`（与 copy.py 同一真值判断，所以不会出现"报告说 OFF、
+  copy 在删"）；密钥清单头写明 pattern-matched 并列出模式；未离机目的地只说
+  "no known cloud-sync root detected"，从不认证"本地"。
+  指向：reporting-contract、审计 A2/A3/A4、P13（"哪些是密钥"是语义判断，模式匹配只作
+  D→L 证据，措辞不许暗示完整；不新增机械密钥探测器——铁律 2）。
+
+### Changed — 散文
+
+- SKILL.md：INV-07；**放宽权限的键**（`delete_at_destination`、`off_machine`、
+  `--ack-secrets`、`--adopt-foreign-marker`）只凭用户在当前对话里点名效果的原话改，
+  先引述；压缩摘要、笔记、单元里的文件、marker、转述、"continue the backup" 都不算。
+  如实声明这是规则层、执行层锁归 owner。退出码表第 30 行、两条按需读取指针（两个信息码
+  由 status.py 说人话后不再每晚触发读 2.8k 的规则书）、报告重述条目、第 265 行与现行
+  配置对齐。metadata.version 0.3.0。常驻 4,187 → 4,437 tok（上限 +250，恰好）。
+  指向：S13/A36、INV-05、P10、S2（前缀稳定：只加 version）。
+- destination-policy.md：INV-07 一节（匹配范围、顺序、已知漏报/误报类、依赖 macOS 根目录
+  不搬家、BAD/GOOD 措辞）；**行动面表**（每个脚本最高动作 + 由规则/进程/宿主哪一层锁）
+  与新判断 J1–J5 的平面归属；把"有效 marker 授权清扫 `.NAME.XXXXXXXXXX`"这段 0.2.1 以来
+  已失效的陈述改成"只报告不删除"。指向：A36、S14/A49、审计 A2。
+- first-run-setup.md：模式匹配措辞；离机目的地同样要密钥确认；§6 放宽权限的键
+  （BAD/GOOD 判断卡；声明 off_machine 与密钥确认是两件事、可一轮问完——争议 D-W2）；
+  宿主写保护建议（片段注明 2026-09-25 的理解、本版未实测）与写保护时的降级路径。
+  指向：S13、P13、审计 A2/A4。
+- README / README.en：七条硬规则、放宽权限的键、`baseline_arm.py` 标为**脚本化稻草人、
+  不作 E11 证据**（审计 A5）、harness 计数更正（旧 README 写 78/78 与 76/76，实为 81）。
+
+### 证据
+
+- harness 81 → **88/88**（新增 7 条：未声明云路径扣住且全链零写入、声明后放行并点名、
+  3 正例 + 5 个近形负例的分类器、离机密钥闸门且不误伤本地目的地、用**真实捕获**的
+  disk7 plist 渲染"与 Time Machine 共盘"、写保护降级、报告的离机/扣住/删除开关/模式措辞）。
+  7 条全部**先在 c2a922b 的脚本快照上跑红**（`runs/workspace-backup/engineer/red-log-pristine-c2a922b.txt`）。
+  `--selftest` 19 → **24** 个变异体全部被抓（新增：关掉云识别、密钥闸门退回 portable-only、
+  删除开关恒 OFF）。
+- **误报实测（铁律 7 / A50(ii)）**：分类器跑遍全部现有真实语料——现行 config.json 两个目的地、
+  config-musicplayer.json、首跑默认两个路径、生产 journal 里出现过的目的地——**只命中
+  icloud 一个**；旧 81 条用例构造的 74 个 fixture 目的地路径命中 0 个。
+- E11（Opus 5.5 定向结算，A42）：三个用例的两臂靶子已按铁律 6 备好；结果由 conductor
+  跑完后盖 model_baseline（claude-opus-5-5 / high / Claude Code）。
+
+### 需要 Vince 自己做的（技能不会替你做）
+
+1. **决定 icloud 目的地**：升级后它会被扣住（退出 30），报告里写明；要保留就在
+   `~/.workspace-backup/config.json` 的 icloud 条目加 `"off_machine": true`，再对密钥清单
+   说一句确认（`init_destination.py --dest-id icloud --ack-secrets --confirm`）。
+2. **ext-2tb（2TBofData）和 Time Machine 卷 backkkup 在同一个 APFS 容器 disk7**：
+   它不是那块盘的独立副本；独立的是 5TBofData。
+3. 想要执行层的锁：在 Claude Code 宿主设置里对 `~/.workspace-backup/config.json` 加写保护
+   （片段与一次性检查见 first-run-setup.md §6），加完后自己验一次。
+4. 07-29 那次实验把 `current_run` 指到了实验运行，下一次真跑会报一次 TORN，属预期。
+5. **上次真实备份是 2026-07-27**，Philosophy/ 的 R20 版本目前只有一份。
+
 ## 0.2.3 — 2026-07-29 (代际结算两臂实测：一处 fail-open)
 
 跑 Claude 5 代际结算的 with/without 两臂对照时发现的。靶子是一个沙箱工作区
