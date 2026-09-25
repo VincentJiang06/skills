@@ -1,4 +1,4 @@
-# loop-principle map — 9 steps → KB grounding
+# loop-principle map — design fields → KB grounding
 
 This is a **thin pointer**. The substance lives in the loop-principle KB; cite
 these node ids and load the templates/checklists by path instead of restating
@@ -61,6 +61,19 @@ node <kb>/tools/query_kb.mjs "decompose break large task into milestones gated p
 > is structure authored in this skill (`references/loop-design-shape.md`): the KB
 > has no node describing a gated staged-sub-loop schema, so the skill owns it.
 
+## Number provenance (D7 / §VIII·b) → node ids
+
+Five KB nodes ground the 0.4.0 parameter-provenance mechanism, each cited at the
+step that uses it (all verified via `query_kb`):
+
+| Where | Grounding node id | Why there |
+|---|---|---|
+| D5 stop conditions (discovery-work stages) | `technique.loop_until_dry` | unknown-size work stops on "K consecutive fruitless rounds", never a fixed quota (an imagined empirical magnitude); K itself is decision-class |
+| D7 (buy-the-machinery call) | `principle.verifier_asymmetry` | derivation machinery is bought only where measuring is cheaper than the cost of being wrong; on tiny designs decision-class filing is the honest route |
+| The calibration-stage pattern (`loop-design-shape.md`) | `anti_pattern.unexercised_self_check` | the calibration stage's check must be proven able to FAIL on a hand-filled values artifact — a check never seen red is this anti-pattern |
+| VERIFY / fresh-reader numbers-audit box | `anti_pattern.green_but_wrong` | a linter-green declaration is not a true declaration: structural gates prove shape, the audit box proves meaning |
+| §VII·b / §VIII·b telemetry | `metric.stop_gate_trigger_rate` | the floor_trip escalate rate IS a stop-gate trigger rate: zero may mean a hollow gate, a storm means the machinery costs more than it earns — the drift tables carry the evidence |
+
 ## Checklists to reuse (load on demand, do not restate)
 
 - `<kb>/checklists/loop_preflight.checklist.json` — before designing.
@@ -75,7 +88,7 @@ node <kb>/tools/query_kb.mjs "decompose break large task into milestones gated p
 > skill's own shape in `references/loop-design-shape.md`, and the rendered runbook
 > comes from `scripts/render_loop_doc.mjs`, not from the KB template directly.
 
-All grounding ids above (the 9-step table + the Decomposition table) were verified
+All grounding ids above (the field table + the Decomposition table) were verified
 present in the KB at build time and resolve via `query_kb`: **node** ids
 (`principle.* concept.* pattern.* procedure.* technique.* anti_pattern.*`) live in
 `<kb>/knowledge_graph/nodes/*.json`; **doc** ids (the `doc.*` entries, e.g.
