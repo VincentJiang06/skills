@@ -57,6 +57,11 @@ untouched); every item names the principle it answers to.
   (`workflow.js` `listConsoleCapture`) oldest-first, so past 1000 entries that recipe skips the newest, and the
   `listConsole` example without `pageSize` paged at 50. Now: page from the end using `total`. — **P10** (the doc
   states what the CLI source does), **P11**.
+- **F09 (P3) — "restore the previous env" could itself switch to production unasked.** When step 1 finds
+  `caoliaoProdIm` selected and the agent moves to a dev env, restoring means `env use caoliaoProdIm`, a
+  production-target action. SKILL.md, runtime-protocol.md and the cross-stack path now say restoring only undoes
+  the agent's own switch, and a switch back to production needs its own go-ahead (else report and offer).
+  — **S13** / **A36** (the tier table decides; the restore step does not bypass it).
 
 ### Changed — verification planes
 - `safety_contract_documented` is **report-only** (D→L): a verb-list regex judging doc polarity is a semantic

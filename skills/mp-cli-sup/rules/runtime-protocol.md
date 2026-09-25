@@ -62,7 +62,9 @@ explicit path boundaries, narrow commands. The exact command/step/error schema i
   `~/.vince-mp/config.json` across sessions, so re-run the anchor, don't remember it. Classify the target by
   host (a harmless env name can point at `data.cli.im`).
 - Production-target actions need an action-bound go-ahead (tier table); a blanket "don't ask" given before
-  the action was known is not one. Afterwards `vince-mp env use <previous>` and report the restoration.
+  the action was known is not one. Afterwards `vince-mp env use <previous>` and report the restoration —
+  restoring only undoes your own switch, and a switch back to a production-target env needs its own go-ahead
+  (else leave the current env, report it, and offer the switch).
 - Admin tokens never pass through the agent (no argv, no export, no reading the config file or the variable's
   value); on `ADMIN_TOKEN_REQUIRED` ask the user to set `VINCE_MP_ADMIN_TOKEN` in the launch environment (relay
   only the env-variable path of the CLI's hint, never its `env token <token>` form) instead of acting on it.
