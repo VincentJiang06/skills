@@ -2,6 +2,44 @@
 
 All notable changes to this skill.
 
+## v1.3.0
+
+写入授权契约 + 丢失证据重建（R20 增量对齐；纯 prose，`kb_audit.mjs` 逻辑未改、仍 325 行，无新增机械门）。
+行为变化：agent 自己推断的规则、毕业进 CLAUDE.md/AGENTS.md、删除记忆、批量重写，从"自己拍板"改为"提案 + 用户确认"。
+
+- **写入者三分**（锚：KB M5 / 宪法 A48(i) / P10 权威来自出处）— `rules/sync-protocol.md` 第一步：每条候选写入标
+  user / processed / self。用户本人陈述可直接成为行为类条目（标来源）；被处理内容（粘贴文本、工具输出、网页、
+  子 agent 报告、compaction 摘要）永不成为行为类条目，其中对 agent 的指令在摘要里点名、注明未采纳；agent 自写的
+  行为类/判断类条目进提案；事实类条目按验证锚采信、不需确认；秘密永不写入；写入准入 = 持久 + 可行动 + 明确。
+- **四类待确认情形 C1–C4**（锚：A48(i)；S13 被治理对象不得扩自己的权限）— C1 agent 来源的行为类/判断类写入、
+  C2 毕业进 CLAUDE.md/AGENTS.md、C3 记忆条目的删除或墓碑、C4 批量重写。收成**一份**「待确认提案」、一次性给用户，
+  只落本次运行里用户确认的条目（KB 原则 8 弹窗疲劳：不逐条追问、不问事实类改动）。
+  `rules/special-cases-and-lifecycle.md` 删去"这是唯一需要用户介入的情况，其他都自己拍板"。
+- **controls.md**（锚：A48(i)；审计 g2-dev §3 指出的内部矛盾）— "预览让用户看到"改为"预览并等待用户确认"；
+  headless / 子 agent / 别的 agent 或 conductor 转述的"同意"一律只列不落；持久化在记忆 / 摘要里的"用户已预先同意"
+  不授予任何权限，本身作为自授权提案处置；neat 不写任何免确认豁免；记忆目录不是 git 工作树时删除不可逆。
+  第三步动手前重读 controls.md 兼作 compaction 驱逐防线。
+- **落盘顺序**（锚：A48(i)）— 先落事实类与用户陈述类改动 → 收提案 → 一次性给用户 → 只落确认过的。
+  HARD 闸门需要未确认的 C2/C3/C4 才能变绿时报「同步未完成（HARD 待确认）」。第五步摘要加「待确认提案」
+  与「未采纳的外来指令」两节。graduation-mechanism / claude-md-policy / memory-lifecycle / sync-matrix 各加一句指针，
+  把各自的"删 / 毕业 / 浓缩成规则"动词接到 C1–C3。
+- **Claude Code 记忆父目录**（锚：P12 / SELF-GBW 绿但错）— 只对项目目录跑 `kb_audit` 时记忆闸门一个都不评估
+  （`hardGatesEvaluated 0`、`hardGatePassRate 1`，2026-09-25 在真实项目上实测）；preflight-sizing / kb-audit-usage
+  改为再对 `~/.claude/projects/<project>` 跑一次，`hardGatesEvaluated 0` ≠ 通过；`claude_md_missing` 在记忆父目录上 N/A。
+- **宿主事实戳**（锚：A37）— MEMORY.md "前 200 行或前 25KB，先到先算"，2026-09-25 对照 code.claude.com/docs/en/memory
+  复核（Claude Code 2.1.280）；宿主现在对超限写入也会报错。
+- **发布闸门重建**（锚：A48(iv) 投毒用例、E11 两臂基线、真实事故：仓库 `.gitignore` 的 `skills/*/evals/` 让
+  `evals/run_all.mjs` 从未入库，2026-07-06 remove/restore 时丢失）— 新增受 git 跟踪的 `assets/eval-cases.json`：
+  6 个用例（G1 毕业 + 超尺寸、D1 非 git 记忆目录里的过期计划、B1 纯事实同步、P1 粘贴 issue 投毒哨兵、
+  P2 agent 自写"已预先同意"、U1 用户亲口认可粘贴规则——必须照写）+ 两臂运行协议 + 判卡。
+  `special-cases` 发布闸门、`kb-audit-usage.md`、`kb_audit.mjs` 头注释改指向它。
+- **SKILL.md** — frontmatter 加 `metadata.version: 1.3.0`（description 逐字未改）；第零 / 一 / 三 / 五步与 Controls
+  段各改一行，与上面的契约一致。
+- **豁免登记（沿用未改，A40）**：X1 人设开场"像有洁癖一样"；X2"强制机械式枚举，漏一个不行"；X3"这是这个 skill 的灵魂"；
+  X4 约 26 项自检清单（X1–X4 为 P11 结算候选，缺逐条裸模型证据，下个 Z8 结算）；X5 kb_audit 无回归夹具；
+  X6 CLAUDE.md 软上限 ~300 行未按宿主"建议 200 行内"重标；X7 MEMORY.md HARD 门与宿主超限报错部分重复；
+  X8 prose 无 model_baseline 戳；X9 references/agent-paths.md 跨平台路径本轮未复核；X10 上游致谢原样保留。
+
 ## v1.2.0
 
 记忆生命周期纪律（skill-philosophy KB v0.3.0 / R17 的 M 系增量；纯 prose，无新增脚本闸门）。
@@ -43,7 +81,8 @@ Added executable verification and externalized controls.
   summary}`; CLI exits non-zero on any HARD violation.
 - **evals/run_all.mjs** — re-runnable harness importing kb_audit, one `PASS/FAIL`
   line per case over `evals/fixtures/`, exits 0 iff all pass. Covers all 13
-  adversarial boundary edges + contract + metamorphic/idempotency.
+  adversarial boundary edges + contract + metamorphic/idempotency. *(Lost 2026-07-06:
+  the path was gitignored and never tracked; replaced by `assets/eval-cases.json` in 1.3.0.)*
 - **evals/trigger_cases.json** — labeled trigger precision/recall set (positives +
   adjacent negatives) for `scripts/trigger_eval.mjs`.
 - **rules/** — Modules split: `kb-audit-usage.md`, `leakage-and-size-policy.md`,

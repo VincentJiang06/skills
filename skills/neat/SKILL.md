@@ -6,6 +6,8 @@ description: >-
   dev-milestone cues: "sync up", "tidy up docs", "update memory", "/neat",
   "整理文档", "$neat", or stale-docs reports. NOT for non-dev "整理", tidying code, or
   pasted text.
+metadata:
+  version: 1.3.0
 ---
 
 # 洁癖 — Knowledge Base Neat-Freak

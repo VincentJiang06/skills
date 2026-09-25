@@ -16,7 +16,7 @@
 
 ## 生命周期 / Lifecycle
 
-- **版本**：v1.2.0（加入 `rules/memory-lifecycle.md`：增量 delta / 遗忘义务 / 验证锚 / 运行时-积累分流）。变更记录在 `CHANGELOG.md`（与 skill 同目录）。
+- **版本**：v1.3.0（写入授权契约：写入者三分 user / processed / self，四类待确认情形 C1–C4 进一份「待确认提案」、用户确认后才落盘，无人确认的运行只列不落）。变更记录在 `CHANGELOG.md`（与 skill 同目录）。
 - **发布闸门**：发布前按 `assets/eval-cases.json` 的 run_protocol 跑——六个用例在 WITH 臂上都被判卡判 pass（P1 是哨兵，单独报告），再对一个真实项目目录**和**它的 Claude Code 记忆父目录各跑一次只读 `kb_audit`，退出码符合预期。旧的 `evals/` 目录被仓库 `.gitignore` 忽略、2026-07-06 丢失，所以评测材料只放在受 git 跟踪的 `assets/` 下。
 - **回滚坏运行**：破坏性运行出错 → `git restore .`（或 `git checkout -- <file>`）恢复被删/被改的知识文件；这就是要求 git 工作树的原因。`git restore` 管不到不在 git 里的记忆目录（Claude Code 默认如此），所以那里的删除一律先经用户确认（C3）。
 - **易变面**：跨平台路径表（references/agent-paths.md）随平台记忆布局变化最快——定期对照各平台最新文档复核，并记下复核时验证的平台版本。
