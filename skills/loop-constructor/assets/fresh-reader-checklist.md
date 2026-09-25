@@ -5,6 +5,11 @@ actually discriminates. Re-read the emitted design **cold** and answer every box
 **per stage**. Any "no" → fix the design and re-run the linter. A green linter on
 a hollow check is exactly the trap this pass exists to catch.
 
+Who reads matters. If the same context that wrote the design runs this pass, it is
+an author review, not an independent one — record it in the report as
+`fresh-reader: author, same context (L-i incomplete)` rather than implying a fresh
+reader. A separate context that never saw the drafting is the fresh reader.
+
 ## Per stage: `<stage id>`
 
 - [ ] **Runnable.** Could I literally run `<check>` against this codebase right
@@ -14,7 +19,12 @@ a hollow check is exactly the trap this pass exists to catch.
 - [ ] **Not a hidden no-op.** It isn't a subtler always-green gate the linter
       can't see: a test suite with zero assertions, a `grep` over a file the same
       stage writes, a custom command that always exits 0, a check whose target the
-      agent also authors.
+      agent also authors. The linter blocks only a short list of always-green
+      forms; look here for what it does NOT block: a self-report grep against any
+      progress file the loop writes (`progress.md`, `log.md`, not only
+      `.loop/run-state.md`); always-0 shell forms (`if …; then …; fi`, `! false`,
+      `set +e; …`, `…; [ $? -ge 0 ]`); and a `|| true` placed after a quoted `#`
+      (the linter drops `#…` before it reads quotes, so it never sees that tail).
 - [ ] **Asserts the OUTCOME, not a proxy.** It checks the observable result (row
       count, status-by-input, pixel), not a surface token ("SQL contains LIMIT",
       "a 429 appeared"). A grep/diff catches **new/untracked** files
@@ -150,8 +160,8 @@ a hollow check is exactly the trap this pass exists to catch.
       timing / a gate, not by the participants.
 - [ ] **Bottleneck named (§IX).** The report says where the current weakest link is
       (plan? verification? taste?) and what you'd harden next — not "all smooth".
-- [ ] **Autonomy matches risk.** `human_placement` follows D3 (weak check or
-      irreversible high-blast ⇒ `in_the_loop`).
+- [ ] **Autonomy matches risk.** `human_placement` follows the one rule in
+      `loop-selection.md` D3 (read it there; this box does not restate it).
 - [ ] **Caps real.** Every stage + the outer loop carry a finite `max_iterations`;
       the stage graph is acyclic (enterable + terminating).
 - [ ] **Routing sane.** Every `on_failure.loopback` targets an upstream stage.
