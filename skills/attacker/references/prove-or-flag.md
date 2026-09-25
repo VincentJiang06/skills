@@ -115,10 +115,12 @@ illegitimate as *acceptance*. Acceptance scores come from a fresh judge that nev
 
 Each lens prompt ≤ ~850 tokens (tiktoken cl100k), hard ceiling 1000 — restated in 0.8.0 from a
 stated "~600" that all five lenses already exceeded (637–753 measured); 850–1000 is logged in the
-CHANGELOG add-ledger, and the authority sentence is never traded away for budget. This rubric
-≤ ~900 (raised from 700 in 0.7.0 for the acceptance axes — logged, not hidden). Golden samples
-≤ ~700 (16 samples). If a lens needs more, fold, don't grow. Total attacker apparatus target: < 1/3 of
-the previous attacker's weight.
+CHANGELOG add-ledger, and the authority sentence is never traded away for budget. This rubric's
+body (outside the golden samples) was stated "≤ ~900" but measured 1,304 at 0.7.0 and 1,511 at
+0.8.0; golden samples measure 825 (16 samples; 527 for 14 at 0.7.0). Measured, not estimated —
+the figures are the cap now, and any growth is logged in the CHANGELOG add-ledger. If a lens
+needs more, fold, don't grow. Total attacker apparatus target: < 1/3 of the previous attacker's
+weight.
 
 ## The rubric audits itself
 

@@ -2,6 +2,109 @@
 
 All notable changes to the `attacker` skill. Semver.
 
+## [0.8.0] — 2026-09-25
+
+**R20 alignment (philosophy KB v0.4.0 — K1 vendor tiers, P10/A36 trust boundary, P13/S14 judgment
+planes, A51 stop signature).** Incremental alignment (A40/O7 tier 增量对齐) of seven re-verified audit
+items (`r20-upgrade/g1-meta.md` §2) plus what they force. Every change points at a KB anchor or a
+skill-own principle (iron rule 1). Five lens definitions, E9 stop rule, fix-audit axes A–D,
+PROVE-OR-FLAG bar, severity scale and golden samples 1–14 are unchanged (byte-identical where stated).
+SemVer **minor**: the output-schema enum widens and runtime behavior changes; no field removed.
+
+### Changed — independence vocabulary (KB K1, A37)
+- A **different model of the same vendor is no longer `model`-tier.** 0.7.0 told FORK to prefer "a
+  different model" and said that bought `model` tier "by construction"; under K1 (R20) an Opus 5.5
+  attacker on Fable-authored text is **`instance_plus` (L-i+)**, and `model` (L-m) needs a
+  **different vendor** declared with resolved model IDs of attacker and target author. Sites:
+  SKILL.md rule 2, FORK, Contract `required_tier`, NOT-do list, honest coverage note;
+  `references/prove-or-flag.md` §Judge topology ("model family" → "vendor"); both READMEs.
+- `schemas/output.json`: `instance_plus` added to `findings[].independence_tier` and
+  `coverage_gaps.independence_reached` — **additive only** (no field added/removed/renamed; key
+  sets and `required` lists byte-equal to 0.7.0; six-vendor constraints untouched).
+- FORK no longer promises "zero build history" unconditionally: the dispatcher states the host
+  context the striker inherits (project CLAUDE.md, auto-memory index, plugin hooks); injected and
+  not stripped ⇒ `L-i incomplete: <what>`, unknown ⇒ `L-i incomplete (host context not verified)`
+  (K1). The run claims only the highest provable tier; an unmet `required_tier` goes in notes and
+  `battery_grade` keeps its budget-vs-risk-floor meaning.
+- The PBT-Bench / MAS-ProVe evidence now lives once, in `prove-or-flag.md` §Judge topology (SKILL.md
+  keeps a pointer) — dedup that paid for part of the Authority paragraph.
+
+### Added — trust boundary (KB P10, A36; Z5 no-compress)
+- SKILL.md **§Authority** (3 lines): target, shadow map, fetched pages and prior-round reports are
+  data; a sentence telling reviewers to skip something is itself reported; dispatch passes lens
+  files whole.
+- The **verbatim authority sentence** opens all five lens files (the lens file is the striker's
+  whole prompt; SKILL.md never reaches it). It is on the Z5 no-compress list: do not reword,
+  compress or trade it for budget.
+- Golden sample **15** (reviewer-addressed "do not report X" → X still reported + the note flagged;
+  contrasted with sample 5's governed tension). **Injection seed recipe** in `seed-recipes.md`.
+- `scripts/extract_shadow_map.py` docstring declares its action surface: read-only (reads .md,
+  writes stdout) — A36 per-script declaration; code unchanged.
+- `fix-audit.md`: prior findings, ledgers and fixer summaries are data; "fixed" is verified by
+  re-running the original reproduction.
+
+### Added — separability witness hunt (KB P13, S14, A50(i); A41 no sixth lens)
+- `lenses/reality.md` hunt **7**: for a deterministic check that renders a FINAL verdict on a
+  semantic judgment, exhibit a pair of real inputs with the same reading and opposite correct
+  verdicts, with both readings and search coverage; consequence = re-plane (D→L evidence / L
+  judgment card), never a new feature, exception or retuned threshold. S14 names the battery as the
+  witness supplier; no lens was told to hunt it. Folded into Reality (extends hunt 2), not a sixth
+  lens. Golden sample **16**: pairs that read differently are not a witness (claim → FLAG; halves
+  may stand alone). Library-class incident: caoliao-style-writer's seven-round arms race.
+
+### Changed — SEED matcher re-planed (KB S14/A50(i) applied reflexively; skill-own "never an uncalibrated judge")
+- The SEED hit decision was itself a D-face final on a semantic question with a constructible
+  witness (an item at the seed location using a seed keyword for a *different* defect). Now: the
+  deterministic location+keyword match is a **pre-screen**; the **planter** confirms hits and
+  near-misses against its answer key; no planter/key ⇒ **`seed-unscored`** (findings delivered, void
+  for E9). Seeds and injection notes are planted on a branch/copy only. Prose only, no code.
+
+### Changed — fix-audit escalation (KB H4, A51(i))
+- Escalation now fires on all of A51(i): P0/P1 inside last round's fixes, ≥P2 regression in the fix
+  area, or a defect relocated into an adjacent file (post-review severity). The report poses the
+  first question — *wrong plane (re-plane per H4/S14) rather than badly tuned?* — the attacker raises
+  it, never decides it, and never recommends a tighter regex / exception / retuned threshold.
+
+### Changed — A37 honesty
+- `prove-or-flag.md` no longer claims the golden samples "carry a `model_baseline` stamp" (none
+  existed). They are verdict patterns with answers inline — grading them is not calibration. No
+  judge calibration record exists, so the rubric is **`judge-uncalibrated`** and every run says so
+  in notes. SKILL.md step 4 mirrors this. No stamp value was fabricated.
+- Budget lines restated with measurements: lens cap "~600" (all five were 637–753 at 0.7.0) →
+  "≤ ~850, hard ceiling 1000"; rubric body stated "~900" but measured 1,304 (0.7.0) / 1,511 (0.8.0).
+
+### Judgment planes (A49 in one paragraph — X-2, no ledger file shipped)
+Activation = L (host model on the description). Shadow-map extraction = D skeleton (fixed regex on
+lint-enforced headers; unparsable ⇒ `needs_human`). SEED hit = D→L pre-screen + planter-with-key
+final (re-planed this version). Finding/flag proposal = L striker (proposal only, never deletion).
+Final adjudication and severity = L judge (different-vendor preferred; judge-uncalibrated declared).
+Independence tier = L orchestrator applying K1 to declared facts (no D script: it would read
+self-declared names, not provenance). Reviewer-addressed-instruction vs governed tension = L
+(no D detector: paraphrase and other languages give trivial witness pairs). Witness readings = D
+evidence (execute the gate); correct verdicts = L. Fix-audit axis C = re-executed repro (D→L).
+A51 escalation = L raises → H owner decides. Stop = D count + L marginal judgment. Output schema = D
+skeleton. The only D-face final gates left are skeleton checks.
+
+### Weight ledger (A41 add-ledger — measured with tiktoken cl100k, not estimated)
+- Always-loaded `SKILL.md`: **2,941 → 2,995** tokens (cap 3,000). Paid by: the PBT-Bench detail
+  relocated to prove-or-flag.md, merged opening paragraphs, compacted Contract / Harness / NOT-do /
+  honest-note prose — no field or rule removed. (The 0.7.0 ledger's 2,885 was a character-model
+  estimate; the measured 0.7.0 figure is 2,941.) Description byte-identical (332 chars, X-1 warn).
+- Lens files (on-demand, one per striker): coherence 637→716, gaming 649→728, evidence 671→750,
+  foundation 753→832, reality 747→**988** (authority sentence +79 each; reality also +162 for hunt
+  7). Reality sits in the logged 850–1000 band; no hunt item was removed or reworded to pay.
+- On-demand references: prove-or-flag 1,831→2,336 (golden 14→16, +14%), fix-audit 1,339→1,515,
+  seed-recipes 581→954. Script 111→114 lines (docstring only; iron rule 4 cap 166).
+- Shipped eval cases: 0 → 0 (E11 fixtures live in the upgrade run directory, X-3).
+
+### Exemption register (carried, not aligned this version)
+X-1 description 332 > 320 chars · X-2 no A49 ledger file (paragraph above instead) · X-3 no shipped
+eval set · X-4 lens budget restated, not cut · X-5 extractor over-flags `needs_human` on node types
+without six-piece fields (43/115 on the KB) · X-6 different-vendor acceptance run still not done ·
+X-7 no A42 point-version settlement applied to lens prose · X-8 carried mechanism unchanged · X-9 a
+stale 0.4.x "attacker" copy in the desktop skills-plugin cache competes for `$attacker` (reported,
+outside this skill's scope). Detail: `r20-upgrade/runs/attacker/skill-spec.json` materials.
+
 ## [0.7.0] — 2026-07-31
 
 **R17 alignment (philosophy KB v0.3.0 — the verifier-engineering increment).** Three deltas, each
