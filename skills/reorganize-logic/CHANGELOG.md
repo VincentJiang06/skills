@@ -1,5 +1,67 @@
 # Changelog — reorganize-logic
 
+## 0.3.1 — 2026-09-25 — battery fix round: four extractor/coverage holes (P2)
+
+Patch: the gate now meets guarantees it already claimed ("no recognized export
+silently dropped", "every row ties to ITS file:line"). The `interfaces.md` schema
+and the gate input format are unchanged. **Stricter:** a contract that passed 0.3.0
+can now FAIL where it hid a real gap (real case: a miscited `apply` row and an
+undocumented same-named `sha256` in academic-research-plugin). All four are
+skeleton (D-plane) checks: existence, set difference, file listing. None judges
+publicness. *KB A50: skeleton checks are exempt from (i); (ii) FP measured below.*
+
+### Fixed — the gate (`scripts/verify_contracts.mjs`)
+- **F01 coverage keyed by (name, defining file).** A name *strongly* defined in two
+  or more files is that many symbols. A row covers the file it cites, plus files
+  reached from it through `export { name } from` re-exports. Every defining file
+  that no row reaches gets its own `COVERAGE_HOLE`, and the detail names the file.
+  A name with one defining file (barrels), weak same-named helpers and plain
+  `export { x }` lists keep name-level coverage. Exclusions stay name-keyed.
+  *Principle: gate-design.md principle.claim_evidence_traceability.*
+- **F02 file walk.** Output-named dirs (`dist`, `build`, `coverage`, `vendor`,
+  `target`, `out`) are skipped only under the project root. Before, any depth
+  matched, so `src/build/index.js` went unread and the run printed PASS. The walk
+  now also skips `.venv*`, `venv`, `.uv-cache`, `site-packages` and tool caches at
+  any depth, plus whatever the project-root `.gitignore` ignores (git semantics for
+  that one file). When unsure, the walk reads.
+  *Principle: README "fail-closed: unknown → block, never silent-skip".*
+- **F04 missed definitions.** New forms recognized: `export default [abstract]
+  class`, `export declare …`, `export [declare] const enum X` (no bogus `enum`
+  symbol), and Go exported `type` (`.go` files only). A documented row whose cited
+  line assigns or declares the name at column 0 (Python `app = FastAPI()`, Go
+  `var X = …`) now counts as tied to real code: existence at the exact line, not
+  added to the surface. *Principle: SKILL.md "No untrue contract for a green gate".*
+- **F05 `module.exports = <ident>`** is now a strong export of that binding. Before,
+  a reasonless exclusion of a module's sole API raised no flag and no review.
+  *Principle: gate-design.md anti_pattern.reward_hacking.*
+
+### Changed — prose
+- ORPHAN fix (gate-design table, protocol step 5): remove or rename a row you
+  invented or misnamed. Keep a true row whose form the gate misses and escalate.
+  Never delete a true row to get a green gate. *Principle: SKILL.md Controls
+  (unrecognized form → owner proposal + escalate).*
+- contract-format.md: same name in two files = two rows. gate-design.md: new
+  "Which files the CLI reads" section, the coverage identity rule, and the
+  recognized-forms list.
+
+### Evidence (run dir `battery/fix/`)
+- Red first: C30–C33 failed on 3b6d5fd (`red-log.txt`). They pass now; evals 33/33.
+  Every carried assertion is untouched.
+- Mutation: 15 single-point mutants of the new code. Each one turns a case red.
+- Real corpus (8 corpora + academic wrapper + dnsprobe), every changed line
+  classified in FIXES.md.
+  - F04: +28 TP (`export default class` services).
+  - F01: first cut had 2 FP classes (weak helper, plain export-list re-export),
+    fixed before commit. The remaining new holes are distinct same-named exports.
+  - F02: manualwork 92,857 → 491 extracted, academic whole-tree 3,993 → 56 holes,
+    dnsprobe 4,012 → 203.
+  - F05: form absent from the corpus. The 482 hits across ~/playground and
+    ~/experiment are all real whole-module exports.
+- Growth vs the 0.2.1 baseline (A51(ii)): gate 566 → 678 (+20%), evals 438 → 609
+  (+39%), cases 26 → 33 (+27%).
+- Not fixed this round: battery P3 set (F03, F09–F11, F13–F19, FLAG6), recorded in
+  `battery/ADJUDICATION.md`.
+
 ## 0.3.0 — 2026-09-25 — judgment off the gate, model-neutral orchestration
 
 Minor: the `interfaces.md` table schema and the gate input format are unchanged, and

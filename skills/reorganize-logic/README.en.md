@@ -8,6 +8,7 @@
 
 **Why it's good** —
 - A deterministic, language-agnostic gate (`verify_contracts.mjs`) ties every documented interface to a real file:line and proves no recognized export was silently dropped.
+- Coverage is per symbol, not per name: the same name exported from two files needs a row (or exclusion) for each. The file walk skips dependency/virtualenv/cache dirs and whatever the root `.gitignore` ignores, and reads a `src/build/` source dir.
 - It FLAGS ambiguous near-name matches for the agent to reconcile rather than rubber-stamping — no green-but-wrong.
 - The gate checks structure, not design intent: excluding a strongly-exported symbol requires a same-line **reason**, and whether it is really internal is decided by a non-fork fresh reader with an exclusion judgment card (uphold / overturn / unsure, checked against the code); unsure items come to you.
 - When the gate can't be satisfied honestly (only by an untrue contract, editing code or the gate, or a language with no matcher) the run escalates instead of forcing a green; the gate is never edited mid-task.
