@@ -17,7 +17,14 @@
 //   cat design.json | node scripts/lint_loop_design.mjs # stdin
 //
 // Programmatic:  import { validate } from "./lint_loop_design.mjs"
-//   validate(obj) -> { ok: boolean, fails: [{name, reason}], checks: [{name, pass, reason}] }
+//   validate(obj) -> { ok, fails: [{name, reason}], checks: [{name, pass, reason}],
+//                      warns: [{name, reason}] }
+//
+// warns[] (added 0.4.0, ADDITIVE): advisory findings that never affect ok, the
+// exit code, or the renderer's refusal (refusal stays FAIL-only). Today exactly
+// one warn exists: a STAGED design with no parameter_provenance declaration.
+// Absence stays legal (pre-0.4 designs keep passing untouched); a NEWLY-emitted
+// design counts as clean only at zero FAIL AND zero WARN (SKILL.md VERIFY).
 //
 // Deterministic & idempotent: pure function of its input, no I/O, no clock, no
 // hidden state. Same input → same verdict. Never throws on bad input — malformed
@@ -156,6 +163,15 @@ function atomAlwaysGreen(atom, depth) {
   if (/^let\s+[1-9]/.test(base)) return true; // let <nonzero> exits 0
   if (/^echo\b/.test(base) || /^printf\b/.test(base)) return true; // always exit 0
   if (/^(ls|cat|pwd|whoami|date|hostname|uptime|head|tail|dirname|basename)\b/.test(base)) return true; // inspect, never assert
+  // Filter/format utilities: they transform a stream and exit 0 regardless of what flowed
+  // through. As a PIPE TAIL they set the pipeline's status, so `real-assert | tee log` is
+  // always-green — the single most common capture idiom, and the gap that let a design whose
+  // every gate was `npm test | tee f` lint clean while proving nothing. `cat` was listed
+  // above; its siblings were not.
+  // EXCEPTION: `sort -c/--check` and `uniq -d/-u` in a test position DO assert, so they are
+  // excluded — the rule is "never asserts", not "is a text utility".
+  if (/^(tee|wc|tr|rev|nl|fold|column|expand|unexpand|tac|od|xxd|strings)\b/.test(base)) return true;
+  if (/^(sort|uniq)\b/.test(base) && !/\s-(?:-check\b|-c\b|c\b|d\b|u\b)/.test(base)) return true;
   if (/^(python3?|node|ruby|perl)\s+-c\s+['"]?\s*(pass|exit\(0\)|0|true)\s*['"]?\s*$/.test(base)) return true;
   // test -n <nonempty LITERAL> — always true (but `[ -n "$VAR" ]` is runtime-dependent, so exclude $-expansions)
   {
@@ -260,7 +276,9 @@ const VALID_ALTITUDE = new Set(["medium", "large"]);
  */
 export function validate(input) {
   const checks = [];
+  const warns = [];
   const add = (name, pass, reason) => checks.push({ name, pass, reason: pass ? "" : reason });
+  const addWarn = (name, reason) => warns.push({ name, reason });
 
   // Graceful handling of malformed input — a non-object is not a loop-design.
   if (!isPlainObject(input)) {
@@ -275,7 +293,7 @@ export function validate(input) {
       false,
       `input is not a loop-design object (got ${what}); expected a JSON object`
     );
-    return finalize(checks);
+    return finalize(checks, warns);
   }
   add("input_is_object", true);
 
@@ -301,7 +319,11 @@ export function validate(input) {
   // Design-level fields are shared by both shapes.
   validateDesignLevel(input, add);
 
-  return finalize(checks);
+  // parameter_provenance (0.4.0) — strict shape + cross-reference FAILs when
+  // present; a WARN (never a FAIL) when absent on a staged design.
+  validateParameterProvenance(input, add, addWarn);
+
+  return finalize(checks, warns);
 }
 
 // ---- flat single-loop checks (the original shape, unchanged) --------------
@@ -889,11 +911,184 @@ function validateContract(contract, required, add) {
   if (ok) add("contract", true);
 }
 
-function finalize(checks) {
+// ---- parameter_provenance (0.4.0) ------------------------------------------
+//
+// D7's output: the declaration that classifies the design's numbers. Two arrays:
+//   fixed[]   — numbers legitimately fixed at design time; class "decision"
+//               (pre-registered willingness: caps, stall counters, drift
+//               thresholds) or "definitional" (violation semantics, owing a
+//               red-fixture pointer). "empirical" is NOT a fixed class — an
+//               empirical number may appear only as a derived entry.
+//   derived[] — empirical magnitudes (ceilings, timeouts, batch/sample sizes):
+//               the DESIGN declares the contract (formula, calibrating stage,
+//               consumers, cadence, sample/censoring rule, drift policy incl.
+//               floor_trip); the RUN produces the values artifact, which the
+//               calibrating stage's own check validates — never this linter
+//               (validate() stays a pure function: no I/O, no runtime files).
+//
+// Back-compat contract (the reason this whole block is warn-or-strict, never
+// required): absence on a STAGED design = WARN, never FAIL — every pre-0.4
+// lint-green design keeps passing with an unchanged exit code. Absence on a
+// FLAT design is silent (flat stays fully static by rule; a flat design that
+// wants derived parameters has found a seam and belongs in staged — and
+// mechanically, a flat derived entry cannot name a calibrating stage, since
+// there is no stage graph to order one in). Presence = strict per-entry FAILs.
+//
+// Attestation boundary (unchanged in kind from machine_verifiable/roles): the
+// linter validates the declaration's SHAPE and stage cross-references. It never
+// NLP-classifies prose numbers — an empirical literal hiding in a `must` string
+// above an empty declaration lints green and is a lie; the fresh-reader
+// numbers-audit and the attacker stage own that residual, not this function.
+const VALID_FIXED_CLASSES = new Set(["decision", "definitional"]);
+
+function validateParameterProvenance(input, add, addWarn) {
+  const pp = input.parameter_provenance;
+  const staged = input.stages !== undefined;
+  if (pp === undefined) {
+    if (staged) {
+      addWarn(
+        "parameter_provenance",
+        "staged design carries no parameter_provenance declaration — D7's number-provenance sweep (decision | definitional | empirical) is undeclared. Legal for pre-0.4 designs (absence is WARN, never FAIL; exit code unchanged), but a NEWLY-emitted design is clean only at zero FAIL and zero WARN: run D7 and declare { fixed: [...], derived: [...] } (an empty declaration is legal and honest for a design whose only numbers are decision-class)."
+      );
+    }
+    return;
+  }
+  if (!isPlainObject(pp) || !Array.isArray(pp.fixed) || !Array.isArray(pp.derived)) {
+    add(
+      "parameter_provenance",
+      false,
+      "parameter_provenance must be an object with exactly two arrays — fixed[] (class decision|definitional) and derived[] (empirical, calibrated at run time); an unfilled half is a visible [], never a missing key (the empty block is an affirmative claim: 'no empirical parameters here')"
+    );
+    return;
+  }
+
+  // Stage graph for the cross-reference rules. Empty for flat designs — so any
+  // derived entry on a flat design FAILs its calibrated_by resolution, which is
+  // exactly the "flat stays static" rule expressed mechanically.
+  const stages = Array.isArray(input.stages) ? input.stages : [];
+  const idSet = new Set();
+  const depsMap = new Map();
+  for (const s of stages) {
+    if (isPlainObject(s) && isNonEmptyString(s.id)) {
+      idSet.add(s.id);
+      depsMap.set(s.id, Array.isArray(s.depends_on) ? s.depends_on.filter((x) => typeof x === "string") : []);
+    }
+  }
+  const ancestorsOf = (id) => {
+    const seen = new Set();
+    const stack = [...(depsMap.get(id) || [])];
+    while (stack.length) {
+      const a = stack.pop();
+      if (seen.has(a) || !depsMap.has(a)) continue;
+      seen.add(a);
+      for (const p of depsMap.get(a) || []) stack.push(p);
+    }
+    return seen;
+  };
+
+  let ok = true;
+  const bad = (name, reason) => {
+    add(name, false, reason);
+    ok = false;
+  };
+
+  pp.fixed.forEach((f, i) => {
+    const label = `parameter_provenance.fixed[${i}]`;
+    if (!isPlainObject(f)) {
+      bad(label, `${label} must be an object {name, value_or_location, class, why[, red_fixture]}`);
+      return;
+    }
+    if (!isNonEmptyString(f.name)) bad(`${label}.name`, `${label}.name missing/empty — a nameless parameter cannot be audited`);
+    if (!isNonEmptyString(f.value_or_location)) bad(`${label}.value_or_location`, `${label}.value_or_location missing/empty — state the number or where in the design it lives`);
+    if (!isNonEmptyString(f.class) || !VALID_FIXED_CLASSES.has(f.class)) {
+      bad(
+        `${label}.class`,
+        `${label}.class must be one of ${[...VALID_FIXED_CLASSES].join("|")} (got ${JSON.stringify(f.class)}); an empirical number may not be fixed — declare it as a derived entry instead`
+      );
+    }
+    if (!isNonEmptyString(f.why)) bad(`${label}.why`, `${label}.why missing/empty — every fixed number owes its one-line justification`);
+    if (f.class === "definitional" && !isNonEmptyString(f.red_fixture)) {
+      bad(
+        `${label}.red_fixture`,
+        `${label}.red_fixture missing/empty — a definitional number defines violation semantics and owes the red fixture proving its check can FAIL (a gate never seen red is a hollow gate)`
+      );
+    }
+  });
+
+  pp.derived.forEach((d, i) => {
+    const label = `parameter_provenance.derived[${i}]`;
+    if (!isPlainObject(d)) {
+      bad(label, `${label} must be an object {name, formula, calibrated_by, consumed_by, cadence, sample_rule, drift_policy}`);
+      return;
+    }
+    if (!isNonEmptyString(d.name)) bad(`${label}.name`, `${label}.name missing/empty — a nameless parameter cannot be audited`);
+    if (!isNonEmptyString(d.formula)) bad(`${label}.formula`, `${label}.formula missing/empty — the pre-registered derivation rule is the whole point: the formula is fixed at design time, the VALUE is measured at run time`);
+    // calibrated_by — an EXISTING stage (an ordinary stage whose check validates
+    // the runtime values artifact; never a new stage type).
+    if (!isNonEmptyString(d.calibrated_by)) {
+      bad(`${label}.calibrated_by`, `${label}.calibrated_by missing/empty — name the existing stage whose run measures this parameter`);
+    } else if (!idSet.has(d.calibrated_by)) {
+      bad(
+        `${label}.calibrated_by`,
+        staged
+          ? `${label}.calibrated_by references unknown stage id ${JSON.stringify(d.calibrated_by)} (no such stage); the calibrating stage must be an existing ordinary stage`
+          : `${label}.calibrated_by ${JSON.stringify(d.calibrated_by)} cannot resolve — a FLAT (atomic) design has no stage graph to order a calibrator in; a design that wants derived parameters has found a seam: revisit D1 and go staged`
+      );
+    }
+    // consumed_by — non-empty list of existing stages, each DOWNSTREAM of the
+    // calibrator (ordering rule), never including the calibrator itself (circle).
+    if (!Array.isArray(d.consumed_by) || d.consumed_by.length === 0 || !d.consumed_by.every(isNonEmptyString)) {
+      bad(
+        `${label}.consumed_by`,
+        `${label}.consumed_by must be a non-empty array of stage ids — the consumer list is what makes the calibrator-before-consumer ordering lintable, and a parameter nobody consumes has no reason to exist`
+      );
+    } else {
+      d.consumed_by.forEach((c, j) => {
+        if (!idSet.has(c)) {
+          bad(`${label}.consumed_by[${j}]`, `${label}.consumed_by[${j}] references unknown stage id ${JSON.stringify(c)} (no such stage)`);
+          return;
+        }
+        if (isNonEmptyString(d.calibrated_by) && c === d.calibrated_by) {
+          bad(
+            `${label}.consumed_by[${j}]`,
+            `${label} lists its own calibrating stage ${JSON.stringify(c)} among its consumers — a self-calibration circle: a stage may not derive the very bound it runs under`
+          );
+          return;
+        }
+        if (isNonEmptyString(d.calibrated_by) && idSet.has(d.calibrated_by) && !ancestorsOf(c).has(d.calibrated_by)) {
+          bad(
+            `${label}.consumed_by[${j}]`,
+            `${label}.consumed_by[${j}] ${JSON.stringify(c)} does not have the calibrating stage ${JSON.stringify(d.calibrated_by)} as a transitive depends_on ancestor — a parameter cannot be consumed by a stage that runs before, or parallel to, its calibrator`
+          );
+        }
+      });
+    }
+    if (!isNonEmptyString(d.cadence)) bad(`${label}.cadence`, `${label}.cadence missing/empty — state WHEN the value is re-derived (pre-registered points, e.g. "each time <stage> re-runs"; never in-flight judgment)`);
+    if (!isNonEmptyString(d.sample_rule)) bad(`${label}.sample_rule`, `${label}.sample_rule missing/empty — state the sample + censoring rule (censored observations enter as LOWER BOUNDS; a sample that silently drops non-completers is invalid)`);
+    const dp = d.drift_policy;
+    if (!isPlainObject(dp)) {
+      bad(`${label}.drift_policy`, `${label}.drift_policy missing or not an object {threshold, conservative_direction, floor_trip}`);
+    } else {
+      const thresholdOk = isNonEmptyString(dp.threshold) || (typeof dp.threshold === "number" && Number.isFinite(dp.threshold));
+      if (!thresholdOk) bad(`${label}.drift_policy.threshold`, `${label}.drift_policy.threshold missing/empty — the instability line (itself class decision, set per design; the skill recommends NO default)`);
+      if (!isNonEmptyString(dp.conservative_direction)) bad(`${label}.drift_policy.conservative_direction`, `${label}.drift_policy.conservative_direction missing/empty — state which way the fallback moves on instability (derived values re-derive only by the formula, and fall back conservatively — never optimistically)`);
+      if (!isNonEmptyString(dp.floor_trip)) {
+        bad(
+          `${label}.drift_policy.floor_trip`,
+          `${label}.drift_policy.floor_trip missing/empty — declare the predicate referencing the design's minimum-progress floor whose trip routes to ESCALATE (the conservative ratchet must be bounded by a field, not by prose; if the conservative direction grows away from the floor, write an honest "floor n/a: <why>")`
+        );
+      }
+    }
+  });
+
+  if (ok) add("parameter_provenance", true);
+}
+
+function finalize(checks, warns = []) {
   const fails = checks
     .filter((c) => !c.pass)
     .map((c) => ({ name: c.name, reason: c.reason }));
-  return { ok: fails.length === 0, fails, checks };
+  return { ok: fails.length === 0, fails, checks, warns };
 }
 
 // ---- CLI ------------------------------------------------------------------
@@ -911,8 +1106,15 @@ function printVerdict(verdict, label) {
       console.log(`FAIL ${c.name}: ${c.reason}`);
     }
   }
+  // WARN lines are advisory: they never change the verdict or the exit code
+  // (renderer refusal stays FAIL-only). Zero-warn output is byte-identical to
+  // 0.3.0 — the lines (and the summary suffix) appear only when warns exist.
+  for (const w of verdict.warns || []) {
+    console.log(`WARN ${w.name}: ${w.reason}`);
+  }
   const status = verdict.ok ? "PASS" : "FAIL";
-  console.log(`\n${status} loop-design${label ? ` (${label})` : ""}: ${verdict.fails.length} fail(s)`);
+  const warnSuffix = verdict.warns && verdict.warns.length > 0 ? `, ${verdict.warns.length} warn(s)` : "";
+  console.log(`\n${status} loop-design${label ? ` (${label})` : ""}: ${verdict.fails.length} fail(s)${warnSuffix}`);
 }
 
 function main(argv) {

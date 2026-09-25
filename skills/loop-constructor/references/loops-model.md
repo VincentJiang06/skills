@@ -1,6 +1,6 @@
 # The operating model behind the shape (LOOPS.md)
 
-The D0–D6 procedure and the linter enforce the loop's *structure*. This file is the
+The D0–D7 procedure and the linter enforce the loop's *structure*. This file is the
 *operating model* the structure serves — the field-note rules that are **judgment,
 not schema**, and so live here (and in the fresh-reader pass) rather than in
 `lint_loop_design.mjs`. Cite them when they drive a design choice.
@@ -242,6 +242,40 @@ you have stopped reading. Two consequences for a design:
   builder who can self-label a component "structural" can exempt anything from
   deletion review by naming it. The class goes into the review record and the
   checker/gate confirms it. (KB `guidelines/loops.md` H8.)
+
+### VIII·b — The information-dimension rule (prospective): not yet measured → do not write
+
+Delete-the-harness prunes what the model no longer needs — retrospective, the
+time dimension. Its prospective counterpart, previously unnamed in this doctrine:
+**do not write a number nobody has measured.** An empirical magnitude — a
+ceiling, a timeout, a batch size, a sample size, an agreement bar — fixed at zero
+runs is imagination wearing pre-registration's clothes. The design fixes the
+**formula** (`parameter_provenance.derived`); the run produces the value.
+Decision numbers are exempt on purpose: caps, stall counters and drift thresholds
+encode *willingness*, not world-claims — pre-registration and calibration apply
+to different KINDS of numbers, which is why D7 classifies first.
+
+Two honesty clauses keep the rule from becoming its own disease:
+
+- **"Derived" is not a synonym for "true".** A fully truthful derivation over a
+  survivor-biased sample converges on an unfinishable bound: the expensive items
+  never complete, so they never enter the sample, so each re-derivation draws from
+  an ever-cheaper survivor set while true cost rises. Hence every derived
+  parameter's `sample_rule` states its censoring handling — **censored
+  observations (timeouts, non-completers) enter as LOWER BOUNDS; a sample that
+  silently drops non-completers is invalid** — and its `drift_policy.floor_trip`
+  bounds the conservative ratchet: when the fallback would make the design's
+  minimum-progress floor unattainable, the loop **escalates once at contract
+  level** instead of silently tightening forever. The floor-trip escalate rate is
+  telemetry (`metric.stop_gate_trigger_rate`): zero may mean a hollow gate that
+  cannot fire, a storm means the calibration machinery costs more than it earns.
+- **The machinery is mortal too.** The information-dimension machinery is not
+  exempt from the time-dimension rule: a derived parameter that lands on the same
+  value run after run is a constant wearing a derivation costume — delete the
+  derivation and file the number as fixed (with its class and why). The drift
+  tables self-evidence both directions: stability → the calibration stage is
+  deletable overhead; an escalate-storm → the machinery is the bottleneck. Prune
+  it like any other harness part.
 
 ## IX — The bottleneck always moves
 

@@ -74,6 +74,24 @@ export function codeSpan(v) {
   return `${fence}${pad}${s}${pad}${fence}`;
 }
 
+// The decision-range label is computed FROM the design (a deterministic
+// function of its selection_log): a pre-0.4 design whose log ends at D6 renders
+// the deliberately-historical "D0–D6" byte-identically to the 0.3.0 renderer; a
+// 0.4.0 design whose log carries D7 renders "D0–D7". The fallback for a log with
+// no parseable D<n> entry is the deliberately-historical 0.3.0 constant (6),
+// kept so legacy renders stay byte-identical.
+function selectionRangeLabel(log) {
+  let max = -1;
+  for (const e of log) {
+    const m =
+      e && typeof e === "object" && typeof e.decision === "string"
+        ? e.decision.trim().match(/^D(\d+)$/)
+        : null;
+    if (m) max = Math.max(max, parseInt(m[1], 10));
+  }
+  return `D0–D${max >= 0 ? max : 6}`;
+}
+
 const HARD_CONSTRAINTS = [
   "Minimal viable change; don't touch unrelated files.",
   "Don't change public APIs / add deps without justification.",
@@ -172,7 +190,7 @@ export function renderMarkdown(design) {
 
   if (Array.isArray(design.selection_log) && design.selection_log.length > 0) {
     out.push("## Why this shape (decision log)");
-    out.push("> The D0–D6 selection procedure that derived this loop's shape.");
+    out.push(`> The ${selectionRangeLabel(design.selection_log)} selection procedure that derived this loop's shape.`);
     design.selection_log.forEach((e) => {
       if (e == null || typeof e !== "object") return;
       const d = oneLine(e.decision);
@@ -180,6 +198,40 @@ export function renderMarkdown(design) {
       const why = mdText(e.why);
       out.push(`- **${d}** (${a})${why ? ` — ${why}` : ""}`);
     });
+    out.push("");
+  }
+
+  // Parameter provenance (0.4.0) — rendered IF AND ONLY IF the declaration
+  // exists; declaration-free designs get byte-identical 0.3.0 output (no
+  // banner, no placeholder section). Command-ish fields (name, formula, stage
+  // ids, value/red-fixture pointers) go through codeSpan; free text through
+  // mdText — the same two chokepoints every other design field routes through.
+  const pp = design.parameter_provenance;
+  if (pp && typeof pp === "object" && !Array.isArray(pp)) {
+    const fixed = Array.isArray(pp.fixed) ? pp.fixed : [];
+    const derived = Array.isArray(pp.derived) ? pp.derived : [];
+    out.push("## Parameter provenance (D7 — fixed vs derived)");
+    out.push(
+      "> Fixed numbers are pre-registered willingness (decision) or red-fixture-backed violation semantics (definitional) and change only OUTSIDE the loop. " +
+        "Derived numbers are empirical: the design fixes the FORMULA, the run measures the VALUE — re-derived only at the declared cadence, falling back conservative on drift. A loop may trip a cap, never raise one."
+    );
+    if (fixed.length === 0 && derived.length === 0) {
+      out.push("- (empty declaration — this design affirms that every number it carries is decision-class; nothing awaits measurement)");
+    }
+    for (const f of fixed) {
+      if (f == null || typeof f !== "object") continue;
+      const rf = isNonEmpty(f.red_fixture) ? ` · red fixture: ${codeSpan(f.red_fixture)}` : "";
+      out.push(`- **fixed** ${codeSpan(f.name)} · class: ${mdText(f.class)} · value: ${codeSpan(f.value_or_location)} — ${mdText(f.why)}${rf}`);
+    }
+    for (const d of derived) {
+      if (d == null || typeof d !== "object") continue;
+      const dp = d.drift_policy && typeof d.drift_policy === "object" ? d.drift_policy : {};
+      const consumers = Array.isArray(d.consumed_by) && d.consumed_by.length > 0 ? d.consumed_by.map((c) => codeSpan(c)).join(", ") : "—";
+      out.push(`- **derived** ${codeSpan(d.name)} ← formula: ${codeSpan(d.formula)}`);
+      out.push(`    - calibrated by ${codeSpan(d.calibrated_by)} (an ordinary stage — its own check validates the runtime values artifact; hand-filled values fail there) · consumed by ${consumers}`);
+      out.push(`    - cadence: ${mdText(d.cadence)} · sample rule: ${mdText(d.sample_rule)}`);
+      out.push(`    - drift threshold: ${mdText(dp.threshold)} · conservative direction: ${mdText(dp.conservative_direction)} · floor trip → escalate: ${mdText(dp.floor_trip)}`);
+    }
     out.push("");
   }
 

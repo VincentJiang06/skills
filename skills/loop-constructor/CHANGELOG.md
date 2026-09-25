@@ -3,6 +3,44 @@
 All notable changes to this skill. Versioning is semver on the loop-design JSON
 schema the linter binds to: a new required field / renamed key is a breaking change.
 
+## 0.4.0 — 2026-08-20
+
+**Parameter provenance** (non-breaking; battery 69 → **99/99**). The recorded incident:
+a 0.3.0-designed review loop pre-fixed seven classes of operational thresholds at zero
+runs (scope-crossover 65%, 3.5M ceiling, 15min lens timeout, ≥20/≥90% steady-state
+bars…) because every skill surface pushed numeric completeness and nothing offered a
+"measured later" channel; correcting it cost ~14 external review rounds.
+
+### Added
+- **D7 — number provenance** closes SELECT: sweep every digit-bearing string, classify
+  **decision | definitional | empirical** (two tests: refutability + change-channel),
+  route pre-register / fix-with-red-fixture / declare-derived. One selection_log line.
+- **`parameter_provenance` {fixed[], derived[]}** (optional key): derived entries carry
+  formula + `calibrated_by` (an ordinary stage, ancestor of every consumer, whose own
+  check validates the runtime values artifact) + `consumed_by` + `cadence` +
+  `sample_rule` (censored observations enter as lower bounds) +
+  `drift_policy{threshold, conservative_direction, floor_trip → escalate}`.
+- **Additive `warns[]` channel**: absence on a staged design = `WARN`, never FAIL (exit
+  codes unchanged; flat absence silent); presence = strict per-entry shape +
+  cross-reference FAILs (unknown calibrator/consumer, ordering rule, self-calibration
+  circle, missing floor_trip …). Newly-emitted designs are clean only at 0 FAIL 0 WARN.
+- **Renderer provenance table** for declaration-bearing designs; declaration-free
+  output stays byte-identical to 0.3.0 (eval-pinned against a captured render).
+- `cadence` stays a free string — no structure emerged writing the red cases;
+  inventing one with zero usage instances is this version's own disease.
+- **§VIII·b information-dimension rule** (prospective twin of delete-the-harness):
+  not yet measured → do not write; "derived" is not a synonym for "true"; the
+  calibration machinery is itself mortal. Fresh-reader gains the numbers-audit box
+  (17→18). Five KB nodes wired: loop_until_dry, unexercised_self_check,
+  green_but_wrong, stop_gate_trigger_rate, verifier_asymmetry.
+- Staged golden now teaches the declaration (2 decision / 2 definitional / 1 derived,
+  calibrated by `characterize`); example numbers carry "re-examine per design" — the
+  skill recommends **no default** drift/sample values.
+
+### Compatibility
+- Verified zero new FAILs on: both pre-0.4 goldens (archived), fable-debug-review,
+  arp-build. All 69 archived eval ids preserved verbatim; 30 new red-proven cases.
+
 ## 0.3.0 — 2026-07-31
 
 Aligned with the **skill-philosophy KB v0.3.0 (R17) H series** (循环工程). Six prose

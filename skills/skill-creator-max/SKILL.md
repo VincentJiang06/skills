@@ -68,7 +68,14 @@ spot-checks that the branch was answered or explicitly declared absent, never si
 ## 2. Dispatch protocol (O6 — four-piece packet, single writer)
 
 Every dispatch carries four pieces: **goal · output format (the artifact schema) · tools/sources ·
-boundaries.** One artifact has exactly one writer at any time. Parallel is legal only as (a) read-only
+boundaries.** One artifact has exactly one writer at any time.
+
+**Model policy (set 2026-09-13 by Vince).** Builder roles — composer, guidance, engineer, zipper — dispatch on
+`model: "fable"`. Evaluative roles — blind judges, answer-producing test subagents, every battery lens and the
+synthesis pass — dispatch on `model: "opus"`, so the grader never shares a model with the builder even when it
+shares a vendor. When the L0 gate demands a different-SOURCE judge (`different_source_from_builder`), a
+same-vendor Opus judge does not satisfy it: obtain a different-vendor judge (a human-run Codex/GPT pass, or a
+human grader) and record the tier honestly. Parallel is legal only as (a) read-only
 intelligence (independent review/second-opinion, clean context, returns conclusions) or (b)
 mutually-exclusive shards with no shared write surface. Every dispatched role runs from a **fresh
 context with no build-history leak** — this is what decorrelates builder from grader (pit 5).

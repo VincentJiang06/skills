@@ -2,11 +2,12 @@
 name: loop-constructor
 description: >-
   Design the engineered loop for a medium/large (semi-)autonomous AI-coding task by
-  decomposing it into gated sub-loops, emitted as a runnable .loop/ runbook. Use-when:
-  "design an agent loop", "set up an autonomous / self-running agent workflow",
-  "$loop-constructor". It DESIGNS the loop; it does NOT execute it.
+  decomposing it into gated sub-loops, emitted as a runnable .loop/ runbook with
+  measured-not-guessed parameters. Use-when: "design an agent loop", "set up an
+  autonomous / self-running agent workflow", "$loop-constructor". It DESIGNS
+  the loop; it does NOT execute it.
 metadata:
-  version: 0.3.0
+  version: 0.4.0
 ---
 
 # loop-constructor
@@ -37,14 +38,16 @@ point — **write the loop, not the prompt** — every hard call becomes an orde
 reviewable derivation, not judgment-by-vibes.
 
 ### 1. SELECT — run the decision procedure (`references/loop-selection.md`)
-Answer **D0–D6 in order**; each answer determines part of the shape and is
+Answer **D0–D7 in order**; each answer determines part of the shape and is
 recorded with a one-line justification (the **decision log**). The ordered
 decisions: **D0** is-it-a-loop (name the runnable "done?" check or route away) ·
 **D1** decompose (seam test → flat vs staged) · **D2** per-stage pattern + check
 (+ `falsifiable_when`/`passing_but_wrong`) · **D3** autonomy (`in_the_loop` vs
 `on_the_loop`) · **D4** parallelism (`large` fan-out vs `medium` sequential) ·
 **D5** guards (caps + `on_failure` + risk guards) · **D6** iteration profile /
-cadence (completeness-first vs iteration-first, a *dial* that re-tunes D2/D3/D5).
+cadence (completeness-first vs iteration-first, a *dial* that re-tunes D2/D3/D5) ·
+**D7** number provenance (closing sweep: each digit-bearing string classed
+decision | definitional | empirical; empirical ⇒ `derived`, never hand-fixed).
 Load `references/loop-selection.md` and run the full procedure — each D-item there
 is the operational decision rule. The procedure is the **selection method** — it
 replaces altitude-by-vibes with a reviewable derivation. Record the answers as the
@@ -73,8 +76,9 @@ assertion) · `loop_pattern` · `feedback_signal` (`check` + `expect:"pass"` +
 and design-level `loop_altitude` (+rationale) · `roles` · `contract` ·
 `human_placement` · `maker_checker` · `harness_primitives` (name the durable
 on-disk state so the loop survives compaction) · outer `stop_conditions` (with a
-non-empty `success`) · `risk_guards`. Include the `selection_log`. Reuse KB
-templates by path (`references/loop-principle-map.md`).
+non-empty `success`) · `risk_guards` · the **`parameter_provenance` declaration**
+(D7's output — FAIL/WARN rules in `references/loop-design-shape.md`). Include the
+`selection_log`. Reuse KB templates by path (`references/loop-principle-map.md`).
 
 ### 4. VERIFY — linter + fresh-reader (eat the dogfood)
 Run the linter on the produced JSON **before** returning it:
@@ -82,6 +86,9 @@ Run the linter on the produced JSON **before** returning it:
 node scripts/lint_loop_design.mjs <produced-design.json>
 ```
 It must print all `PASS` and exit 0. Any `FAIL <field>: <reason>` → fix and re-run.
+For a **newly-emitted design, clean = zero `FAIL` and zero `WARN` lines** — a
+`WARN parameter_provenance` means D7 was skipped (absence is legal only for
+pre-0.4 designs; warns never change the exit code).
 
 Then do the **fresh-reader pass** with the operational template
 `assets/fresh-reader-checklist.md` — the linter checks structure, not *meaning*.
@@ -91,9 +98,11 @@ restatement), `passing_but_wrong` is an honest concrete false-pass, failure
 branches are reachable, and `success` matches what the checks prove. It also
 judges what the linter *structurally* can't: whether the **contract is actually
 sufficient** (≈20 assertions for an app-sized task, not a rubber-stampable
-handful) and the **roles are genuinely separate** (the evaluator never saw the
-impl). A green linter on a hollow check — or a thin contract — is the exact trap
-this pass exists to catch.
+handful), the **roles are genuinely separate** (the evaluator never saw the
+impl), and — the **numbers-audit box** — that every digit-bearing string is
+classified in `parameter_provenance` (an empty declaration above unclassified
+empirical literals is a lie). A green linter on a hollow check — or a thin
+contract — is the exact trap this pass exists to catch.
 
 ### 5. PERSIST — render the runbook
 ```
@@ -104,7 +113,7 @@ design the linter rejects** — a written `.loop/` doc is itself proof the desig
 passed. A `REFUSED:` line → fix the design and re-run. Tell the user the two paths.
 
 ## Report
-Hand back: the **decision log** (D0–D6), the **roles + negotiated contract**, the
+Hand back: the **decision log** (D0–D7), the **roles + negotiated contract**, the
 loop-design JSON, the lint result (PASS), the fresh-reader verdict, a self-scored
 rubric (`loop-principle/templates/loop_quality_rubric.template.json`), the
 **current bottleneck** (where the weakest link is now — plan / verification / taste;
@@ -125,11 +134,11 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 
 | File | When to load |
 |------|--------------|
-| `references/loop-selection.md` | **Phase 1 (SELECT)** — the D0–D6 decision procedure that derives the loop shape + decision log. |
-| `references/loop-design-shape.md` | **Phase 3 (FILL)** — the exact canonical loop-design JSON keys the linter validates (flat + staged shapes, incl. `roles`/`contract`/`restart` + the persist contract). |
-| `references/loops-model.md` | **Phase 2 (NEGOTIATE)** + judgment layer — the LOOPS.md operating model: separate roles, negotiate the contract, write-to-disk state, score-the-subjective, read-the-traces, delete-the-harness, the moving bottleneck. |
+| `references/loop-selection.md` | **Phase 1 (SELECT)** — the D0–D7 decision procedure that derives the loop shape + decision log. |
+| `references/loop-design-shape.md` | **Phase 3 (FILL)** — the exact canonical loop-design JSON keys the linter validates (flat + staged, incl. `roles`/`contract`/`restart`, `parameter_provenance` + its FAIL/WARN rules, the persist contract). |
+| `references/loops-model.md` | **Phase 2 (NEGOTIATE)** + judgment layer — the LOOPS.md operating model: separate roles, negotiate the contract, write-to-disk state, score-the-subjective, read-the-traces, delete-the-harness (time + information dimension), the moving bottleneck. |
 | `references/loop-principle-map.md` | KB grounding: each decision/field → loop-principle node ids + docs + which templates/checklists to reuse, and the query_kb recipe. |
-| `assets/fresh-reader-checklist.md` | **Phase 4 (VERIFY)** — the operational fresh-reader template (per-stage + design-level boxes the linter can't check). |
+| `assets/fresh-reader-checklist.md` | **Phase 4 (VERIFY)** — the operational fresh-reader template (per-stage + design-level boxes the linter can't check, incl. the numbers-audit). |
 | `scripts/lint_loop_design.mjs` | The deterministic verifier. Flat **or** staged. CLI or `import { validate }`. |
 | `scripts/render_loop_doc.mjs` | Renders a linter-valid design into a runnable runbook; validates first, refuses invalid. |
 | `assets/golden-loop-design.json` | A passing **flat** fixture (the atomic single-stage unit). |
@@ -142,7 +151,10 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
   runbook to `.loop/` is producing the design *artifact*. Never run the designed
   loop, run the target's code, or modify the loop-principle KB.
 - **Run the selection procedure.** Don't pick a shape by vibes — derive it from
-  D0–D6 and emit the decision log. A design without a decision log is incomplete.
+  D0–D7 and emit the decision log. A design without a decision log is incomplete.
+- **Don't write numbers nobody measured (D7).** Decision numbers stay
+  pre-registered; definitional ones are fixed with a red fixture; empirical
+  magnitudes are declared `derived` — formula at design time, value at run time.
 - **Emit STAGED** unless D1 genuinely finds 0 seams. The flat shape stays valid
   as the atomic single-stage unit (linter still accepts it).
 - **Separate the roles; the evaluator is adversarial.** planner/generator/evaluator
@@ -172,10 +184,17 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 
 ## Lifecycle
 
-- **version** in frontmatter (`0.3.0`).
+- **version** in frontmatter (`0.4.0`).
 - **Breaking change** = any change to the loop-design JSON schema the linter binds
   to (a new required field, a renamed key) — staged consumers must re-author. `0.2.0`
   added `roles` + `contract` (required for staged) and the `restart` action; the
   flat atomic shape stays back-compatible.
+- **`0.4.0` — parameter provenance (non-breaking).** SELECT closes with D7;
+  staged designs declare `parameter_provenance` `{fixed[], derived[]}`; the linter
+  gains an additive `warns[]` channel (absence on staged = WARN, never FAIL; exit
+  codes unchanged; flat absence silent) plus strict shape + cross-reference FAILs
+  when the key is present; the renderer prints a provenance table only for
+  declaration-bearing designs (declaration-free output byte-identical). Every
+  pre-0.4 lint-green design still exits 0. Evidence + details: `CHANGELOG.md`.
 - **Rollback** = `git restore` the skill dir; the skill only writes design artifacts
   under the target's `.loop/` and never executes a loop, so a bad design is inert.

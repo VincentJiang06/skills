@@ -1,20 +1,20 @@
-# The loop-selection procedure (D0–D6)
+# The loop-selection procedure (D0–D7)
 
 This is the **mechanism** the skill runs. The old skill said "pick the altitude
 from blast-radius × reversibility × surface-area, decompose into phases, surface
 the KB" — and left every hard call to judgment. This replaces that with an
-**ordered decision procedure**: answer D0–D6 in order and the shape of the loop
+**ordered decision procedure**: answer D0–D7 in order and the shape of the loop
 is determined, with a one-line justification recorded for each. The output of
-running this procedure is the **decision log** (D0–D6 answers) plus the filled
+running this procedure is the **decision log** (D0–D7 answers) plus the filled
 loop-design JSON.
 
 Anchor (never skip): **a loop closes autonomously only when a fast, runnable
 check can answer "is it done?"** — `principle.closed_loop_needs_a_check`. So
 every decision below is downstream of "what check proves this stage is done?".
 
-## D0–D6 at a glance
+## D0–D7 at a glance
 
-Answer **D0–D6 in order**; each answer determines part of the shape and is
+Answer **D0–D7 in order**; each answer determines part of the shape and is
 recorded with a one-line justification (the **decision log**):
 
 - **D0 — Is it a loop?** Name a fast runnable check that answers "done?" without a
@@ -36,6 +36,10 @@ recorded with a one-line justification (the **decision log**):
   iteration-boundary cost vs check latency, then **re-tunes D2/D3/D5** (pattern,
   caps, scope, check-thoroughness). A *dial*, not a schema field; not
   linter-enforced, so the fresh-reader confirms the knobs match the claimed cadence.
+- **D7 — Number provenance (closing sweep).** Run LAST — after the roles +
+  contract (assertions carry numbers). Sweep every digit-bearing string; class
+  each decision | definitional | empirical; route (pre-register / fix + red
+  fixture / declare `derived`). One selection_log line.
 
 The procedure is the **selection method** — it replaces altitude-by-vibes with a
 reviewable derivation. Record the answers as the `selection_log` array.
@@ -158,7 +162,10 @@ applies — and then strengthen the check until that trap fails it. **And accept
 the honest limit:** for a genuinely hard property, the strongest *machine* check
 may still be gameable; when so, say `machine_verifiable: false` for that clause
 and route it through the maker/checker — an overstated `machine_verifiable: true`
-is itself a hollow gate.
+is itself a hollow gate. A threshold that *defines* the violation (a near-miss
+line, a mismatch tolerance) is a **definitional** number: fix it at design time
+and give it a red fixture that proves the check can FAIL on it (D7 classifies;
+a definitional number with no red fixture is a hollow gate wearing a number).
 
 Grounding: `concept.feedback_signal_spectrum`, `doc.anatomy.loop_anatomy_and_patterns`,
 `anti_pattern.reward_hacking`.
@@ -241,8 +248,15 @@ Grounding: `principle.human_on_vs_in_loop`, `principle.autonomy_by_blast_radius`
 - **Risk guards**: name each applicable anti-pattern + a concrete mitigation —
   reward hacking / test overfitting, error amplification, context drift, token
   blowup, permission blast radius, premature over-delegation.
+- **Discovery-work stops are event-defined, not quota-defined.** For a stage whose
+  work has unknown size (find all violations, harvest all callers), the stop is
+  *"K consecutive fruitless rounds → dry"* (`technique.loop_until_dry`), never a
+  fixed quota — a quota for unknown-size work is an imagined empirical magnitude
+  (D7 would class it empirical, and there is nothing to derive it FROM at 0 runs;
+  the K itself is a decision number, pre-registered like every other counter).
 
 Grounding: `procedure.stop_gate`, `procedure.escalation_triggers`,
+`technique.loop_until_dry`,
 `anti_pattern.{reward_hacking,error_amplification,context_drift,token_blowup,permission_blast_radius}`.
 
 ---
@@ -272,6 +286,8 @@ Default to **completeness-first** when iteration boundaries are expensive or the
 check is slow; **iteration-first** when feedback is fast and cheap. Mixed is legal
 — a stage with a slow check can be completeness-first while a sibling with a fast
 check is iteration-first; record the per-stage profile in the stage's rationale.
+Completeness-first means "do each pass fully", never "guess all numbers before
+pass 1" — empirical magnitudes stay derived (D7) even in the most thorough design.
 
 **Honest caveat (the mislabel trap):** the profile is *not* linter-enforced. A
 design can SAY `completeness_first` while carrying high caps + `retry` + a smoke
@@ -285,11 +301,12 @@ Grounding: `pattern.plan_execute_verify`, `pattern.retry_loop`,
 
 ---
 
-## After D0–D6: assign the roles + negotiate the contract
+## After D6, before D7: assign the roles + negotiate the contract
 
-D0–D6 derive the *shape*. Two more moves — the LOOPS.md operating model
+D0 through D6 derive the *shape*. Two more moves — the LOOPS.md operating model
 (`references/loops-model.md`) — turn that shape into a loop that won't converge on
-slop. Both are **linter-enforced for staged designs**:
+slop. Both are **linter-enforced for staged designs** (and both produce numbers,
+which is why D7 runs after them):
 
 - **Assign the three roles (§II).** Fill `roles.{planner,generator,evaluator}` —
   three separate contexts. The **evaluator** is a fresh, adversarial context
@@ -304,12 +321,90 @@ slop. Both are **linter-enforced for staged designs**:
   **The contract, not the original spec, is what the loop grades** — so every stage
   DoD in FILL should trace back to contract assertions, not restate the spec.
 
+## D7 — Number provenance: the closing sweep
+
+Every decision above has been pushing you to *put the number in the check* — and
+that pressure has a failure mode: numbers get written that nobody can know yet.
+D7 is the one decision that closes the procedure: run it **LAST** —
+after D0 through D6 *and* after the roles + contract (assertions carry numbers too).
+
+**The sweep:** grep the draft for every digit-bearing string — caps, counters,
+thresholds, timeouts, budgets, sample sizes, percentages, pool sizes — don't
+trust memory. Classify each:
+
+| Class | What it is | Route |
+|---|---|---|
+| **decision** | willingness — what you are prepared to spend or lose: caps, stall counters, zero-change N, drift thresholds | keep it fixed; pre-register per D5; changed only outside the loop |
+| **definitional** | violation semantics — what counts as broken: a near-miss line, a mismatch tolerance, an acceptance bar | fix it now AND name the red fixture that proves the check fails on it (D2) |
+| **empirical** | a claim about the world: a ceiling, a timeout, a batch size, a sample size, an agreement rate, a crossover point, an anomaly line over an observed rate (its normal base rate is a world-fact) | do **not** write the value — declare it `derived` in `parameter_provenance` |
+
+**Two tests, applied together** (either alone wavers on the hard cases):
+
+- **Refutability** — *could a measurement, in principle, show this number wrong?*
+  Yes → empirical. No, because it encodes what you are willing to spend or lose →
+  decision. Refutable only by changing what "correct" MEANS → definitional.
+- **Change-channel** — *who may legitimately change it, and when?* Inside the loop
+  by the pre-registered formula → empirical. Only outside the loop, by the
+  operator, with evidence, between runs → decision. Only by re-negotiating the
+  contract, owing a red fixture → definitional.
+
+The definitional line, verbatim: **would loosening this number let a
+previously-red artifact pass? then it is definitional — fix it now and give it a
+red fixture.**
+
+**Boundary calls the tests settle:**
+
+- **Caps and stall counters are decision — never derivable.** "One more round and
+  it converges" is exactly the judgment the cap exists to overrule; a cap the loop
+  can re-derive is an optimism amplifier, not a brake. A loop may **trip** a cap,
+  never **raise** one (D5, unchanged). Derived parameters tune **harness
+  magnitudes** — budgets within the operator's outer caps, timeouts, batch/pool
+  sizes, cadences — and NEVER violation semantics. So split the near-synonyms: an
+  iteration cap states willingness (never derived); a usage ceiling sized to what
+  a normal run costs is an empirical anomaly brake — derived inside the outer
+  willingness, shrink-conservative, trip → escalate, never raise.
+- **Drift thresholds are decision.** "Drift >50% → unstable" *looks* refutable
+  (drift is measured!) — but the threshold encodes how much surprise you tolerate
+  before falling back conservative: willingness, not a world-claim. The
+  change-channel test settles it: only the operator may move it, outside the loop,
+  between runs — whereas an empirical value's whole point is that the
+  pre-registered formula moves it *inside* the loop.
+- **Sample sizes and agreement bars are empirical.** "A sample of ≥20 verdicts
+  with ≥90% agreement" makes variance and attainability claims — measurement can
+  refute a sample size or an agreement bar; you cannot know them at 0 runs.
+- **External facts** (a vendor rate limit, a published price/quota): file as
+  FIXED, class decision or definitional, with a `why` naming the external source
+  and a revisit date. Do not "derive" a published contract from your own run (it
+  would measure the vendor's throttle behavior, not the contract).
+
+**Routing an empirical number:** it becomes a `derived` entry in
+`parameter_provenance` (fields in `references/loop-design-shape.md`):
+the pre-registered formula, the calibrating stage (an ORDINARY stage, an ancestor
+of every consumer, whose own check validates the runtime values artifact), the
+consuming stages, the re-derivation cadence, the sample/censoring rule, and the
+drift policy (threshold + conservative direction + `floor_trip`). If an empirical
+number has **no plausible calibrating stage**, you have found a missing seam — go
+back to D1. And buy the machinery only where it earns its keep
+(`principle.verifier_asymmetry`): derivation is bought where measuring is cheaper
+than the cost of being wrong; on a tiny design, filing everything as
+decision-class with an **empty declaration** (`{fixed: [...], derived: []}`) is
+honest and correct — a manufactured empirical parameter is the same lie in the
+other direction.
+
+**Emit exactly one selection_log line**, e.g.
+`{"decision":"D7","answer":"2 decision / 2 definitional / 1 empirical -> characterize calibrates","why":"<the sweep>"}`.
+
+The skill recommends **no default** for any drift threshold or sample floor: the
+FIELDS are required, the VALUES are per-design (each is itself a decision number —
+mark it "re-examine per design"; the golden's examples say so too).
+
 ## Output of the procedure
 
-1. The **decision log** — D0–D6, each with the answer + a one-line justification
+1. The **decision log** — D0–D7, each with the answer + a one-line justification
    (this is what makes the shape *reviewable* instead of magic). Emit it as the
    `selection_log` array in the design JSON and in the report. D6 records the
-   chosen iteration profile (completeness-first / iteration-first) and the trade.
+   chosen iteration profile (completeness-first / iteration-first) and the trade;
+   D7 records the class counts + who calibrates.
 2. The filled **staged** (or flat) loop-design JSON per
    `references/loop-design-shape.md`.
 

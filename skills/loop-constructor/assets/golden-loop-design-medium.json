@@ -9,21 +9,67 @@
     { "decision": "D3", "answer": "on_the_loop", "why": "reversible dev-only change, checks discriminate well — human reviews at gates, not each iteration" },
     { "decision": "D4", "answer": "medium", "why": "stages are strictly sequential (each depends on the prior); no independent fan-out work" },
     { "decision": "D5", "answer": "caps + loopback routing", "why": "per-stage caps; load_verify loops back to implement, implement loops back to characterize; escalate on any public-API change" },
-    { "decision": "D6", "answer": "iteration_first", "why": "the contract/ratelimit checks are fast and cheap (npm test in seconds), so frequent small passes (implement cap 8) beat few long ones — tuned: higher caps, retry acceptable on the load stage" }
+    { "decision": "D6", "answer": "iteration_first", "why": "the contract/ratelimit checks are fast and cheap (npm test in seconds), so frequent small passes (implement cap 8) beat few long ones — tuned: higher caps, retry acceptable on the load stage" },
+    { "decision": "D7", "answer": "2 decision / 2 definitional / 1 empirical -> characterize calibrates", "why": "digit sweep: iteration caps 4/3/8/5 + stall/zero-change/redesign counters = decision (pre-registered willingness); the 200-vs-429 threshold boundary and the rps-200 load bar = definitional (red-fixture-backed); the implement-iteration wall-clock budget = empirical, unknowable at 0 runs -> declared derived, measured by characterize" }
   ],
+  "parameter_provenance": {
+    "fixed": [
+      {
+        "name": "iteration_caps",
+        "value_or_location": "stop_conditions.max_iterations: 4 outer; 3/8/5 per stage",
+        "class": "decision",
+        "why": "willingness to spend, pre-registered before the run — a loop may trip a cap, never raise one; changed only outside the loop by the operator (re-examine per design)"
+      },
+      {
+        "name": "stall_and_zero_change_counters",
+        "value_or_location": "stop_conditions.failure: '3 consecutive same-type failures' (stage), '2 consecutive same-class failures -> restart', '2 consecutive zero-change iterations', 'redesign forced twice', '3 load retries'",
+        "class": "decision",
+        "why": "pre-registered routing triggers (D5): in-flight they lose to optimism every time; changed only outside the loop between runs (re-examine per design)"
+      },
+      {
+        "name": "ratelimit_threshold_boundary",
+        "value_or_location": "contract A2: HTTP 200 at/below the configured threshold, 429 strictly past it (the 101st request in the example window)",
+        "class": "definitional",
+        "why": "defines what a correct limiter MEANS — loosening it would let an always-429 middleware pass a naive 'a 429 appeared' test",
+        "red_fixture": "npm test api:ratelimit -- -t threshold-boundary (goes red on the always-429 implementation)"
+      },
+      {
+        "name": "load_acceptance_bar",
+        "value_or_location": "load_verify check + contract A5: p99 under budget with zero 5xx at rps 200, harness must prove achieved rps >= target",
+        "class": "definitional",
+        "why": "defines what 'holds under load' MEANS for this task — loosening the rps target or dropping the achieved-rps assert would let a connection-capped green pass",
+        "red_fixture": "node scripts/loadtest.mjs --rps 200 --assert (exits non-zero when the target rps is never reached — the passing-but-wrong ruled out in load_verify)"
+      }
+    ],
+    "derived": [
+      {
+        "name": "implement_iteration_wallclock_budget",
+        "formula": "2 x measured wall-clock of (npm test api:contract && npm test api:ratelimit) on the untouched baseline — one implement iteration = one edit pass + one full check run",
+        "calibrated_by": "characterize",
+        "consumed_by": ["implement_rate_limit"],
+        "cadence": "re-derived every time characterize runs (first entry and each loopback into it); never re-derived mid-stage, never by in-flight judgment",
+        "sample_rule": ">=2 timed suite runs on the untouched baseline; a timed-out run enters as a censored LOWER BOUND, never dropped — a sample that silently drops non-completers is invalid",
+        "drift_policy": {
+          "threshold": "inter-derivation drift >50% -> mark unstable and fall back conservative (the 50% is class decision — re-examine per design; the skill recommends no default)",
+          "conservative_direction": "shrink — the budget is a spend ceiling, so optimism (growing it mid-run) is the failure direction; growth happens only via the formula at the next calibration",
+          "floor_trip": "if the shrunken budget < the measured cost of ONE full check run, a single honest gate attempt can no longer complete — the minimum-progress floor ('all three stage gates reached and attempted with a real diff') becomes unattainable -> escalate once at contract level, never keep ratcheting"
+        }
+      }
+    ]
+  },
   "stages": [
     {
       "id": "characterize",
       "definition_of_done": {
-        "goal": "the existing public-endpoint contract suite passes and is captured as the regression set the later stages must keep green",
+        "goal": "the existing public-endpoint contract suite passes and is captured as the regression set the later stages must keep green, and every derived parameter is measured into the values artifact (.loop/adaptive-params.json) with its full derivation trail",
         "machine_verifiable": true
       },
       "loop_pattern": "explore_narrow",
       "feedback_signal": {
-        "check": "npm test api:contract",
+        "check": "npm test api:contract && node scripts/check_adaptive_params.mjs .loop/adaptive-params.json",
         "expect": "pass",
-        "falsifiable_when": "any existing endpoint returns a different status/body than the captured baseline — the suite goes red",
-        "passing_but_wrong": "a stale/empty contract suite that vacuously passes with zero assertions — ruled out: the suite asserts a concrete status+body per endpoint and fails if the captured baseline file is empty"
+        "falsifiable_when": "any existing endpoint returns a different status/body than the captured baseline — the suite goes red; or any managed value in .loop/adaptive-params.json is hand-filled (missing value/derived_from/measured_at/sample_n) — the params check exits non-zero",
+        "passing_but_wrong": "a stale/empty contract suite that vacuously passes with zero assertions — ruled out: the suite asserts a concrete status+body per endpoint and fails if the captured baseline file is empty; and a values artifact copied from an old run — ruled out: check_adaptive_params was itself proven against a hand-filled red fixture (a check never seen red on a hand-filled artifact is anti_pattern.unexercised_self_check)"
       },
       "stop_conditions": {
         "failure": ["contract suite cannot be made green on the untouched baseline (environment broken, not our change)"],
@@ -107,7 +153,8 @@
   "harness_primitives": [
     "git worktree isolation for reversible work",
     "external scratch ledger (.loop/run-state.md) holding which stage is done and what's next across context resets",
-    "pre-commit hook runs the current stage's check as a deterministic gate"
+    "pre-commit hook runs the current stage's check as a deterministic gate",
+    "runtime values artifact (.loop/adaptive-params.json): every managed value carries {value, derived_from, measured_at, sample_n} — written by characterize (the calibration stage), validated by characterize's own check, never by the design linter"
   ],
   "stop_conditions": {
     "success": "every stage's check passes in dependency order and the diff stays within the rate-limit middleware + load harness; minimum-progress floor: all three stage gates must have been reached and attempted with a real diff — a stop below that floor is an escalate, not a success",
