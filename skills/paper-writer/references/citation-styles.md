@@ -9,10 +9,18 @@ another style's formatting.
 
 Supported in v1: **APA 7**, **MLA 9**, **Chicago (author-date)**, **IEEE**, **GB/T 7714**.
 
-`check_citations.py --style` resolution modes:
-- author-date (`apa` / `mla` / `chicago`): in-text `(Surname, YYYY)` ↔ reference keyed by
-  leading surname + year.
-- numeric (`ieee` / `gbt`): in-text `[n]` ↔ numbered reference entry `[n] …`.
+`check_citations.py --style` resolution modes (each style is keyed where that style puts
+the year; the lead surname may be any script, e.g. Özdemir, 王某某):
+- `apa`: `(Surname, YYYY)` / `Surname (YYYY)` / `Surname and Surname (YYYY)` ↔ entry
+  `Surname, I. (YYYY).` — `(n.d.)`, `(in press)`, `(YYYY, Month D)` accepted. Same author +
+  same year needs the a/b suffix in both places.
+- `chicago`: `(Surname YYYY, page)` ↔ entry `Surname, First. YYYY.`
+- `mla`: every Works Cited surname must be mentioned in the body. `(Surname page)` has the
+  same shape as `(Figure 2)`, so a parenthetical cite with no Works Cited entry is NOT
+  caught by the script — check it yourself before returning; the verifier checks only
+  listed entries.
+- numeric (`ieee` / `gbt`): `[n]`, `[1-3]`, `[1, 4]` ↔ numbered entry `[n] …`.
+An entry the script cannot key fails the gate: fix the entry's form, never delete it.
 
 ---
 
@@ -33,9 +41,6 @@ Supported in v1: **APA 7**, **MLA 9**, **Chicago (author-date)**, **IEEE**, **GB
 - Example: `Doudna, Jennifer A., and Emmanuelle Charpentier. "The New Frontier of Genome
   Engineering with CRISPR-Cas9." Science, vol. 346, no. 6213, 2014, 1258096.
   https://doi.org/10.1126/science.1258096`
-- NOTE: `check_citations.py` resolves MLA in author-date mode (surname + year); a pure
-  author-page paper still needs a datestamp in each reference entry for the structural
-  cross-reference — a known v1 limitation recorded as growth debt.
 
 ## Chicago (author-date)
 - In-text: `(Surname YYYY, page)`.
