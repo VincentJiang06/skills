@@ -11,11 +11,9 @@ The marker carries dest_id, machine UUID, hostname, layout_version, created_at
 and nothing free-text, so no future reader can mistake its contents for
 instructions.
 
-Its flags are acts, not consent: --confirm, --ack-secrets and
---adopt-foreign-marker are run only on the user's own words in the current chat
-(SKILL.md, widening keys). It never writes off_machine or delete_at_destination.
-When config.json cannot be written (e.g. a host sandbox denyWrite), it records
-nothing, prints the exact JSON for the owner to add by hand, and exits 30.
+Its flags are acts, not consent (SKILL.md, widening keys); it never writes
+off_machine or delete_at_destination. An unwritable config.json (host lock) =>
+nothing recorded, the JSON fragment printed for the owner, exit 30.
 
 Usage:
   init_destination.py --config C --dest-id ID --confirm

@@ -338,9 +338,8 @@ def build_plan(cfg, inventory, args):
                 "routed": bool(live),
             })
 
-    # ---- secrets acknowledgement for a portable OR off-machine destination
-    #      (F5 / dispute D3-extended; INV-07: content leaves this machine only
-    #      where the owner said so). The ack key name is kept on purpose.
+    # ---- secrets ack for a portable OR off-machine destination (F5, D3-extended,
+    #      INV-07). The ack key name is kept so existing acknowledgements stay valid.
     ack = cfg.get("portable_secrets_ack") or {}
     for did, d in dests.items():
         if d["state"] != "CLEAR" or not (d["portable"] or d["off_machine"]):

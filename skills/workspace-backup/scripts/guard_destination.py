@@ -64,14 +64,11 @@ BUNDLE_TM_EVIDENCE = ["backup_manifest.plist", "Backups.backupdb",
 # what this guard used to conclude from it. Reported as data, never a refusal.
 TM_DECLINED_MARKER = ".com.apple.timemachine.donotpresent"
 
-# Where macOS keeps content that syncs off this machine: iCloud Drive under
-# Library/Mobile Documents, File Provider clouds (Dropbox, Google Drive, OneDrive,
-# ...) under Library/CloudStorage. Matched as a component PAIR on the realpath,
-# anywhere in it (dispute D-W1: testable on temp fixtures, sees through symlinks;
-# a copied home tree on another disk is the known false-positive class). A match
-# is "known cloud-sync root detected in the path", never proof of syncing, and
-# no match is never a certificate that a path is local (network shares, iCloud
-# Desktop & Documents and other sync clients carry no path signal).
+# Where macOS keeps content that syncs off this machine (iCloud Drive; File
+# Provider clouds). Matched as a component PAIR anywhere in the realpath (D-W1;
+# known false positive: a copied home tree on another disk). A match is "known
+# cloud-sync root detected in the path", never proof; no match is never a
+# certificate of "local" (network shares, iCloud Desktop & Documents).
 CLOUD_SYNC_ROOTS = (("Library", "Mobile Documents"), ("Library", "CloudStorage"))
 
 
