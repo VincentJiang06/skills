@@ -31,12 +31,13 @@ are in Step 3 below.
 
 ---
 
-## Step 1 — Inventory first (delegate to a subagent)
+## Step 1 — Inventory first (delegable)
 
-Before writing anything, find what already covers the area. Dispatch a subagent
-that runs the stack's **native collector** and returns the matching tests (file ·
-name · line). Don't hand-write a test parser, and don't re-read every test file
-inline.
+Before writing anything, find what already covers the area with the stack's
+**native collector**, returning the matching tests (file · name · line).
+Dispatch a subagent when the suite is large or scans run in parallel; inline is
+fine for a small suite. Either way, don't hand-write a test parser, and don't
+re-read every test file.
 
 ### Native collectors {#native-collectors}
 
@@ -49,9 +50,9 @@ inline.
 | **rust** (best-effort) | `cargo test -- --list` | `cargo test name -- --exact` |
 | **other** | the runner's own `--collect`/`--list`/dry-run flag | the runner's name/path filter |
 
-Subagent brief: *"Run `<collect command>` for the suite at <path>; return only the
-tests whose name or file matches <area> (file · test name · line). Don't run the
-full suite; don't write a parser."* Consume the summary, not the raw dump.
+Subagent brief (when dispatching): *"Run `<collect command>` for the suite at
+<path>; return only the tests whose name or file matches <area> (file · test name
+· line). Don't run the full suite; don't write a parser."* Consume the summary, not the raw dump.
 
 ---
 
@@ -128,17 +129,18 @@ Three separate `test('rejects empty')`, `test('rejects whitespace')`,
 
 ---
 
-## Step 4 — Stale / duplicate scan (delegate)
+## Step 4 — Stale / duplicate scan (delegable)
 
-After green, dispatch a subagent to catch what the change left behind:
+After green, catch what the change left behind — dispatch a subagent when the
+suite is large or scans run in parallel; inline is fine for a small suite:
 
 - Tests referencing **removed or renamed** symbols, files, or routes.
 - Tests asserting the **old** target you just changed (should have been updated).
 - **Duplicate** coverage — two tests exercising the same path with different names.
 
-Subagent brief: *"In <test dir>, find tests that (a) reference symbols not present
-in <changed files>, (b) assert the pre-change behavior of <area>, or (c) duplicate
-another test's path. Return file · name · why — don't fix them."* Then
+Subagent brief (when dispatching): *"In <test dir>, find tests that (a) reference
+symbols not present in <changed files>, (b) assert the pre-change behavior of
+<area>, or (c) duplicate another test's path. Return file · name · why — don't fix them."* Then
 consolidate/delete from the summary.
 
 ---
