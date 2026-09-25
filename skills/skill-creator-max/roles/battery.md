@@ -48,7 +48,8 @@ produce a passing test suite. Anchors: O5, E6, E9, [SELF-battery渐近], [SELF-a
 - `battery_independence_tier` — the tier HONESTLY reached (see Independence tiers).
 - `coverage_gaps` — lenses not run, tier not reached, search unavailable, seeds voided: the
   confession of what was NOT covered. The conductor folds your verdict:
-  `effective_verdict = min(re_audit, battery)` — the written verdict may never exceed yours.
+  `effective_verdict <= min(re_audit, battery)` — never above yours, and capped lower by the
+  conductor when this confession shows tier not reached, smoke-only grade, or every run void.
 
 ---
 

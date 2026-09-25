@@ -14,8 +14,12 @@ Invariants enforced (see --selftest for the exhaustive, self-proving list):
      - battery_verdict in {breaches_found, not_run} => effective_verdict must
        NOT be "industrial" (capped at "candidate" or lower).
      - "industrial" is allowed only when battery_verdict=="clean".
-     - effective_verdict must equal min(re_audit_verdict, battery_cap) under
-       the ordering draft < candidate < industrial.
+     - effective_verdict must NOT exceed min(re_audit_verdict, battery_cap)
+       under the ordering draft < candidate < industrial. This is a CEILING,
+       not an equality: caps below it (battery tier under what the stakes
+       need, smoke-only grade, every run void) are the conductor's to apply
+       and record; the gate cannot see them, so a PASS never licenses
+       industrial by itself (FA-1).
      - battery_independence_tier=="none" is valid ONLY paired with
        battery_verdict=="not_run" (no battery ran, so no tier applies). If
        "none" appears alongside a battery that actually ran (clean or
@@ -88,16 +92,16 @@ def validate(data: dict) -> list:
             f"(min-fold cap: industrial requires battery_verdict==clean)"
         )
 
-    if re_audit_verdict in VERDICT_ORDER and battery_verdict in ("clean", "breaches_found", "not_run"):
+    if effective_verdict not in VERDICT_ORDER:
+        v.append(f"acceptance.effective_verdict must be one of draft/candidate/industrial, got {effective_verdict!r}")
+    elif re_audit_verdict in VERDICT_ORDER and battery_verdict in ("clean", "breaches_found", "not_run"):
         cap = battery_cap(battery_verdict)
         expected = min(re_audit_verdict, cap, key=lambda x: VERDICT_ORDER[x])
-        if effective_verdict != expected:
+        if VERDICT_ORDER[effective_verdict] > VERDICT_ORDER[expected]:
             v.append(
-                f"acceptance.effective_verdict={effective_verdict!r} but expected min(re_audit_verdict="
+                f"acceptance.effective_verdict={effective_verdict!r} exceeds the ceiling min(re_audit_verdict="
                 f"{re_audit_verdict!r}, battery_cap={cap!r}) == {expected!r}"
             )
-    elif effective_verdict not in VERDICT_ORDER:
-        v.append(f"acceptance.effective_verdict must be one of draft/candidate/industrial, got {effective_verdict!r}")
 
     final_verdict = data.get("final_verdict")
     if final_verdict not in ("done", "stopped_unmet"):
@@ -230,6 +234,18 @@ def run_selftest() -> int:
         print(f"SELFTEST FAIL: 'none' tier with battery not_run expected to PASS but got: {sane}")
     else:
         print("selftest: sanity-pass 'battery_independence_tier==none with not_run' ok")
+
+    # sanity-pass (FA-1 regression): a clean battery at instance tier graded
+    # smoke-only, honestly capped at candidate by the conductor, must PASS
+    d = _green_fixture()
+    d["acceptance"].update(battery_independence_tier="instance", effective_verdict="candidate",
+                           battery_stop_reason="budget spent; battery_grade: smoke-only")
+    sane = validate(d)
+    if sane:
+        ok = False
+        print(f"SELFTEST FAIL: honest candidate under a clean instance-tier battery rejected: {sane}")
+    else:
+        print("selftest: sanity-pass 'clean battery, conductor caps below the ceiling' ok")
 
     caught = 0
     traps = _traps()
