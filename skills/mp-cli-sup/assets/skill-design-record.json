@@ -32,7 +32,7 @@
     "allowed_paths": ["cwd", "--workspace-root"],
     "human_gate_conditions": ["launch/reLaunch (beyond session start ensuring the port)", "navigation", "camera takePhoto / mock", "network/media instrumentation", "unsafe wx methods", "storageClear", "production-target env/logs (host data.cli.im or an unknown host): action-bound go-ahead in the conversation"],
     "cost_budget": null,
-    "context_budget_tokens": 5000
+    "context_budget_tokens": 6500
   },
   "test_assets": {
     "eval_case_ids": [

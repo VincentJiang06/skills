@@ -62,6 +62,14 @@ untouched); every item names the principle it answers to.
   production-target action. SKILL.md, runtime-protocol.md and the cross-stack path now say restoring only undoes
   the agent's own switch, and a switch back to production needs its own go-ahead (else report and offer).
   — **S13** / **A36** (the tier table decides; the restore step does not bypass it).
+- **F05 / F10 / F11 (P3) — records that said more than was measured.** `skill-design-record.json`
+  `context_budget_tokens` 5000 → 6500: the mandatory load path (SKILL.md + runtime-protocol.md + cli-contract.md)
+  measures 6,264 tokens after this round (measure_tokens.py, 2026-09-25; SKILL.md 1,624 → 1,713 from the N02/F09
+  lines). `release-manifest.json` `change` block was still the 0.1.0 "major / breaking" summary → minor, non-breaking,
+  0.3.0 summary; `tests.policy_violation_rate` 0 → null (never measured; metric-plan's measured block is STALE).
+  The zipper-pass probe numbers above carry no stamp; model_baseline for them: claude-opus-5-5, 3 fresh runs per
+  version with skills disabled, Claude Code CLI, 2026-09-25, effort not recorded (instance-tier, same family as
+  the builder). — **A37**, **P10**.
 
 ### Changed — verification planes
 - `safety_contract_documented` is **report-only** (D→L): a verb-list regex judging doc polarity is a semantic

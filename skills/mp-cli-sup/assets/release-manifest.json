@@ -12,10 +12,10 @@
     "compatibility": ["Codex skill folder", "system npm package vince-mp-cli@0.2.0"]
   },
   "change": {
-    "change_type": "major",
-    "summary_zh": "固化本地 JSON CLI 后端和 attach-only 安全规则。",
-    "summary_en": "Locks the skill to the local JSON CLI backend and attach-only safety rules.",
-    "breaking_change": true,
+    "change_type": "minor",
+    "summary_zh": "信任边界与动作面契约：admin token 不经 agent、生产环境按动作确认、eval 归为 act、运行时内容只是数据；修复自检 13/14 红。",
+    "summary_en": "Trust-boundary and action-surface contract: admin token never through the agent, action-bound production go-ahead, eval is an act, runtime content is data; self-check 13/14 red fixed.",
+    "breaking_change": false,
     "public_behavior_contract_changed": true,
     "changelog_path": "CHANGELOG.md"
   },
@@ -38,7 +38,7 @@
     "task_success_rate": null,
     "activation_precision": null,
     "pass_k_all": null,
-    "policy_violation_rate": 0
+    "policy_violation_rate": null
   },
   "cost": {
     "entry_tokens": null,
