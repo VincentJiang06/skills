@@ -19,7 +19,7 @@ Each rule below names where it lands in the design.
 | V | **Let the loop restart; stop on a fixer signature** | `on_failure.action: "restart"` — **linter-accepted**; routing order escalate → re-plane → loopback → restart and the fixer-signature escalate triggers are judgment (below) |
 | VI | Score the subjective | a calibrated-rubric `feedback_signal.check` (below) — D2 |
 | VII | Read the traces | a debugging discipline + a harness primitive (below) |
-| VIII | Delete the harness | a maintenance pass (below); tune degrees-of-freedom to the model |
+| VIII | Delete the harness | a two-way settlement pass at each model release (below); tune degrees-of-freedom to the model |
 | IX | The bottleneck always moves | name the current bottleneck in the report (below) |
 
 Rules II, III, V are **structure** — the linter binds them (see
@@ -294,16 +294,28 @@ verified by external timing or a gate, never by the participants' self-assessmen
 (KB `guidelines/loops.md` H7, `rules/constitution.md` A46;
 `<kb>/templates/loop_run_report.template.md` is the report frame to fill.)
 
-## VIII — Delete the harness
+## VIII — Delete the harness (and settle it both ways)
 
-The harness exists to compensate for the model; as the model improves, half of what
-you wrote last quarter becomes overhead. A harness that only ever **grows** is one
-you have stopped reading. Two consequences for a design:
+The harness exists to compensate for the model, and every model release is a
+settlement day for it. Much of what you wrote last quarter becomes overhead — but
+point versions do not move monotonically: a newer version can regress on a specific
+behavior (progress reporting, parallel tool calls, stopping early), so the same
+release can make one part overhead and make a missing guard necessary. A harness
+that only ever **grows** is one you have stopped reading; one that only ever shrinks
+has stopped reading the release notes. Consequences for a design:
 
-- **Prune, don't only add.** Re-read the harness against each model release and
-  delete what the model now does for free (context-resetting babysitting, redundant
-  step-by-step scaffolding, low-value per-task review). A leaner runbook that still
-  passes its checks is a *better* deliverable, not a lazier one.
+- **Settle both ways at each release.** Re-read the harness against the new model:
+  **delete** what the model now does for free (context-resetting babysitting,
+  redundant step-by-step scaffolding, low-value per-task review) — a leaner runbook
+  that still passes its checks is a *better* deliverable, not a lazier one — **and
+  add back** the named failure modes from that version's behavior-difference notes
+  as explicit guards. For Claude 5.x the per-version list lives in KB
+  `adaptations/claude5-family.md` (as of 2026-09-24): cite it by path, don't copy its
+  facts into the design, they rot. Stamp every settlement change, deletion or
+  addition, with its **`model_baseline`** — the resolved model id + effort + harness
+  version the evidence was measured on (an alias such as "latest" does not qualify).
+  An added guard with no measured value yet is written as a named risk guard, not a
+  tuned number (§VIII·b). (KB `principles/principles.md` P11.)
 - **Match degrees-of-freedom to the model.** Give an open, well-understood task
   high-freedom prose and trust the model; reserve low-freedom, precise scripting for
   the genuinely fragile steps (the checks, the irreversible actions). Over-scaffolding
@@ -314,7 +326,7 @@ you have stopped reading. Two consequences for a design:
     babysitting, step-by-step scaffolding, per-turn review, a loop-detection gate.
     They are settled by **a bare-model comparison** — run the loop with and without
     the part on the current model; persistent parity means the part is now overhead,
-    delete it and stamp the deletion with the model baseline it was measured on.
+    delete it and stamp the deletion with the `model_baseline` it was measured on.
   - **Structural parts** encode an architectural constraint that does not expire with
     a model release: state on disk, role separation, stop conditions, the runnable
     check. They are settled by a different question — *"is the architectural

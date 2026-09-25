@@ -172,9 +172,10 @@ Retrieval recipe: `node <kb>/tools/query_kb.mjs "<topic>"`.
 - **Stop on both sides.** `stop_conditions` carries a zero-change gate ("N iterations
   with zero new changes → stop", the anti-arms-race brake) *and* a minimum-progress
   floor below which an early stop escalates instead of counting as done (D5).
-- **Delete the harness as the model improves** (§VIII). Prune scaffolding the model
-  now does for free; match degrees-of-freedom to the task. A growing-only harness is
-  one you've stopped reading.
+- **Settle the harness both ways at each model release** (§VIII). Delete what the
+  model now does for free, add back that version's named failure modes, stamp each
+  change with `model_baseline`; match degrees-of-freedom to the task. A growing-only
+  harness is one you've stopped reading.
 - **Reject-on-no-check (per stage).** A stage with no runnable feedback signal
   FAILs the linter; the anchor holds for every stage.
 - **Mandatory caps.** Every stage + the outer loop carry a finite
