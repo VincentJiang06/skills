@@ -53,7 +53,7 @@ Classify **per task, never per batch**. One spawn of five mixed tasks gets five 
 |---|---|---|---|
 | **Peer co-work** — equal-difficulty shards, judge panels, adversarial verifiers, one delegated deep task | inherit | inherit | It is the same work, split. Cutting either knob cuts the work. An *independence* verifier (blind judge, fresh red team) is **non-fork** — a fork (Claude Code default) shares its author's context. |
 | **Search / exploration** — codebase sweep, web research, evidence gathering | inherit | **inherit or raise** | Effort governs tool-call volume. This is the axis you *raise* for search. |
-| **High-volume homogeneous lookups** (~20+ cheap, near-identical) | drop **one** tier (Opus→Sonnet) | `low`–`medium` | The documented home of `low`: "simpler tasks that need the best speed and lowest costs, such as subagents". |
+| **High-volume homogeneous lookups** (~20+ cheap, near-identical) | inherit — *or* drop **one** tier (Opus→Sonnet) | one step down, toward `low` — *or* inherit if you dropped the tier | **One knob, not both** (clamp below); the effort step is usually the safer one. The documented home of `low`: "simpler tasks that need the best speed and lowest costs, such as subagents". |
 | **Long-horizon autonomous run** (>30 min, token budgets in the millions) | Opus 5.5; Fable 5.1 when the gap is capability | `xhigh` | `xhigh` is defined for exactly this. |
 | **Anything else** | inherit | the model's default, written out | No reason to move a knob ⇒ don't move it — but name the level. |
 

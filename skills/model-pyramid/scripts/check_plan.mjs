@@ -218,10 +218,12 @@ function selftest() {
     !codes({ session: { model: "claude-opus-5", cached: true }, agents: [{ label: "a", effort: "high" }, { label: "b", effort: "high" }] }).has("cache-effort-varies"));
   t("adaptive as effort → error",
     codes({ agents: [{ label: "a", model: "claude-opus-5", effort: "adaptive" }] }).has("effort-unknown"));
-  t("clean plan → zero findings",
+  // The SKILL.md bulk row, both one-knob forms (tier drop at inherited effort; effort step at inherited
+  // model). No filter: a code firing on a plan the prose recommends is a prose/checker contradiction (F06).
+  t("clean plan (peer + both one-knob bulk forms) → zero findings",
     checkPlan({ session: { model: "claude-opus-5", effort: "high" },
-                agents: [{ label: "peer", effort: "high" }, { label: "bulk", model: "claude-sonnet-5", effort: "low" }] })
-      .filter((f) => f.code !== "both-knobs-dropped").length === 0);
+                agents: [{ label: "peer", effort: "high" }, { label: "bulk-tier", model: "claude-sonnet-5", effort: "high" },
+                         { label: "bulk-effort", effort: "medium" }] }).length === 0);
 
   const bad = T.filter((x) => !x.ok);
   for (const x of T) console.log(`  ${x.ok ? "PASS" : "FAIL"} ${x.name}`);
