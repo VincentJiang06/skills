@@ -56,6 +56,18 @@ the heading becomes `Candidate (not released) — <status>` and carries the evid
   Track B pointed at `references/popsci-register.md`, a file that stopped existing in
   4.0.0; reference corrected to `popsci-pack.md` (documentation-only).
 - evals/README counts: 115/115 → 129/129 detector checks; AI corpus 10+10 → 11+11.
+- **Numeric fact-invention guard was vacuous** (battery F05; hard constraint 1
+  "zero net-new facts", A50 structural check — fix the matching, no new gate).
+  `run_behavioral_checks.py` accepted any invented number that contained a source
+  digit (`s in n`) and skipped single digits, so appending 1997/42/13.5%/31,000/2012
+  (EN) or 64%/n=4,127 (ZH) to a worked rewrite still passed. It now compares
+  normalized numeric tokens exactly (only thousands separators and trailing
+  punctuation are normalized; `%`/units never enter the token). Red→green: all
+  three mutations now caught. False positives (iron law 7) on 13 real
+  source→rewrite pairs (3 worked, 4 triage probes, 6 E11 arm outputs): 0 in prose;
+  one hit is the `03` in the popsci worked file's front-matter `source:` path,
+  equally flagged by the old logic and outside this check's pairs. 66 identity
+  pairs (corpus + fixtures): 0. Harness 22/22.
 
 ### Erratum
 - 3.1.0's gate was re-targeted to whole-document completeness **after** the results
