@@ -81,14 +81,15 @@ export function checkPlan(plan) {
   // resolved session effort: explicit, else the session model's API default (Opus 5.5 = medium); unknown -> no comparison
   const se = norm(session.effort) || (MODELS[sm] ? MODELS[sm][1] : "") || "";
 
-  // ── advisor pairing ──
+  // ── advisor pairing ── (session here; each agent's own model below: subagents re-run the check, F13)
+  const a = plan.advisor ? canon(plan.advisor) : "";
+  const invalidPair = (exec, where) => add("error", "advisor-invalid-pairing", where,
+    `${a} is not a valid advisor for executor ${exec} (API pairing table, ${STAMP}) — the API returns 400; Claude Code simply does not attach it`);
   if (plan.advisor) {
-    const a = canon(plan.advisor);
     if (rankOf(a) === 0) add("error", "advisor-cannot-advise", "advisor", "Haiku can call an advisor but cannot BE one");
     else if (!known(a)) add("warning", "advisor-unknown", "advisor", `unknown advisor model "${plan.advisor}" — pairing not checked`);
     else if (ADVISORS[sm] && LISTED.has(a)) {
-      if (!ADVISORS[sm].includes(a))
-        add("error", "advisor-invalid-pairing", "advisor", `${a} is not a valid advisor for executor ${sm} (API pairing table, ${STAMP}) — the API returns 400; Claude Code simply does not attach it`);
+      if (!ADVISORS[sm].includes(a)) invalidPair(sm, "advisor");
     } else add("warning", "advisor-pairing-unverified", "advisor",
       `pairing ${sm || "(no session model)"} + ${a} is not in the pairing table at this baseline (${STAMP}; aliases resolve per surface) — not checked, verify before relying on it`);
   }
@@ -100,13 +101,19 @@ export function checkPlan(plan) {
   // One runtime fact, one finding. Emitting this per agent means a 13-agent plan gets 13
   // identical lines — a checker that noisy trains its reader to skip the output entirely.
   const inexpressible = [];
+  const pairSeen = new Set();
   agents.forEach((ag, i) => {
     const where = ag.label || `agents[${i}]`;
     const model = canon(ag.model || session.model);
     const effort = norm(ag.effort || "");
-    const thinking = norm(ag.thinking && typeof ag.thinking === "object" ? ag.thinking.type : ag.thinking);
+    const th = ag.thinking && typeof ag.thinking === "object" ? ag.thinking : null;
+    const thinking = norm(th ? th.type : ag.thinking);
+    const budget = !!th && th.budget_tokens !== undefined;   // manual budget: 400 on always-on models (F09)
     if (effort) efforts.add(effort);
     if (model && !known(model)) unknown.set(model, [...(unknown.get(model) || []), where]);
+    if (a && model !== sm && !pairSeen.has(model) && rankOf(a) !== 0 && ADVISORS[model] && LISTED.has(a) && !ADVISORS[model].includes(a)) {
+      pairSeen.add(model); invalidPair(model, where);
+    }
 
     if (effort && !LEVELS.includes(effort))
       add("error", "effort-unknown", where, `"${effort}" is not an effort level (${LEVELS.join("/")}); note: "adaptive" is a thinking mode, not an effort`);
@@ -119,7 +126,7 @@ export function checkPlan(plan) {
         const fallback = [...LEVELS].slice(0, LEVELS.indexOf(effort) + 1).reverse().find((l) => sup.includes(l));
         add("warning", "effort-falls-back", where, `${model} does not support "${effort}" — it will silently run as "${fallback}"`);
       }
-      if ((effort === "xhigh" || effort === "max")) {
+      if ((effort === "xhigh" || effort === "max") && !(sup && sup.length === 0)) {   // no effort knob: one error is enough (F19)
         if (!ag.max_tokens)
           add("warning", "max-tokens-unset", where, `at "${effort}" set a large max_tokens (documented start: ${MAX_TOKENS_FLOOR}) — it caps thinking + text together`);
         else if (ag.max_tokens < MAX_TOKENS_FLOOR)
@@ -128,8 +135,8 @@ export function checkPlan(plan) {
           add("error", "opus5-thinking-conflict", where, `Opus 5 returns 400 for thinking:disabled at "${effort}" — drop the thinking field or move to high or below`);
       }
     }
-    if (thinking === "disabled" && MODELS[model] && MODELS[model][2])
-      add("error", "thinking-always-on", where, `${model} has thinking always on — thinking:disabled returns 400 at ANY effort; drop the thinking field and lower effort instead`);
+    if ((thinking === "disabled" || budget) && MODELS[model] && MODELS[model][2])
+      add("error", "thinking-always-on", where, `${model} has thinking always on — thinking:disabled or budget_tokens returns 400 at ANY effort; drop the field and lower effort instead`);
 
     if (ag.runtime && RUNTIME_NO_EFFORT.has(norm(ag.runtime)) && effort)
       inexpressible.push({ where, runtime: ag.runtime });
@@ -218,6 +225,17 @@ function selftest() {
     !codes({ session: { model: "claude-opus-5", cached: true }, agents: [{ label: "a", effort: "high" }, { label: "b", effort: "high" }] }).has("cache-effort-varies"));
   t("adaptive as effort → error",
     codes({ agents: [{ label: "a", model: "claude-opus-5", effort: "adaptive" }] }).has("effort-unknown"));
+  t("opus-5-5 thinking object with budget_tokens → error (F09)",
+    codes({ agents: [{ label: "a", model: "claude-opus-5-5", effort: "high", thinking: { type: "enabled", budget_tokens: 8000 } }] }).has("thinking-always-on"));
+  t("opus-5-5 adaptive thinking object → no thinking error",
+    !codes({ agents: [{ label: "a", model: "claude-opus-5-5", effort: "high", thinking: { type: "adaptive" } }] }).has("thinking-always-on"));
+  t("advisor checked against each agent's own model (F13)",
+    checkPlan({ session: { model: "claude-sonnet-5" }, advisor: "claude-opus-5", agents: [{ label: "fab", model: "claude-fable-5-1" }] })
+      .some((f) => f.code === "advisor-invalid-pairing" && f.where === "fab"));
+  t("advisor legal for the agent's model → no per-agent finding",
+    !codes({ session: { model: "claude-sonnet-5" }, advisor: "claude-opus-5", agents: [{ label: "h", model: "claude-haiku-4-5" }] }).has("advisor-invalid-pairing"));
+  t("no-effort model at xhigh → one error, no max_tokens noise (F19)",
+    !codes({ agents: [{ label: "a", model: "claude-haiku-4-5", effort: "xhigh" }] }).has("max-tokens-unset"));
   // The SKILL.md bulk row, both one-knob forms (tier drop at inherited effort; effort step at inherited
   // model). No filter: a code firing on a plan the prose recommends is a prose/checker contradiction (F06).
   t("clean plan (peer + both one-knob bulk forms) → zero findings",
