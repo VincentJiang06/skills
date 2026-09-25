@@ -68,6 +68,18 @@ the heading becomes `Candidate (not released) — <status>` and carries the evid
   one hit is the `03` in the popsci worked file's front-matter `source:` path,
   equally flagged by the old logic and outside this check's pairs. 66 identity
   pairs (corpus + fixtures): 0. Harness 22/22.
+- **Analogy rule: one definition in pack and judge; the runtime example obeys it**
+  (battery F09; hard constraint 1 zero net-new facts, SKILL.md Step 5 "truth is not a
+  license"; P13 — prose, no new gate). `popsci-pack.md` said "never invent an
+  analogy" while the blind-judge rubric called a figurative gloss craft, and the
+  pack's own worked example invented boosters, fading memory and "antibody-decay
+  curves" and ended on a "which is exactly what…" finishing link the same file
+  forbids. Both files now carry the same sentence: an analogy may be a new image
+  only as a gloss of a mechanism the source states; one that carries a claim the
+  source does not state is fabrication, even when true. The vaccine example's Before
+  now states every fact its After uses. A fresh judge (claude-opus-5-5, no skill,
+  rule given, `unsure` allowed) rated the old example `fail` (6 new claims) and the
+  new one `pass` (8/8 supported); run dir `battery/fixes/F09/`.
 
 ### Erratum
 - 3.1.0's gate was re-targeted to whole-document completeness **after** the results
@@ -75,7 +87,8 @@ the heading becomes `Candidate (not released) — <status>` and carries the evid
   the 3.1.0 numbers below stand as measured, not as a pre-registered gate pass (E9).
 
 ### Known limits and debt
-- Unsettled since Opus 4.8 (X4): `popsci-pack.md`, `structural-signals.md`, the rest
+- Unsettled since Opus 4.8 (X4): `popsci-pack.md` (except its Step 3 analogy rule and
+  worked example, F09), `structural-signals.md`, the rest
   of `lexical-en.md`/`lexical-zh.md`, and the ADD moves — carried unchanged, to be
   probed rule by rule at the next settlement.
 - Detector verdict thresholds are fitted in-sample on the same 27+22 corpus (X1);

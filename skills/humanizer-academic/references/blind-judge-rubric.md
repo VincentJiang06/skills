@@ -139,10 +139,8 @@ pure-deletion robotic rewrite fails here — the closed-loop guard); **5 ≥ 4**
   explanatory load** (and is true to the source), a curious human voice, varied
   rhythm; the abstraction is grounded.
 - `3`: some grounding/voice, but mostly abstract exposition.
-- `1`: flat literal exposition, no analogy/example/voice. (A figurative analogy
-  that *glosses a mechanism the source already describes* is craft, not
-  fabrication; only an analogy that smuggles in a NEW or FALSE factual claim
-  triggers the fabrication hard-fail.)
+- `1`: flat literal exposition, no analogy/example/voice. (Whether an analogy is
+  craft or fabrication is decided by the Analogy rule in the hard-fail list.)
 
 ### 6B. Completeness / 完成度 (popsci)
 - `5`: reads as a **complete, publishable science-journalism piece** — a clear
@@ -163,9 +161,12 @@ pure-deletion robotic rewrite fails here — the closed-loop guard); **5 ≥ 4**
 ## Hard-fail conditions (any one = FAIL regardless of score; both tracks)
 
 - **Invented facts / citations / quotations / numbers / dates / named entities**
-  not in the source (`fact_invention_rate > 0`). A *figurative analogy* that
-  glosses a mechanism the source already states is **craft, not fabrication** —
-  only NEW factual claims fail.
+  not in the source (`fact_invention_rate > 0`). **Analogy rule** (stated
+  identically in `popsci-pack.md` Step 3): an analogy may be a new image only as a
+  gloss of a mechanism the source states — every factual thing it asserts must
+  already be in the source. An analogy that carries a claim the source does not
+  state (a new mechanism, cause, behavior, number, or implication — even a true
+  one) is fabrication.
 - Removed necessary hedging or discipline-specific precision.
 - **Register collapse:** academic → casual commentary; popsci → clickbait/hype OR
   stiff fake-academic (craft destroyed).
