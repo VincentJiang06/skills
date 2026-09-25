@@ -48,11 +48,19 @@ idle-reaps itself. Every later command auto-starts a session if none is running.
 vince-mp doctor [--project <dir>] [--skip-typecheck] --json
 # checks: node, resolved project (miniprogramRoot-aware), wechat cli, tsc --noEmit,
 #         .ts/.js freshness, selected backend domain, local LAN IPv4
-vince-mp env list | current | use <key> | token <ADMIN_TOKEN>     # mockLan|caoliaoDevNet|caoliaoProdIm
+vince-mp env list | current | use <key> | token <t>   # keys mockLan|caoliaoDevNet|caoliaoProdIm (= data.cli.im, PRODUCTION)
+#   `token <t>` is run by the USER in their own terminal, never by the agent (see Token channel below)
 vince-mp logs --request-id <id> | --user-id <id> | --code <n> [--route r] [--since t] [--limit n]
 # POSTs <env.base>/admin/error-logs/list with Authorization: Bearer <token>
-# token from VINCE_MP_ADMIN_TOKEN or `env token`; pull a client failure's server-side error log.
+# pull a client failure's server-side error log from the CURRENTLY selected env.
 ```
+
+Token channel: the CLI resolves the admin token from `--token`, then `VINCE_MP_ADMIN_TOKEN`, then the value
+`env token` stored in `~/.vince-mp/config.json`. **The agent uses none of these with a value**: the user sets
+`VINCE_MP_ADMIN_TOKEN` in the environment that launches the agent, or runs `env token` in their own terminal.
+`ADMIN_TOKEN_REQUIRED` tells the agent the token is absent (name-only check); its "run `env token <token>`"
+suggestion is addressed to the human — relay it, don't act on it. `env use` persists the selection across
+sessions; production-target envs and `logs` against them need an action-bound go-ahead (SKILL.md Core rules).
 
 ## One-shot / explicit-connection commands
 
@@ -156,7 +164,7 @@ A grouped index of the surface above (load this section, or the SKILL.md skeleto
   `snapshot <sel>`, `console [--clear]`, `eval '<expr>'`.
 - **Act (uids persist):** `tap <uid>`, `input <uid> <text>`, `scan <code> [--type t] [--method m] [--raw]`,
   `shot <output>`, `nav <url>`, `step '<json>'` (any supported workflow step — see `references/cli-contract.md`), `run --stdin` (batch).
-- **Diagnose / cross-stack:** `doctor [--skip-typecheck]`, `env list|use <key>|current|token <t>`,
+- **Diagnose / cross-stack:** `doctor [--skip-typecheck]`, `env list|use <key>|current|token <t>` (`token` = user's own terminal only),
   `logs --request-id <id> | --user-id <id> | --code <n>`.
 - **One-shot / special:** add `--no-session` to any shorthand (except `console`, whose buffer lives in the session daemon) for a single connect-and-exit;
   `smoke-existing --ws-endpoint <ws>` (attach-only non-invasive); `screenshot`, `media`,
