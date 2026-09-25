@@ -35,9 +35,12 @@ says "bright" but the curve shows recessed treble, flag the conflict (rig
 difference? unit variation? insertion depth?) rather than averaging.
 
 ## Hard rule
-A technicality claim's `provenance` is always `consensus`. The traceability gate
-(`validate_output.py`) rejects any `soundstage/imaging/resolution/dynamics/
-transient/timbre` claim tagged `measured`.
+A technicality claim's `provenance` is always `consensus`. Tag every technicality
+claim with its canonical `attribute` id from the glossary (`soundstage`, or a §5 form
+such as `soundstage_high`) — never a Chinese or free label. The gate
+(`validate_output.py`) rejects a `measured`/`prior` tag on any claim whose `attribute`
+starts with `soundstage/imaging/resolution/dynamics/transient/timbre`; it reads only the
+tag, so a missing or wrong tag is yours to catch at Step 8.
 
 **No provenance inflation — in the JSON *and* in prose.** A measurement-publishing
 source's *subjective* soundstage/detail opinion is still subjective. Never write

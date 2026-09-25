@@ -32,8 +32,11 @@ Record dissent; do not delete it. Run `validate_output.py` before delivering.
 
 ## What exit 0 proves
 `validate_output.py` exit 0 = the JSON matches the schema, every claim cites ≥1
-`source_id` that is listed in `evidence`, and transducer technicalities are tagged
-`consensus`. It does **not** prove that an audibility claim is justified, that a source
+`source_id` that is listed in `evidence`, every `attribute` is a canonical id
+(lowercase snake_case), and every transducer claim whose `attribute` is a technicality id
+(`soundstage`, `soundstage_high`, … — glossary §4/§5) is tagged `consensus`. The gate
+reads the `attribute` tag, not the sentence: an untagged or mis-tagged technicality claim
+is invisible to it and is caught only by your Step 8 re-read. It does **not** prove that an audibility claim is justified, that a source
 supports its claim, or that long-form prose has no provenance inflation — those are
 your Step 8 re-read (and the independent battery). Report exit 0 as "structure OK",
 never as "claims verified". `check_longform.py` exit 0 adds only: 字 count in range,
@@ -43,7 +46,7 @@ section keywords present, backing JSON passes the gate — not section quality.
 |---|---|---|---|
 | schema validity | D skeleton | `validate_output.py` | known-bad fixture |
 | claim traced to a listed source | D skeleton | `validate_output.py` | known-bad fixtures (no id / unknown id) |
-| technicality tagged `consensus` | D skeleton (enum field) | `validate_output.py` | known-bad fixture |
+| technicality tagged `consensus` | D skeleton (free-form `attribute` id: format + `<technicality>[_qualifier]` map; not an enum) | `validate_output.py` + schema | known-bad fixtures; an untagged / mis-tagged claim → Step 8 re-read (L) |
 | audible-difference claim justified | L | card in `rules/source-gear-eval.md` | none — regex removed in 1.1.0 (witness pairs in CHANGELOG) |
 
 ## Freshness / EOL / unit variation

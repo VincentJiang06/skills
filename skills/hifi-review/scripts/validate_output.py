@@ -10,6 +10,11 @@ from schema_check import validate  # noqa: E402
 TECHNICALITIES = {"soundstage", "imaging", "resolution", "dynamics", "transient", "timbre"}
 
 
+def is_technicality(attr):
+    """Canonical ids from signature-glossary.md: `soundstage` or `soundstage_high` etc."""
+    return str(attr or "").split("_")[0] in TECHNICALITIES
+
+
 def check(doc, schema):
     errs = validate(doc, schema)
     ev_ids = {e["source_id"] for e in doc.get("evidence", [])}
@@ -19,7 +24,7 @@ def check(doc, schema):
         for sid in c.get("source_ids", []):
             if sid not in ev_ids:
                 errs.append(f"claims[{i}]: source_id '{sid}' not in evidence")
-        if doc.get("device_class") == "transducer" and c.get("attribute") in TECHNICALITIES \
+        if doc.get("device_class") == "transducer" and is_technicality(c.get("attribute")) \
                 and c.get("provenance") != "consensus":
             errs.append(f"claims[{i}]: technicality '{c.get('attribute')}' provenance '{c.get('provenance')}' (must be consensus)")
         # Claim TEXT is never pattern-matched here (1.1.0): whether an audible-difference

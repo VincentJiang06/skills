@@ -116,4 +116,6 @@ attribute that carries provenance.
 | 染色重 / colored / euphonic | `coloration_high` (consensus) |
 
 (Extend as new wording appears; keep canonical attributes aligned with band ids
-and the technicality set above.)
+and the technicality set above. A canonical attribute is lowercase snake_case — the
+evaluation schema rejects anything else — and a technicality attribute starts with the
+technicality id (`soundstage_high`), which is how `validate_output.py` recognises it.)

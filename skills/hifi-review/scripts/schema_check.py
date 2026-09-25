@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Minimal stdlib JSON-Schema (draft-07 subset) validator. No external deps."""
-import json
+import json, re
 
 
 def validate(inst, schema, path="$"):
@@ -43,6 +43,8 @@ def validate(inst, schema, path="$"):
     elif t == "string":
         if not isinstance(inst, str):
             errs.append(f"{path}: expected string")
+        elif "pattern" in schema and not re.search(schema["pattern"], inst):
+            errs.append(f"{path}: {inst!r} does not match pattern {schema['pattern']}")
     elif t == "boolean":
         if not isinstance(inst, bool):
             errs.append(f"{path}: expected boolean")
