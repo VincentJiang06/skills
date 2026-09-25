@@ -395,31 +395,8 @@ function reasonOf(raw) {
   return /\p{L}/u.test(rest) ? rest : "";
 }
 
-// Python lexical scan: does line `line` (1-based) start inside a triple-quoted string (a
-// docstring or template), i.e. is it text, not code? Tracks '/" strings, escapes and # comments.
-function pyInString(lines, line) {
-  let q = null;
-  for (let i = 0; i < line - 1; i++) {
-    const l = lines[i];
-    for (let j = 0; j < l.length; j++) {
-      if (q) {
-        if (l[j] === "\\") j++;
-        else if (l.startsWith(q, j)) (q = null), (j += 2);
-      } else if (l[j] === "#") break;
-      else if (l[j] === '"' || l[j] === "'") {
-        const c = l[j];
-        if (l.startsWith(c + c + c, j)) (q = c + c + c), (j += 2);
-        else for (j++; j < l.length && l[j] !== c; j++) if (l[j] === "\\") j++;
-      }
-    }
-  }
-  return q !== null;
-}
-
-function definedAtLine(file, content, line, name) {
-  const lines = String(content).split("\n");
-  const text = lines[line - 1] || "";
-  if (file.endsWith(".py") && pyInString(lines, line)) return false; // a docstring line is text, not code
+function definedAtLine(content, line, name) {
+  const text = String(content).split("\n")[line - 1] || "";
   const n = name.replace(/\$/g, "\\$");
   return new RegExp(`^(?:(?:const|let|var)\\s+${n}\\b|${n}\\s*(?::[^=]*)?=(?!=))`).test(text);
 }
@@ -488,7 +465,7 @@ export function validate(input) {
         // not in the extracted surface. A row whose cited line assigns/declares the
         // name at column 0 (`app = FastAPI()`, Go `var X = …`) is tied to a real
         // definition: existence at the exact cited line, not a publicness verdict.
-        if (definedAtLine(d.file, files[d.file], d.line, d.name)) continue;
+        if (definedAtLine(files[d.file], d.line, d.name)) continue;
         // otherwise orphan, or a near-name typo to reconcile
         const near = surfaceNames.find(
           (s) => s !== d.name && (s.includes(d.name) || d.name.includes(s)) && Math.min(s.length, d.name.length) >= 3

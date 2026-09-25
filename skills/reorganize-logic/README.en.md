@@ -16,7 +16,7 @@
 - Contrast with neat, which SYNCS docs incrementally rather than rebuilding them.
 
 **Known limitations (0.3.3)** —
-- Grouped Go `type ( … )` blocks are not read; the printed `extracted`/`ratio` count names, not (name, file) symbols.
+- A column-0 `name =` inside a Python docstring counts as a definition for a cited row (as in 0.2.1); grouped Go `type ( … )` blocks are not read; the printed `extracted`/`ratio` count names, not (name, file) symbols.
 - Edge cases carried from 0.2.x (a zero surface passes, exports inside comments are extracted, a plain JS `class X` counts as a strong export, and others): full list with repros in [CHANGELOG.md](CHANGELOG.md) 0.3.3 and 0.3.2.
 - Head-to-head against a bare model (3 cases), the skill was never less accurate and never edited legacy docs, but the bare model was more complete in all three.
 

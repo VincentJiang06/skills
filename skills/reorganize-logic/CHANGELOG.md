@@ -1,6 +1,6 @@
 # Changelog — reorganize-logic
 
-## 0.3.3 — 2026-09-25 — fix round 3 (owner-authorized): the fix-audit P1, 3 P2, 6 of 8 P3
+## 0.3.3 — 2026-09-25 — fix round 3 (owner-authorized): the fix-audit P1, 3 P2, 5 of 8 P3
 
 Patch. The `interfaces.md` schema and the gate input format are unchanged. The
 owner ruled on 2026-09-25 that the open defects be finished ("这七个你都继续去做把他们做完"),
@@ -41,11 +41,21 @@ publicness. *KB A50: skeleton checks are exempt from (i); (ii) FP measured below
   gate-design anti_pattern.reward_hacking (never silently drop a listed form).*
 - **P3.** A `.d.ts` declaring a twin source file is not a second defining file. A
   TS NodeNext specifier `./x.js` resolves to `x.ts` / `x.tsx`.
-  `module.exports = null|undefined|true|false|this` names nothing. A documented
-  row whose cited line sits inside a Python triple-quoted string (a docstring
-  example) is no longer accepted by the cited-line check. That check uses a small
-  lexical scan; an earlier cut used a triple-quote parity count and misjudged real
-  code, so it was replaced before commit.
+  `module.exports = null|undefined|true|false|this` names nothing.
+
+### Reverted after the round-3 fix audit
+- **The docstring cited-line scan is withdrawn.** Round 3 added a Python lexical
+  scan so that a row citing a line inside a triple-quoted string would not pass the
+  cited-line check. The fix audit found that the scan crashes (TypeError) when a
+  `.py` row cites a line past the end of the file and the name is not on the
+  surface. That is the stale-line case this skill exists to handle. `validate()`
+  then returned only an unnamed `MALFORMED`, with coverage zeroed, and every other
+  finding in the run was hidden (real `COVERAGE_HOLE`s, the stale row's `ORPHAN`).
+  Iron rule 3 allows only reverts in this round, so the scan and its gate-design
+  sentence are removed. The cited-line check is byte-identical to 0.3.2 and 0.2.1.
+  The audit repro gives `COVERAGE_HOLE undocumented` + `ORPHAN app`, as installed
+  0.2.1 does. The docstring P3 is open again (see Still open). *Principle: README
+  "fail-closed: unknown → block, never silent-skip"; root CLAUDE.md iron rule 3.*
 
 ### Changed — prose
 - gate-design.md: "Which files the CLI reads" rewritten for the git-decided walk;
@@ -56,13 +66,12 @@ publicness. *KB A50: skeleton checks are exempt from (i); (ii) FP measured below
   matching SKILL.md (battery F19). *Principle: SKILL.md "Survive compaction from disk".*
 
 ### Evidence (run dir `battery/fix3/`, record `battery/FIXES-R3.md`)
-- Red first: C34–C37 fail on 465e47d (`red-log-final.txt`); evals 37/37 now. Carried
+- Red first: C34–C37 fail on 465e47d (`red-log-final.txt`); evals 37/37 now (C37 lost
+  its docstring sub-assertion with the revert above). Carried
   assertions are untouched. C31's fixture gained `git init`, because `.gitignore`
   is now honored through git.
 - Mutation: 15 single-point mutants of the new code, all killed (`mutation-log.txt`).
-  The docstring scan agrees with Python's `tokenize` on all 15,700 column-0
-  assignment lines in 2,877 real `.py` files under ~/playground and ~/experiment:
-  305 are inside strings, and there are 0 disagreements.
+  Two of them targeted the docstring scan, which was later reverted.
 - Real corpus (8 corpora + academic wrapper): 7 corpora and the wrapper have
   byte-identical output apart from the new `not read:` line. manualwork/archive/v1
   has 387 → 359 holes. The 28 dropped holes are from `scratch_manuals/`, which the
@@ -75,6 +84,8 @@ publicness. *KB A50: skeleton checks are exempt from (i); (ii) FP measured below
 - F01 for CommonJS: two modules that each assign the same CommonJS export name are
   name-keyed again (one row covers both), as in 0.2.1; ESM and declaration forms
   keep per-file identity.
+- Fix-audit P3: a column-0 `name =` inside a Python docstring satisfies the
+  cited-line check (as in 0.2.1; the round-3 scan was reverted, above).
 - Fix-audit P3: grouped Go `type ( … )` blocks are not parsed (0.2.1 read no Go
   `type` at all); the printed `extracted`/`ratio` count names, not (name, file)
   symbols (cosmetic).

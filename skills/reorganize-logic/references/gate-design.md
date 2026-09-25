@@ -54,8 +54,7 @@ string = no reason) and runs through the same reason grammar.
   'x', …)`. Plus Python top-level `def`/`class`, Go exported `func` and (in `.go` files) exported
   `type`, Java/C# `public` members, and weak top-level `function`. Not on the surface but
   accepted for a documented row: a column-0 assignment/declaration of the name exactly at
-  the cited line (Python `app = FastAPI()`, Go `var X = …`) — existence, not publicness; a
-  line inside a Python triple-quoted string (a docstring example) is text and does not count. `_`-prefixed names are private. Confidence
+  the cited line (Python `app = FastAPI()`, Go `var X = …`) — existence, not publicness. `_`-prefixed names are private. Confidence
   is `strong` (explicit export) or `weak`.
 
 ## Verdicts
