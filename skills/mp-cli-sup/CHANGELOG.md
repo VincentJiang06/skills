@@ -52,6 +52,11 @@ untouched); every item names the principle it answers to.
   channel — `VINCE_MP_ADMIN_TOKEN` in the launch environment, entered without history — and tell the agent to relay
   only the env-variable part of the CLI's `ADMIN_TOKEN_REQUIRED` hint. Prose only; no CLI change (the CLI already
   reads the variable). — **S13** credential line, **A36**.
+- **N01 (P3) — console paging recipe returned the oldest logs.** cli-contract.md called the source "the ≤1000
+  buffer" and said `console --page-size 1000` gets recent logs; the CLI merges two buffers of 1000 each
+  (`workflow.js` `listConsoleCapture`) oldest-first, so past 1000 entries that recipe skips the newest, and the
+  `listConsole` example without `pageSize` paged at 50. Now: page from the end using `total`. — **P10** (the doc
+  states what the CLI source does), **P11**.
 
 ### Changed — verification planes
 - `safety_contract_documented` is **report-only** (D→L): a verb-list regex judging doc polarity is a semantic

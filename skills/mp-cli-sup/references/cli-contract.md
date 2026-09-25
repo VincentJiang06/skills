@@ -140,8 +140,10 @@ network/canvas/camera instrumentation; no implicit file writes; no implicit Came
 
 ## Read/act caps & step-only actions
 
-- **`console`** returns the FIRST `pageSize` entries (default 50, oldest-first) of the ≤1000 buffer.
-  For recent/all logs use `console --page-size 1000` or `step '{"type":"listConsole","pageIdx":N}'`.
+- **`console`** returns the FIRST `pageSize` entries (default 50) of the message and exception buffers merged
+  and sorted **oldest-first**; each buffer keeps its most recent 1000, so `total` can reach 2000. For the newest
+  entries read `total`, then page from the end: `step '{"type":"listConsole","pageSize":200,"pageIdx":N}'` with
+  N = ceil(total/200) − 1 (`pageIdx` without `pageSize` pages at 50). `console --page-size 2000` returns all of it.
 - **Output path parent must already exist.** `shot`/`elementScreenshot`/`screenshot` write only under
   `--workspace-root`, AND the parent dir must pre-exist (the CLI does not `mkdir`) — else `PATH_NOT_FOUND`.
 - **Truncation.** `eval`/`sysinfo`/`scan` cap JSON at ~200KB and IGNORE `--max-bytes` (only `data`
