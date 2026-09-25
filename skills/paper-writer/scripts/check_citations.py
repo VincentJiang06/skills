@@ -52,8 +52,9 @@ URL_RE = re.compile(r"https?://[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?(?:\.[A-
 ISBN_RE = re.compile(r"ISBN(?:[-\s]?1[03])?[:\s]*([0-9Xx][0-9Xx\-\s]{8,})", re.IGNORECASE)
 
 # Author-date keys = (lead surname, year). Names are Unicode (Özdemir, 王某某), not
-# ASCII-only (battery PW-F04). A name token must not start lowercase ("see", "van").
-NAME_TOKEN_RE = re.compile(r"[^\W\d_][\w'’\-]*")
+# ASCII-only (battery PW-F04). No digits: "COVID-19 (2020)" is not a name + year.
+NAME = r"[^\W\d_](?:[^\W\d_]|['’\-])*"
+NAME_TOKEN_RE = re.compile(NAME)
 YEAR = r"(?:1[6-9]|20)\d{2}[a-z]?|n\.\s?d\.|in press"   # 1500 in "(N = 1500)" is not a year
 YEAR_RE = re.compile(rf"(?<![\w.])({YEAR})(?![\w])")
 CJK_RE = re.compile(r"[\u3400-\u9fff]")
@@ -144,11 +145,12 @@ def intext_authordate_keys(body: str, ref_names=frozenset()):
                 continue
             years = [m.group(1)] + re.findall(rf"^[,，]\s*({YEAR})(?![\w])", chunk[m.end():])
             keys.update((resolve_name(name, ref_names), norm_year(y)) for y in years)
-    # narrative: Surname [and|& Surname] [et al.] ['s] (2012[, p. 4]) -> the FIRST surname
-    for m in re.finditer(rf"[(（]\s*({YEAR})(?![\w])", body):
+    # narrative: Surname [and|& Surname] [et al.] ['s] (2012[, p. 4]) -> the FIRST surname.
+    # The year must close the parens or take a page/second year: "Recession (2008–2009)" is not a cite.
+    for m in re.finditer(rf"[(（]\s*({YEAR})(?=\s*[)）,，;；:：])", body):
         before = body[max(0, m.start() - 80):m.start()].rstrip()
         before = re.sub(r"(?:\s+et\s+al\.?|['’]s)$", "", before)
-        nm = re.search(r"([^\W\d_][\w'’\-]*)(?:\s+(?:and|&)\s+([^\W\d_][\w'’\-]*))?$", before)
+        nm = re.search(rf"({NAME})(?:\s+(?:and|&)\s+({NAME}))?$", before)
         if not nm:
             continue
         name = nm.group(2) if nm.group(2) and nm.group(1)[0].islower() else nm.group(1)
