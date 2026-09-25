@@ -1,8 +1,12 @@
 # Output template — required long-form section skeleton
 
-The review is 10,000–15,000 中文字符 (CJK 汉字 only). The section linter in
-`scripts/check_review.py` requires the headers below (it greps for keyword groups,
-so wording can vary as long as one keyword per group appears).
+The review is 10,000–15,000 中文字符 (CJK 汉字 only). Write the headers below.
+The section linter in `scripts/check_review.py` does **not** check that they exist:
+it greps each keyword group **anywhere** in the text, so one sentence naming the
+keywords over headerless prose passes. It is a coverage proxy that catches a
+forgotten dimension, not proof of structure. Whether the headers are really there,
+with real analysis under each one, is checked by no script (未测): the writer owns
+it at Step 5.
 
 ## standard class (pop/rock/jazz/electronic/soundtrack/world/…)
 

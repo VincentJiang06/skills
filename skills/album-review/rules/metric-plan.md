@@ -4,7 +4,7 @@
 |---|---|---|---|
 | length-window conformance rate | % of runs landing in [10000,15000] 汉字 | ≥ 0.9 | `scripts/check_review.py` exit code per run |
 | untraced fact-label rate (reference integrity) | fact-labelled claims with no `source_id` or a dangling one, per review. Does NOT count unsupported claims or facts mislabelled as interpretation — those have no instrument (未测; judge read, `rules/judge-must-flag.md`) | 0 | `scripts/validate_backing.py` |
-| section-coverage pass rate | % of reviews passing the genre-adapted section linter | high | `scripts/check_review.py` |
+| section-keyword coverage rate (proxy; not header presence) | % of reviews in which every genre-adapted keyword group appears **anywhere** in the text. One sentence naming the keywords over headerless prose passes, so this does not measure structure; header presence + real content per section has no instrument (未测; the writer owns it at Step 5) | high | `scripts/check_review.py` |
 | route-classifier agreement (regex proxy; not skill activation) | `classify_route` agrees with the labels on a small routing fixture (album-review vs hifi-review vs lyric-translation/buy) | high | `classify_route` over `evals/fixtures/routing_cases.json` |
 
 **Completeness pairing (H7) — declared 未测, not covered.** All four metrics above

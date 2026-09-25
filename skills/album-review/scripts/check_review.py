@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Long-form 乐评 QA: CJK-字 window + genre-adapted required sections
+"""Long-form 乐评 QA: CJK-字 window + genre-adapted section-keyword proxy
 + optional backing-JSON traceability gate + an adjacent-input route classifier.
 
 中文字符 = CJK 汉字 ONLY, regex [一-鿿] (locked rule). Latin / digits / punctuation

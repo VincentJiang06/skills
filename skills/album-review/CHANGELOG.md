@@ -34,6 +34,15 @@ installs, and a missing trust-boundary statement.
   integrity)"; "activation precision" (a regex over 7 prompts) → "route-classifier
   agreement (regex proxy; not skill activation)"; real activation precision is
   declared 未测 until a description-driven trigger eval runs.
+- **Section linter over-claimed header checks (battery F-05, P2; P13/S14 as the
+  backing-gate fix above; E11 instrument validity as the metric relabel above).**
+  `check_review.py` greps each keyword group anywhere in the text; one keyword
+  line over 10,200 headerless 汉字 exits 0. output-template.md said it "requires
+  the headers", and SKILL.md / metric-plan / README(.en) called it section
+  coverage. All sites now say "section-keyword proxy: catches a forgotten
+  dimension, does not check headers"; header presence is 未测 and stays the
+  writer's job at Step 5. Prose only, check unchanged. A header-scoped check was
+  not added: it would need an A50 case and an iron-law-7 false-positive run.
 - **README path drift (hygiene).** The registry is `rules/judge-must-flag.md`, not
   `evals/JUDGE-MUST-FLAG.md`; the 0.2.0 entry below is left as written (history).
 
