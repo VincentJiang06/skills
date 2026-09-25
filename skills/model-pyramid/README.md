@@ -61,7 +61,7 @@
 node scripts/check_plan.mjs '{"agents":[{"label":"reviewer","model":"claude-opus-5-5","effort":"max"}]}'
 ```
 
-只校验**确定性可判**的部分：该档位在该模型上是否存在（不存在是**静默回落**，不是报错）、`xhigh`/`max` 下 `max_tokens` 是否抬高、thinking 合法性（恒开模型上 `disabled` 或 `budget_tokens` 返 400）、advisor 配对是否在 API 配对表里（会话模型与每个子代理自己的模型分别查）、缓存会话里 effort 是否被改动、以及相对会话**实际生效 effort**（按模型默认值推出）的搜索降档 / 双旋钮同降。**不认识的模型会被报出来（`model-unknown`，排在最前），不会被静默放行**；别名（`opus`/`best`…）不给模型专属判定。**零命中 = 没有规则触发，不等于方案已验证**；它也不判断你的定档是否明智 —— 那是本技能判断面的活。
+只校验**确定性可判**的部分：该档位在该模型上是否存在（不存在是**静默回落**，不是报错）、`xhigh`/`max` 下 `max_tokens` 是否抬高、thinking 合法性（恒开模型上 `disabled` 或 `budget_tokens` 返 400）、advisor 配对是否在 API 配对表里（会话模型与每个子代理自己的模型分别查；表里没有的组合——例如子代理用 Opus 5.5 继承 advisor——报 `advisor-pairing-unverified`，不放行）、缓存会话里 effort 是否被改动、以及相对会话**实际生效 effort**（按模型默认值推出）的搜索降档 / 双旋钮同降。**不认识的模型会被报出来（`model-unknown`，排在最前），不会被静默放行**；别名（`opus`/`best`…）不给模型专属判定。**零命中 = 没有规则触发，不等于方案已验证**；它也不判断你的定档是否明智 —— 那是本技能判断面的活。
 
 ```bash
 node evals/run_all.mjs        # 仅开发仓库：P 行为夹具 · C 脚本⇄文档一致性 · L 文本护栏

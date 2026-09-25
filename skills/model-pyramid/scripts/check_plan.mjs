@@ -111,8 +111,13 @@ export function checkPlan(plan) {
     const budget = !!th && th.budget_tokens !== undefined;   // manual budget: 400 on always-on models (F09)
     if (effort) efforts.add(effort);
     if (model && !known(model)) unknown.set(model, [...(unknown.get(model) || []), where]);
-    if (a && model !== sm && !pairSeen.has(model) && rankOf(a) !== 0 && ADVISORS[model] && LISTED.has(a) && !ADVISORS[model].includes(a)) {
-      pairSeen.add(model); invalidPair(model, where);
+    // same verdicts as the session branch, once per distinct agent model: no row / unlisted advisor -> unverified (F07);
+    // `inherit` IS the session model, already checked above
+    if (a && model && model !== sm && model !== "inherit" && !pairSeen.has(model) && rankOf(a) !== 0 && known(a)) {
+      pairSeen.add(model);
+      if (!(ADVISORS[model] && LISTED.has(a))) add("warning", "advisor-pairing-unverified", where,
+        `pairing ${model} + ${a} is not in the pairing table at this baseline (${STAMP}) — this agent inherits the advisor unverified; verify before relying on it`);
+      else if (!ADVISORS[model].includes(a)) invalidPair(model, where);
     }
 
     if (effort && !LEVELS.includes(effort))
@@ -234,6 +239,12 @@ function selftest() {
       .some((f) => f.code === "advisor-invalid-pairing" && f.where === "fab"));
   t("advisor legal for the agent's model → no per-agent finding",
     !codes({ session: { model: "claude-sonnet-5" }, advisor: "claude-opus-5", agents: [{ label: "h", model: "claude-haiku-4-5" }] }).has("advisor-invalid-pairing"));
+  t("agent on a model with no pairing row (opus-5-5) → unverified once at that agent (F07)",
+    checkPlan({ session: { model: "claude-sonnet-5" }, advisor: "claude-fable-5-1",
+                agents: [{ label: "o55", model: "claude-opus-5-5" }, { label: "o55b", model: "claude-opus-5-5" }] })
+      .filter((f) => f.code === "advisor-pairing-unverified" && f.where === "o55").length === 1);
+  t("agent model `inherit` + legal session pairing → no per-agent pairing finding",
+    !codes({ session: { model: "claude-sonnet-5" }, advisor: "claude-opus-5", agents: [{ label: "i", model: "inherit" }] }).has("advisor-pairing-unverified"));
   t("no-effort model at xhigh → one error, no max_tokens noise (F19)",
     !codes({ agents: [{ label: "a", model: "claude-haiku-4-5", effort: "xhigh" }] }).has("max-tokens-unset"));
   // The SKILL.md bulk row, both one-knob forms (tier drop at inherited effort; effort step at inherited

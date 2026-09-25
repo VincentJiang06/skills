@@ -83,6 +83,25 @@ v1.0.0 的事实层在 2026-09-22（Opus 5.5 成为默认 Opus，Claude Code 2.1
 - **挂起（登记、不追）**：F10（缓存检查要区分 fork 与独立子代理，需新增输入字段、属检查重设计）· F14（文档配对表 ⇄
   脚本 ADVISORS 的绑定检查，属新增机械门，本档不做）· F15（trigger-cases 没有 runner，触发准确率未测——测量债）。
 
+### Fix-audit 轮修复 / fix-audit round fix (ADJUDICATION 8 条确认、唯一 P2 = F07；其余 P3 未修，见下)
+
+- **F07（P2，出在上一修复轮 4cb3941 的 F13 代码里）子代理静默继承无行 advisor**：会话 sonnet-5 + advisor fable-5-1/opus-5，
+  子代理用 `claude-opus-5-5`（配对表无行）时 0 发现、exit 0；同一组合放在会话层却报 `advisor-pairing-unverified`。
+  逐 agent 分支改为与会话分支同一判定：该模型无行、或 advisor 不在任何行里 ⇒ `advisor-pairing-unverified`（每个不同模型
+  一条、只报不拦）；`inherit` 就是会话模型，不重复报。→ SKILL.md "no pairing row ⇒ no advisor" 与 orchestration.md
+  "subagents re-run the pairing check against their own model"（P11 双向结算：检查器与文档说同一件事）；表格事实、不新增语义
+  判断（P13）；A50（只报不拦）。先红后绿：新夹具 p21 + selftest 2 项（`battery/fix2/F07-red.log`）。
+  误报账（铁律 7）：53 个既有方案（20 夹具 + 24 selftest 方案 + P-collapse + E11 case-3 三份 + 4 个审计复现）新旧对跑，
+  变化只有：F07 复现 2 条（目标行为）；E11 case-3 的 `claude-opus-6` 子代理多一条 unverified（未知模型的配对本就不可查，
+  与会话层对未知模型的处理一致）；别名子代理（`sonnet`）多一条 unverified（与会话层别名处理一致）。量测中抓到一处
+  自身误报——`"model":"inherit"` 被当成独立模型报 unverified——已在提交前排除并加 selftest 守住。
+- 规模：`check_plan.mjs` 255 → 266 行，用例记录 37 → 38（基线 406 脚本行 / 29 记录，+24% / +31%，红线内）。
+- 本轮之后**不再有修复审计**（预算已用完）：这处修复代码未经独立 battery 复查，登记为下一次 A42 复核事件时的首查项。
+- 未修（登记）：F02（C3 对 `MAX_TOKENS_FLOOR` 不敏感，评测覆盖洞）· F03（p7 与 selftest 里两条断言守的是已删除的
+  `advisor-weaker`）· F11（别名"无模型专属判定"措辞与 haiku 别名判定不一致）· F12（会话行本身不做 effort/thinking 检查）·
+  F13（省略的 agent effort 不按模型默认值推出）· F14（`{"agents":[null]}` 崩溃、退出码 1 而非 2）· F15（`max` 指引引的是
+  Opus 4.7 表）。均为 P3，按铁律 3 不在修复审计之后继续加码。
+
 ### 豁免登记 / Exemption register (not re-verified this wave; re-review at the next A42 event or 2 review periods)
 
 EX-1 两条轴、搜索推论、钳制、报告格式（核心设计，未过期）· EX-2 Opus 4.x / Sonnet 4.6 / Sonnet 5 / Haiku 4.5 行 ·
