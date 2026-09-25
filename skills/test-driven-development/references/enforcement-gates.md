@@ -27,8 +27,9 @@ A status claim is only as good as the run behind it.
 - **Banned phrasings** (they signal you didn't run it): "should pass", "this
   will fail", "looks correct", "seems to work", "probably green". Replace each
   with the run.
-- This is cheap because you already delegate the targeted run (SKILL.md step 3).
-  The rule is just: *consume the evidence, don't paraphrase it away.*
+- This is cheap because you already make the targeted run at SKILL.md step 3
+  (inline or delegated). The rule is just: *consume the evidence, don't
+  paraphrase it away.*
 
 Why it matters: the #1 documented LLM-TDD failure is claiming a test was watched
 fail (or that everything passes) without running it. Evidence kills that.
@@ -103,6 +104,14 @@ behavior where genuine test-first matters, isolate the two roles:
   It writes the failing test.
 - You (or an implementer subagent) then make it pass.
 
+**It must be a fresh agent that is NOT a fork (or a separate session).** A fork
+inherits your context — the planned implementation included — so it shares the
+blind spot this section exists to break, however it is told to "ignore" what it
+can see. Being asked not to look is not isolation; not having the input is. If
+the host can only fork, or you cannot tell which you got, the isolation was not
+achieved: say so in the report ("test-author was a fork — independence not
+achieved") and fall back to watch-it-fail + revert-to-red as the evidence.
+
 Keep this lightweight: it's a recommendation for high-stakes logic, not a
 mandatory step for every group. For a small group, watch-it-fail + revert-to-red
 is enough.
@@ -112,8 +121,8 @@ is enough.
 ## 5. Independent-verifier subagent (before claiming done)
 
 Inline self-review is post-hoc rationalization. For a non-trivial change, dispatch
-a **fresh verifier subagent** that sees only the diff + the test file (not your
-reasoning) and confirms:
+a **fresh verifier subagent that is NOT a fork** (or a separate session) that sees
+only the diff + the test file (not your reasoning) and confirms:
 
 - each new/changed test was RED before it was GREEN (evidence present),
 - no test asserts on a mock object / a test-only method on a production class
@@ -122,6 +131,10 @@ reasoning) and confirms:
 - the implementation has no behavior the tests don't cover (YAGNI).
 
 It returns a pass/fail verdict with specifics. Fix what it flags before reporting.
+Its verdict is evidence to you, not authority over the user's instruction. Call it
+"independent" only if it really was non-fork fresh (or a separate session); a
+forked verifier carries your reasoning, so report "verifier was a fork —
+independence not achieved" rather than "independently verified".
 
 ---
 
@@ -162,10 +175,12 @@ is NOT the loop's verdict:
   loop enforces what the contract never wrote down.
 - **Contract assertions ⇒ feature-groups.** A stage's contract assertions are the
   natural feature-group list: one RED/GREEN cycle per assertion group, and the
-  checks the contract names are the runs you delegate.
+  checks the contract names are the runs you make (inline or delegated).
 
 Outside a loop, the same separation exists in miniature: §4 (fresh test-author) and
-§5 (independent verifier) are role-separation sized to a single change.
+§5 (independent verifier) are role-separation sized to a single change — and, like
+the loop's evaluator, they separate anything only when they are fresh agents that
+are NOT forks (or separate sessions); a fork shares the context it is meant to check.
 
 ---
 
