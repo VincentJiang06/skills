@@ -38,8 +38,8 @@ point — **write the loop, not the prompt** — every hard call becomes an orde
 reviewable derivation, not judgment-by-vibes.
 
 ### 1. SELECT — run the decision procedure (`references/loop-selection.md`)
-Answer **D0–D7 in order**; each answer determines part of the shape and is
-recorded with a one-line justification (the **decision log**). The ordered
+Answer **D0–D6 in order** (D7 closes after NEGOTIATE); each answer shapes the
+loop and is recorded with a one-line justification (the **decision log**). The ordered
 decisions: **D0** is-it-a-loop (name the runnable "done?" check or route away) ·
 **D1** decompose (seam test → flat vs staged) · **D2** per-stage pattern + check
 (+ `falsifiable_when`/`passing_but_wrong`) · **D3** autonomy (`in_the_loop` vs
@@ -49,9 +49,7 @@ cadence (completeness-first vs iteration-first, a *dial* that re-tunes D2/D3/D5)
 **D7** number provenance (closing sweep: each digit-bearing string classed
 decision | definitional | empirical; empirical ⇒ `derived`, never hand-fixed).
 Load `references/loop-selection.md` and run the full procedure — each D-item there
-is the operational decision rule. The procedure is the **selection method** — it
-replaces altitude-by-vibes with a reviewable derivation. Record the answers as the
-`selection_log` array.
+is the operational decision rule. Record the answers as the `selection_log` array.
 
 ### 2. NEGOTIATE — separate the roles + agree the contract (`references/loops-model.md`)
 Two moves from the LOOPS.md operating model, both **linter-enforced for staged**:
