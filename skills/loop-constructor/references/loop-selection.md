@@ -26,7 +26,8 @@ recorded with a one-line justification (the **decision log**):
   cheapest check on the spectrum that still fails on that mode; fill
   `falsifiable_when` + `passing_but_wrong`.
 - **D3 — Autonomy.** `in_the_loop` vs `on_the_loop` from blast-radius ×
-  reversibility × feedback-quality (weakest check wins).
+  reversibility × feedback-quality (a weak check guarding a high-blast or
+  irreversible step puts the human in).
 - **D4 — Parallelism.** Independent stages that benefit from fan-out → `large`
   (multi-agent); else `medium` (sequential).
 - **D5 — Guards.** Per-stage caps + `on_failure` routing; outer budget + failure +
