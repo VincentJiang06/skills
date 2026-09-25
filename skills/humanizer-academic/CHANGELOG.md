@@ -42,10 +42,12 @@ the heading becomes `Candidate (not released) — <status>` and carries the evid
   the read order (this file + the draft until Step 1 decides to rewrite; no pack,
   no detector run to triage); Step 0.4 and the Step 5 re-run fire only on a user
   request for signals; Boundary gains one sentence saying so. Measured on the
-  three E11 WITH cases, before vs after, n=1 each: detector calls 2 → 0, total input tokens −35% / −25% / ±0 (case 1/2/3),
-  cost $0.657 → $0.627; decisions unchanged (abstain, rewrite, abstain; both
-  abstains byte-verbatim) and a blind judge rated the new case-2 rewrite
-  fidelity `pass`. Always-loaded SKILL.md +61 tokens.
+  three E11 WITH cases, before vs after, n=1 each: detector calls 2 → 0, tool
+  calls 10 → 8, total input tokens −35% / −25% / ±0 (case 1/2/3). Those are
+  mostly cache reads, so dollar cost stayed flat within noise ($0.657 → $0.654).
+  Decisions were unchanged (abstain, rewrite, abstain; both abstains
+  byte-verbatim), and a blind judge rated the new case-2 rewrite fidelity `pass`.
+  Always-loaded SKILL.md +79 tokens.
 
 ### Fixed
 - SKILL.md Eval section named `run_all_checks.py`, which never existed; it now names
