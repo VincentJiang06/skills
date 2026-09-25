@@ -31,6 +31,8 @@ produce a passing test suite. Anchors: O5, E6, E9, [SELF-battery渐近], [SELF-a
   model can run it.
 - `seeds[]` — one planted seed defect per lens run (see SEED gate). Planted by the conductor,
   never by you.
+- `prior_round?` — `{ fix_diff, prior_findings }`, present whenever the previous round produced
+  fixes. Present ⇒ the fix-audit rotation below is mandatory.
 
 **Output (feeds `acceptance` in `schemas/decision-record.json`):**
 - `findings[]` — each `{ lens, location, claim, reproduction: {steps, expected, observed},
@@ -155,6 +157,36 @@ evaluators and gates themselves**:
 
 ---
 
+## Fix-audit rotation (mandatory when the previous round produced fixes)
+
+Distillation source: **vince-attacker 0.7.0** (`SKILL.md` §Fix-audit rotation +
+`references/fix-audit.md`). When vince-attacker ≥ 0.7.0 is the dispatched attacker, ITS text
+governs; this section is the standalone fallback (no external skill needed) — re-sync it when the
+attacker's version moves.
+
+The fix is the least-attacked text in the target: it was written after the last attacker left, by
+someone who already believed they understood the defect. So round N produced fixes ⇒ round N+1
+re-aims the five lenses at the **fix diff**, from a context that did NOT write the fixes. Not a
+sixth lens — the object changes, not the failure class.
+
+- **Material first.** Take `prior_round.fix_diff` (or `git diff <last-round boundary>..HEAD --
+  <target>`) and `prior_round.prior_findings`; build a table: prior item · claimed status · diff
+  hunk implementing it. No diff available ⇒ write `fix_audit: no-baseline` in `coverage_gaps` and
+  do NOT run the pass from the fixer's summary of its own fix.
+- **Four axes.** (A) Propagation — grep the fixed claim/number/term across the whole target; an
+  untouched higher-rank sibling (spec, description, SKILL.md, README) still stating the defect is a
+  finding. (B) New defect — read added lines as never-reviewed text; watch for direction reversal
+  (bound loosened instead of tightened) and scope creep. (C) Camouflage — re-run the original
+  reproduction verbatim; still breaks ⇒ the fix is cosmetic, severity = the original's; softened
+  wording that makes the repro inapplicable is a finding. (D) Silently skipped — a prior item with
+  no fix and no written won't-fix/deferred adjudication is a process finding.
+- **Hand-off, not another swing.** A P0/P1 inside the previous round's fix, or a ≥P2 regression in
+  the fix region, is an A51(i) stop signature for the conductor: report it plainly, never soften it
+  to keep the fix→attack cycle running.
+- `coverage_gaps` states fix-audit status: `run` / `not-applicable` / `no-baseline` / `skipped`.
+
+---
+
 ## PROVE-OR-FLAG (the bar — no exceptions)
 
 An item is a **FINDING** only if ALL three hold:
@@ -181,8 +213,9 @@ the author's model family (model-level self-preference is quantified and does no
 capability). At low stakes where only same-tier adjudication was available, say so in coverage_gaps.
 
 **Known false-finding traps:** a "contradiction" that is a governed tension in the skill's own
-tensions doc; re-reporting something fixed in a prior round (check revision lineage first);
-asserting fabrication without a first-party fetch. All three are not-a-finding.
+tensions doc; re-reporting a prior-round item whose fix you VERIFIED in the diff (an item whose fix
+is absent, partial or cosmetic in the diff is a finding again — fix-audit axis C); asserting
+fabrication without a first-party fetch. All three are not-a-finding.
 
 ---
 
