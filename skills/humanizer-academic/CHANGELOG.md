@@ -90,6 +90,18 @@ unmerged branch; whether 4.1.0 ships is the owner's call.
   rule given, `unsure` allowed) rated the old example `fail` (6 new claims) and the
   new one `pass` (8/8 supported); run dir `battery/fixes/F09/`.
 
+- **Every register-floor example in `popsci-pack.md` now obeys the Analogy rule**
+  (fix-audit P2, owner-authorized fix round 3; hard constraint 1, SKILL.md Step 5
+  "does the source state it", P13 — prose, no new gate). The EN and ZH sky/sunset
+  examples had a claim-free clickbait Before and an After that asserted scattering,
+  the midday blue, the longer dusk path and "same reason as a sunset" — every one a
+  new claim, in a file loaded on every popsci rewrite. Least-risk fix: the Befores
+  now carry those facts inside the hype wrapper, the Afters are unchanged, and each
+  note says nothing was added. Fresh judge (claude-opus-5-5, no skill, rule given,
+  `unsure` allowed): old EN `fail` (10 new_claim rows), old ZH `fail` (9); new EN
+  and ZH `pass` (0 new_claim); run dir `battery/fixes/R3-sky/`. The vaccine Before,
+  labelled "hype gone", drops its leftover "incredibly" (fix-audit P3).
+
 - (conductor, docs only) `_meta.json` said 3.0.0 while SKILL.md said 4.0.0; both
   now read 4.1.0. README.md / README.en.md "What it does" now names the `popsci`
   mode that has existed since 4.0.0 (battery F16 part; owner README rule, A37).
@@ -141,11 +153,10 @@ disabled; one fresh judge, `unsure` allowed (iron law 6).
   12 real defects confirmed (2 × P2, 10 × P3), 0 P0/P1, 0 fully refuted; none in
   code the candidate newly wrote (iron law 3 not triggered).
 - Fixed (one fix round, see Fixed above): F05 (P2), F09 (P2).
-- Fix-audit (one pass), all open, none fixed (fix budget spent):
-  - **P2** `popsci-pack.md` register-floor "EN — after" example (~l.157) still
-    asserts what its Before never states ("for the same reason a sunset is red",
-    short wavelengths scatter more). Under the new analogy rule it is a hard fail,
-    and it loads on every popsci rewrite.
+- Fix-audit (one pass); the owner then authorized a third fix round ("这七个你都继续去做
+  把他们做完", 2026-09-25) for the release blockers:
+  - **P2** `popsci-pack.md` register-floor sky/sunset example asserted what its
+    Before never stated — **fixed in round 3** (see Fixed).
   - P3 `academic-pack.md` Step 3 still says "never invent … analogy", while the
     rubric's both-tracks hard-fail list allows a gloss: pack and judge disagree on
     the academic track.
@@ -154,8 +165,8 @@ disabled; one fresh judge, `unsure` allowed (iron law 6).
   - P3 the F05 guard still passes numbers that appear only in the ZH fixture's URL
     hashes (e.g. 72, 3881) and numbers written as words; the popsci worked pair is
     outside its pair list.
-  - P3 the vaccine example's Before is labelled "SUBTRACT done — hype gone" but
-    still says "incredibly bright".
+  - P3 the vaccine example's Before still said "incredibly bright" — **fixed in
+    round 3**.
 - Battery P3s left open: F02-R (borderline "change nothing else" vs required ADD),
   F07 (worked-note scores are maker self-scores cited as verification), F08, F10
   (dash quota lacks its EN qualifier and loads for ZH), F11 (one high-precision hit

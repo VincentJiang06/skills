@@ -150,8 +150,13 @@ Even while keeping the voice lively, the rewrite must hold the line on:
 
 **EN — before (clickbait popsci):**
 > 🤯 Have you ever wondered why the sky is blue? Buckle up, because the answer will BLOW
-> YOUR MIND! Here are 5 incredible facts about light that scientists don't want you to
-> miss. The future of physics is bright — let's dive in!
+> YOUR MIND! Here are 3 incredible facts about light that scientists don't want you to
+> miss. Fact 1: air scatters short wavelengths WAY more strongly than long ones! Fact 2:
+> look straight up at midday and you're seeing sunlight bounced sideways by the
+> atmosphere — mostly the blue end of it! Fact 3: near the horizon at dusk, the light has
+> traveled through far more air, the blue has scattered away, and what's left is red —
+> the SAME reason the sky is blue makes a sunset red! 🌅 The future of physics is bright
+> — let's dive in!
 
 **EN — after (serious popsci, voice intact):**
 > The sky is blue for the same reason a sunset is red: air scatters short wavelengths
@@ -162,7 +167,9 @@ Even while keeping the voice lively, the rewrite must hold the line on:
 
 > Note what survived: a rhetorical framing, a second-person "you", a vivid contrast, a
 > concrete everyday observation. What went: the emoji, the hype, the fake hook, the
-> listicle promise, the empty uplift.
+> listicle promise, the empty uplift. What was added: nothing — every claim in the After
+> (scattering, midday blue, the longer path at dusk, the shared reason) is already in the
+> Before; only the hype wrapper came off (Analogy rule, Step 3).
 
 ---
 
@@ -188,8 +195,10 @@ pieces), or a thoughtful 科普 column: clear, example-driven, honest about unce
 - 空泛升华尾 — "科学的魅力是无穷的"、"未来可期"、"让我们拭目以待"。
 
 **ZH — before (标题党):**
-> 震惊！99% 的人都不知道，为什么天是蓝的？看完涨知识！硬核科普一文看懂，建议收藏！
-> 科学的魅力真是无穷啊，让我们一起拭目以待！🚀
+> 震惊！99% 的人都不知道，为什么天是蓝的？看完涨知识！硬核科普一文看懂：空气对短波长
+> 的散射远远强于长波长！正午抬头，你看到的是被大气向各个方向"弹"过来的阳光，以蓝光为
+> 主！黄昏时阳光要穿过厚得多的空气，蓝光早就散射殆尽，剩下的就是红——天为什么是蓝的、
+> 日落为什么是红的，竟然是同一件事！建议收藏！科学的魅力真是无穷啊，让我们一起拭目以待！🚀
 
 **ZH — after (严肃中文科普，声音保留):**
 > 天为什么是蓝的？说到底，和日落为什么是红的是同一件事。空气对短波长的散射远强
@@ -198,6 +207,8 @@ pieces), or a thoughtful 科普 column: clear, example-driven, honest about unce
 
 > 保留了：一个真问题式的开头、第二人称"你"、一个生活化的对照、诚实直接的解释。
 > 去掉了：震惊体、营销钩子、收藏号召、表情、空洞升华。
+> 新增了：没有——改后稿里的每条说法（散射强弱、正午的蓝、黄昏穿过更厚的空气、蓝与红同因）
+> Before 都已写明，只拆掉了标题党包装（见 Step 3 的 Analogy rule）。
 
 ---
 
@@ -237,7 +248,7 @@ source**, never generation.
 > After this exposure, the immune system is able to recognize the real pathogen and
 > respond to it more quickly. For some vaccines this protection wanes over time, which is
 > why booster doses are given, and how fast it wanes varies between vaccines and is still
-> being studied. Ultimately, the future of immunology is incredibly bright.
+> being studied. Ultimately, the future of immunology is bright.
 
 **After (one analogy carries it; grounded close; voice intact):**
 > A vaccine is a wanted poster for your immune system: it shows a harmless form or piece
