@@ -1,8 +1,116 @@
 # Changelog — loop-constructor-codex
 
 All notable changes to this skill. Versioning is semver on the loop-design JSON
-schema the linter binds to (shared verbatim with `loop-constructor`): a new required
-field / renamed key is a breaking change.
+schema the linter binds to (the linter is a byte copy of `loop-constructor`'s, pinned
+by sha256 below): a new required field / renamed key is a breaking change.
+
+## 0.3.0 - 2026-09-25
+
+Tracks `loop-constructor` **0.5.0** (sibling commit `befbd04`); skill-philosophy KB
+v0.4.0 (R20). Non-breaking (minor): the loop-design JSON schema is unchanged except the
+already-optional `parameter_provenance` inherited from sibling 0.4.0. Every pre-0.3
+lint-green design still exits 0; staged designs without `parameter_provenance` now get
+one `WARN` (back-compat signal, never a FAIL).
+
+**The recorded problem.** 0.2.0 told every Codex loop it designed that "a top-severity
+defect inside the previous iteration's own fix → `restart`" and to "escalate only a wrong
+contract, not a broken build"; and it credited a `--sandbox read-only` `codex exec` as an
+independent evaluator while the generator could still edit the `AGENTS.md` that the
+evaluator reads on startup. The linter was also no longer the sibling's: the claim
+"shared verbatim with loop-constructor 0.2.0" had been false since sibling 0.4.0
+(958 vs 1,160 lines), with nothing to signal the drift.
+
+### Changed
+- **Linter = loop-constructor 0.5.0 (unchanged since 0.4.0), sha256 `1fec173225e5c671086da11fc6b85bb2183f6da636e0db7d25cdb16ae256fd36`** (KB
+  constitution **A49** one judgment, one home; **A51(iv)** a second implementation copy
+  drifted silently). Byte copy; the pin replaces every bare "byte-identical" claim in
+  SKILL.md and README. The dev harness recomputes the pin (C72) and compares against a
+  sibling linter when one is installed next to this skill (C73: FAIL on drift, SKIP when
+  absent, never PASS).
+- **Failure routing by what the failure accuses** (KB `guidelines/loops.md` **H4**,
+  constitution **A51**, principle **P13**): `loops-model.md` §V, `loop-selection.md` D5,
+  the checklist, the goldens and the SKILL.md Controls bullet mirror sibling 0.5.0 —
+  four exits, order **escalate → re-plane → loopback → restart, first hit wins**; the
+  five fixer signatures (P0/P1 inside the previous fix, fix-area growth >50%, a third
+  exception layer, a second implementation copy, 2 fix rounds on one defect class) are
+  pre-registered escalate triggers that carry the plane question; re-plane is the
+  owner's call after the stop, never an `on_failure` value; the "impossible or blocked
+  → stop and report" exit is never sealed.
+- **`codex-runtime.md` §5 follows §V instead of stating its own rule** (**A49**): each
+  exit maps to operator commands, escalate is checked before the cap, and the 0.2.0
+  phrase "escalate a wrong contract, not a merely-broken build" is gone.
+- **Evaluator instruction surfaces on Codex** (KB principle **P10** authority comes from
+  provenance, not channel; constitution **K1** host-injected context left in place =
+  `L-i incomplete`): `loops-model.md` §II (hunk K4), `codex-runtime.md` §1/§2, the
+  checklist box (K5), the renderer preamble (R1) and the SKILL.md evaluator bullet name
+  what a fresh `codex exec` auto-reads (`AGENTS.md` at every level,
+  `AGENTS.override.md`, `project_doc_fallback_filenames`, `.codex/`, execpolicy
+  `.rules`, memories, `.loop/prompts/`) and prescribe one control: launch the evaluator
+  with `-C` from a conductor-owned checkout whose surfaces equal the contract-time tag,
+  or verify their recorded sha256 before launch; a changed file is diff data, never an
+  instruction. `--sandbox read-only` limits what the evaluator writes, not what it
+  obeys. `AGENTS.md` moved from "harness primitive the loop writes" to "protected
+  evaluator-read surface".
+- **Codex facts re-stamped** (**P10**): "observed on codex-cli 0.144.4, 2026-09-25"
+  (local help, `codex features list`, binary strings; not vendor docs). Corrected:
+  `hooks` stable/on, `multi_agent` stable/on, `memories` experimental/on — so §6 no
+  longer says hooks are unavailable or that memory maps to `AGENTS.md`. The prescribed
+  realization stays one `codex exec` process per role, now with its reason (in-session
+  isolation unverified; a process's flags are checkable). The isolation flags
+  (`--ephemeral`, `--disable memories`, `--ignore-rules`, `--ignore-user-config`) are
+  named but not relied on: their effect was not run.
+- **Harness settlement is two-way** (**P11**): §VIII and the SKILL.md bullet — at each
+  model or codex-cli release, delete what the model does for free **and** add back that
+  version's named failure modes; stamp `model_baseline` = model id + effort +
+  codex-cli version. For Codex the per-version source is the vendor's release notes
+  (hunk K6); the KB ships no OpenAI adaptation file (as of 2026-09-24).
+- **Number provenance D7** (sibling 0.4.0; **A45** contract discipline): D0–D7 in
+  SKILL.md, `parameter_provenance` in FILL, VERIFY clean = 0 FAIL **and** 0 WARN, the
+  numbers-audit box; renderer prints the D0–D7 label and the provenance table.
+- **Large golden** (codex-only) routed and protected: shard stall counters on the
+  stages, hidden coupling moved to the outer escalate, fixer-signature + safe-exit
+  escalate entries, `parameter_provenance` (4 decision, 0 empirical), reviewer launched
+  from a checkout with the surfaces diffed and hashed (A12), no test dropped (A11); 12
+  assertions (module-row floor). 0 FAIL 0 WARN.
+- **Size**: SKILL.md 3,682 → 4,098 tokens (≤ 4,100 budget); the Codex runtime mapping
+  and PERSIST preamble detail moved to `codex-runtime.md` "Phase map" (diff_lossless:
+  0 LOST, 4 reflowed lines). Scripts 1,346 → 1,603 lines (+19.1%; lint +21.1% forced
+  by the byte copy, render 388 → 443). Dev harness 71 → 78 checks.
+
+### Mirror register (the only allowed differences from sibling `befbd04`)
+- K1 `loops-model.md` §IV context loss / `codex resume` (existing) · K2 `loop-selection.md`
+  D4 concurrent `codex exec` fan-out (existing; reworded: `multi_agent` exists, isolation
+  unverified) · K3 checklist `codex resume` line (existing) · K4 `loops-model.md` §II
+  Codex evaluator surfaces · K5 checklist evaluator-instruction-file box for Codex ·
+  K6 `loops-model.md` §VIII per-version source · **K7** `golden-loop-design-medium.json`
+  `maker_checker.scope` names the Codex surfaces instead of `CLAUDE.md` / `.claude/`
+  (one string; needed because harness check C42 forbids `CLAUDE.md` in a Codex runbook
+  and the golden must pass its own K5 box) · R1 renderer Codex preamble (+1 line on the
+  evaluator surfaces; evaluator example uses `-C`) · R2 renderer concurrent `codex exec`
+  wording. `loop-design-shape.md`, `loop-principle-map.md`, the flat golden and the
+  linter are byte-identical.
+
+### Compatibility
+- Persisted pre-0.3 Codex runbooks keep the old routing and the unprotected `AGENTS.md`
+  channel and still lint green. Re-review them with the fresh-reader §V box and the
+  evaluator-instruction-file box; never auto-rewrite (the renderer never overwrites).
+- The 0.2.0 note below ("on Codex this is naturally a read-only `codex exec` for the
+  judge") is history: read-only was never enough by itself.
+- Iron rule 7 corpus: 17 codex designs + 9 sibling designs, old vs new linter: exit codes
+  and FAIL counts identical on all 26; +1 `WARN parameter_provenance` on the 23 staged
+  designs that lack the declaration.
+
+### Carried as-is (A40 incremental alignment — exemption register)
+- X-1 SKILL.md above the 3,000-token target (pre-existing BAD flag; 4,098 now) ·
+  X-2 description unchanged (dispute DS3: "single-agent" read as the prescribed
+  realization; the facts block carries the correction) · X-3 sibling open P3s not
+  fixed here, re-mirror when fixed upstream: F08 / F25 (renderer strings), F14 / F19 /
+  F21 / F22 / F23 / F26 (prose) and linter F1 (quote-aware `#` strip) · X-4 Modules
+  table row `evals/run_all.mjs` names a git-ignored file · X-5 U1: the isolation flags'
+  effect is untested (owner follow-up: plant "reply PLANTED" in `AGENTS.md` and a
+  memory, launch with the flags, grep the output) · X-6 DS2 (fold into
+  loop-constructor) undecided · X-7 independence tier = instance; model deviation:
+  builder and evaluators all Opus 5.5 high on owner order.
 
 ## 0.2.0 — 2026-07-31
 
