@@ -34,7 +34,7 @@ const MAPPING_ROWS = [
   ["`word-break: break-all`", "`overflow-wrap: anywhere` works", "keep", "skyline-wxss"],
   ["`backdrop-filter`", "supported", "keep", "skyline-wxss"],
   ["`componentFramework: \"glass-easel\"`", "supported on WebView", "keep", "skyline-config app-config.md"],
-  ["`rendererOptions.skyline`", "ignored by WebView", "keep/strip", "skyline-config app-config.md"],
+  ["`rendererOptions.skyline`", "ignored by WebView; without `defaultDisplayBlock`/`defaultContentBox` Skyline defaults to flex + border-box, so the flip shifts default layout", "keep/strip + verify layout", "skyline-config app-config.md; skyline wxss.html"],
   ["camera tap-mask", "taps may bubble", "verify", "field workaround"]
 ];
 
@@ -118,10 +118,15 @@ export function generate(scanResult) {
   push(`- **Current renderer:** \`${esc(rc.renderer || "(unset → webview)")}\``);
   if (summary.already_migrated) {
     push("- **Status:** ALREADY ON WEBVIEW — no renderer flip needed. The protocol STOPS before editing; the rows below are inventory only.");
-  } else {
+  } else if (rc.renderer === "skyline") {
     push("- **Status:** on Skyline — migration flips the renderer to WebView, keeps workarounds, and surfaces rewrite items below.");
+  } else {
+    push("- **Status:** app on WebView, but pages are pinned to Skyline (per-page adoption) — migration flips those page jsons (see §1), keeps workarounds, and surfaces rewrite items below.");
   }
   push("");
+  if (Array.isArray(r.ignored_dirs) && r.ignored_dirs.length) {
+    push(`- **Not scanned:** ${r.ignored_dirs.map((d) => `\`${esc(d)}\``).join(", ")} — \`packOptions.ignore\` folders (not in the shipped package).`);
+  }
   push(`- **Summary:** mechanical ${summary.mechanical || 0} · keep ${summary.keep || 0} · verify ${summary.verify || 0} · **rewrite ${summary.rewrite || 0}** · total ${summary.total || 0}`);
   push("");
 
@@ -130,19 +135,42 @@ export function generate(scanResult) {
   push("");
   push("| Field | Current (Skyline) | After (WebView) | Action |");
   push("|---|---|---|---|");
-  push(`| renderer | \`${esc(rc.renderer || "(unset)")}\` | \`webview\` | ${summary.already_migrated ? "already webview" : "**flip**"} |`);
+  push(`| renderer | \`${esc(rc.renderer || "(unset)")}\` | \`webview\` | ${summary.already_migrated ? "already webview" : rc.renderer === "skyline" ? "**flip**" : "no app edit (flip the page pins below)"} |`);
   push(`| componentFramework | \`${esc(rc.componentFramework || "(unset)")}\` | \`${esc(rc.componentFramework || "(unset)")}\` | keep (glass-easel ok on WebView) |`);
   push(`| rendererOptions.skyline | ${rc.rendererOptions && rc.rendererOptions.skyline ? "present" : "—"} | ignored | keep or strip |`);
   push(`| window.navigationStyle | \`${esc(rc.navigationStyle || "(unset)")}\` | \`${esc(rc.navigationStyle || "(unset)")}\` | keep |`);
   push(`| style | \`${esc(rc.style || "(unset)")}\` | \`${esc(rc.style || "(unset)")}\` | keep |`);
   push(`| lazyCodeLoading | \`${esc(rc.lazyCodeLoading || "(unset)")}\` | \`${esc(rc.lazyCodeLoading || "(unset)")}\` | keep |`);
   push("");
-  if (Array.isArray(rc.page_overrides) && rc.page_overrides.length) {
-    push("**Page-level renderer overrides (reconcile each distinctly):**");
-    push("");
-    for (const po of rc.page_overrides) {
-      push(`- \`${esc(po.file)}\` → renderer \`${esc(po.renderer)}\` (differs from app-level)`);
+  // Skyline defaults every node to flex (column) + border-box unless these two
+  // opt-ins are set; WebView defaults to block + content-box. Missing flags mean
+  // the flip changes the default layout of every node that ran on Skyline — all
+  // of them under a skyline app, only the pinned pages under per-page adoption.
+  const pinned = Array.isArray(rc.page_overrides) ? rc.page_overrides : [];
+  // a 0.1.x scan has no needs_flip: fall back to "pinned to anything but webview"
+  const toFlip = pinned.filter((po) => po.needs_flip ?? po.renderer !== "webview");
+  const webviewPins = pinned.length - toFlip.length;
+  const sky = (rc.rendererOptions && rc.rendererOptions.skyline) || {};
+  const missing = ["defaultDisplayBlock", "defaultContentBox"].filter((k) => sky[k] !== true);
+  if (!summary.already_migrated && missing.length) {
+    const head = `> **Default layout shift:** app.json \`rendererOptions.skyline\` does not set ${missing.map((k) => `\`${k}: true\``).join(" / ")}. Skyline then lays nodes out as flex (column) with border-box; WebView uses block with content-box.`;
+    if (rc.renderer === "skyline") {
+      push(`${head} Expect the flip to change the default layout of every node (page jsons may set their own rendererOptions). Check it first at Step 4; if the shift is global, one app.wxss default rule restoring the Skyline defaults is the smallest fix, not per-page edits.${webviewPins ? ` ${webviewPins} page(s) pin webview and never ran on Skyline; an app.wxss rule reaches them too, so re-verify them after it.` : ""}`);
+    } else {
+      push(`${head} Per-page adoption: only the ${toFlip.length} page(s) pinned to Skyline change; pages that were always WebView do not. Check it first at Step 4; restore the Skyline defaults in the pinned pages' own wxss, not app.wxss (an app-wide rule would change the always-WebView pages).`);
     }
+    push("");
+  }
+  if (toFlip.length) {
+    push("**Page-level renderer pins to flip to `webview` (the app flip does not reach them):**");
+    push("");
+    for (const po of toFlip) {
+      push(`- \`${esc(po.file)}\` → renderer \`${esc(po.renderer)}\` → \`webview\``);
+    }
+    push("");
+  }
+  if (pinned.length > toFlip.length) {
+    push(`${pinned.length - toFlip.length} page(s) already pin \`renderer: "webview"\` — no edit needed (informational).`);
     push("");
   }
 

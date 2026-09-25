@@ -28,6 +28,7 @@ and looks for `app.json` directly under it.
   "ok": true,                       // false only on a structured blocker (see Errors)
   "error": null,                    // string when ok=false, else null
   "miniprogramRoot": "miniprogram/",// resolved value (relative to root), or "." 
+  "ignored_dirs": ["miniprogram/dist"], // packOptions.ignore folders met and NOT walked (relative to root; a folder holding a declared page is walked), sorted; [] if none
   "renderer_config": {
     "renderer": "skyline",          // "skyline" | "webview" | null (unset → webview default)
     "componentFramework": "glass-easel",   // or null
@@ -35,8 +36,9 @@ and looks for `app.json` directly under it.
     "navigationStyle": "custom",    // app.json window.navigationStyle, or null
     "lazyCodeLoading": "requiredComponents", // or null
     "rendererOptions": { "skyline": { ... } },  // raw object, or null
-    "page_overrides": [             // pages whose json sets renderer differing from app-level
-      { "page": "pages/foo/index", "file": "miniprogram/pages/foo/index.json", "renderer": "skyline" }
+    "page_overrides": [             // page jsons pinning a renderer: every non-webview pin
+                                    // (needs_flip:true) + webview pins under a skyline app (false)
+      { "page": "pages/foo/index", "file": "miniprogram/pages/foo/index.json", "renderer": "skyline", "needs_flip": true }
     ]
   },
   "findings": [
@@ -53,7 +55,7 @@ and looks for `app.json` directly under it.
   "summary": {
     "mechanical": 1, "keep": 7, "verify": 1, "rewrite": 0,
     "total": 9,
-    "already_migrated": false       // true iff renderer is already "webview" (or unset)
+    "already_migrated": false       // true iff app renderer is "webview"/unset AND no page needs_flip
   }
 }
 ```
@@ -118,7 +120,7 @@ the worklet and the custom_route pattern → one of each).
 | category | action | severity | granularity | trigger |
 |---|---|---|---|---|
 | `renderer_flip` | mechanical | info | once per program (app-level) | app.json `renderer:"skyline"` (exactly one) |
-| `page_renderer_override` | mechanical | low | once per **physical** page (deduped by resolved page-json path) | page json `renderer` differing from app-level. The resolved page set is **deduped by resolved path**, so the SAME physical page listed in both `subPackages` and `subpackages` (or in `pages[]` and a subpackage) yields **exactly one** override; distinct pages in different roots each still get their own |
+| `page_renderer_override` | mechanical | low | once per **physical** page (deduped by resolved page-json path) | page json `renderer` pinned to anything other than the target `"webview"` (a Skyline pin under a Skyline app included — the app flip does not reach it). A `webview` pin needs no edit and yields no finding. The resolved page set is **deduped by resolved path**, so the SAME physical page listed in both `subPackages` and `subpackages` (or in `pages[]` and a subpackage) yields **exactly one** override; distinct pages in different roots each still get their own |
 | `renderer_options` | keep | info | once per program | `rendererOptions.skyline` present (ignored by WebView; keep or strip) |
 | `component_framework` | keep | info | once per program | `componentFramework:"glass-easel"` (supported on WebView) |
 | `worklet` | rewrite | high | per matching line | worklet animation API/directive. **STRONG** signals (`wx.worklet`, a `'worklet'` directive, `applyAnimatedStyle`, `runOnUI`, `runOnJS`, `useSharedValue`) always fire. **WEAK** tokens (`Easing`, bare `timing(`/`spring(`/`decay(`) fire **only when the file also carries a STRONG signal** — a generic charting/animation lib reusing those bare names yields nothing (file-level gate, not a `wx.worklet.` prefix) |
@@ -189,7 +191,7 @@ backslashes (the last `\` is a severed escape lead) loses its last char; an
 When the program cannot be scanned, return:
 
 ```json
-{ "ok": false, "error": "app.json not found under <miniprogramRoot>", "miniprogramRoot": "...",
+{ "ok": false, "error": "app.json not found under <miniprogramRoot>", "miniprogramRoot": "...", "ignored_dirs": [],
   "renderer_config": null, "findings": [], "summary": { "mechanical":0,"keep":0,"verify":0,"rewrite":0,"total":0,"already_migrated":false } }
 ```
 
@@ -199,7 +201,7 @@ wrapper prints the error JSON and exits non-zero.
 
 ## Idempotency
 
-Re-scanning an already-`webview` tree → `summary.mechanical === 0`,
+Re-scanning an already-`webview` tree (app and every page) → `summary.mechanical === 0`,
 `summary.already_migrated === true`, and **no** `renderer_flip` / `page_renderer_override`
 findings (the migration is not re-applied). Workaround `keep` findings may still
 appear (they are inventory, not edits).
@@ -211,7 +213,18 @@ WXML: `.wxml`. Styles: `.wxss` **and** `.less` (Skyline projects often author
 JS-subset module language and is run through the same worklet/custom_route
 detectors (and the same comment-strip) so a `'worklet'` directive or `wx.worklet`
 token inside a `.wxs` is never silently dropped. Config: `app.json`, page `*.json`.
-`node_modules/` and `miniprogram_npm/` are skipped.
+`node_modules/` and `miniprogram_npm/` are skipped. So is every folder the
+program's own `project.config.json` `packOptions.ignore` lists with `type:"folder"`
+(path relative to `miniprogramRoot`, per the WeChat project.config doc): those files
+are not in the uploaded package, so they are not migration sites — typically a
+`dist/` build copy that would otherwise double every finding. Other ignore types
+(`file`/`suffix`/`prefix`/`regexp`/`glob`) are not honored. Each skipped folder is
+listed in `ignored_dirs` and in the MIGRATION-MAP header. Page-json renderer pins
+are still read from `app.json` regardless, and a folder that holds a page `app.json`
+declares (in `pages` or a subpackage) is **walked anyway**: that page is flipped, so
+its content is scanned, never dropped (eval `scan_pack_ignore_declared_page`). A program that swaps `app.json` /
+`project.config.json` per build variant is scanned in its current variant only —
+scan each variant separately. (Eval: `scan_pack_ignore_folder`.)
 
 The whole `miniprogramRoot` tree is walked recursively, so source findings inside
 **subpackage** dirs and **custom component** files (`Component({...})`, not just
@@ -235,7 +248,12 @@ accurate) so a token mentioned only in a comment never becomes a finding:
 
 - **WXML** — `<!-- … -->` blocks (`stripWxmlComments`).
 - **JS / TS / WXS** — `//` line + `/* */` block, skipping over string literals so a
-  `//` inside `'wx://…'` is not mistaken for a comment (`stripJsComments`).
+  `//` inside `'wx://…'` is not mistaken for a comment (`stripJsComments`). A
+  `'…'`/`"…"` string ends at a newline (JS forbids a raw newline in one), so a quote
+  inside a regex literal (`/['"]/g`) opens at most a one-line false string and
+  cannot make a later `'wx://…'` read as a comment. Regex literals are not parsed:
+  a real rewrite token on the **same** line after such a regex can still be missed
+  — a known limit. (Eval: `scan_js_regex_quote_no_drop`.)
 - **WXSS / LESS** — a **CSS-aware** stripper (`stripCssComments`), **not** the JS
   one. The JS stripper treats `//` as a line comment, which is wrong for CSS: the
   `//` inside `background: url(https://cdn/x.png)` would blank the rest of that

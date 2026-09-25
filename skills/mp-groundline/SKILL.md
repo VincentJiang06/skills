@@ -7,7 +7,7 @@ description: >-
   for live-runtime debugging (mp-cli-sup), Skyline component dev, or
   reverse/non-WeChat work.
 metadata:
-  version: 0.1.1
+  version: 0.2.3
 ---
 
 # mp-groundline
@@ -48,17 +48,16 @@ when the scan finds them. **Flag, never silently drop.**
 ## Steps
 
 ### Preflight
-Resolve `miniprogramRoot` from `project.config.json`; locate `app.json`; confirm
-`renderer == "skyline"` (if already `"webview"` → report already-migrated, run the
-scan as a no-op inventory, and **STOP before editing**); confirm a clean git
-working tree so the flip is revertible.
+Resolve `miniprogramRoot`; locate `app.json`; confirm Skyline — app or any page
+json `renderer: "skyline"`. Confirm a clean git tree so the flip is revertible.
 
 ### Step 1 — Scan  → load `rules/scan-protocol.md`
 ```bash
 node scripts/scan.mjs <program-root>
 ```
 Emits `renderer_config` + `findings[]` + `summary`. Every `rewrite` finding is a
-manual-review item surfaced up front.
+manual-review item surfaced up front. If `summary.already_migrated` (app and every
+page on WebView) → report it, keep the scan as inventory, **STOP before editing**.
 
 ### Step 2 — Emit the MIGRATION-MAP (doc-before-edit gate)
 ```bash
@@ -68,15 +67,22 @@ Write `MIGRATION-MAP.md` **before any edit** so the plan is reviewable. Contract
 `references/scanner-contract.md`; mapping evidence: `references/skyline-to-webview.md`.
 
 ### Step 3 — Mechanical flip
-Edit `app.json` (and any page-level `renderer` override): `renderer → "webview"`.
+`renderer → "webview"` in `app.json` (only if it says `skyline`) and in every
+`page_renderer_override` page json (the app flip does not reach a Skyline pin).
 Keep `glass-easel`, `style:"v2"`, `navigationStyle:"custom"`, `lazyCodeLoading`,
 per-page `disableScroll`; keep or strip `rendererOptions.skyline` (ignored by
-WebView).
+WebView) — without its `defaultDisplayBlock`/`defaultContentBox`, every page that
+ran on Skyline shifts layout (flex + border-box defaults; only the pinned pages
+under per-page adoption; `references/skyline-to-webview.md`).
 
 ### Step 4 — Verify  → load `rules/verify-with-vince-mp.md`
 Use the system `vince-mp` CLI (the tool `mp-cli-sup` drives — do **NOT**
 rebuild it) to capture before/after screenshots + `pageData` per page and diff →
-the list of **actual** deltas.
+the list of **actual** deltas. **Precondition** (check it before Step 3 — the
+baseline is captured pre-flip): `vince-mp session start --json` returns ok
+(vince-mp on PATH + a reachable DevTools automation port). **If it cannot run:** keep the flip uncommitted (revertible), mark every page `UNVERIFIED`
+in the MIGRATION-MAP, make **no** Step 5 fixes, and tell the user to run Step 4 —
+no verification → UNVERIFIED, not consistent.
 
 ### Step 5 — Targeted fixes  → load `rules/minimal-fix-protocol.md`
 Fix ONLY confirmed deltas, smallest change first, re-verify each. Record each fix

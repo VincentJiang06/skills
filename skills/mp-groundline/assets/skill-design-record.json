@@ -14,7 +14,7 @@
     "manual_activation_phrases": ["$mp-groundline", "把小程序从 skyline 迁移到 webview 保持页面一致", "migrate this mini program off Skyline to WebView"]
   },
   "execution_protocol": {
-    "preflight": ["resolve miniprogramRoot from project.config.json", "locate app.json + confirm renderer==skyline (if webview → already-migrated, STOP)", "confirm a clean git working tree (flip is revertible)"],
+    "preflight": ["resolve miniprogramRoot from project.config.json", "locate app.json + confirm app or any page pinned to skyline (if scan says already_migrated → STOP)", "confirm a clean git working tree (flip is revertible)"],
     "steps": ["scan (scripts/scan.mjs) → renderer_config + findings[] + summary", "emit MIGRATION-MAP.md (scripts/gen_migration_map.mjs) BEFORE any edit", "mechanical flip app.json (+ page overrides)", "verify per page with vince-mp before/after", "fix only confirmed deltas, smallest first, re-verify each", "finalize MIGRATION-MAP + report diff size"],
     "verification": ["deterministic eval harness (evals/run_all.mjs) green", "validate-skill green", "trigger_eval green", "live before/after consistency on the migrated program"],
     "reporting": ["scan summary (mechanical/keep/verify/rewrite)", "MIGRATION-MAP path", "diff size (files/lines)", "manual-review (rewrite) items"],

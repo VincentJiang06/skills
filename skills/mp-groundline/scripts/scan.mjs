@@ -101,7 +101,9 @@ function readJsonSafe(file) {
   }
 }
 
-function walk(dir, exts, out) {
+// `skip` = absolute dirs the program excludes from its package (packOptions.ignore
+// folders); each one actually met is recorded in `skipped` so the skip is reported.
+function walk(dir, exts, out, skip = new Set(), skipped = []) {
   let entries;
   try {
     entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -113,7 +115,8 @@ function walk(dir, exts, out) {
     const full = path.join(dir, ent.name);
     if (ent.isDirectory()) {
       if (SKIP_DIRS.has(ent.name)) continue;
-      walk(full, exts, out);
+      if (skip.has(full)) { skipped.push(full); continue; }
+      walk(full, exts, out, skip, skipped);
     } else if (exts.some((e) => ent.name.endsWith(e))) {
       out.push(full);
     }
@@ -130,7 +133,8 @@ function stripWxmlComments(src) {
 // COMMENT that merely mentions `wx.worklet` / `routeBuilder` produces no finding —
 // only real code (incl. string literals like 'wx://…', which ARE real usage)
 // does. A `"` / `'` / `` ` `` is skipped over so a `//` inside a string is not
-// mistaken for a comment.
+// mistaken for a comment. Regex literals are not parsed; a quote inside one
+// opens a false string that ends at the newline (see the loop below).
 function stripJsComments(src) {
   let out = "";
   let i = 0;
@@ -159,6 +163,10 @@ function stripJsComments(src) {
       i++;
       while (i < n) {
         if (src[i] === "\\") { out += src[i]; if (i + 1 < n) out += src[i + 1]; i += 2; continue; }
+        // A '…' / "…" string cannot hold a raw newline in JS. Ending it there
+        // bounds a false open (a quote inside a regex literal such as /['"]/)
+        // to one line, so it cannot swallow a later real '//' as a comment.
+        if (src[i] === "\n" && quote !== "`") break;
         out += src[i];
         if (src[i] === quote) { i++; break; }
         i++;
@@ -240,7 +248,7 @@ function snippetAt(src, index, len = 60) {
 export function scan(root) {
   const empty = { mechanical: 0, keep: 0, verify: 0, rewrite: 0, total: 0, already_migrated: false };
   const fail = (error, miniprogramRoot = ".") => ({
-    ok: false, error, miniprogramRoot,
+    ok: false, error, miniprogramRoot, ignored_dirs: [],
     renderer_config: null, findings: [], summary: { ...empty }
   });
 
@@ -254,14 +262,28 @@ export function scan(root) {
 
   // resolve miniprogramRoot from project.config.json (if present)
   let miniprogramRoot = ".";
+  let packIgnore = [];
   const pcfgPath = path.join(absRoot, "project.config.json");
   if (fs.existsSync(pcfgPath)) {
     const { json } = readJsonSafe(pcfgPath);
     if (json && typeof json.miniprogramRoot === "string" && json.miniprogramRoot.trim()) {
       miniprogramRoot = json.miniprogramRoot.replace(/^\.\//, "");
     }
+    const ign = json && json.packOptions && json.packOptions.ignore;
+    if (Array.isArray(ign)) packIgnore = ign;
   }
   const mpAbs = path.resolve(absRoot, miniprogramRoot);
+  // Folders the program itself excludes from its upload package never ship, so
+  // their files (typically build output such as dist/) are not migration sites.
+  // Only type "folder" is honored; the path is relative to miniprogramRoot
+  // (project.config.json doc). Every skipped folder is reported in ignored_dirs;
+  // a folder holding a declared page is un-skipped below, once pages are known.
+  const skipAbs = new Set();
+  for (const e of packIgnore) {
+    if (e && e.type === "folder" && typeof e.value === "string" && e.value.trim()) {
+      skipAbs.add(path.resolve(mpAbs, e.value.trim().replace(/^\.\//, "").replace(/\/+$/, "")));
+    }
+  }
 
   // locate app.json under the resolved root
   const appJsonPath = path.join(mpAbs, "app.json");
@@ -291,8 +313,10 @@ export function scan(root) {
   const rendererOptions = appJson.rendererOptions && typeof appJson.rendererOptions === "object"
     ? appJson.rendererOptions : null;
 
-  // effective app renderer for diffing page overrides ("webview" is the default)
-  const effectiveAppRenderer = appRenderer || "webview";
+  // The migration TARGET is "webview" (also the default when renderer is unset).
+  // Page pins are measured against the target, not against the app renderer.
+  const TARGET = "webview";
+  const effectiveAppRenderer = appRenderer || TARGET;
   const isSkyline = appRenderer === "skyline";
 
   // app.json source for line numbers
@@ -328,7 +352,9 @@ export function scan(root) {
       category: "renderer_options", action: "keep", severity: "info",
       file: rel(appJsonPath), line: lineOfKey(appSrc, "rendererOptions"),
       snippet: '"rendererOptions": { "skyline": { ... } }',
-      note: "Ignored by WebView; safe to keep or strip. Never a rewrite."
+      note: rendererOptions.skyline.defaultDisplayBlock === true && rendererOptions.skyline.defaultContentBox === true
+        ? "Ignored by WebView; safe to keep or strip. Never a rewrite. defaultDisplayBlock/defaultContentBox are both true, so Skyline already used the WebView defaults (block + content-box)."
+        : "Ignored by WebView; safe to keep or strip. Never a rewrite. Without defaultDisplayBlock/defaultContentBox: true, Skyline defaulted to flex + border-box, so expect a default layout shift on the pages that ran on Skyline (see the map)."
     });
   }
 
@@ -363,19 +389,31 @@ export function scan(root) {
     const { json: pjJson } = readJsonSafe(pj);
     if (!pjJson || typeof pjJson !== "object") continue; // malformed page json → skip, no crash
     const pageRenderer = typeof pjJson.renderer === "string" ? pjJson.renderer : null;
-    if (pageRenderer && pageRenderer !== effectiveAppRenderer) {
-      page_overrides.push({ page, file: rel(pj), renderer: pageRenderer });
+    if (!pageRenderer) continue;
+    // A page pinned to anything but the target must be flipped, even when it
+    // equals the app renderer (a skyline page under a skyline app stays on
+    // Skyline after the app flip) and even when the app is unset/webview
+    // (per-page Skyline adoption). A webview pin under a skyline app needs no
+    // edit: it is listed in page_overrides (needs_flip:false) but is no finding.
+    const needsFlip = pageRenderer !== TARGET;
+    if (!needsFlip && pageRenderer === effectiveAppRenderer) continue;
+    page_overrides.push({ page, file: rel(pj), renderer: pageRenderer, needs_flip: needsFlip });
+    if (needsFlip) {
       const pjSrc = fs.readFileSync(pj, "utf8");
-      // Only a page that stays/forces skyline needs a mechanical flip; a page
-      // pinned to webview under a skyline app is ALSO a distinct mechanical
-      // delta the migration must reconcile. Either way it is its own finding.
       add({
         category: "page_renderer_override", action: "mechanical", severity: "low",
         file: rel(pj), line: lineOfKey(pjSrc, "renderer"),
         snippet: `"renderer": "${pageRenderer}"`,
-        note: `Page-level renderer "${pageRenderer}" differs from app-level "${effectiveAppRenderer}"; reconcile this page distinctly from the app flip.`
+        note: `Page pins renderer "${pageRenderer}" — flip this page json to "webview"; the app-level flip does not reach it.`
       });
     }
+  }
+
+  // A packOptions.ignore folder that holds a page app.json still declares is
+  // scanned anyway: that page is flipped, so its content must not be dropped.
+  for (const page of pages) {
+    const dir = path.dirname(path.join(mpAbs, String(page)));
+    for (const s of skipAbs) if (dir === s || dir.startsWith(s + path.sep)) skipAbs.delete(s);
   }
 
   // ── scan source files ──
@@ -383,7 +421,8 @@ export function scan(root) {
   // worklet/custom_route detectors as `.js`/`.ts` so a `'worklet'` directive or a
   // `wx.worklet` / route token inside a `.wxs` is never silently dropped (the
   // rewrite-class guarantee). The CSS and WXML branches do not apply to it.
-  const files = walk(mpAbs, [".wxml", ".wxss", ".less", ".js", ".ts", ".wxs"], []);
+  const skippedAbs = [];
+  const files = walk(mpAbs, [".wxml", ".wxss", ".less", ".js", ".ts", ".wxs"], [], skipAbs, skippedAbs);
   // ignore .d.ts and test files lightly
   for (const file of files) {
     const name = path.basename(file);
@@ -549,12 +588,14 @@ export function scan(root) {
   for (const f of findings) {
     if (Object.prototype.hasOwnProperty.call(summary, f.action)) summary[f.action]++;
   }
-  summary.already_migrated = !isSkyline; // renderer already webview (or unset → webview default)
+  // already migrated only when neither the app nor any page is off the target
+  summary.already_migrated = !isSkyline && !page_overrides.some((po) => po.needs_flip);
 
   return {
     ok: true,
     error: null,
     miniprogramRoot,
+    ignored_dirs: skippedAbs.map(rel).sort(),
     renderer_config: {
       renderer: appRenderer,
       componentFramework,
@@ -586,6 +627,10 @@ if (isMain) {
     process.exit(2);
   }
   const result = scan(root);
+  // a reader that closes early (`scan | head`) is not a scan failure
+  process.stdout.on("error", (e) => { if (e.code !== "EPIPE") throw e; });
   process.stdout.write(JSON.stringify(result, null, 2) + "\n");
-  process.exit(result.ok ? 0 : 1);
+  // exitCode, not exit(): exit() right after write truncates a piped stdout at
+  // the 64 KiB pipe buffer while still returning 0.
+  process.exitCode = result.ok ? 0 : 1;
 }

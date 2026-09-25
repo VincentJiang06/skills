@@ -4,39 +4,49 @@
   "skill": {
     "id": "skill.mp-groundline",
     "name": "mp-groundline",
-    "version": "0.1.0",
+    "version": "0.2.3",
     "owner": "Vince",
     "source_uri": "skills/mp-groundline",
     "artifact_uri": "skills/mp-groundline",
     "checksum": "",
-    "compatibility": ["Claude Code skill folder", "Codex skill folder", "system vince-mp CLI (for the verify step only)"]
+    "compatibility": [
+      "Claude Code skill folder",
+      "Codex skill folder",
+      "system vince-mp CLI (for the verify step only)"
+    ]
   },
   "change": {
-    "change_type": "minor",
-    "summary_zh": "首个可用版本：确定性 Skyline→WebView 迁移扫描器 + MIGRATION-MAP 生成器 + 证据绑定的对照 KB + 触发评测。",
-    "summary_en": "First working version: deterministic Skyline→WebView migration scanner + MIGRATION-MAP generator + an evidence-bound mapping KB + trigger evals.",
+    "change_type": "patch",
+    "summary_zh": "0.2.3 记录补丁（无行为改动，脚本与 0.2.2 相同）：记下第三轮修复（owner 2026-09-25 授权「这七个你都继续去做把他们做完」）的独立修复审计与发布检查结果。0.2.2 修掉了 OD1（packOptions.ignore 文件夹里的已声明页面照常扫描，不再静默漏报 rewrite）、OD2（默认布局提示只指向在 Skyline 上跑过的页面）以及 P3 的 OD3/OD5/OD6/OD7/OD8/OD9。审计无 P0/P1，留下 3 条 P3（OD1 放行整个文件夹、OD5 用例喂了 0.1.x 不产出的形状、gen_migration_map.mjs:160 的 OD2 残留），发布检查 release_ok:true；OD4 是 0.1.x 就有的已知限制。",
+    "summary_en": "0.2.3 record-only patch (no behaviour change; scripts identical to 0.2.2): records the independent fix audit and release check of the owner-authorized third fix round (2026-09-25). 0.2.2 fixed OD1 (a declared page inside a packOptions.ignore folder is scanned; no silent rewrite drop), OD2 (default-layout advice scoped to the pages that ran on Skyline) and P3s OD3/OD5/OD6/OD7/OD8/OD9. The audit found no P0/P1 and left 3 P3s (folder-wide OD1 un-skip, OD5 case fed a shape 0.1.x never emits, an OD2 residual at gen_migration_map.mjs:160); release check release_ok:true. OD4 is a known limit already present in 0.1.x.",
     "breaking_change": false,
     "public_behavior_contract_changed": false,
-    "changelog_path": ""
+    "changelog_path": "CHANGELOG.md"
   },
   "release_gate": {
     "checklist_id": "checklist.skill_release_gate",
     "passed": true,
     "gate_conditions": [
-      "validate-skill green (scripts/validate-skill.mjs)",
-      "deterministic eval harness green (node evals/run_all.mjs → exit 0, 18/18)",
-      "generator golden-snapshot green (in the harness)",
-      "16/16 adversarial_checklist edges mapped to a passing case",
-      "trigger_eval green over assets/eval-cases.json",
-      "a clean read-only smoke on a real Skyline program"
+      "validate-skill green (scripts/validate-skill.mjs, local-only) on the dev checkout AND re-run on each install root after every deploy",
+      "deterministic eval harness green (node evals/run_all.mjs -> exit 0, 55/55; includes the generator structure/injection cases and the R3 regression cases)",
+      "E11 with/without two-arm evidence (A44) recorded in assets/metric-plan.json"
     ],
     "failed_check_ids": [],
-    "waived_check_ids": [],
+    "waived_check_ids": [
+      "real-program-smoke: scan-only smoke done 2026-09-25 on both deep-scan programs and wxa.cli.im; a DevTools before/after run was not possible offline (the earlier 'program no longer on disk' waiver was false)",
+      "trigger-eval: never run since 0.1.0; description unchanged through 0.2.2 (waived, open for the next K2 review)",
+      "adversarial-checklist-16/16: 0.1.0 build-time evidence, superseded by the 49-case harness and the R20 battery; not re-run",
+      "known-limit-OD4: a wx:// route on the same JS line after a quote-bearing regex literal is missed (documented in references/scanner-contract.md; present in installed 0.1.1 too, so not a regression; a fix needs regex-literal parsing)",
+      "carried-P3s F09 F12 F13 F15 F16 F17(remainder) F04r: battery round-1 P3s, all present in 0.1.1; not fixed in this wave (see CHANGELOG)",
+      "r3-audit-P3-a (scan.mjs ~416): the OD1 un-skip removes the WHOLE packOptions.ignore folder from the skip set once it holds one declared page, so undeclared, non-shipping subfolders yield rewrite findings and drop off the map's 'Not scanned' line (repro: ignore 'modules', declared modules/help/index, undeclared modules/_backup_skyline_demo with <grid-view/><sticky-header/>: 0.2.1 rewrite 0, 0.2.2 rewrite 2, installed 0.1.1 rewrite 2; re-run by the finalizer). Regression against 0.2.1 only; errs toward manual review, never a silent drop; waived by the release check. Narrower fix (un-skip only the declared page's directory chain) deferred under iron rule 3",
+      "r3-audit-P3-b (evals/cases.mjs ~1234): the OD5 case gen_legacy_scan_needs_flip_fallback feeds a scan shape 0.1.x never emits. On the real 0.1.x per-page shape (already_migrated:true plus a skyline pin) the 0.2.x generator prints STOP and a flip list in one map (reproduced by the finalizer). Only when an old scan meets the new generator; installed 0.1.1 prints the same STOP",
+      "r3-audit-P3-c (gen_migration_map.mjs:160, OD2 residual): the auditor's claim text was truncated before it reached the finalizer and is NOT reconstructed here; the conductor holds the full text. Finalizer's own probe on that line (not the audit claim): the per-page branch reads only app.json rendererOptions flags, so a pinned page whose own json sets both flags is still told to expect a layout shift"
+    ],
     "evidence_paths": [
       "evals/run_all.mjs",
-      ".skill-engineer/red/red.log",
-      ".skill-engineer/build-report.json",
-      "scripts/validate-skill.mjs"
+      "scripts/validate-skill.mjs",
+      "assets/metric-plan.json",
+      "CHANGELOG.md"
     ]
   },
   "tests": {
@@ -47,8 +57,12 @@
     "policy_violation_rate": 0
   },
   "rollback": {
-    "known_good_version": "v0-stub",
-    "rollback_trigger": ["scanner contract regression", "false rewrite on a clean program", "missed rewrite (silent drop)"],
+    "known_good_version": "0.1.1 (the installed release; carries the F01/F02 P1 misses fixed in 0.2.0)",
+    "rollback_trigger": [
+      "scanner contract regression",
+      "false rewrite on a clean program",
+      "missed rewrite (silent drop)"
+    ],
     "rollback_steps_path": "rules/minimal-fix-protocol.md",
     "migration_target_rollback": "the SKILL's own migration edits a git working tree: revert = git checkout app.json + touched page json"
   },
