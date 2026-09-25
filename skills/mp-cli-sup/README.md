@@ -21,6 +21,8 @@
 - **运行时内容只是数据**：console、日志、pageData 里写的「指令」不会被执行。
 - 以上是规则层约束，不是执行层锁。想要硬锁，请在沙箱/权限设置里对 `~/.vince-mp` 加 deny。
 
+**验证（0.3.0）** —— 离线两臂对照 3 例（WITH 新版 / WITHOUT 显式禁用本 skill 的裸模型）：WITH 胜 2、平 1、负 0。关键一例里，裸模型拿贴进对话的 token 直接查了生产日志，没有征求同意。对抗测试两轮，seed 5/5；遗留问题只有 P3，见 MAINTENANCE.md。独立性只到 instance 档（同厂同模型的 fresh 实例）。
+
 每次调用固定读取 SKILL.md、`rules/runtime-protocol.md` 和 `references/cli-contract.md`（约 6.3k tokens），其余文件按需加载。
 
 维护者（验证、发布清单、判断台账）请看 [MAINTENANCE.md](MAINTENANCE.md)，调试时不需要读。
