@@ -21,7 +21,7 @@ Styles (key = lead surname, Unicode; year rule per style):
   chicago  -> (Surname YYYY, page)             <-> "Surname, First. YYYY."
   mla      -> Works Cited surname must appear in the body; the in-text -> entry
               direction is NOT checked ((Surname page) has the form of (Figure 2)).
-  ieee/gbt -> [n]                             <-> "[n] ..."
+  ieee/gbt -> [n], [1-3], [1, 4]               <-> "[n] ..."
   A reference entry that yields no key FAILS (never silently skipped): an entry the
   gate cannot key is also an entry the verifier checklist cannot name.
 
@@ -217,7 +217,15 @@ def check_authordate(body, ref_lines, style):
 
 def check_numeric(body, ref_lines, style):
     problems = []
-    cited = set(int(n) for n in re.findall(r"\[(\d+)\]", body))
+    cited = set()
+    # [1], and grouped forms [1-3] / [1, 4] / [2–5, 7] (PW-F10)
+    for group in re.findall(r"\[(\d+(?:\s*[-–,，]\s*\d+)*)\]", body):
+        for part in re.split(r"\s*[,，]\s*", group):
+            lo, _, hi = re.sub(r"\s", "", part).replace("–", "-").partition("-")
+            if hi and int(lo) < int(hi) <= int(lo) + 200:
+                cited.update(range(int(lo), int(hi) + 1))
+            else:
+                cited.update(int(n) for n in (lo, hi) if n)
     listed = {}
     for entry in ref_lines:
         m = re.match(r"\[(\d+)\]", entry)
