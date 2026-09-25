@@ -68,6 +68,16 @@ def load_config(path):
     cfg["_path"] = os.path.abspath(path)
     cfg["state_dir"] = os.path.expanduser(cfg.get("state_dir", "~/.workspace-backup"))
     cfg["source_roots"] = [os.path.expanduser(p) for p in cfg.get("source_roots", [])]
+    # unit ids are "<root basename>/<rest>": a second root with the same basename
+    # was silently dropped (no unit, no UNCOVERED line) — name both, refuse
+    seen = {}
+    for r in cfg["source_roots"]:
+        b = os.path.basename(r.rstrip("/"))
+        if b in seen:
+            raise ConfigError(f"source roots {seen[b]} and {r} share the basename {b!r}, which "
+                              f"unit ids are keyed by; one would be silently dropped. Configure "
+                              f"a parent directory or rename one.")
+        seen[b] = r
     for d in cfg.get("destinations", []):
         d["path"] = os.path.expanduser(d["path"])
     # The copy-bomb rule protects DESTINATIONS from living inside a source root.

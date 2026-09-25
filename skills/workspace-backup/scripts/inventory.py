@@ -162,7 +162,7 @@ def build(cfg):
     secret_patterns = cfg.get("secret_patterns", [])
     known = list(cfg.get("known_units") or [])
     roots = cfg.get("source_roots", [])
-    by_base = {}
+    by_base = {}    # basenames are unique: _state.load_config refuses a collision
     for r in roots:
         by_base.setdefault(os.path.basename(r.rstrip("/")), r)
 
