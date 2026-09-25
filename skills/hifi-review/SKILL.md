@@ -30,7 +30,7 @@ transparent, say so.
 5. **Measure & quantize** — transducer: `python3 scripts/fr_analyze.py <fr> --target <id>`; source: `python3 scripts/source_analyze.py --sinad … --zout … [--target-z …]`. Screenshot-only FR → qualitative. → `rules/tonal-mapping.md`, `rules/source-gear-eval.md`.
 6. **Corroborate** — transducer: technicalities from consensus, **style-weighted** (measurement-backed high-trust regardless of source; impression-led bias-corrected), N/M agreement, flag conflicts → `rules/technicalities-from-reviews.md`. source: engineering + transparency verdict.
 7. **Synthesize** — class-discriminated profile + render: compact bilingual summary OR a **~4000字 长文** (`rules/longform-review.md`); both render only from evidence; tag claims `measured|consensus|prior` + confidence; gaps "证据不足". → `rules/literary-rendering.md`, compare → `rules/comparison-mode.md`.
-8. **Self-verify** — `python3 scripts/validate_output.py <out.json>`; emit `trace`; never pass a FAIL.
+8. **Self-verify** — source class: first re-read every claim about what is or is not heard against the audibility judgment card in `rules/source-gear-eval.md`. Then `python3 scripts/validate_output.py <out.json>` (schema + traceability-structure gate; what exit 0 proves → `rules/accuracy-guardrails.md`); emit `trace`; never pass a FAIL. If it cannot run, write "self-verify not run" in `trace`/`gaps`.
 
 Always obey `rules/accuracy-guardrails.md`: never invent a dB/curve; flag
 incompatible rig/target comparisons; record dissent.
@@ -58,5 +58,5 @@ incompatible rig/target comparisons; record dissent.
 | `source_analyze.py --sinad N --zout N [--power --target-z --target-sens]` | source → tier + drive/damping matching |
 | `compare.py <a> <b> --target <id>` | two devices → band + tilt deltas, rig guard |
 | `infer_target.py <fr> --rig <r>` | guess intended target (ranks same-rig targets) |
-| `validate_output.py <eval.json>` | schema + traceability gate (exit 1) |
+| `validate_output.py <eval.json>` | schema + traceability-structure gate (exit 1); structure only, not claim meaning |
 | `check_longform.py <review.md> --class <c> [--backing json]` | 长文 QA: 字 + sections + backing gate |

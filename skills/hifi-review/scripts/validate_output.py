@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Schema + traceability-structure gate for an evaluation JSON. Exit 1 on any violation.
 Uses schema_check.py (same dir; stdlib validator, ships with the skill)."""
-import json, os, re, sys
+import json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -22,10 +22,8 @@ def check(doc, schema):
         if doc.get("device_class") == "transducer" and c.get("attribute") in TECHNICALITIES \
                 and c.get("provenance") != "consensus":
             errs.append(f"claims[{i}]: technicality '{c.get('attribute')}' provenance '{c.get('provenance')}' (must be consensus)")
-        # "audibl" but NOT "inaudible": a source audible-difference claim needs a measurement.
-        if doc.get("device_class") == "source" and re.search(r"(?<!in)audibl", c.get("text", "").lower()) \
-                and c.get("provenance") != "measured":
-            errs.append(f"claims[{i}]: audible-difference claim not backed by measurement")
+        # Claim TEXT is never pattern-matched here (1.1.0): whether an audible-difference
+        # claim is justified is an L-plane judgment -> rules/source-gear-eval.md card, Step 8.
     return errs
 
 
