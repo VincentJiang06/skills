@@ -46,10 +46,25 @@ CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 # ----------------------------------------------------------------- config
 
+# fidelity_units is obsolete but tolerated (ledger-format.md); "_"-keys are notes
+CONFIG_KEYS = {"schema_version", "state_dir", "source_roots", "known_units", "destinations",
+               "exclusions", "secret_patterns", "class_overrides", "portable_secrets_ack",
+               "delete_at_destination", "revalidate_after_days", "xattr_check", "fidelity_units"}
+
+
 def load_config(path):
     with open(path, encoding="utf-8") as f:
         cfg = json.load(f)
     major_check(cfg.get("schema_version", SCHEMA_VERSION), "config.json")
+    # fail closed (ledger-format.md: "names the offending key"): a `sources` config
+    # once ran as "0 units, 0 B", exit 0; a misspelt widening key would be ignored
+    unknown = sorted(k for k in cfg if k not in CONFIG_KEYS and not k.startswith("_"))
+    if unknown:
+        raise ConfigError(f"unknown top-level key(s) {unknown} in {path}; known: "
+                          f"{sorted(CONFIG_KEYS)}. Nothing is defaulted around a typo.")
+    if not cfg.get("source_roots"):
+        raise ConfigError(f"{path} has no source_roots: there is nothing to back up, and "
+                          f"reporting '0 units' as success is the silent-empty-backup failure.")
     cfg["_path"] = os.path.abspath(path)
     cfg["state_dir"] = os.path.expanduser(cfg.get("state_dir", "~/.workspace-backup"))
     cfg["source_roots"] = [os.path.expanduser(p) for p in cfg.get("source_roots", [])]
@@ -69,6 +84,16 @@ def load_config(path):
                 f"active writer and the source is read-only (INV-02); move state_dir outside "
                 f"every source root — the default ~/.workspace-backup is outside all of them.")
     return cfg
+
+
+def cli(main):
+    """Every script's entry point: a config error is a usage error (exit 2) with
+    the reason on stderr, never a traceback and an undocumented exit 1."""
+    try:
+        return main()
+    except ConfigError as e:
+        print(f"CONFIG ERROR: {e}", file=sys.stderr)
+        return 2
 
 
 def save_config(cfg):

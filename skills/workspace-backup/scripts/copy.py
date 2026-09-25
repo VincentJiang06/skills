@@ -690,4 +690,4 @@ def _selftest():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_state.cli(main))

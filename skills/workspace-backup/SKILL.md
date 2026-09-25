@@ -54,7 +54,7 @@ prose, so none of it may be a surprise:
 |---|---|---|
 | `0` | all | success; also OFFLINE-and-skipped, which is a normal outcome |
 | `1` | plan | at least one destination is BLOCKED (a policy refusal, not a crash) |
-| `2` | all | usage error |
+| `2` | all | usage error, including a config error (unknown key, no `source_roots`, two roots with one basename) |
 | `3` | copy | this destination is BLOCKED in the plan |
 | `4` | copy | the guard did not clear this destination |
 | `5` | copy | `rsync --version` was not recognised; no flag set is guessed |
