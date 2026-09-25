@@ -1,5 +1,72 @@
 # Changelog — mp-groundline
 
+## 0.2.3 — 2026-09-25 (R20 wave, round-3 release record; no behavior change)
+
+Patch bump: this entry records the independent audit and the release check of the
+third fix round. No script, rule or SKILL.md instruction changed; the scripts are
+byte-identical to 0.2.2 (SKILL.md changed only its version line). Principle for every
+line: evidence-bound record (P10 authority comes from provenance; A40/O7 honest
+release gate).
+
+**Authority.** Owner ruling (Vince, 2026-09-25, in chat): 「这七个你都继续去做把他们做完」.
+It authorized a third fix round under iron rule 3, scoped to finishing the release.
+That round is 0.2.2 (seven commits, 77066c7..1a684af). Each fix and its principle
+pointer is listed under 0.2.2; in short:
+- OD1 (P2) fixed by a targeted un-skip, not by reverting F06 (prime directive "flag,
+  never silently drop"; rollback trigger "missed rewrite (silent drop)"). The revert
+  was rejected: it would bring back 1,149 duplicate `dist/` rows on wxa.cli.im.
+- OD2 (P2) scoped the default-layout advice to the pages that ran on Skyline
+  (minimal-fix protocol). OD3, OD5, OD6, OD7, OD9 fixed (P3; frozen scanner contract,
+  evidence-bound map). OD8 prose only, SKILL.md still 139 lines.
+- OD4 (P3) left open as a known limit: installed 0.1.1 misses it too.
+- No new mechanical gate; OD1 and OD7 read the program's own config for presence
+  only (A50 structural).
+
+**Round-3 fix audit (independent instance, same model).** No P0 or P1. Three P3s:
+- **Folder-wide OD1 un-skip** (scan.mjs ~416). Once a `packOptions.ignore` folder holds
+  one declared page, the whole folder is scanned, so undeclared, non-shipping
+  subfolders yield rewrite findings and the folder leaves the map's "Not scanned" line.
+  Repro, re-run by this recorder: ignore `modules`, declared `modules/help/index`,
+  undeclared `modules/_backup_skyline_demo/demo.wxml` with `<grid-view/><sticky-header/>`.
+  Rewrite count: 0.2.1 0, 0.2.2 2, installed 0.1.1 2. This regresses against 0.2.1
+  only. It errs toward manual review, never toward a silent drop. The narrower fix
+  (un-skip only the declared page's own directory chain) is deferred: it would be new
+  code on top of last round's fix code (iron rule 3).
+- **OD5 case feeds a shape 0.1.x never emits** (evals/cases.mjs ~1234). On the real
+  0.1.x per-page shape (`already_migrated: true` plus a skyline pin) the 0.2.x
+  generator prints the STOP status and a flip list in the same map (reproduced by this
+  recorder). This only happens when an old scan meets the new generator. Installed
+  0.1.1 prints the same STOP without the flip list.
+- **OD2 residual at gen_migration_map.mjs:160.** The auditor's claim text was
+  truncated before it reached this recorder, so it is not reconstructed here; the
+  conductor holds the full text. Recorder's own probe on that line, which is separate
+  from the audit claim: the per-page branch reads only the app.json `rendererOptions`
+  flags, so a pinned page whose own json sets both flags is still told to expect a shift.
+
+**Release check on 0.2.2: `release_ok: true`.** OD1 closed (candidate equals installed on
+the declared-page repro; 0.2.1 dropped it silently). OD2 better than both installed and
+0.2.1 under per-page adoption. `evals/run_all.mjs` 55/55, validate-skill passed,
+run-dir `run_all_checks.sh` all green. The local-only hand-off bundle is byte-identical to
+the worktree. Offline real-program runs (deep-scan clean {1,34,1,0}, starter-skyline
+{1,30,1,0}, wxa.cli.im) lose no rewrite finding against installed; the only wxa.cli.im row
+changes are the intended F01 ones (−221 webview-pin rows, +107 skyline-pin rows). `scan |
+head` exits 0 with no stderr; installed truncates the piped JSON (F05). No P0/P1 open.
+The release check judged the folder-wide P3 not blocking: it is strictly better than
+installed and never drops a finding.
+
+**Release-manifest updates.** The stale waiver "no independent fix audit yet" is replaced
+by the three audit P3s. `rollback.known_good_version` was the stub `v0-stub`; it now names
+0.1.1, the installed release. The gate stays `passed: true` on its listed conditions.
+
+**Still open (none is a regression against installed 0.1.1):** the three audit P3s above;
+OD4 known limit; carried battery P3s F09, F12, F13, F15, F16, F17 remainder, F04r; trigger
+eval never run; battery independence instance-tier only (a model-tier battery is owed
+before any industrial claim).
+
+**Deploy note.** `evals/`, `tests/` and `scripts/validate-skill.mjs` are gitignored. Copy them
+from the run dir's `local-only/` bundle per its MANIFEST.md, then re-run validate-skill on
+each install root after deploy.
+
 ## 0.2.2 — 2026-09-25 (R20 wave, third fix round, owner-authorized)
 
 Owner ruling (Vince, 2026-09-25): finish the release. This round fixes the defects
