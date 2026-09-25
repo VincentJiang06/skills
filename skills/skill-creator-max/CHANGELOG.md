@@ -56,6 +56,11 @@ real structure contracts byte-identical), no new mechanical gate was added.
 - **SKILL.md token budget (U3)**: the first draft reached 3,626 tok; §4/§6 were cut to pointers into
   anchors §3/§4 (duplicated text) and new prose tightened → 3,197 tok (≤ 3,200 budget). The A51
   list stays in the compaction re-attached body. (S14)
+- **Zipper pass (SKILL.md 3,197 → 3,079 tok, behaviour-neutral):** the battery packet extras
+  (`budget` · `seeds[]` · `required_tier` · `prior_round`) were written out in both §2 and §5 — now
+  single residence in §5 with a pointer in §2; the Modules list no longer repeats the §1 table's
+  role-pack/gate names (every schema/script path kept). Fresh-context probes 19/19 before and after;
+  regression harness 48/48. [Z2, Z4 single residence, A51-style single residence as in S4]
 - **Retro line — 2026-09-13 model policy** (builders on `fable`, evaluators on `opus`, different-
   vendor judge when the L0 gate demands a different source): set by Vince in the installed copy on
   2026-09-13 and committed in c2a922b without a CHANGELOG entry; recorded here, reconciled with K1
