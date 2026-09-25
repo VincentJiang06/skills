@@ -49,16 +49,15 @@ when the scan finds them. **Flag, never silently drop.**
 
 ### Preflight
 Resolve `miniprogramRoot`; locate `app.json`; confirm Skyline — app or any page
-json `renderer: "skyline"`. If the scan says `already_migrated` (app and every
-page on WebView) → report it, keep the scan as a no-op inventory, and **STOP
-before editing**. Confirm a clean git working tree so the flip is revertible.
+json `renderer: "skyline"`. Confirm a clean git tree so the flip is revertible.
 
 ### Step 1 — Scan  → load `rules/scan-protocol.md`
 ```bash
 node scripts/scan.mjs <program-root>
 ```
 Emits `renderer_config` + `findings[]` + `summary`. Every `rewrite` finding is a
-manual-review item surfaced up front.
+manual-review item surfaced up front. If `summary.already_migrated` (app and every
+page on WebView) → report it, keep the scan as inventory, **STOP before editing**.
 
 ### Step 2 — Emit the MIGRATION-MAP (doc-before-edit gate)
 ```bash
@@ -68,12 +67,13 @@ Write `MIGRATION-MAP.md` **before any edit** so the plan is reviewable. Contract
 `references/scanner-contract.md`; mapping evidence: `references/skyline-to-webview.md`.
 
 ### Step 3 — Mechanical flip
-`renderer → "webview"` in `app.json` and in every `page_renderer_override` page
-json (the app flip does not reach a Skyline-pinned page; webview pins need no edit).
+`renderer → "webview"` in `app.json` (only if it says `skyline`) and in every
+`page_renderer_override` page json (the app flip does not reach a Skyline pin).
 Keep `glass-easel`, `style:"v2"`, `navigationStyle:"custom"`, `lazyCodeLoading`,
 per-page `disableScroll`; keep or strip `rendererOptions.skyline` (ignored by
-WebView) — without its `defaultDisplayBlock`/`defaultContentBox`, expect a global
-layout shift (Skyline defaulted to flex + border-box; `references/skyline-to-webview.md`).
+WebView) — without its `defaultDisplayBlock`/`defaultContentBox`, every page that
+ran on Skyline shifts layout (flex + border-box defaults; only the pinned pages
+under per-page adoption; `references/skyline-to-webview.md`).
 
 ### Step 4 — Verify  → load `rules/verify-with-vince-mp.md`
 Use the system `vince-mp` CLI (the tool `mp-cli-sup` drives — do **NOT**
