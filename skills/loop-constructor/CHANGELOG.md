@@ -64,7 +64,7 @@ runbooks, the stale rule was copied into every design it emitted.
   question) and a safe-exit escalate lead the escalate list; a matching
   `parameter_provenance.fixed` entry; `maker_checker.scope` states the instruction-file
   hashing so the golden passes its own new checklist box.
-- SKILL.md stays under its 0.4.0 size (3,387 → 3,385 tokens, 3,368 after the fix
+- SKILL.md stays under its 0.4.0 size (3,387 → 3,385 tokens, 3,366 after the fix
   round below): the 0.4.0 Lifecycle paragraph moved verbatim into this file (below,
   under 0.4.0).
 
