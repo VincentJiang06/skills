@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Traceability + schema gate for an evaluation JSON. Exit 1 on any violation."""
+"""Schema + traceability-structure gate for an evaluation JSON. Exit 1 on any violation.
+Uses schema_check.py (same dir; stdlib validator, ships with the skill)."""
 import json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, "..", "evals"))
+sys.path.insert(0, HERE)
 from schema_check import validate  # noqa: E402
 
 TECHNICALITIES = {"soundstage", "imaging", "resolution", "dynamics", "transient", "timbre"}
