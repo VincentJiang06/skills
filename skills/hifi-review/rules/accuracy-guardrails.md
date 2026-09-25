@@ -20,6 +20,9 @@ have it, it's a `gap`. A qualitative screenshot read is marked
   is ~+6 dB @8 kHz / +12 @14 kHz, so mixing rigs invents tilt that isn't there. When
   the device's rig or intended target is unclear, run `scripts/infer_target.py
   <fr> --rig <rig>` to rank same-rig targets by fit. DF as a neutral fallback.
+- Always pass the rig (`--rig`, `--rig-a/--rig-b`: iec711 / gras_43ag / bk5128). An
+  omitted or unrecognized rig makes the engines warn `rig_unknown` / `rig_unrecognized`:
+  the rig/target guard did **not** run — report that as a caveat, never as "compatible".
 
 ## Conflicting sources
 Report disagreement explicitly with counts ("3/4 sources say A>B; 1 says B>A").
