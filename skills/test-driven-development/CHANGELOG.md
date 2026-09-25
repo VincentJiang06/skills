@@ -73,6 +73,18 @@ untracked; the exact edits are recorded as patches in
   both skill READMEs now say the red kind is flagged heuristically and read by a judge
   or human on external trees.
 
+- **F-03 — execution metrics on external trees need a clean infra diff** (P13; P5
+  eval is institutionalized doubt; E6; iron rule 2). `build_worktree` overlays
+  candidate `conftest.py` / `vitest.config.ts` / setup files and `revert_production`
+  never reverts or inspects them (witnesses `c3`, `c3b`, `c6`: bug unfixed or a failing
+  test deselected, all PASS). This falsified this session's own 1.1.0 sentence that
+  `green` / `revert_to_red` "stay usable as deterministic evidence on external trees".
+  `evals/README.md` (intro, `revert_to_red`, *Scope*, live-agent step 4) now says they
+  count as evidence only when the candidate diff vs `base/` touches no runner/infra
+  file, a judge or human reads any such file first, and even then they are evidence,
+  not proof. SKILL.md "checks this mechanically" → "on its committed fixtures …
+  evidence, not proof". No new infra gate.
+
 ### Not changed (exemption register, carried under A40)
 E-DESC description 394 chars > 320 target (no trigger-eval budget) · E-TOK SKILL.md
 > 1,500-token warn (orchestrator skeleton) · E-NOSTAMP prose references carry no

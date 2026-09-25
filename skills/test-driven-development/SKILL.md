@@ -131,8 +131,9 @@ RED (right reason) → fix → GREEN → REVERT only the fix (keep the test)
 
 A test that stays green with the fix reverted is **vacuous** — strengthen it
 (assert the FALSE case, not a true-only assertion) until the revert turns it
-red. The eval harness checks this mechanically (`evals/` auto-reverts and
-asserts red). Full pattern + optional isolated test-author / independent
+red. The eval harness auto-reverts and asserts red on its committed fixtures
+(`evals/`); on any other tree that is evidence, not proof (its README says
+when). Full pattern + optional isolated test-author / independent
 verifier: [references/enforcement-gates.md](references/enforcement-gates.md).
 
 ## Modify mode — the default once a suite exists [P2]
