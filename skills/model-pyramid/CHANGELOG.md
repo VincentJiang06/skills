@@ -1,5 +1,152 @@
 # Changelog — model-pyramid
 
+## 1.1.0 — 2026-09-25 · 增量对齐 Opus 5.5 / Fable 5.1 / incremental alignment
+
+v1.0.0 的事实层在 2026-09-22（Opus 5.5 成为默认 Opus，Claude Code 2.1.280）之后有几条是**方向反的**：
+它说"不传 effort = `high`"，而 Opus 5.5 的默认是 `medium`；它的 `check_plan` 对不认识的模型 ID
+（包括 `claude-opus-5-5` 本身）**静默放行**。本版只修事实层与检查器，两条轴的核心设计不动。
+
+> Facts re-verified against `Philosophy/adaptations/claude5-family.md` (base 2026-09-24), the models
+> overview, the Opus 5.5 / Fable 5.1 what's-new and prompting pages, the advisor-tool page (fetched
+> 2026-09-25) and the Claude Code changelog through 2.1.281. Every change below names the principle it serves.
+
+### 修正 / Fixed (each → principle)
+
+- **每个模型的默认 effort 不同：Opus 5.5 = `medium`**，Fable 5.1 / Opus 5 / Sonnet 5 = `high`，Haiku 4.5 无；
+  改为"显式写出 effort"。→ skill 自带 *Everything numeric here is dated* + KB ADC2b；A42 点版本定向结算。
+- **thinking 恒开**：Opus 5.5 / Fable 5.1 / Fable 5（及 Mythos 5.x）上 `thinking:disabled` 或 `budget_tokens`
+  在任何 effort 下都返 400（Opus 5 仍只在 `xhigh`/`max`）。→ ADC2b；P13（D 面只做可判定的骨架事实）。
+- **`check_plan` 不再静默放行不认识的模型**：新增 `model-unknown` warning（每个不同模型一条、排在最前、
+  不改退出码）；零命中文案改为"没有规则触发，不等于已验证"。→ A50（新 D 面检查只报不拦、准入三项）；
+  skill 自带 "never blocks you"；P-collapse 教训（一条事实一条发现）。
+- **会话实际 effort 按模型默认值推出**，替代写死的 `high`（修掉 Opus 5.5 会话上的 search-effort-cut 误报）。
+  → A50 ii（误报优先，铁律 7）。
+- **advisor 配对改用 API 配对表**（显式查表代替能力排名）；表外的组合（含一切 Opus 5.5 组合，U1）报
+  `advisor-pairing-unverified`；错配的代码由 `advisor-weaker` 改名 `advisor-invalid-pairing`；删除过时的
+  `advisor-fable-unavailable`（Claude Code 2.1.232 已重新提供 Fable 作 advisor）。→ P10（权威来自出处）。
+- **agent 类型 frontmatter 可以带 `effort:`**（2.1.78 / 2.1.80 / 2.1.267）：只有裸 Agent tool 调用没有逐次
+  effort；提示同时给出 Workflow `opts.effort` 与 frontmatter 两条路。→ P10。
+- **看重独立性的验证者必须非 fork**（fork 自 2.1.232 默认开）：定档表同侪行 + 新报告 flag `non-fork`。
+  → ADC5（fork ≠ fresh）；P12 裁决权分离。
+- **长跑行**：Opus 5.5 `xhigh` 起步，缺口是能力时再换 Fable 5.1（原"Fable 5 优先"）。→ 两条轴；models overview。
+- **task budget 只在 API（beta）**，Claude Code 里用 `/goal`、`maxTurns`（触顶标 partial）；Opus 5.5 的
+  elapsed/budget 时长信号只是配速建议，硬停靠自己的 timeout；异步子代理省时间不省质量。→ ADC5 / ADC2b / ADC1b。
+- **缓存陷阱**：改**顶层** effort 击穿缓存；per-message effort（beta）在 Opus 5.5 / Fable 5.1 / Opus 5 上保住缓存。
+  → ADC2b。
+- **复核触发**：由"家族换代"改为"**任何点版本或同名静默换权重** = 定向复核；换代 = 全量重扫"；
+  `model_baseline` 改 A37 形式（模型 ID · effort · Claude Code 版本 · 读取日期）。→ A42、A37。
+- `max_tokens`：检查器阈值仍 64k；文档同时写出 64k（迁移指南）与 128k（成本优化 / Opus 5.5 提示指南）。→ DS-1。
+- "effort 不缩短正文"限定为 Opus 5 观察、5.5 未验证（U4）。Opus 5 的行为笔记标为"5.5 上的合理起点"（EX-6）。
+- 输出里回显的 label 去掉 `|` 与换行，计划文本不能伪造结果行。→ P10 信任边界。
+
+### 评测 / Evals (untracked `evals/`, snapshot in the R20 run dir)
+
+- 新夹具 p13–p20（8 条，含叙事 3 的未知模型 / 规范化 / 别名组合夹具）；p6 期望随改名更新。
+- 新检查 `P-inject`、`C6-defaults-and-thinking`（脚本 `MODELS` 表 ⇄ model-and-effort 起点表的默认值与 thinking 列）；
+  C4 改指"无逐次 effort + frontmatter 可带"；L1 改查 A37 四要素（只查格式、不查年龄）。
+- 误报账（铁律 7）：12 条旧夹具 + 16 个 selftest 方案 + 13-agent P-collapse 方案新旧对跑，唯一变化是
+  p6 / s1 的 `advisor-weaker → advisor-invalid-pairing` 改名，零新增代码。
+- 规模（含下方 battery 修复轮）：`check_plan.mjs` 197 → 255 行，`run_all.mjs` 209 → 238 行；用例**记录** 29 → 37
+  （plan-fixtures 12 → 20 + trigger-cases 17，后者没有 runner、未实测，见 F15）；`run_all` **检查项** 26 → 36；
+  `--selftest` 16 → 24。均在 +50% 红线内（295 / 313 / 43）。
+
+### Battery 修复轮 / battery fix round (1 轮，instance 档；ADJUDICATION 14 条确认、0 P0/P1)
+
+- **F06（P2）批量行与钳制自相矛盾**：批量行原写"降一层 + `low`–`medium`"，正好是钳制禁止的"两个旋钮同降"，
+  selftest 还用 filter 把 `both-knobs-dropped` 藏了起来。改为"降一层 *或* 降一档 effort，二选一"，selftest 去掉 filter、
+  同时覆盖两种合法写法。→ skill 自带钳制"每层只动一个旋钮"；P11 双向结算（文档与检查器说同一件事）。
+- **F07（P2）+ flag 7 引文错配**："exploratory tasks … 该上 `xhigh`"与"structured-output 上 overthinking"只出现在
+  effort 页的 **Opus 4.7** 表里。删掉错配引文；搜索推论保留（方向有出处：effort 低 ⇒ 工具调用少），补上 Opus 5.5 指南
+  "`xhigh`/`max` 留给实测有收益的活"。→ P10（权威来自出处）。
+- **F08** "effort 不是 thinking depth"与文档相反 → 改为"effort 是 thinking depth 的主旋钮，但不止于此"；能力轴补上
+  "调高 effort 也试过"。→ P10；skill 自带两条轴。
+- **F09 / F13 / F19（check_plan，先红后绿）**：恒开模型上 thinking 对象带 `budget_tokens` 报 `thinking-always-on`；
+  advisor 配对按每个子代理自己的模型再查一遍（同一模型只报一条）；没有 effort 旋钮的模型不再额外报 `max_tokens`。
+  → 文档已写明的事实由检查器承接（P11）；只是表格事实，不新增语义判断（P13）。误报账：37 个既有方案 + 31 个合法 ID
+  + E11 case-3 方案，新旧对跑**零变化**。
+- **F11** advisor 自己的读取可以缓存（`caching`，约 3 次调用回本）；**F12** Opus 主 + Opus advisor 是"第二意见"，
+  **不是**独立校验（advisor 读完整转录）。→ P10；skill 自带"独立性验证者非 fork"。
+- **F16** 用例数口径写清（记录 37 vs 检查项 36）；**F17** README / model-and-effort 标明 `evals/` 只在开发仓库、不随发布；
+  **F18** 不传 effort：API = 模型默认，Claude Code 裸 Agent tool 调用 = 继承会话 effort。flag 5：Fable 5.1 从 `high`
+  起就要大 `max_tokens`。
+- **E11 case 2（判 lose）**：带技能的臂给 Opus 5.5 执行模型直接配了 `claude-fable-5-1` advisor——配对表里没有
+  Opus 5.5 的行，API 对非法组合返 400。文字改为：没有行的执行模型**默认不挂 advisor**，试探请求成功后才加，
+  不凭"至少同等强"写进生产配置。→ P10；orchestration.md 既有"invalid pair ⇒ 400"。
+- SKILL.md 为守住结构契约的常驻预算（≤ ~1.95k tok ≈ 7,800 B / ≤ 140 行）做了措辞压缩：7,769 B、128 行；删掉的只有
+  "推翻 v0.1.0 的 `medium` 下限"一句历史注释（1.0.0 节已记录）。
+- **zipper 压缩（按流水线计量口径 measure_tokens/cl100k 仍超预算 2,061 T → 1,952 T）**：只动 SKILL.md。删掉"Framing is
+  right-sizing"框架句（description 已有）；批量行里的 `low` 文档引文（钳制的 "No hard floor" 行与 model-and-effort.md
+  仍保留）；"effort 不缩短正文"一条移出常驻层（model-and-effort.md Interactions 仍有，与 xhigh/max 决策无关、低危害）；
+  缓存陷阱里"切 advisor 不击穿缓存"括注（orchestration.md 的 Cache note 仍有，advisor 在议时必读该文件）；其余为措辞收紧。
+  F08 的"effort 是 thinking depth 主旋钮"原句保留。run_all 36/36、selftest 24/24、21+1 条决策事实召回探针前后一致。
+  → 结构契约 layering_argument L2 预算；P1 上下文经济；Z3（按失败代价排序，罕见致命项不挤）。
+- **挂起（登记、不追）**：F10（缓存检查要区分 fork 与独立子代理，需新增输入字段、属检查重设计）· F14（文档配对表 ⇄
+  脚本 ADVISORS 的绑定检查，属新增机械门，本档不做）· F15（trigger-cases 没有 runner，触发准确率未测——测量债）。
+
+### Fix-audit 轮修复 / fix-audit round fix (ADJUDICATION 8 条确认、唯一 P2 = F07；其余 P3 未修，见下)
+
+- **F07（P2，出在上一修复轮 4cb3941 的 F13 代码里）子代理静默继承无行 advisor**：会话 sonnet-5 + advisor fable-5-1/opus-5，
+  子代理用 `claude-opus-5-5`（配对表无行）时 0 发现、exit 0；同一组合放在会话层却报 `advisor-pairing-unverified`。
+  逐 agent 分支改为与会话分支同一判定：该模型无行、或 advisor 不在任何行里 ⇒ `advisor-pairing-unverified`（每个不同模型
+  一条、只报不拦）；`inherit` 就是会话模型，不重复报。→ SKILL.md "no pairing row ⇒ no advisor" 与 orchestration.md
+  "subagents re-run the pairing check against their own model"（P11 双向结算：检查器与文档说同一件事）；表格事实、不新增语义
+  判断（P13）；A50（只报不拦）。先红后绿：新夹具 p21 + selftest 2 项（`battery/fix2/F07-red.log`）。
+  误报账（铁律 7）：53 个既有方案（20 夹具 + 25 selftest 方案 + P-collapse + E11 case-3 三份 + 4 个审计复现）新旧对跑，
+  变化只有：F07 复现 2 条（目标行为）；E11 case-3 的 `claude-opus-6` 子代理多一条 unverified（未知模型的配对本就不可查，
+  与会话层对未知模型的处理一致）；别名子代理（`sonnet`）多一条 unverified（与会话层别名处理一致）。量测中抓到一处
+  自身误报——`"model":"inherit"` 被当成独立模型报 unverified——已在提交前排除并加 selftest 守住。
+- 规模：`check_plan.mjs` 255 → 266 行，用例记录 37 → 38（基线 406 脚本行 / 29 记录，+24% / +31%，红线内）。
+- 本轮之后**不再有修复审计**（预算已用完）：这处修复代码未经独立 battery 复查，登记为下一次 A42 复核事件时的首查项。
+- 未修（登记）：F02（C3 对 `MAX_TOKENS_FLOOR` 不敏感，评测覆盖洞）· F03（p7 与 selftest 里两条断言守的是已删除的
+  `advisor-weaker`）· F11（别名"无模型专属判定"措辞与 haiku 别名判定不一致）· F12（会话行本身不做 effort/thinking 检查）·
+  F13（省略的 agent effort 不按模型默认值推出）· F14（`{"agents":[null]}` 崩溃、退出码 1 而非 2）· F15（`max` 指引引的是
+  Opus 4.7 表）。均为 P3，按铁律 3 不在修复审计之后继续加码。
+
+### 收尾 / Finalization (E11 · battery · 遗留 · 独立性 · 模型偏离)
+
+- **README 拆分**：`README.md` 改为中文、新增同步的 `README.en.md`（结束 EX-8）；两份都加了"已知遗留"一节。
+  README 原句"报 `advisor-pairing-unverified`，不放行"读起来像拦截，而代码只发 warning、退出码 0——改为"**警告**，
+  只报不拦、但不当成已验证"（修复审计 P3，文档与代码对齐 → P11 双向结算、A50 只报不拦）。只改文字，无行为改动。
+- **E11 两臂（3 例，instance 档，盲评逐例全文读）**：case 1 **胜**（WITH 6/6 陷阱；WITHOUT 把搜索降到 Haiku/Sonnet `low`、
+  把 Opus 5.5 默认 effort 说反、给 Haiku 4.5 设 effort）；case 2 **负**（窄；六陷阱持平，按 O1 判——WITH 给无配对行的
+  Opus 5.5 配了 `claude-fable-5-1` advisor，照写会 400；病根在旧文案"unverified: try it"，已在 1fab415 改为"无行 ⇒ 默认不挂"，
+  **修后未重跑两臂**）；case 3 **胜**（WITHOUT 明确"Keep it"保留 Haiku `effort: low`）。预注册验收"无一例负"**未满足**；
+  退役条件（三例皆平且 WITHOUT 全对）不成立——保留，不建议退役。成本：case 1 WITH 输出短约 30%，其余两例工具调用与篇幅相近。
+- **Battery**：第 1 轮种子 5/5、14 条确认（P2 ×2：F06、F07；P3 ×12）、0 驳回、无 P0/P1 → 修复轮；修复审计种子 5/5、
+  8 条确认（P2 ×1 = F07，出在上一修复轮 4cb3941 自己的代码里；P3 ×7）、3 条驳回 → 按 conductor 派单只修 F07（54bb431）；
+  对 F07 修复的再审计又找到 1 条 P2 + 2 条 P3，**全部出在 F07 修复本身**（同一"修门→打门"形态，第二次）——铁律 3 的硬停只针对 P0，
+  形式上未触发，但修复预算已用完，**不再修**。
+- **开放遗留（登记，未修）**：
+  - **P2 advisor 警告重复**（F07 修复引入）：advisor 是别名（`opus`）或表外模型（`claude-opus-5-5`）时，会话行已报一次，
+    逐 agent 分支又给每个不同的子代理模型各报一次（会话 sonnet-5 + advisor `opus` + 4 个子代理：旧 1 条 → 新 5 条；8 个 → 9 条）。
+    违背本脚本自己的"一条事实一条发现"（P-collapse）。正确判定应是：只有子代理模型无行、且 advisor **在表里**时才逐 agent 报。
+  - **P3 误报账覆盖面说过头**：上面 F07 一节的"变化只有……"只对所抽的 53 个方案成立——其中没有一个是"别名/表外 advisor +
+    多个不同模型的子代理"组合，所以上一条的 1→9 回归没被量到（铁律 7：误报账的结论只对所量语料成立）。
+  - P3 ×7（修复审计）：F02 `max-tokens-low` 无夹具、C3 对阈值不敏感 · F03 两条断言守着已删除的 `advisor-weaker` ·
+    F11 别名"无模型专属判定"措辞与 haiku 别名判定不一致 · F12 会话行不做 effort/thinking 检查 · F13 省略的 agent effort 不按模型
+    默认值推出 · F14 `{"agents":[null]}` 退出码 1 而非 2 · F15 `max` 指引引的是 Opus 4.7 表。
+  - 测量债：trigger-cases 没有 runner，触发准确率未测；E11 case 2 修后未重跑。
+  - 以上全部登记为下一次 A42 复核事件（任何点版本或同名换权重）的首查项，F07 修复代码排第一。
+- **独立性如实登记**：battery 三次（第 1 轮、修复审计、F07 再审计）与 E11 评委全部是 Opus 5.5 fresh context——**instance 档**，
+  不是 model 档（同厂同模型，可能共享盲点）。
+- **模型偏离**：skill-creator-max 2026-09-13 模型策略要求 builder 用 Fable、评价者用 Opus；本波 owner 明令全部 Opus 5.5 high，
+  builder、attacker、裁决者、评委同模型——登记为偏离。
+- 测试（收尾时重跑）：`node evals/run_all.mjs` GREEN 37/37；`check_plan.mjs --selftest` GREEN 26/26。
+  规模：脚本 406 → 504 行（+24.1%），用例记录 29 → 38（+31.0%），均在 +50% 红线内。
+
+### 豁免登记 / Exemption register (not re-verified this wave; re-review at the next A42 event or 2 review periods)
+
+EX-1 两条轴、搜索推论、钳制、报告格式（核心设计，未过期）· EX-2 Opus 4.x / Sonnet 4.6 / Sonnet 5 / Haiku 4.5 行 ·
+EX-3 Codex 映射与通用运行时表 · EX-4 组织级 effort 钳制 · EX-5 opusplan / ultracode · EX-6 Opus 5 行为笔记 ·
+EX-7 description 与 17 条触发用例未改 · EX-8（已结束：收尾时拆出 README.en.md）· EX-9 未被改动文字牵动的 C1–C5 正则。
+
+### 驳回 / Rejected
+
+- 未知模型报 error（会挡住合法的新点版本，违背"never blocks you"）· 日历过期门（日期不是事件）·
+  Fable 5.1 并行调用退化与 Opus 5.5 自动续跑上限（审计 A1.10 子项，属 harness / loop 治理，不在本 skill 范围）·
+  Opus 5.5 "已答视为定论" 提示行（A1.6 子项，不改变选型）· 检查 `thinking:"enabled"`（输入语义含糊，会误报）·
+  `max_tokens` 阈值提到 128k（会给现有 64k 方案新增误报）· description 写进型号名（下一个点版本就腐烂）。
+
 ## 1.0.0 — 2026-07-29 · 从头重建 / ground-up rebuild
 
 v0.1.0 是在 Opus 4.x 时代按"subagent fan-out 定档卡"写的。Claude 5 家族把 effort 从一个附属旋钮变成了

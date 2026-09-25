@@ -1,29 +1,24 @@
 # model-pyramid
 
 > 在开会话、开子代理、决定要不要挂 advisor 的那一刻，把 **model + effort** 配到位 —— 只建议、不代劳。
-> Right-size **model + effort** for the session and for every subagent, and decide whether to attach an
-> advisor — advisory, testable, never acts on your behalf.
 
-**English** · **简体中文**
+[English](README.en.md) · **简体中文** · 版本 1.1.0
 
 ## 两条轴 / The two axes
 
 这是整个技能的核心，其余都是它的展开：
 
-- **Claude 拿到了上下文、试了、还是做错了 → 能力缺口 → 换 MODEL。**
+- **Claude 拿到了上下文、试了——调高 effort 也试了——还是做错了 → 能力缺口 → 换 MODEL。**
 - **Claude 是因为跳过文件、没跑测试、没复核而做错 → 彻底度缺口 → 换 EFFORT。**
 
-> Wrong *with* the context in hand ⇒ capability gap ⇒ change the model.
-> Wrong *because it skipped a file / didn't run the tests* ⇒ thoroughness gap ⇒ change the effort.
+**effort 是控制"想多深"的主旋钮——但不止于此**，它管的是**整个回复里的所有 token —— 正文、工具调用、思考**：读几个文件、发几次工具调用、复核到什么程度、多步任务跑多远才回来汇报。**effort 越低 ⇒ 工具调用越少。**
 
-**effort 不是"想多深"**，它管的是**整个回复里的所有 token —— 正文、工具调用、思考**：读几个文件、发几次工具调用、复核到什么程度、多步任务跑多远才回来汇报。**effort 越低 ⇒ 工具调用越少。**
-
-⛔ **由此得到最要命的那条推论**：搜索 / 探索 / 反复调工具是**最不该**省 effort 的地方。官方把"repeated tool calling、detailed web search、knowledge-base search"列为**该上 `xhigh`** 的理由。给搜索代理降 effort，买到的是一个**不再继续找**的代理。
+⛔ **由此得到最要命的那条推论**：搜索 / 探索 / 反复调工具是**最不该**省 effort 的地方。给搜索代理降 effort，买到的是一个**不再继续找**的代理。保持或调高——但别条件反射地上 `xhigh`：Opus 5.5 的指南要求 `xhigh`/`max` 留给**实测有收益**的活。
 
 ## 默认值 / Defaults
 
 1. **Model** —— 子代理默认继承会话模型。继承就是对的默认；要覆盖，得说得出理由。
-2. **Effort** —— 默认是 **`high`**，在所有支持 effort 的模型上，设 `high` 与**不传这个参数完全等价**。（例外：Opus 4.7 默认 `xhigh`。）
+2. **Effort** —— **显式写出来**。在 API 上不传 = 用*该模型自己的*默认值（Claude Code 里裸 Agent tool 调用则继承**会话**的 effort），而默认值各不相同：**Opus 5.5 是 `medium`**（当前默认 Opus）；Fable 5.1、Opus 5、Sonnet 5 是 `high`；Haiku 4.5 没有 effort 旋钮。照 Opus 5 时代"留默认"写的方案，在 5.5 上会**低一档**跑。
 3. **靠 eval 调，不靠感觉。** 从上一代模型**搬过来的 effort 设置一律重扫**，不要沿用。
 
 ## fan-out 定档 / Sizing a fan-out
@@ -32,37 +27,43 @@
 
 | 任务形状 | Model | Effort |
 |---|---|---|
-| **同侪协作** 等难度分片、judge panel、对抗验证者、单个委派的深任务 | 继承 | 继承 |
+| **同侪协作** 等难度分片、judge panel、对抗验证者、单个委派的深任务（**看重独立性的验证者——盲评、fresh 红队——必须非 fork**：Claude Code 默认 fork，fork 会共享作者的上下文） | 继承 | 继承 |
 | **搜索 / 探索** 代码库扫描、网页研究、证据搜集 | 继承 | **继承或调高** |
-| **高频同质查找**（~20+ 廉价近同任务） | 降**一**层 | `low`–`medium` |
-| **长跑自治**（>30 分钟、百万级 token 预算） | Fable 5 优先 | `xhigh` |
-| 其他 | 继承 | 默认 `high` |
+| **高频同质查找**（~20+ 廉价近同任务） | 继承 —— *或*降**一**层（Opus→Sonnet） | 降一档、朝 `low` 走 —— *或*降了层就继承（**二选一，不同时动**，见下方钳制；降 effort 通常更稳） |
+| **长跑自治**（>30 分钟、百万级 token 预算） | Opus 5.5 起步；缺口是**能力**时再换 Fable 5.1 | `xhigh` |
+| 其他 | 继承 | 该模型的默认档，**写出来** |
 
 **钳制**：每层最多动**一个**旋钮；两层是常态，第三层需要一行理由；**没有硬下限** —— `low` 是官方为子代理写明的合法档位，要论证、不要禁用（**这一条推翻了 v0.1.0 的 medium 下限**）；用户显式指定的**原样照办**。
 
 ## 不是"换个便宜模型"的成本手段
 
-- **Advisor** —— 一个**至少同等强**的模型，在**决策点**被叫来（定方案前、错误反复出现时、宣布完成前），而不是全程跑。它拿到完整对话、给出指导。适合"多数回合例行、但方案质量决定成败"的长任务。
+- **Advisor** —— 一个**至少同等强**的模型，在**决策点**被叫来（定方案前、错误反复出现时、宣布完成前），而不是全程跑。它拿到完整对话、给出指导。适合"多数回合例行、但方案质量决定成败"的长任务。配对必须对它挂到的**每个**模型都合法；配对表里没有行的执行模型（目前的 Opus 5.5）**默认不挂 advisor**，直到用这对组合发的试探请求成功为止。
 - **`opusplan`** —— plan 模式用 Opus，执行切 Sonnet。
 - **降一档 effort** —— 通常比降一层 model 更大也更安全的杠杆：它是渐变的，且逐请求生效。
 
 ## 缓存陷阱 / The cache trap
 
-**改 model 或改 effort 会作废 prompt cache。** 在一段带缓存的会话开头选定档位并保持；要变 effort，跨工作负载变，别在同一段长会话里变。（切换 advisor **不会**作废缓存。）
+**改 model 或改顶层 effort 会作废 prompt cache。** 在一段带缓存的会话开头选定档位并保持；要变 effort，跨工作负载变，或用 **per-message effort（beta）**——它在 Opus 5.5 / Fable 5.1 / Opus 5 上保住缓存。（切换 advisor **不会**作废缓存。）
+
+## thinking / Thinking
+
+**Opus 5.5、Fable 5.1、Fable 5 的 thinking 恒开**：传 `thinking:disabled` 或 `budget_tokens` 在**任何** effort 下都返 400——删掉这个字段，改用降 effort 来省。（Opus 5 只在 `xhigh`/`max` 下返 400。）
 
 ## 确定性校验 / Mechanical check
 
 ```bash
-node scripts/check_plan.mjs '{"agents":[{"label":"reviewer","model":"claude-opus-5","effort":"max"}]}'
+node scripts/check_plan.mjs '{"agents":[{"label":"reviewer","model":"claude-opus-5-5","effort":"max"}]}'
 ```
 
-只校验**确定性可判**的部分：该档位在该模型上是否存在（不存在是**静默回落**，不是报错）、`xhigh`/`max` 下 `max_tokens` 是否抬高、Opus 5 的 thinking×effort 冲突（返 400）、advisor 配对是否合法、缓存会话里 effort 是否被改动、以及两个旋钮是否被同时下调。**它不判断你的定档是否明智** —— 那是本技能判断面的活。
+只校验**确定性可判**的部分：该档位在该模型上是否存在（不存在是**静默回落**，不是报错）、`xhigh`/`max` 下 `max_tokens` 是否抬高、thinking 合法性（恒开模型上 `disabled` 或 `budget_tokens` 返 400）、advisor 配对是否在 API 配对表里（会话模型与每个子代理自己的模型分别查；表里没有的组合——例如子代理用 Opus 5.5 继承 advisor——报 `advisor-pairing-unverified` **警告**——只报不拦、退出码不变，但也不会被当成已验证）、缓存会话里 effort 是否被改动、以及相对会话**实际生效 effort**（按模型默认值推出）的搜索降档 / 双旋钮同降。**不认识的模型会被报出来（`model-unknown`，排在最前），不会被静默放行**；别名（`opus`/`best`…）不给模型专属判定。**零命中 = 没有规则触发，不等于方案已验证**；它也不判断你的定档是否明智 —— 那是本技能判断面的活。
 
 ```bash
-node evals/run_all.mjs        # P 行为夹具 · C 脚本⇄文档一致性 · L 文本护栏
+node evals/run_all.mjs        # 仅开发仓库：P 行为夹具 · C 脚本⇄文档一致性 · L 文本护栏
 ```
 
-其中 **C 组**是最值钱的：脚本里的支持矩阵、advisor 排名、`max_tokens` 起点，必须和 `references/` 里的表**说同一件事**。这个技能的每个数字都会随代际腐烂，而"只改文档、没改脚本"正是它最典型的坏法。
+> `evals/` 是开发期目录，**不随技能发布**（`.clawhubignore` 排除、git 也不跟踪）；装好的技能里没有它。
+
+其中 **C 组**是最值钱的：脚本里的支持矩阵、每个模型的默认 effort 与 thinking 恒开标记（C6）、`max_tokens` 起点，必须和 `references/` 里的表**说同一件事**。这个技能的每个数字都会随代际腐烂，而"只改文档、没改脚本"正是它最典型的坏法。
 
 ## 文件 / Files
 
@@ -73,7 +74,7 @@ node evals/run_all.mjs        # P 行为夹具 · C 脚本⇄文档一致性 · 
 | [`references/runtime-knobs.md`](references/runtime-knobs.md) | 给具体运行时下发参数：Claude Code / Agent tool / Workflow / API / Codex |
 | [`scripts/check_plan.mjs`](scripts/check_plan.mjs) | 机检一份定档方案 |
 
-⚠ **最容易踩的运行时坑**：**Agent tool 有 `model` 参数，但没有 effort 参数** —— 子代理只能继承会话 effort。要按代理钉死 effort，必须走 Workflow 的 `agent(prompt, {model, effort})`。方案里带 effort 却走 Agent tool 时，如实报 `degraded:effort-not-expressible`，不要下发一个根本不会生效的设置。
+⚠ **最容易踩的运行时坑**：**Agent tool 单次调用有 `model` 参数，但没有 effort 参数** —— 子代理只能继承会话 effort。要按代理钉死 effort，走 Workflow 的 `agent(prompt, {model, effort})`，或用 **frontmatter 里写了 `effort:` 的 agent 类型**（`.claude/agents/*.md`）。两条路都没有时，才如实报 `degraded:effort-not-expressible`。
 
 ## 什么时候用 / When
 
@@ -83,7 +84,12 @@ node evals/run_all.mjs        # P 行为夹具 · C 脚本⇄文档一致性 · 
 
 ## 时效 / Staleness
 
-`metadata.model_baseline` 是本技能事实的**戳记**：`claude-5 family · docs read 2026-07-29`。
-**这里每一个数字都会过期。** 家族一换代，先对着实时文档复核再信本技能里的任何数字 —— 并且**重扫你自己的 eval**，不要沿用上一代的 effort 设置。
+`metadata.model_baseline` 是本技能事实的**戳记**：`claude-opus-5-5 · effort high · Claude Code 2.1.280 · facts read 2026-09-25`。
+**这里每一个数字都会过期。** **任何点版本（如 5.1、5.5）或同名静默换权重** ⇒ 定向复核默认值、thinking 合法性、配对以及它触及的事实；**换代** ⇒ 全量重扫，包括你自己的 eval。`check_plan` 报出 `model-unknown`，就是这件事已经发生的信号。
 
-Full spec: [SKILL.md](SKILL.md)
+## 已知遗留 / Known residuals（1.1.0）
+
+- **advisor 警告重复**：advisor 本身是别名（如 `opus`）或表外模型（如 `claude-opus-5-5`）时，`advisor-pairing-unverified` 会在会话行报一次后，再给**每个不同的子代理模型**各报一次（4 个子代理 → 5 行同义警告）。只是噪声、不拦、结论不错；修复预算已用完，登记待下一次 A42 复核。
+- 其余开放项（均 P3，见 CHANGELOG）：`max-tokens-low` 无夹具覆盖、两条断言守着已删除的 `advisor-weaker`、会话行本身不做 effort/thinking 检查、省略的子代理 effort 不按模型默认值推出、`{"agents":[null]}` 退出码 1 而非 2、`max` 指引仍引 Opus 4.7 表、触发准确率未测。
+
+完整规格：[SKILL.md](SKILL.md)

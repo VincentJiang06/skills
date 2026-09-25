@@ -1,6 +1,7 @@
 # runtime-knobs — where model and effort actually live
 
-> Stamped **2026-07-29**. Never emit a parameter a runtime does not support: map to the nearest
+> Stamped **2026-09-25** (Claude Code changelog through 2.1.281; claude-api skill bundled with
+> 2.1.280). Codex, generic-harness and org-clamp sections are *carried* from 2026-07-29 (EX-3/EX-4). Never emit a parameter a runtime does not support: map to the nearest
 > supported setting and state the degradation in that agent's report line.
 
 ## Claude Code — session
@@ -11,18 +12,22 @@
 | Effort | `/effort`, `--effort`, `CLAUDE_CODE_EFFORT_LEVEL`, the `effortLevel` setting |
 | Advisor | `/advisor`, `--advisor`, the `advisorModel` setting |
 
-**Aliases**: `default` (clears the override) · `best` (Fable 5 where available, else latest Opus)
-· `fable` · `opus` · `sonnet` · `haiku` · `sonnet[1m]` · `opus[1m]` · `opusplan` (Opus in plan
-mode → Sonnet for execution).
+**Aliases**: `default` (clears the override) · `best` · `fable` · `opus` (= Opus 5.5 since
+2.1.280) · `sonnet` · `haiku` · `sonnet[1m]` · `opus[1m]` · `opusplan` (Opus in plan mode → Sonnet
+for execution). An alias's target depends on the surface — `fable` and `best` keep resolving to
+**Fable 5** (not 5.1) in Claude apps gateway sessions (2.1.257) — so a plan that must be checked
+names the resolved ID; `check_plan` gives no model-specific verdict for an alias.
 
 **Persistence gotchas**
 - `low` / `medium` / `high` / `xhigh` persist across sessions when set interactively.
   **`max` applies to the current session only** — unless set via `CLAUDE_CODE_EFFORT_LEVEL`.
-- First run of Fable 5 / Opus 4.8 / Opus 4.7 applies **that model's default effort** and holds it
-  across sessions until you make an explicit choice. **Opus 5 has no such hold** — a level you
-  set earlier carries over.
-- `/effort` in non-interactive (`-p`) mode applies to the current session only and **cannot
-  release the model-default hold** (it reports `Not applied`); pass `--effort` at launch instead.
+- `/effort` saves a level **per model** (2.1.251). A level saved before that change does **not**
+  apply to newly released models such as Opus 5.5 — they start at their default until you pick a
+  level (2.1.280). The API default for Opus 5.5 is `medium`; Claude Code's own start level for it
+  is not observed here (U2) — **confirm with `/effort`** rather than assuming.
+- Opus 4.7 / 4.8 / Fable 5 no longer hold their launch-default effort over `/effort` in `-p` or the
+  Agent SDK, a project/managed/`--settings` `effortLevel`, or a per-model level (2.1.280);
+  `--effort` lifts a new model's default-effort hold for that session only (2.1.257).
 - `ultracode` is a **Claude Code setting, not an effort level**: it sends `xhigh` *and* has Claude
   orchestrate dynamic workflows. Current session only. Not accepted by the persisted
   `effortLevel` setting or by `CLAUDE_CODE_EFFORT_LEVEL`.
@@ -31,15 +36,21 @@ mode → Sonnet for execution).
 
 | Surface | Model | Effort |
 |---|---|---|
-| **Agent tool** | ✅ `model` parameter | ❌ **no effort parameter** |
+| **Agent tool call** | ✅ `model` parameter | ❌ **no per-call effort** |
 | **Workflow `agent()`** | ✅ `opts.model` | ✅ `opts.effort` (`low`…`max`) |
-| Subagent frontmatter (`.claude/agents/*.md`) | ✅ `model` field | ❌ |
+| Agent type (`.claude/agents/*.md`) frontmatter | ✅ `model` field | ✅ frontmatter `effort:` (2.1.78 plugin agents, 2.1.80 skills/commands; honoured on pinned-default models since 2.1.267) |
 | `CLAUDE_CODE_SUBAGENT_MODEL` | ✅ (all subagents) | ❌ |
 
-**Consequence**: if your sizing decision has an effort component, the Agent tool cannot express
-it — the subagent inherits the session effort. To pin effort per agent you must go through a
-Workflow. Say so in the report as `degraded:effort-not-expressible` rather than silently
-emitting a setting that will not take.
+**Consequence**: a bare Agent tool call cannot express an effort — the subagent inherits the
+session effort. To pin effort per agent, use a Workflow `opts.effort`, or spawn an **agent type
+whose frontmatter sets `effort:`**. Only when neither route exists, say so in the report as
+`degraded:effort-not-expressible` rather than emitting a setting that will not take.
+
+**Fork ≠ fresh.** Subagent forking is **on by default** (2.1.232): a `fork` subagent inherits the
+full conversation and prompt cache. A verifier whose value is *independence* (blind judge,
+fresh-context red team) must be spawned as a **non-fork** subagent or a separate session, or it
+shares its author's context — and its errors (claude5-family ADC5). Report it with `non-fork`.
+Background spawning (also default since 2.1.232) saves wall time, not quality.
 
 Subagents inherit the session advisor and re-check the pairing against their own model.
 
@@ -47,17 +58,23 @@ Subagents inherit the session advisor and re-check the pairing against their own
 
 ```jsonc
 {
-  "model": "claude-opus-5",
-  "max_tokens": 64000,          // raise this at xhigh/max — caps thinking + text together
-  "output_config": { "effort": "medium" }   // low | medium | high | xhigh | max
+  "model": "claude-opus-5-5",
+  "max_tokens": 64000,          // raise this at xhigh/max (64k–128k) — caps thinking + text together
+  "output_config": { "effort": "high" }   // low | medium | high | xhigh | max — omitted = model default (5.5: medium)
 }
 ```
 
 - `effort` is **request-level**: to change it later, set it on the next request.
 - Do **not** pass `adaptive` as an effort value — that is a *thinking* mode, not an effort level.
-- Changing effort between requests **breaks the cached prefix**. Pick a level at the start of a
-  cached session and hold it.
-- Opus 5 only: `thinking: {"type":"disabled"}` with effort `xhigh`/`max` returns **400**.
+- Changing top-level effort between requests **breaks the cached prefix**. Pick a level at the
+  start of a cached session and hold it, or use per-message effort (beta,
+  `mid-conversation-output-config-2026-07-01`) on Opus 5.5 / Fable 5.1 / Mythos 5.1 / Opus 5.
+- Opus 5.5 / Fable 5.1 / Fable 5: **no `thinking` field** (or `adaptive`) — `disabled` or
+  `budget_tokens` returns **400 at any effort**. Opus 5 (legacy): `disabled` 400s only at `xhigh`/`max`.
+- **Task budgets** are an API feature (beta; Opus 5.5 supports them): set from the loop's p90 token
+  usage; advisory, not a stop. They are **not available in Claude Code** — there, bound a run with
+  `/goal`, agent `maxTurns` (a subagent stopping at it returns output marked *partial*, 2.1.246) or, on
+  Managed Agents, a session budget (claude5-family ADC5).
 
 ## Codex CLI
 
