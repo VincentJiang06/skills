@@ -625,6 +625,8 @@ if (isMain) {
     process.exit(2);
   }
   const result = scan(root);
+  // a reader that closes early (`scan | head`) is not a scan failure
+  process.stdout.on("error", (e) => { if (e.code !== "EPIPE") throw e; });
   process.stdout.write(JSON.stringify(result, null, 2) + "\n");
   // exitCode, not exit(): exit() right after write truncates a piped stdout at
   // the 64 KiB pipe buffer while still returning 0.
