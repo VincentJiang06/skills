@@ -89,7 +89,10 @@ API 速查表、环境变量表、术语表是高频查询的结构化信息，*
 
 ```bash
 node scripts/kb_audit.mjs <project-dir>   # 必须 exit 0（无 HARD 违规）才算尺寸/链接闸门通过
+node scripts/kb_audit.mjs ~/.claude/projects/<project> --json   # Claude Code：记忆父目录再跑一次，同样须 exit 0
 ```
+
+Claude Code 上只跑项目目录那一次，记忆闸门一个都不评估：`hardGatesEvaluated 0` 是「记忆闸门没跑」，**不是通过**（同第零步，见 [rules/preflight-sizing.md](preflight-sizing.md) / [rules/kb-audit-usage.md](kb-audit-usage.md)）。记忆父目录那次只看记忆闸门，`claude_md_missing` 与 docs 侧闸门在那里不适用。
 
 linter 退出非 0（有 HARD 违规）→ 回去精简 / 修链接，**不能报告"同步完成"**（控制详见 [rules/controls.md](controls.md)）。精简要靠 C2/C3/C4 而用户没确认时，报「同步未完成（HARD 待确认）」，不为了变绿去落未确认的提案。退出 0 后，再人工逐条过下面这些：
 

@@ -26,6 +26,11 @@ All notable changes to this skill.
 - **Claude Code 记忆父目录**（锚：P12 / SELF-GBW 绿但错）— 只对项目目录跑 `kb_audit` 时记忆闸门一个都不评估
   （`hardGatesEvaluated 0`、`hardGatePassRate 1`，2026-09-25 在真实项目上实测）；preflight-sizing / kb-audit-usage
   改为再对 `~/.claude/projects/<project>` 跑一次，`hardGatesEvaluated 0` ≠ 通过；`claude_md_missing` 在记忆父目录上 N/A。
+- **第四步回归同样跑两次**（battery F06，P2；锚：P12 / SELF-GBW 绿但错，同上一条）— 上一条只改了第零步，第四步
+  （SKILL.md 第四步、`rules/sync-protocol.md` 第四步代码块）仍只对 `<project-dir>` 跑，Claude Code 上等于回归时
+  记忆闸门空跑。两处补上对 `~/.claude/projects/<project>` 的第二次运行并写明 `hardGatesEvaluated 0` 不算通过。
+  纯 prose；在 37 个真实记忆父目录上复跑：37/37 exit 0、`hardGatesEvaluated` 全部 > 0（新增的"须 exit 0"要求可达、HARD 误报 0）。
+  SKILL.md 常驻 2,793 → 2,836 token。
 - **宿主事实戳**（锚：A37）— MEMORY.md "前 200 行或前 25KB，先到先算"，2026-09-25 对照 code.claude.com/docs/en/memory
   复核（Claude Code 2.1.280）；宿主现在对超限写入也会报错。
 - **发布闸门重建**（锚：A48(iv) 投毒用例、E11 两臂基线、真实事故：仓库 `.gitignore` 的 `skills/*/evals/` 让
