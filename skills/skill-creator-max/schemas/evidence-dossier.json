@@ -36,10 +36,10 @@
         "required": ["evaluator", "evaluator_kind", "golden_sample_count", "alignment_rate", "model_baseline", "unknown_rate", "has_unknown_exit", "different_source_from_builder", "audit_dimensions"],
         "properties": {
           "evaluator": {"type": "string"},
-          "evaluator_kind": {"type": "string", "enum": ["deterministic", "llm_judge"], "description": "C5 objective/subjective fork. deterministic = a byte/numeric comparator (no self-preference, no style bias, no Unknown exit) — validate_report EXEMPTS it from the judge-bias fields (fill them with honest neutral values). llm_judge = the E6 discipline applies in full."},
+          "evaluator_kind": {"type": "string", "enum": ["deterministic", "llm_judge"], "description": "C5 objective/subjective fork, per evaluator (P13/S14). deterministic = a SKELETON check whose verdict information is in the string (existence / count / verbatim / structural isomorphism / hash, byte or numeric compare) — NOT any script exit code: a script approximating a semantic judgment (similarity/threshold/regex over meaning) is llm_judge or D->L report-only unless the A50 three items are shown. The label is a PROPOSAL the conductor confirms at the stage-3 gate and records in the Decision Record (K3); a disputed label takes the strict path. validate_report EXEMPTS a deterministic entry from the judge-bias fields (fill them with honest neutral values). An LLM whose verdicts a deterministic comparator scores needs its own llm_judge entry. llm_judge = the E6 discipline applies in full."},
           "golden_sample_count": {"type": "integer", "description": "for deterministic = the test-case count; for llm_judge = the calibrated golden set"},
           "alignment_rate": {"type": "number"},
-          "model_baseline": {"type": "string", "description": "E6/A37: re-verify on base-model change; prior record auto-expires"},
+          "model_baseline": {"type": "string", "description": "E6/A37: resolved model ID + effort + harness version (e.g. claude-opus-5-5 · effort=high · claude-code 2.x); aliases are not legal values. Re-verify on base-model change; prior record auto-expires"},
           "unknown_rate": {"type": "number", "description": "capped; a judge forced to score is suspect"},
           "has_unknown_exit": {"type": "boolean"},
           "different_source_from_builder": {"type": "boolean", "description": "A31: judge must not share source with builder or the evaluated output"},

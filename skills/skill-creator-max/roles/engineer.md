@@ -204,14 +204,28 @@ any score swing: grader bug > environment drift > target regression.
 For EVERY judge, linter, or grader in your harness, produce an `evaluator_calibration` entry.
 First fork on its kind (the C5 objective/subjective fork):
 
-- [ ] **Deterministic evaluator** (a byte/numeric comparator — exact-diff, `abs(x-y)<ε`, a lint
-      exit code): set `evaluator_kind: deterministic`. The L0 gate then requires only a real
-      `golden_sample_count > 0` (your test-case count) and EXEMPTS the four judge-bias fields
-      (`different_source_from_builder`, `has_unknown_exit`, non-empty `model_baseline`, a
-      style/verbosity `audit_dimensions` entry) — they are vacuous for a comparator that has no
-      model and no opinion. Fill them with honest neutral values (`false` / `""` / `"n/a"` /
-      `[]`); do NOT fabricate a judge-calibration story to fill shape. The bias discipline below
-      does not apply to you.
+- [ ] **Deterministic evaluator — a SKELETON check only** (P13/S14): the verdict information is
+      in the string — existence, count, verbatim match, structural isomorphism, hash, a byte or
+      numeric comparison (exact-diff, `abs(x-y)<ε`, JSON-schema validity, sha256). The question is
+      whether the verdict is in the string, NOT whether the evaluator is a script: a script's exit
+      code over an approximation of meaning (LCS/similarity ≥ threshold, a regex or word list
+      standing in for "same item", "kept the claim", "reads like AI") is a SEMANTIC check. A
+      semantic check is `llm_judge` (full discipline below) or D→L report-only evidence, unless
+      you show the A50 three items: (i) a separability witness from the battery or a golden set
+      you did not author — no input pair with equal features and opposite verdicts; (ii) false
+      positives measured on ALL existing real corpus; (iii) lineage to a line of the skill's
+      philosophy/design contract. Precedent: an "action item kept" LCS≥0.8 checker is semantic
+      ("follow up with legal" vs "loop in counsel" = same item at LCS 0.3); a JSON-schema check
+      labelled deterministic is correct — demoting it to llm_judge is over-correction. If a
+      deterministic comparator scores an LLM's verdicts (exact-match of a reader's labels), the
+      comparator is deterministic AND the LLM that produced the verdicts gets its OWN llm_judge
+      entry. Your `deterministic` label is a PROPOSAL: the conductor confirms or rejects it at the
+      stage-3 gate and records the ruling in the Decision Record; a disputed label takes the strict
+      llm_judge path until the owner rules (K3). A confirmed deterministic entry needs only a real
+      `golden_sample_count > 0` (your test-case count); the four judge-bias fields
+      (`different_source_from_builder`, `has_unknown_exit`, `model_baseline`, a style/verbosity
+      `audit_dimensions` entry) are vacuous for it — fill them with honest neutral values
+      (`false` / `""` / `"n/a"` / `[]`), never a fabricated calibration story.
 - [ ] **LLM-judge evaluator**: set `evaluator_kind: llm_judge` and apply the FULL E6 discipline
       below — every field is load-bearing and the gate enforces all four.
 
@@ -231,8 +245,10 @@ For an llm_judge:
       output it grades — self-preference bias is quantified, and a stronger same-family judge is
       NOT the fix [WEB-SelfPrefBias]. Set `different_source_from_builder` honestly; `false` is a
       flag the conductor weighs, not a field to fudge.
-- [ ] **model_baseline stamp**: record the base model the calibration ran on. On base-model
-      change the record auto-expires and must be re-verified.
+- [ ] **model_baseline stamp** (A37): the resolved model ID + effort + harness version the
+      calibration ran on (e.g. `claude-opus-5-5 · effort=high · claude-code 2.x`); an alias
+      (`opus`, `fable`) is not a legal value. On base-model change the record auto-expires and
+      must be re-verified.
 - [ ] Exact-match assertions: justify each one ("why can no equivalent solution be killed
       here?") or replace with tolerance/equivalence-class checks (`abs(x-96.12)<0.01`, with a
       sourced comment). Prefer pairwise/pass-fail over absolute scores; median of multiple
