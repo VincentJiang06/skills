@@ -62,7 +62,7 @@ byte-identical to 1.0.2.
   `references/source-reliability.md:4` ×1, `references/metrics.md:4,40` ×4) cite node ids of
   the retired `skill-principle` KB (historical per `Philosophy/PHILOSOPHY.md`), so their
   "grounded in" claims cannot be checked. Registered as legacy rot, to be re-pointed to KB
-  v0.4.0 ids next wave (battery F14).
+  v0.4.0 ids next wave (battery F15; F14 in the first dispatch).
 
 ### Evaluation — E11 two-arm (2026-09-25, preregistered in the SkillSpec)
 - Three cases, WITH = this skill 1.1.0, WITHOUT = the bare model with the skill disabled;
@@ -71,13 +71,16 @@ byte-identical to 1.0.2.
 - **Case verdicts: 0 win / 0 loss / 3 tie.**
   - case-1 (HTTP 429, simple): both correct. WITH adds two sources (a sourcing-only edge,
     which the preregistered rubric says is not uplift for this case) and costs ~8 tool calls
-    against 2, about 4× — over the ≤2× non-inferiority bound.
+    against 2 on the first run, about 4× (~11 vs ~5, ~2.2×, counting the usage-limit resume)
+    — over the ≤2× non-inferiority bound either way.
   - case-2 (is coffee bad for you, complex): WITH better on sourcing (per-claim sources,
     source independence assessed); WITHOUT better on usefulness (adds real 2023/2025 RCTs)
     with one minor error (Health Canada pregnancy limit given as 200 mg; it is 300 mg).
-    Cost WITH ~13 vs ~9 calls (~1.4×).
+    Cost WITH ~16 vs ~12 calls including the resume (~1.3×), both within the complex budget.
   - case-3 (a population figure that cannot be confirmed): both say "could not confirm",
-    neither guesses, both give dated official figures. Cost comparable (~13 vs ~10).
+    neither guesses, both give dated official figures (verified by the judge: 222 Islanders /
+    235 people on tristandc.com after 28 Aug 2026; 2026 census 221). Cost comparable (~16 vs ~14
+    including the resume).
 - **Preregistered decision rule not met**: WITH had 0 correctness losses and a sourcing
   win in 2 of 3 cases, but exceeded the 2× cost bound on case-1, and was never cheaper or
   faster than the bare arm. The skill's core claim — speed — is not supported against a
@@ -87,25 +90,46 @@ byte-identical to 1.0.2.
   the arms' self-reported tool-call count; activation is inferred from the WITH outputs
   following the answer contract and calling the validator. Sentinel S1 (prompt injection
   in a local page) was prepared but not run, so the new trust-boundary rule has no
-  behavioral evidence yet. N=3, direction only (A33 low tier).
+  behavioral evidence yet. All six arm sessions hit a usage limit and were resumed; the
+  resume calls only re-read and re-validated finished outputs (no new research), and the judge
+  re-read all six outputs afterwards with verdicts unchanged. N=3, direction only (A33 low tier).
 
-### Battery (1 round, 2026-09-25)
-- 5 lenses, 5 sealed seeds: **5/5 hit** (coherence, gaming, evidence, reality, foundation).
-- 6 confirmed findings, all P3; 3 refuted; no P0/P1/P2 in the real skill. Fix round: none
-  (conductor decision); fix-audit n/a; iron rule 3 not triggered.
+### Battery (1 round, 2026-09-25; attacker re-dispatched, adjudication supersedes the first)
+- 5 lenses, 5 sealed seeds: **5/5 hit** (coherence, gaming, evidence, reality at the planted
+  line; foundation via the seal's human fallback, inside F15).
+- Re-dispatch: **8 confirmed findings, all P3; 5 refuted** (F04, F09, F11, F16, S01); no
+  P0/P1/P2 in the real skill — every true P1/P2 the attacker reported was a planted seed. Fix
+  round: none (conductor decision); fix-audit n/a; iron rule 3 not triggered. The first
+  dispatch's adjudication is kept as `ADJUDICATION.prev-dispatch.md` in the run directory.
 - **Open findings (not fixed, carried to the next wave):**
-  - F07 `assets/answer-template.md` — the unfilled template validates `VALID`; a `VALID`
-    on a document still holding `<…>` placeholders or `a | b` lists means nothing.
-  - F08 `evals/run_all.mjs` — no case guards `E_UNCERTAIN_NOT_LOW` or `E_BAD_TIER`
-    (mutants removing either still pass 26/26).
+  - F06 `assets/answer-template.md` — the unfilled template validates `VALID []` (tier and
+    confidence parse from `simple | complex | uncertain` / `High | Medium | Low`, and
+    `<https://url>` counts as a URL); a `VALID` on a skeleton means nothing.
+  - F07 `references/metrics.md:26` — confident-wrong counts High answers only and
+    uncertain-honesty counts unanswerable items only; nothing counts abstention or wrong
+    Medium/Low answers on answerable items, so an always-uncertain/Low policy meets every
+    trust target. Next wave: a coverage/accuracy metric in prose.
+  - F08 `evals/run_all.mjs` — mutants removing `E_UNCERTAIN_NOT_LOW`, collapsing
+    `E_BAD_TIER` into `E_NO_TIER`, or dropping URL lower-casing still pass 26/26;
+    `evals.json:3` still says D1–D15 / B1–B6.
   - F10 `rules/output-contract.md:74` — Medium is "a single source on a volatile fact"
     there, but only a single *stale* source is capped at Medium in `triage.md` and
-    `source-reliability.md`.
-  - F12 `SKILL.md:53` and three other places — `node scripts/check_answer.mjs` only works
-    with the skill directory as the working directory; use `node <skill-dir>/scripts/…`.
-  - F13 `rules/output-contract.md:37-38` — the script merges only identical URLs; "same
-    origin, not independent" is judged in prose, not by the code.
-  - F14 — orphan principle anchors, registered above as EX8.
+    `source-reliability.md`; fixture `volatile_with_date.md` (D10) teaches the looser rule.
+  - F12 `SKILL.md:5` — the description promises a "hard time budget"; `metrics.md` targets
+    only p50 and `triage.md` says there is no real timer (the caps are the proxy). E11 makes
+    the overclaim more visible. Next time the description is touched: "time-boxed by
+    search/fetch caps". (EX4 exempts the description on mis-trigger grounds only.)
+  - F13 `scripts/check_answer.mjs:60` — the Sources label has no word boundary, so
+    "Open resources:" in the Answer opens the Sources block; a complex answer with no Sources
+    section validates `VALID []`. Structural, so a code fix is admissible (A50).
+  - F14 `rules/output-contract.md:37` — the contract calls a shared URL "same origin, not
+    independent", but the code merges only identical strings (`/coffee` vs `/coffee?ref=2`
+    count as two). Say so in prose; independence stays a prose judgment.
+  - F15 — the nine orphan principle anchors (EX8) and the unstamped budget parameters (EX7);
+    already registered, not new debt.
+  - Carried from the first dispatch (confirmed there, not re-reported): `node
+    scripts/check_answer.mjs` in `SKILL.md:53` and three other places only works with the
+    skill directory as the working directory; use `node <skill-dir>/scripts/…`.
 
 ### Independence and model deviation (registered)
 - Battery and judges were the same vendor and model as the builder (Opus 5.5 high, fresh
