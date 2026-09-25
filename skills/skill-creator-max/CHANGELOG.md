@@ -1,5 +1,74 @@
 # Changelog
 
+## [1.3.0] — 2026-09-25
+
+**R20 incremental alignment (philosophy KB v0.4.0): judgment planes, stop signatures, E11
+instrument validity.** A40 incremental tier — only the audited items move; everything else is
+carried under an exemption register. Minor bump: routing and the gate-confirmation contract changed.
+No validator logic changed (selftests 7/9/15/12/12 unchanged; verdicts on the 5 real dossiers and 5
+real structure contracts byte-identical), no new mechanical gate was added.
+
+- **engineer §9 + evidence-dossier schema + validate_report docstring — `deterministic` means a
+  SKELETON check** (verdict information in the string: existence/count/verbatim/structural
+  isomorphism/hash, byte/numeric compare), not "any script exit code". A check approximating a
+  semantic judgment is `llm_judge` or D→L report-only unless it shows the A50 three items; an LLM
+  whose verdicts a comparator scores gets its own `llm_judge` entry; the label is a proposal the
+  conductor confirms. Closes the self-declared exemption (15/15 real evaluator entries were
+  self-labelled deterministic). [P13, S14, A49, A50, K3] (S1)
+- **composer Step 6 — C5 fork per judgment point**; objective only when the verdict information is
+  in the string; a semantic dimension stays subjective even if a linter could approximate it.
+  [P13, S14] (S2)
+- **guidance step 10b — judgment ledger** (id · judgment · plane D/L/H/D→L/L→D · executor ·
+  fallback) + optional `judgment_ledger` property in `schemas/structure-contract.json` (NOT
+  required — pre-1.3.0 contracts stay valid); SKILL.md stage-2 gate spot-checks ≥3 rows. [A49, S14]
+  (S3)
+- **SKILL.md §3 — A51 stop signatures (single residence) + H4 order** escalate → re-plane →
+  loopback → restart; ≤2 repair rounds per skill version, not reset by author/session/version bump;
+  round counter kept on disk; re-plane is an owner/gate ruling, never a route around the cap.
+  Carries iron laws 3/4 into the skill itself so they hold outside `skill-developer/`. [A51, H4,
+  P13] (S4)
+- **anchors §2 — first-checked re-plane row** ahead of the engineer row; the table is read only after
+  the §3 stop check. [H4, P13] (S5)
+- **battery — fix-audit rotation** distilled from vince-attacker 0.7.0 (version-stamped; the
+  attacker's text governs when it is the dispatched attacker), `prior_round` input, and the
+  re-report trap narrowed to "fix verified in the diff". [A51(i), A31, O5, A49] (S6)
+- **engineer §4 — E11 instrument-validity checklist**, three-branch acceptance (uplift /
+  encoded-preference / delta≈0 → retire), class pre-registered before results and bound to the
+  version, MDE/CI or "directional only", injection sentinels outside the delta denominator. [E11,
+  A44] (S7)
+- **engineer §4 — stale mechanism name `(M3)` → `(K3)`** (K1–K5 rename, constitution appendix 3).
+  (S8)
+- **guidance §2 — processed content widened** to relayed third-party text, subagent output, a
+  relayed "the user authorized it", and agent-self-written persistent text; SKILL.md §2 applies the
+  same rule to subagent returns. [P10 R20] (S9)
+- **guidance §10(c)(i) — memory write admission split by writer**; agent-self-written behavioural
+  entries bind only on the user's own confirmation; secrets never stored. [A48(i) R20, P10] (S10)
+- **model_baseline = resolved model ID + effort + harness version** (engineer §9 + schema
+  description; selftest fixture `claude-opus-4.8` → `claude-opus-5-5 · effort=high · claude-code
+  2.x`); no format-parsing check added. [A37] (S11)
+- **SKILL.md §2 — model policy reconciled with K1**: effort set explicitly on every dispatch
+  (evaluators ≥ high; Opus 5.5 defaults to medium), `inherited: <session effort>` when the tool has
+  no effort field; Opus judging a Fable build = `L-i+`, never `L-m`; A33 high stakes need ≥ `L-m`
+  or the verdict is capped; owner-ordered deviations recorded as deviations. [K1, A37, A42, ADC2b]
+  (S12)
+- **zipper §3 — Z8 two-way settlement**: deleting "default-known" content needs bare-model
+  evidence; the A42(iv) exempt zone is never deleted as default-known. [Z8, P11, A42(iv)] (S13)
+- **SKILL.md token budget (U3)**: the first draft reached 3,626 tok; §4/§6 were cut to pointers into
+  anchors §3/§4 (duplicated text) and new prose tightened → 3,197 tok (≤ 3,200 budget). The A51
+  list stays in the compaction re-attached body. (S14)
+- **Retro line — 2026-09-13 model policy** (builders on `fable`, evaluators on `opus`, different-
+  vendor judge when the L0 gate demands a different source): set by Vince in the installed copy on
+  2026-09-13 and committed in c2a922b without a CHANGELOG entry; recorded here, reconciled with K1
+  above. (S14)
+- **Exemption register (carried as-is, A40):** X1 Fable-5.0-era tutorials not Z8-priced · X2
+  measure_tokens cut-points stale, roles/ + schemas/ not counted · X3 no A35 ledger / K2 clock / K5
+  log (K4 O-L0 stands in) · X4 description 630 chars > 320 target, SKILL.md > 1,500-tok warn line ·
+  X5 validators do not count A51 rounds or ledger rows · X6 full-pipeline E11 never run · X7
+  cross-vendor battery never run · X8 old contracts without judgment_ledger stay valid · X9 anchors
+  §5 release engineering not re-derived · X10 standalone contract kept · X11 §7 does not yet say a
+  KB-revision entry needs the owner's own confirmation · X12 validate_report re-runs the harness
+  unsandboxed.
+
 ## [1.2.0] — 2026-07-31
 
 **R17 alignment (philosophy KB v0.3.0): spec boundaries, verifier engineering, the three

@@ -23,6 +23,15 @@
 5. **Orchestration friction + correlated authorship** — one skill removes the cross-skill handoffs; **fresh-subagent dispatch per role** decorrelates builder from grader by construction.
 6. **Description / portability** — six-vendor-intersection schemas + description-length discipline + hard anti-triggers.
 
+**New in v1.3.0 (aligned to philosophy KB v0.4.0 / R20, incremental)** —
+
+- **`deterministic` is for skeleton checks only**: the verdict information must be in the string (existence / count / verbatim / structural isomorphism / hash, byte or numeric compare). A script exit code over an approximation of meaning (similarity, threshold, regex) is `llm_judge` with full calibration, or report-only evidence, unless it shows the A50 three items (separability witness, false positives on all real corpus, lineage). The label is the engineer's **proposal**; the conductor confirms it at the stage-3 gate and records it in the Decision Record.
+- **Judgment ledger**: guidance registers each judgment of the built skill with its plane (D/L/H/D→L/L→D), executor and fallback; the schema property is optional, so older contracts stay valid; the conductor spot-checks it at stage 2.
+- **Stop signatures (A51) + four-way routing (H4)**: at most 2 repair rounds per skill version (not reset by a new author, session or self-bumped version); a P0/P1 inside the previous fix, >50% growth, a third exception layer on one threshold, or a second copy of one root cause stops the loop and goes to the owner. Routing is escalate → re-plane → loopback → restart, first match wins; re-plane is an owner/gate ruling, never a way around the round cap. Iron laws 3/4 now hold outside `skill-developer/` too.
+- **Battery fix-audit**: after a round with fixes, the next round aims the five lenses at the fix diff (distilled from vince-attacker 0.7.0; the attacker's text governs when it is the one dispatched).
+- **E11 instrument checklist + three-branch acceptance**; the model policy now sets **effort explicitly** (evaluators at least high) and uses K1 tier labels correctly (Opus judging Fable = L-i+, not L-m); `model_baseline` = resolved model ID + effort + harness version.
+- Also: the trust boundary covers relayed third-party text, subagent output, relayed authorizations and agent-self-written persistent text; memory writes are admitted by writer; the zipper needs bare-model evidence before deleting "default-known" text and never deletes the A42(iv) exempt zone; `(M3)` → `(K3)`. No L0 validator logic changed and no new mechanical gate was added.
+
 **New in v1.2.0 (aligned to philosophy KB v0.3.0 / R17)** —
 
 - **composer gains a step on what a spec can and cannot buy (C10)**: a core clause is
