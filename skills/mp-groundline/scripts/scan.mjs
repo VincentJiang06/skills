@@ -595,5 +595,7 @@ if (isMain) {
   }
   const result = scan(root);
   process.stdout.write(JSON.stringify(result, null, 2) + "\n");
-  process.exit(result.ok ? 0 : 1);
+  // exitCode, not exit(): exit() right after write truncates a piped stdout at
+  // the 64 KiB pipe buffer while still returning 0.
+  process.exitCode = result.ok ? 0 : 1;
 }
