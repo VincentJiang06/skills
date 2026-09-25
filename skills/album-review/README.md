@@ -18,4 +18,12 @@
 
 **安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/album-review ~/.claude/skills/`）。
 
+**版本** —— 0.3.0（2026-09-25）。改动与验证记录见 [CHANGELOG.md](CHANGELOG.md)。
+
+**已知局限（0.3.0 未修，详见 CHANGELOG「Open findings」）** ——
+- 上文「古典强制带参考录音 / 版本比较」言过其实：`--class` 由写作者自选，「版本」「曲式」这类泛词就能满足关键词组，古典的作品 / 演绎分离**没有**脚本强制。
+- 章节关键词检查用的多是泛词（分析、参考、背景、声音、版本），「防漏写某一维度」只在整篇一个同组词都没出现时才成立；标题是否存在也没有写作者自检步骤。
+- `classify_route` 只是粗糙的正则代理，会把意图混杂的提示路由错；是否触发以 description 为准。
+- 独立性只到 instance 档（本轮所有角色都是 Opus 5.5 high 新上下文），不是跨厂商验证。
+
 完整说明见 [SKILL.md](SKILL.md)。

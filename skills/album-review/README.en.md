@@ -18,4 +18,12 @@
 
 **Install** — `npx skills add VincentJiang06/skills` (or `cp -R skills/album-review ~/.claude/skills/`).
 
+**Version** — 0.3.0 (2026-09-25). Changes and verification record: [CHANGELOG.md](CHANGELOG.md).
+
+**Known limitations (open in 0.3.0; see CHANGELOG "Open findings")** —
+- "Classical requires reference-recording comparison" above over-claims: `--class` is the writer's choice and generic words (版本, 曲式) satisfy the keyword groups, so the classical work/performance split is **not** script-enforced.
+- The section-keyword check uses mostly generic words (分析, 参考, 背景, 声音, 版本); "catches a forgotten dimension" holds only when no word of that group appears anywhere, and no writer step self-checks that the headers exist.
+- `classify_route` is a rough regex proxy that misroutes mixed-intent prompts; the description governs activation.
+- Independence is instance-tier only (every role this wave was a fresh Opus 5.5 high context), not cross-vendor.
+
 Full spec: [SKILL.md](SKILL.md)
