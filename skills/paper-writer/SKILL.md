@@ -2,7 +2,7 @@
 name: paper-writer
 description: Author a NEW, complete, spec-compliant paper (essay/thesis chapter/literature review/课程论文) from a requirement (word-count/citation-style/sections) and/or a topic-选题. Use for "write me a paper on…", "写一篇…的学术论文", "turn a brief into a paper". NOT to proofread/summarize/humanize/fact-check an EXISTING paper (→ siblings).
 metadata:
-  version: 0.2.1
+  version: 0.2.2
   model_baseline: claude-opus-5-5, effort high, harness Claude Code
 ---
 

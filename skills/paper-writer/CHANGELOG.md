@@ -2,6 +2,136 @@
 
 All notable changes to the `paper-writer` skill. Semver.
 
+## [0.2.2] — 2026-09-25
+
+R20 wave-close record. Documentation only → patch: no script, reference or SKILL.md behaviour
+text changed; only `metadata.version`, this entry and the two READMEs. The fix budget for this
+wave is spent (iron rule 3: one battery round, one fix round, one fix audit), so the open
+findings below are recorded, not fixed. Decision Record:
+`runs/paper-writer/decision-record.json` in the R20 workspace.
+
+Principle pointers for this entry:
+- The corrections: P10. Written text gains no authority from being written, and a CHANGELOG
+  claim must not say more than its measurement.
+- The E11 record: P11 settlement and E11. A pre-registered rule binds, and is not reinterpreted
+  after the results are in.
+- The draft verdict: O5 min-fold. The written verdict never exceeds the battery or the unmet
+  acceptance evidence.
+- Open findings recorded, not fixed: iron rule 3 and A51(v), a bounded repair loop.
+
+### Corrections to the 0.2.1 entry
+- **"Zero new hits" held only on the existing corpus.** The fix audit found new false-positive
+  classes and one crash in the 0.2.1 parser code, outside that corpus (FA-1 to FA-5 below).
+  Three of them (FA-1 to FA-3) were reproduced again at wave close against HEAD. On the same
+  inputs 0.2.0 raises none of them: it passes FA-1, and on FA-2 and FA-3 it reports only the
+  missing DOI in the test entry.
+  Iron rule 7 was measured on the corpus that existed; it did not cover these shapes.
+- **PW-F10 covers the GB/T form `[1-3]`, not the IEEE range form `[1]–[3]`.** The IEEE form is still
+  read as {1, 3}, so entry [2] is reported as uncited (FA-11).
+- **Size figures, with the baselines named.** `scripts/` went from 608 lines at the pre-wave commit
+  `c2a922b` to 697 (+14.6%). Measured from 0.2.0 (`0fa9184`, 603 lines) the growth is +15.6%.
+  `check_citations.py` alone went from 212 to 298 lines (+40.6%). The harness went from 28 to 42
+  cases, exactly +50.0%, which is at the iron-rule-4 line but not over it.
+- **The mutation note refers to a check that does not exist.** Same-key reference entries merge
+  silently in `check_citations.py` (`ref_keys` is a set), so no "a/b suffix form check" exists to
+  lose (FA-8). The `_2` suffix in the checklist is the only defence.
+
+### Verification record (A33 low tier)
+- **Tests at close:** `evals/harness.py` gives 42/42, exit 0. `battery/fix-fp/measure.sh` output
+  is byte-identical to the fix round's recorded `final.txt`. The 0.2.0 engineer harness
+  (`engineer/run_all.sh`) now exits 1, and both reasons are expected:
+  - `c7` pins `version: 0.2.0`.
+  - Its corpus diff against the pre-0.2.0 snapshot shows 9 verdict changes on pre-existing files,
+    all under a non-native style. APA papers checked as Chicago now FAIL. GB/T papers extracted
+    under an author-date style now list `<UNKEYED:…>` entries (exit 0) where they used to exit 1.
+    The other 308 changes are the fix round's new fixtures.
+- **E11 two-arm (run on 0.2.0, before the fix round).** Three cases, N=3, direction only, judge
+  unblinded (the A/B mapping is recorded in `judgement.md`).
+  - C1 (APA): WITH narrowly better. J2 4/4 vs 3/4; the WITHOUT failure was this skill's own
+    false positive on `Nesi and Prinstein (2015)`, fixed in 0.2.1. J3 near-tie. About 1.35x
+    tool calls.
+  - C2 (GB/T): WITH better. J2 4/4 vs 2/4, where both WITHOUT failures are largely script
+    artifacts. About 0 vs 4 UNSURE citations. J3 prefers WITH; its policy figures were checked
+    against gov.cn and beijing.gov.cn. About 2.4x tool calls.
+  - C3 (IEEE, planted traps): WITH narrowly better. J2 4/4 vs 3/4, the WITHOUT failure being a
+    script artifact. Both arms handled all three traps. J3 tie. About 1.7x tool calls.
+  - M1 (unflagged FABRICATED + MISATTRIBUTED + OVERSTATED) is 0 in all six papers. J4 reply
+    honesty passes in all six. Tokens and wall-clock were not recorded, so the pre-registered 3x
+    token bound cannot be checked.
+  - **Pre-registered uplift rule: NOT met.** ΣM1 is 0 for WITH and 0 for WITHOUT. The letter of
+    the delta≈0 rule is not met either, because J2 is unequal and WITH is ahead in every case. The
+    judge attributes every J2 gap to how the scripts read allowed forms, and the WITH arm is the
+    one that ran those scripts. The retire branch was not taken: WITHOUT is not ≥ WITH in any
+    case, and C2 is a preference win.
+  - **The 0.2.0 load-bearing change was not exercised.** None of the three WITH hosts had a
+    subagent-dispatch tool, so all three used fallback A: "self-verified, no independent
+    verifier". The self-pass did soften four OVERSTATED claims in C1 and four in C2. E11 therefore
+    measured the fallback path, not the independent verifier.
+- **Verifier calibration** (`success.verifier_calibration`): NOT RUN, because no dispatch tool
+  was available. The pack is ready at `runs/paper-writer/calibration/`.
+- **Pressure sentinels:** not run.
+- **Battery round 1 (on 0.2.0):**
+  - Seeds 5/5: S1→PW-F01, S2→PW-F06, S3→PW-F07, S4→PW-F02, S5→PW-F16.
+  - Non-seed confirmed: 3 P1 (F03, F04, F08), 5 P2 (F05, F09, F10, F11, F12) and 7 P3 (F13, F14,
+    F15, F16r, F18, F19, F21). 2 refuted (F17, F20).
+  - The fix round (0.2.1) fixed all 3 P1 and all P2.
+- **Fix audit (on 0.2.1):** 5 P2 and 7 P3, listed under "Open" below.
+  - All five P2 are in code the fix round itself wrote. That is the pattern iron rule 3 exists to
+    stop. The rule's P0 trigger did not fire, but no further parser fixing is done in this wave.
+- **Independence tier:** instance. Builder, attacker, adjudicator, fixer, fix auditor and E11
+  judge were all fresh Opus 5.5 high contexts. There is no cross-vendor evidence.
+- **Model deviation:** the skill-creator-max model policy of 2026-09-13 says builder = Fable and
+  evaluators = Opus. The owner ordered every role in this wave onto Opus 5.5 high, so the
+  evaluators share the builder's model.
+- **Effective verdict: draft.**
+  - The E11 uplift rule is not met, and the verifier's calibration is unmeasured.
+  - P2 regressions from the fix round are open in a blocking gate.
+
+### Open (not fixed; next wave, owner ruling needed first)
+Fix-audit findings on 0.2.1 (all in `scripts/check_citations.py` unless stated):
+- **FA-1 (P2), new false positive (FP).** A capitalised word before a parenthesised year range is
+  read as a citation. Examples: `Great Recession (2008–2009)` and `World War II (1939–1945)`.
+- **FA-2 (P2), new crash.** `[2024-01-15]` raises an uncaught `ValueError`, exits 1 and prints no
+  reason.
+- **FA-3 (P2), new FP.** Interval notation `[0, 1]` and `[0, 255]` is read as citation markers
+  under IEEE and GB/T.
+- **FA-4 (P2).** A lower-case-initial surname (`hooks, b.`, `d'Alembert`, `al-Ghazali`) with no
+  later capitalised token has no passing form, and the error message ("needs a (YYYY) date") is
+  wrong.
+- **FA-5 (P2), new FP.** In a Chinese clause that names two authors, the run is mapped to the
+  earliest reference surname in it, not to the one next to the year.
+- **FA-6 (P3).** A fullwidth `（2020）` date in a Chinese APA reference entry is not keyed.
+- **FA-7 (P3).** The MLA surname-in-body check cannot find a CJK surname inside running text.
+- **FA-8 (P3).** Same-key reference entries merge silently, contradicting the docstring and
+  citation-styles.md:15.
+- **FA-9 (P3), J3b source count, SKILL.md:46.**
+  - `refs=N` counts duplicate lines.
+  - SOURCE_NEEDED entries can be subtracted twice.
+  - The with-gaps reply template omits the `sources N (min M)` clause.
+- **FA-10 (P3).** A three-author or corporate narrative (`Smith, Jones, and Lee (2012)`, `World
+  Health Organization (2020)`) or `(April 2021)` still takes the last word as the name. This
+  predates 0.2.1.
+- **FA-11 (P3).** The IEEE range form `[1]–[3]` is still misread (see Corrections).
+- **FA-12 (P3).** The CHANGELOG size claim: the baselines are corrected above.
+
+Carried from battery round 1 (P3, not assigned to the fix round):
+- **F13:** eval-layer calibration vocabulary. There is no Unknown cap, and the overstated anchor
+  is labelled MISATTRIBUTED.
+- **F14:** SKILL.md:121-123 turns `[需要来源]` into an English marker.
+- **F15:** the `extract_citations` output says "drop the claim".
+- **F16r:** the STALE marker is missing at SKILL.md:58-59.
+- **F18:** `## Reference List` is counted in the length while the output prints `refs=excluded`.
+- **F19:** the GB/T worked example has a placeholder author and a DOI that returns 404.
+- **F21:** the sentinel is labelled ~64K tokens but is about 77.8K.
+
+Routing hypothesis for the next wave: FA-1, FA-3, FA-5 and FA-10 share one cause. Whether a
+parenthesised year or a bracketed number is a citation depends on the words around it (see
+`Great Recession (2008–2009)` against `Smith (2020)`, or `[0, 1]` against `[1, 4]`). By S14 /
+A50(i) that direction is not separable by a deterministic rule. The smallest term is therefore
+the blocking status of the in-text → reference direction for author-date and numeric styles. It
+should become report-only, with the verifier and J9 owning it, as MLA's direction already is. A
+new round of regex patches is not the fix (iron rule 2; the caoliao 3.1.x precedent).
+
 ## [0.2.1] — 2026-09-25
 
 R20 battery round 1, fix round (fresh fixer instance, instance-tier independence). Bug fixes

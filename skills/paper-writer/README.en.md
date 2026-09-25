@@ -20,6 +20,23 @@
 
 **What ships** — 1 `SKILL.md` + 5 `references/` (integrity policy / citation styles / paper structures / subjective rubric / verifier brief) + 4 deterministic scripts (`scripts/`: length / sections / citation-format / citation checklist + ledger-completeness gate, Python stdlib) + an eval harness.
 
-**Honest note (v0.2.0)** — 0.1.0 described the ledger gate's exit code as unfakeable by a draft, but the ledger was filled in by the same agent that wrote the paper, so the claim did not hold; 0.2.0 corrects it. The verifier's independence is **instance-tier** (a fresh context of the same model family), not cross-vendor. When the host cannot dispatch a subagent, the skill falls back to a self-pass and the reply says so. The 2026-07-29 two-arm comparison mentioned in a 0.1.0 commit has no artifacts on disk and is treated as zero information; the 0.2.0 two-arm comparison (E11) is **not yet measured**.
+**Honest note (v0.2.2, status draft)** —
+- **The 0.1.0 claim is corrected.** 0.1.0 described the ledger gate's exit code as something a draft could not fake. The ledger was filled in by the same agent that wrote the paper, so the claim did not hold; 0.2.0 corrected it.
+- **The verifier is instance-tier.** It is a fresh context of the same model family, not a different vendor. When the host cannot dispatch a subagent, the skill falls back to a self-pass and the reply says so.
+- **Two-arm comparison (E11, run on 0.2.0, N=3, direction only):**
+  - The skill arm was narrowly better or better in all three cases.
+  - Unflagged fabricated, misattributed or overstated citations were 0 in both arms, so the pre-registered uplift rule is **not met**.
+  - The judge attributed every format-score gap to how the scripts read allowed forms.
+  - The judge preferred the skill arm in 1 case and called the other 2 ties.
+  - The skill arm used about 1.35–2.4x the tool calls. Tokens and wall-clock were not recorded.
+  - None of the three hosts could dispatch a subagent, so **the independent verifier never actually ran**. The runs measured the self-pass fallback, and verifier calibration is also unrun.
+- **Battery:** 5/5 seeds were hit, and 3 P1 plus 5 P2 findings were fixed in 0.2.1. The fix audit then found 5 P2 findings **in 0.2.1's own new parser code**. All are open:
+  - False citations: year ranges such as `Great Recession (2008–2009)`, and math intervals such as `[0, 1]`.
+  - A crash on `[2024-01-15]`.
+  - No passing form for lower-case surnames such as `hooks, b.`.
+  - Wrong author matching when one Chinese clause names two authors.
+
+  7 P3 findings also remain. The full list is in CHANGELOG 0.2.2.
+- **Next step needs an owner ruling.** The proposal is to make the in-text → reference direction report-only, because the forms are not separable (S14), instead of adding more regex patches.
 
 Full mechanism in [SKILL.md](SKILL.md).
