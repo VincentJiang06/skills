@@ -28,7 +28,9 @@ now does what its own text already promised; no contract change.
   0.8.2 recovers all 166.
 - **FA-4 (P3) — no false positive on wrapped bullets.** 0.8.1 flagged an indented continuation
   line of a bullet as an "unrecognised falsifiable-question line". It is now appended to the
-  previous probe (CommonMark continuation), so no text is dropped and no flag is raised.
+  previous probe (CommonMark continuation), so no text is dropped and no flag is raised. An
+  unindented ("lazy") continuation line still raises `needs_human`: that side fails closed, and it
+  occurs 0 times in the real corpora.
 - FA-1 and FA-4 are line-shape checks only (A50; P13: nothing semantic is judged). Two new
   `--selftest` cases (`blank-then-numbered`, `loose-list-continuation`). Mutation check: 3/3
   mutants of the new branches killed. False positives (iron rule 7) on every real corpus that
