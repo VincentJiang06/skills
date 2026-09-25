@@ -82,6 +82,32 @@ measurements were taken from.
 - E11（Opus 5.5 定向结算，A42）：三个用例的两臂靶子已按铁律 6 备好；结果由 conductor
   跑完后盖 model_baseline（claude-opus-5-5 / high / Claude Code）。
 
+### Fixed — battery 第 1 轮（instance 档，5/5 种子命中；另一作者修复，5 个 P2）
+
+每条都先在 c8c792e 的脚本快照上跑红（`runs/workspace-backup/fixer/red-log.txt`），再改。
+- **F07（P2）配置里有未知顶层键或没有 `source_roots` → 所有脚本退出 2 并点名那个键。**
+  0.2.3 说修好的 `sources` 配置事故其实还在（`0 units, 0 B`，退出 0）；ledger-format.md
+  「严格校验、点名」原来只是承诺。`_` 开头的键算备注。新增 `_state.cli`：配置错误一律
+  退出 2，不再抛 traceback。指向：「退出码优先于散文」、fail-closed 教训。
+- **F08（P2）两个源根同名（a/work、b/work）→ 退出 2 并点名两个根。** 原来第二个根被
+  `setdefault` 静默丢掉，不出单元也不进 UNCOVERED。指向：INV-03/F2、UNCOVERED 契约。
+- **F05（P2）单元拷贝去掉 1 小时上限；拷贝器的 SubprocessError 与 OSError 同样只算这一个
+  单元失败**（journal `exit_code 13`，整体退出 7，继续下一个单元）。技能自己说首跑可能超过
+  6 小时，17 GB 的单元一小时拷不完。指向：C5/L4-25、INV-03。
+- **F06（P2）空间估算在重命名后是下界：当估算放得下而上界放不下时，plan 打印
+  `SPACE_ESTIMATE_LOWER_BOUND`（`fits_upper_bound: false`），第 4 步必须给用户看。**
+  闸门本身仍按估算拒绝——按上界拒绝会让 17 GB 单元的每一次小改动在紧张的盘上被反复拒绝
+  （过度拒绝；铁律 7 误报优先）。destination-policy.md 改为如实说「这是估算」。
+- **F03（P2）`--adopt-foreign-marker` 真的会接管了。** 原来只是绕过拒绝：退出 0、marker
+  原样、journal 空、guard 仍 30。现在 FOREIGN_MACHINE / DEST_ID_MISMATCH 没有
+  `--adopt-foreign-marker --confirm` 就退出 30（DEST_ID_MISMATCH 以前连拒都不拒）；
+  两个都有时把 marker 改写成本机 + 当前 dest_id（仍只六个键），并 journal
+  `destination_adopted`（解析后路径 + 原身份）。同意仍是规则层：用户原话。指向：
+  destination-policy.md 标识一节（原承诺现已实现）、放宽权限的键、INV-05。
+- 增量：脚本 4,910 → 4,994 行（基线 4,760，+4.9%；单文件最大 init_destination +20%）；
+  用例 88 → 93（基线 81，+15%）；`--selftest` 24 个变异体仍全部被抓。
+- 未修（P3，已登记）：F04 F12 F13 F14 F16 F18 F19 F20，见 `runs/workspace-backup/battery/ADJUDICATION.md`。
+
 ### 需要 Vince 自己做的（技能不会替你做）
 
 1. **决定 icloud 目的地**：升级后它会被扣住（退出 30），报告里写明；要保留就在

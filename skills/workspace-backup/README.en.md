@@ -122,7 +122,7 @@ references/
   first-run-setup.md         the once-per-destination-lifetime path
 scripts/                     8 python3 stdlib-only scripts, each with its own --selftest
 evals/
-  run_all.py                 88-case deterministic harness (--selftest: 24 mutants)
+  run_all.py                 93-case deterministic harness (--selftest: 24 mutants)
   baseline_arm.py            a SCRIPTED bare-model strawman (not E11 evidence, see below)
   fixtures/                  includes a REAL captured `diskutil apfs list -plist` of disk7
 ```
@@ -132,7 +132,7 @@ per-machine mutable state and must survive the skill being reinstalled.
 
 ## Evidence
 
-- `python3 evals/run_all.py` — 88/88, ~1.5 min, no network, no third-party
+- `python3 evals/run_all.py` — 93/93, ~1.5 min, no network, no third-party
   imports. (`evals/` is kept out of git by repo policy and archived with the dev record.)
 - `python3 evals/run_all.py --selftest` — injects twenty-four real defects (Time
   Machine detection disabled, `plan.json` allowed to redirect the write target,
@@ -163,6 +163,16 @@ per-machine mutable state and must survive the skill being reinstalled.
 - **The host write-protection lock is untested** (unknown U1): the settings
   snippet in first-run-setup.md is the 2026-09-25 understanding; run the one-time
   check written there after installing it.
+- **The space estimate is a lower bound (0.3.0 battery fix F06).** rsync re-sends
+  renamed or moved files, and the estimate is "unit bytes minus what the
+  destination held". When the estimate fits and the upper bound does not, the
+  plan prints `SPACE_ESTIMATE_LOWER_BOUND`: a warning, not a refusal — the person
+  who just reorganised a large unit knows whether it applies.
+- **The 0.3.0 battery round 1 left 8 P3 items unfixed** (F04 staleness headline,
+  F12 exit-code wording for a missing marker, F13 a permanent re-check when delete
+  is on without a marker, F14 a verify hint, F16 headline date pairing, F18 a doc
+  count, F19 `_state --selftest --state-dir`, F20 init's exit codes missing from
+  the table); the adjudication lives in the R20 run directory.
 - **The secret list is a pattern match** (`.env`, `.env.*`, `*.pem`, `*.key`):
   `id_rsa`, `credentials.json`, `.npmrc` and the like are not in it, and the
   report says so.

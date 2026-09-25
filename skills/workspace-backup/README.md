@@ -108,7 +108,7 @@ references/
   first-run-setup.md         每个目的地一辈子只走一次的初始化路径
 scripts/                     8 个 python3 纯标准库脚本，每个都带 --selftest
 evals/
-  run_all.py                 88 条用例的确定性 harness（--selftest 用 24 个变异体自证）
+  run_all.py                 93 条用例的确定性 harness（--selftest 用 24 个变异体自证）
   baseline_arm.py            脚本化的"裸模型"稻草人（不是 E11 证据，见下）
   fixtures/                  含**真实捕获**的 disk7 `diskutil apfs list -plist`
 ```
@@ -118,7 +118,7 @@ evals/
 
 ## 证据
 
-- `python3 evals/run_all.py` —— 88/88，约 1.5 分钟，无网络、无第三方依赖。
+- `python3 evals/run_all.py` —— 93/93，约 1.5 分钟，无网络、无第三方依赖。
   （`evals/` 按仓库策略不入 git，随开发记录另存。）
 - `python3 evals/run_all.py --selftest` —— 往 24 个不同位置注入真实缺陷
   （关掉 TM 检测、让 `plan.json` 重新决定写到哪、只凭台账记录就说 SAFE、
@@ -139,6 +139,12 @@ evals/
   `off_machine: true`。另一台盘上拷过来的旧家目录会误报，代价是多确认一次。
 - **宿主写保护锁没有实测**（unknown U1）：first-run-setup.md 里给的设置片段是
   2026-09-25 的理解，装上后要按那里写的一次性检查验证。
+- **空间估算是下界（0.3.0 battery 修复 F06）**：重命名或挪动的文件 rsync 会重传，
+  估算只按"单元字节减目的地已有"算。估算放得下、上界放不下时 plan 会打印
+  `SPACE_ESTIMATE_LOWER_BOUND`，只提示不拒绝——刚整理过大单元的人自己判断。
+- **0.3.0 battery 第 1 轮留下 8 条 P3 未修**（F04 陈旧度头条、F12 无 marker 的退出码表述、
+  F13 无 marker 时开删除的永久复查、F14 verify 提示语、F16 头条日期配对、F18 文档计数、
+  F19 `_state --selftest --state-dir`、F20 init 退出码未入表），裁决记录在 R20 运行目录。
 - **密钥清单是模式匹配**（`.env`、`.env.*`、`*.pem`、`*.key`）：`id_rsa`、
   `credentials.json`、`.npmrc` 之类不在其中，报告会明说。
 
