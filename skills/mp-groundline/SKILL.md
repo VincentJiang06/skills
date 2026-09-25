@@ -48,12 +48,10 @@ when the scan finds them. **Flag, never silently drop.**
 ## Steps
 
 ### Preflight
-Resolve `miniprogramRoot` from `project.config.json`; locate `app.json`; confirm
-the program is on Skyline — app `renderer == "skyline"` **or** any page json
-pinned to `"skyline"` (per-page adoption counts). Only when the scan says
-`already_migrated` (app and every page on WebView) → report already-migrated, run
-the scan as a no-op inventory, and **STOP before editing**. Confirm a clean git
-working tree so the flip is revertible.
+Resolve `miniprogramRoot`; locate `app.json`; confirm Skyline — app or any page
+json `renderer: "skyline"`. If the scan says `already_migrated` (app and every
+page on WebView) → report it, keep the scan as a no-op inventory, and **STOP
+before editing**. Confirm a clean git working tree so the flip is revertible.
 
 ### Step 1 — Scan  → load `rules/scan-protocol.md`
 ```bash
@@ -70,14 +68,12 @@ Write `MIGRATION-MAP.md` **before any edit** so the plan is reviewable. Contract
 `references/scanner-contract.md`; mapping evidence: `references/skyline-to-webview.md`.
 
 ### Step 3 — Mechanical flip
-Edit `app.json` and every page json listed as a `page_renderer_override` (a page
-pinned to Skyline — the app flip does not reach it): `renderer → "webview"`. A page
-already pinned to `"webview"` needs no edit.
+`renderer → "webview"` in `app.json` and in every `page_renderer_override` page
+json (the app flip does not reach a Skyline-pinned page; webview pins need no edit).
 Keep `glass-easel`, `style:"v2"`, `navigationStyle:"custom"`, `lazyCodeLoading`,
 per-page `disableScroll`; keep or strip `rendererOptions.skyline` (ignored by
-WebView). If it lacks `defaultDisplayBlock`/`defaultContentBox: true`, Skyline was
-laying nodes out as flex + border-box: expect a global layout shift after the flip
-(the map warns; `references/skyline-to-webview.md`).
+WebView) — without its `defaultDisplayBlock`/`defaultContentBox`, expect a global
+layout shift (Skyline defaulted to flex + border-box; `references/skyline-to-webview.md`).
 
 ### Step 4 — Verify  → load `rules/verify-with-vince-mp.md`
 Use the system `vince-mp` CLI (the tool `mp-cli-sup` drives — do **NOT**
