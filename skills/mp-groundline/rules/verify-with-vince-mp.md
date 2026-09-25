@@ -11,6 +11,40 @@ at use time on the real program.
 > the `vince-mp-cli-sup` skill's `references/cli-contract.md` (installed next to
 > this skill; in the repo it lives at `../../mp-cli-sup/references/cli-contract.md`).
 
+## Precondition — check before Step 3
+
+The baseline is captured on the un-flipped program, so check this first:
+`vince-mp session start --json` must return `ok` (it resolves the project, ensures
+the DevTools automation port, and attaches). `vince-mp doctor --skip-typecheck
+--json` helps diagnose a failure, but it does not prove the port is live. Errors such as
+`WECHAT_CLI_NOT_FOUND`, `AUTOMATION_PORT_TIMEOUT`, `AUTOMATOR_CONNECT_FAILED`,
+`APP_NOT_RUNNING`, or `vince-mp` missing from PATH mean verification cannot run.
+
+## If verification cannot run — the degraded path
+
+Nothing was observed, so nothing may be claimed. You may still do Steps 1–3
+(scan, MIGRATION-MAP, flip), but:
+- keep the flip **uncommitted** so it stays revertible (`git checkout` rollback);
+- mark **every** page `UNVERIFIED` in the MIGRATION-MAP; never write "consistent"
+  or "verified", and do not infer consistency from reading the code;
+- make **no** Step 5 fixes — there are no confirmed deltas, and fixing "likely"
+  deltas from the scan is the assumed-regression mistake (minimal-fix rule 1);
+- still surface every `rewrite` item, and tell the user to open DevTools
+  (automation enabled) and re-run this loop.
+Report it as "flip applied, NOT verified: N/N pages UNVERIFIED". A page whose
+capture fails mid-loop (e.g. `SNAPSHOT_ELEMENT_ENUMERATION_TIMEOUT`) is UNVERIFIED
+plus a blocker in the report, the same way.
+
+## Contract points this file depends on (A38 coupling)
+
+From `mp-cli-sup`'s `references/cli-contract.md`: `session start` (one reused
+session), `page`, `data` (pageData, 200KB default cap), `shot <output>` (writes
+under `--workspace-root`; the **parent dir must already exist** — create
+`before/` and `after/` first), `nav <url>` (`navigateTo` only; a tabBar page needs
+`vince-mp step '{"type":"switchTab","url":"..."}'`). If `mp-cli-sup` retires or
+changes any of these five, rebalance this file and SKILL.md Step 4 in the same
+Decision Record (A38). Do not let them silently diverge.
+
 ## The loop (per page)
 
 1. **Start one session** (resolves the project + ensures the automation port +

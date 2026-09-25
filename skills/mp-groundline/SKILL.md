@@ -76,7 +76,11 @@ WebView).
 ### Step 4 — Verify  → load `rules/verify-with-vince-mp.md`
 Use the system `vince-mp` CLI (the tool `mp-cli-sup` drives — do **NOT**
 rebuild it) to capture before/after screenshots + `pageData` per page and diff →
-the list of **actual** deltas.
+the list of **actual** deltas. **Precondition** (check it before Step 3 — the
+baseline is captured pre-flip): `vince-mp session start --json` returns ok
+(vince-mp on PATH + a reachable DevTools automation port). **If it cannot run:** keep the flip uncommitted (revertible), mark every page `UNVERIFIED`
+in the MIGRATION-MAP, make **no** Step 5 fixes, and tell the user to run Step 4 —
+no verification → UNVERIFIED, not consistent.
 
 ### Step 5 — Targeted fixes  → load `rules/minimal-fix-protocol.md`
 Fix ONLY confirmed deltas, smallest change first, re-verify each. Record each fix
