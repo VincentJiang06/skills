@@ -15,10 +15,8 @@ the year; the lead surname may be any script, e.g. Özdemir, 王某某):
   `Surname, I. (YYYY).` — `(n.d.)`, `(in press)`, `(YYYY, Month D)` accepted. Same author +
   same year needs the a/b suffix in both places.
 - `chicago`: `(Surname YYYY, page)` ↔ entry `Surname, First. YYYY.`
-- `mla`: every Works Cited surname must be mentioned in the body. `(Surname page)` has the
-  same shape as `(Figure 2)`, so a parenthetical cite with no Works Cited entry is NOT
-  caught by the script — check it yourself before returning; the verifier checks only
-  listed entries.
+- `mla`: every Works Cited surname must be mentioned in the body; the in-text → Works
+  Cited direction is not checked (see the MLA block).
 - numeric (`ieee` / `gbt`): `[n]`, `[1-3]`, `[1, 4]` ↔ numbered entry `[n] …`.
 An entry the script cannot key fails the gate: fix the entry's form, never delete it.
 
@@ -41,6 +39,10 @@ An entry the script cannot key fails the gate: fix the entry's form, never delet
 - Example: `Doudna, Jennifer A., and Emmanuelle Charpentier. "The New Frontier of Genome
   Engineering with CRISPR-Cas9." Science, vol. 346, no. 6213, 2014, 1258096.
   https://doi.org/10.1126/science.1258096`
+- Gate: `check_citations.py --style mla` checks only that every Works Cited surname appears
+  in the body. `(Surname page)` has the same shape as `(Figure 2)`, so a parenthetical cite
+  with no Works Cited entry is NOT caught, and the verifier checks only listed entries.
+  Before returning, confirm yourself that every `(Surname page)` has an entry.
 
 ## Chicago (author-date)
 - In-text: `(Surname YYYY, page)`.

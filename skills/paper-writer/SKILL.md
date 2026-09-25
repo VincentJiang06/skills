@@ -9,7 +9,8 @@ metadata:
 # paper-writer
 
 Turn a requirement (格式/字数/学科/引用风格/截止) and/or a topic into a COMPLETE,
-submission-ready paper that satisfies every stated hard constraint (checked by scripts) and
+submission-ready paper that satisfies every stated hard constraint (checked by scripts or
+read off their output, see "Who decides what") and
 cites only sources that an independent verifier confirmed support their claims, with every
 remaining gap marked. A fabricated citation or plagiarized passage is not a bad draft —
 it is academic misconduct. That asymmetry drives everything below.
@@ -40,8 +41,11 @@ source pool) into a machine-checkable compliance target:
   references/abstract) — feeds `check_length.py`.
 - **required sections** + order — feeds `check_sections.py`. If unspecified, pull the one
   matching skeleton from `references/paper-structures.md` (read only that skeleton).
-- **named citation style** (exactly one) + **min source count** — feeds
-  `check_citations.py`; read only that style's block in `references/citation-styles.md`.
+- **named citation style** (exactly one) — feeds `check_citations.py`; read only that
+  style's block in `references/citation-styles.md`.
+- **min source count** — no script takes it. Compare it with the `refs=N` that
+  `check_citations.py` prints, minus every entry the verifier left SOURCE_NEEDED (an
+  unverified source does not count toward a minimum); put both numbers in the report.
 - **language** (EN or ZH only in v1; refuse others with a scope message).
 - **source pool** — if the user supplied one, record its path: it is one of the verifier's
   inputs.
@@ -124,7 +128,7 @@ convention before returning.
 
 Word the citation clause by what was proven, and by whom:
 - Fresh verifier wrote the ledger, the gate exited 0, no gaps → e.g.
-  `6000±300 ✓ 5980 (refs=excluded) | sections ✓ | APA ✓ | citations 17/17 independently verified (fresh same-family verifier)`
+  `6000±300 ✓ 5980 (refs=excluded) | sections ✓ | APA ✓ | sources 17 (min 8) ✓ | citations 17/17 independently verified (fresh same-family verifier)`
 - With gaps → `citations 15/17 independently verified (fresh same-family verifier); 2 marked
   [SOURCE NEEDED]: …; 1 claim softened after OVERSTATED: …`, naming every id.
 - Fallback A → `citations 17/17 self-verified, no independent verifier`.
@@ -145,7 +149,8 @@ One owner per verdict. Never attribute J5's verdict to J3 or J4.
 |---|---|---|---|---|
 | J1 | body length in band | D | `check_length.py` | known-bad fixtures + harness |
 | J2 | required sections present, in order | D (heading prefix match has a small semantic residue) | `check_sections.py` | rename the heading; J9 |
-| J3 | citation FORM (cross-refs, identifier shape, style) | D | `check_citations.py` — never existence | known-bad fixtures |
+| J3 | citation FORM (cross-refs, identifier shape, style) | D | `check_citations.py` — never existence | known-bad fixtures; MLA in-text→entry direction is unchecked: you, then J9 |
+| J3b | source count ≥ the brief's minimum | D (count) | `refs=N` from `check_citations.py` minus SOURCE_NEEDED, compared by you | J9 (the reply states N and the minimum) |
 | J4 | ledger complete + internally consistent | D | `extract_citations.py --verify` on the verifier's ledger | J5 for all it cannot see |
 | J5 | source exists and supports the claim at the stated strength | L | fresh verifier, `references/verifier-brief.md` | non-SUPPORTED → SOURCE_NEEDED; J9 |
 | J6 | ledger written by an independent verifier | no gate (a script cannot see authorship) | this procedure + the reply label | eval-time transcript audit |
