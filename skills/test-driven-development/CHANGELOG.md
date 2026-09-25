@@ -46,6 +46,24 @@ and `references/trust-boundary.md` are byte-identical to 1.0.0.
   run and judged by the conductor. Resolution caveat: N=3, no perturbation arm —
   direction only, partial A44 compliance.
 
+### Battery round-1 fixes (prose only; no grader change — iron rules 2/3, A50)
+Battery 2026-09-25 (instance tier) confirmed three P2 grader gaming channels. Each is
+closed by narrowing the claim, not by new grader code: hardening a regex or adding an
+infra gate would restart the mechanization arms race iron rules 2/3 forbid. `evals/` is
+untracked; the exact edits are recorded as patches in
+`runs/test-driven-development/battery/fix-patches/` for the conductor to sync at merge.
+- **F-01 — the stress scenario's `revert_to_red` is not a vacuity backstop** (P13
+  judgment plane; A50(i) witness pair → evidence only; E6 evaluator first suspect).
+  `task.json` declares the base's `ValueError: unsupported duration` an expected red,
+  so any test that calls a new form reds on revert whatever it asserts (witness: impl
+  `'45m'`→7, test checks only `isinstance(..., int)`, all metrics PASS).
+  `evals/README.md` no longer calls revert-to-red "the backstop for vacuous tests of ANY
+  shape"; the sentinel `rubric.md` reads grader output as evidence and adds dimension 4
+  "the red bites" (judge reads the assertions and the pasted RED) with a
+  PASS / FAIL / UNSURE→human vocabulary (iron rule 6 ⑥). `expected_red_patterns`
+  unchanged (the ValueError red is the legitimate feature-missing red for the good
+  candidate).
+
 ### Not changed (exemption register, carried under A40)
 E-DESC description 394 chars > 320 target (no trigger-eval budget) · E-TOK SKILL.md
 > 1,500-token warn (orchestrator skeleton) · E-NOSTAMP prose references carry no
