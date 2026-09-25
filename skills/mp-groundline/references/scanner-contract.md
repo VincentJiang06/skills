@@ -220,7 +220,9 @@ are not in the uploaded package, so they are not migration sites — typically a
 `dist/` build copy that would otherwise double every finding. Other ignore types
 (`file`/`suffix`/`prefix`/`regexp`/`glob`) are not honored. Each skipped folder is
 listed in `ignored_dirs` and in the MIGRATION-MAP header. Page-json renderer pins
-are still read from `app.json` regardless. (Eval: `scan_pack_ignore_folder`.)
+are still read from `app.json` regardless. A program that swaps `app.json` /
+`project.config.json` per build variant is scanned in its current variant only —
+scan each variant separately. (Eval: `scan_pack_ignore_folder`.)
 
 The whole `miniprogramRoot` tree is walked recursively, so source findings inside
 **subpackage** dirs and **custom component** files (`Component({...})`, not just
