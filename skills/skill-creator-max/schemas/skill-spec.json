@@ -68,12 +68,12 @@
         },
         "unknowns": {
           "type": "array",
-          "description": "explicit unknowns, EACH with a discovery plan (C2). A dimension is legally blank only if it appears here.",
+          "description": "explicit unknowns, EACH with a discovery plan (C2). A dimension is legally blank only if an entry here (or in disputes) names it in the OPTIONAL `field` key — exact match; a mention inside the free text does not count (validate_spec; 1.3.1 battery fix F02).",
           "items": {
             "type": "object",
             "additionalProperties": false,
             "required": ["id", "unknown", "discovery_plan"],
-            "properties": {"id": {"type": "string"}, "unknown": {"type": "string"}, "discovery_plan": {"type": "string", "description": "when + how it gets resolved"}}
+            "properties": {"id": {"type": "string"}, "unknown": {"type": "string"}, "discovery_plan": {"type": "string", "description": "when + how it gets resolved"}, "field": {"type": "string", "enum": ["task", "trigger", "users", "baseline", "success", "failure_cost", "materials", "dependencies", "rejected"], "description": "OPTIONAL (not in required, so specs written before this key stay valid): the tri-state field this entry carries while that field is left blank"}}
           }
         },
         "disputes": {
@@ -83,7 +83,7 @@
             "type": "object",
             "additionalProperties": false,
             "required": ["id", "dispute", "candidates"],
-            "properties": {"id": {"type": "string"}, "dispute": {"type": "string"}, "candidates": {"type": "array", "items": {"type": "string"}}}
+            "properties": {"id": {"type": "string"}, "dispute": {"type": "string"}, "candidates": {"type": "array", "items": {"type": "string"}}, "field": {"type": "string", "enum": ["task", "trigger", "users", "baseline", "success", "failure_cost", "materials", "dependencies", "rejected"], "description": "OPTIONAL (not in required, so specs written before this key stay valid): the tri-state field this entry carries while that field is left blank"}}
           }
         },
         "stop": {

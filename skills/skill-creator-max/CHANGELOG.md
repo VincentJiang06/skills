@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.1] — 2026-09-25
+
+**Battery fix round 1 of the 1.3.x line (A51(v): the round count is NOT reset by this patch bump).**
+Fixes the three P2s confirmed by the 1.3.0 battery (instance tier, smoke-only); all three sat in
+pre-1.3.0 text or scripts, so no A51(i) signature fired. The 15 P3s stay in the exemption register.
+
+- **validate_spec — tri-state cover is an explicit `field` key, not a substring (F02).** A blank
+  tri-state field used to PASS whenever any unknown's free text contained the field's name
+  ("trigger: first eval case…", the shape composer Step 3 prescribes). Now an `unknowns[]` or
+  `disputes[]` entry carries a blank field only through the new OPTIONAL `field` key (exact match;
+  not in `required`, so older specs stay valid); composer operating rules say so. Skeleton check
+  (key equality), so A50(i) is exempt; A50(ii): old vs new verdicts identical on 42/42 real
+  skill_spec files (none of them leaves a tri-state field blank, so the escape was never used);
+  selftest 12→13 traps (the F02 repro, red on the old code). [C2, A49, A50, S14]
+
 ## [1.3.0] — 2026-09-25
 
 **R20 incremental alignment (philosophy KB v0.4.0): judgment planes, stop signatures, E11

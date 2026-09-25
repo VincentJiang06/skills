@@ -9,7 +9,7 @@ description: >-
   Do-NOT fire for: summarizing or writing daily/session memory or journaling (incl. Chinese
   "总结/记录今天的记忆"), or any generic "create/make/summarize X" that is not authoring an agent skill.
 metadata:
-  version: 1.3.0
+  version: 1.3.1
   model_agnostic: true
 ---
 

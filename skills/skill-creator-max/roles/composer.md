@@ -19,7 +19,8 @@ survives attack.
   checks structure only; passing it is NOT evidence you thought (schema-valid ≠ true).
 - Every field is tri-state: **filled / explicit-unknown (in `unknowns`, with a discovery plan)
   / explicit-dispute (in `disputes`, candidates kept)**. The only illegal state is the implicit
-  void — a question never asked (C2).
+  void — a question never asked (C2). A field you leave blank is carried only by an entry whose
+  `field` key names it (`"field": "trigger"`); mentioning the word in a discovery plan does not.
 - Work in the order below. Later steps feed earlier fields; loop back and revise rather than
   leaving a stale answer.
 - Cheap tests (running a bare-model alternative, drafting a narrative) are yours to run NOW,
