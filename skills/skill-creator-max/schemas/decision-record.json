@@ -42,7 +42,7 @@
       "required": ["re_audit_verdict", "battery_verdict", "battery_independence_tier", "battery_stop_reason", "effective_verdict"],
       "properties": {
         "re_audit_verdict": {"type": "string", "enum": ["draft", "candidate", "industrial"]},
-        "battery_verdict": {"type": "string", "enum": ["clean", "breaches_found", "not_run"], "description": "a 'green but visibly wrong' output is a FAILURE, not a pass"},
+        "battery_verdict": {"type": "string", "enum": ["clean", "breaches_found", "not_run"], "description": "clean = no adjudicated P1/P2 finding (seed hits stripped; P3s and flags are recorded, not blocking); breaches_found = >=1 adjudicated P1/P2. A 'green but visibly wrong' output is at least P2, so a FAILURE, not a pass (roles/battery.md Output)"},
         "battery_independence_tier": {"type": "string", "enum": ["none", "instance", "model", "human"], "description": "O5/A33: high stakes require model-tier (different-vendor attacker); 'none' only when battery_verdict=not_run"},
         "battery_stop_reason": {"type": "string", "description": "E9 pre-registered condition that fired; never 'N clean rounds'"},
         "effective_verdict": {"type": "string", "enum": ["draft", "candidate", "industrial"], "description": "= min(re_audit, battery-capped)"}

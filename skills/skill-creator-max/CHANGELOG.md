@@ -23,6 +23,12 @@ pre-1.3.0 text or scripts, so no A51(i) signature fired. The 15 P3s stay in the 
   lists it as a standing self-report case. No mtime gate added: a file timestamp is not the
   ordering of runs, and prose + a read is the default fix form. validate_report untouched (AST
   identical; verdicts identical on the 36 real dossiers). [E5, K4, A49, iron law 2]
+- **battery Output + decision-record schema — `clean` has a threshold (F12).** `clean |
+  breaches_found` had none, while the battery "always finds something" and `industrial` requires
+  `clean`, so the top tier was unreachable or ad hoc. Now: `clean` = no adjudicated P1/P2 finding
+  (seed hits stripped; P3s and flags recorded, not blocking); a green-but-visibly-wrong output is at
+  least P2. Prose in `roles/battery.md`, mirrored in the schema's `battery_verdict` description;
+  validate_decision unchanged. [O5, E9, A51, battery severity scale]
 
 ## [1.3.0] — 2026-09-25
 

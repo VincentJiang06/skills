@@ -38,8 +38,12 @@ produce a passing test suite. Anchors: O5, E6, E9, [SELF-battery渐近], [SELF-a
 - `findings[]` — each `{ lens, location, claim, reproduction: {steps, expected, observed},
   severity, independence_tier }`. The only class that counts.
 - `flags[]` — unproven suspicions, honestly separate, never dressed as findings.
-- `battery_verdict` — `clean | breaches_found`. A "green but visibly wrong" output (checks pass,
-  a cold reader can see the result is wrong) is `breaches_found`, NEVER `clean`.
+- `battery_verdict` — `clean | breaches_found`. `clean` = no ADJUDICATED P1/P2 finding (seed hits
+  stripped); P3 findings and flags are recorded and do not block. A round that finds only P3s is
+  `clean` — which is how a battery that always finds something can still reach the top tier.
+  `breaches_found` = at least one adjudicated P1/P2. A "green but visibly wrong" output (checks
+  pass, a cold reader can see the result is wrong) is at least P2, so `breaches_found`, NEVER
+  `clean`.
 - `battery_stop_reason` — which pre-registered E9 condition fired. Never "N clean rounds".
 - `battery_independence_tier` — the tier HONESTLY reached (see Independence tiers).
 - `coverage_gaps` — lenses not run, tier not reached, search unavailable, seeds voided: the
