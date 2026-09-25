@@ -81,7 +81,7 @@ may have been swapped since the torn run.
 | read | ONLY when |
 |---|---|
 | `references/openrsync-compat.md` — the measured, dated flag matrix | `copy.py` reports an unrecognised `rsync --version` banner, selects the GNU branch, or a copy exits non-zero on a flag error |
-| `references/destination-policy.md` — that code's rule and the exact wording to explain the refusal | `guard_destination.py` exits non-zero or emits an anomaly code other than `SHARED_APFS_CONTAINER` / `OFF_MACHINE_DESTINATION` (`status.py` words those) |
+| `references/destination-policy.md` — that code's rule and the exact wording to explain the refusal | `guard_destination.py` exits non-zero or emits an anomaly code other than `SHARED_APFS_CONTAINER` / `OFF_MACHINE_DESTINATION` (`status.py` words those). Not for a plain OFFLINE — exit 10 whose only anomaly is `NOT_A_MOUNT_POINT`: that is a normal outcome, so run the online destinations and lead with its staleness (reporting-contract) |
 | `references/ledger-format.md` — on-disk schema, atomic commit, torn runs, version migration | a state file fails to parse, `schema_version` does not match, a run is reported TORN, or the user asks to inspect or hand-edit the ledger |
 | `references/first-run-setup.md` — read AND follow it | `~/.workspace-backup/config.json` does not exist, a configured destination has no `.workspace-backup-dest.json` marker, or **before changing any widening key** (below). Every other run skips this file entirely |
 

@@ -3,7 +3,8 @@
 Read this when `guard_destination.py` exits non-zero or emits an anomaly code
 other than `SHARED_APFS_CONTAINER` / `OFF_MACHINE_DESTINATION` (since 0.3.0
 `status.py` states those two in words on the destination's line). On a clean
-run, do not read it.
+run, or when the only non-zero exit is a plain OFFLINE (exit 10 with nothing but
+`NOT_A_MOUNT_POINT`), do not read it.
 
 Every rule below names the anomaly code the guard actually emits for it, so a
 refusal message can never cite a rule the guard does not implement.

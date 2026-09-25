@@ -60,6 +60,13 @@ measurements were taken from.
   指向：S13、P13、审计 A2/A4。
 - README / README.en：七条硬规则、放宽权限的键、`baseline_arm.py` 标为**脚本化稻草人、
   不作 E11 证据**（审计 A5）、harness 计数更正（旧 README 写 78/78 与 76/76，实为 81）。
+- zipper（压缩，按行为不按字数）：destination-policy.md 的按需读取指针排除**普通 OFFLINE**
+  （guard 退出 10 且唯一异常码是 `NOT_A_MOUNT_POINT`）——外置盘没插是最常见的夜晚，
+  guard 自己的消息 + `status.py` 的陈旧度行已说全，原先每次都读 4.2k 的规则书。
+  带 `MISSING_MARKER` / `UNKNOWN_MARKER_KEYS` 等其他码的 OFFLINE 照旧要读。常驻 +43 tok，
+  外置盘离线的一次运行省 4,211 tok。88/88 + `--selftest` 不变；盲评探针前后 23/23 对 23/23，
+  离线场景读取 2/2→0/2，注入 marker 场景仍 2/2 读取。指向：P1/P7（按行为压缩）、Z2（按需
+  路径互斥才算压缩）、destination-policy.md 自己的「离线是正常的周六」。
 
 ### 证据
 
