@@ -50,10 +50,11 @@ const NAME = "[A-Za-z_$][\\w$]*";
 const SURFACE_MATCHERS = [
   // --- JS / TS strong exports ---
   { re: new RegExp(`^\\s*export\\s+default\\s+(?:async\\s+)?function\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:async\\s+)?function\\*?\\s+(${NAME})`), conf: "strong" },
+  { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:async\\s+)?function\\*?\\s+(${NAME})`), conf: "strong" },
   { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const|let|var)\\s+(?!enum\\b)(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:default\\s+|declare\\s+)?(?:abstract\\s+)?class\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const\\s+)?(?:type|interface|enum)\\s+(${NAME})`), conf: "strong" },
+  // an anonymous `export default class extends X` has no name to capture (never `extends`)
+  { re: new RegExp(`^\\s*export\\s+(?:default\\s+|declare\\s+)?(?:abstract\\s+)?class\\s+(?!(?:extends|implements)\\b)(${NAME})`), conf: "strong" },
+  { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const\\s+)?(?:type|interface|enum|namespace)\\s+(${NAME})`), conf: "strong" },
   { re: new RegExp(`^\\s*module\\.exports\\.(${NAME})\\s*=`), conf: "strong", bind: true },
   { re: new RegExp(`^\\s*exports\\.(${NAME})\\s*=`), conf: "strong", bind: true },
   // whole-module export of one binding: `module.exports = f;` makes f a strong export

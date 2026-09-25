@@ -42,8 +42,9 @@ string = no reason) and runs through the same reason grammar.
   intentionally-internal exclusions.
 - **Extracted public surface** — names matched by export heuristics across common
   languages. Recognized JS/TS forms: `export [declare] function/const(multi-declarator + simple
-  destructuring)/let/var/class/type/interface/enum/const enum`, `export default function`,
-  `export default [abstract] class`,
+  destructuring)/let/var/class/type/interface/enum/const enum/namespace`, `export default function`,
+  `export default [abstract] class Name` (an anonymous `export default class extends X` has
+  no name and is not extracted),
   multi-line `export { a, b as c }` (+ `from` re-exports), `export * as ns from`,
   resolved `export * from './local'` (followed across files), `module.exports.x` /
   `exports.x` / computed `exports['x']`, `module.exports = <ident>` (strong export of that
