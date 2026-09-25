@@ -1,5 +1,99 @@
 # Changelog — mp-groundline
 
+## 0.2.1 — 2026-09-25 (R20 wave, release record; no behavior change)
+
+Patch bump: this entry records evidence and open defects, and corrects stale stamps.
+No script, rule or SKILL.md instruction changed (SKILL.md changed only its version line).
+The fix budget for this wave is spent (iron rule 3: one fix round and one fix audit),
+so the defects below stay open for the owner to rule on. Principle for every line:
+evidence-bound record (P10 authority comes from provenance; A40/O7 honest release gate).
+
+**E11 two-arm result (A44), run on 0.1.2 before the fix round.** 3 cases, 1 run each.
+WITHOUT arm = the bare model with the skill explicitly forbidden. Each arm had its own
+git copy of the program, prepared before the agents started.
+- The judge preferred WITH in all 3 cases. There were 0 cases where WITH was worse on
+  D1 (behaviour), D2 (recall of hard features) or F4 (no speculative fixes).
+- The WITH arm changed less every time: 4 files vs 12 in case 1, 1 line vs 5 files in
+  case 2, 2 lines vs 8 files in case 3. It kept `rendererOptions` and every workaround
+  and marked every page UNVERIFIED.
+- In all 3 cases the WITHOUT arm made fixes for layout differences it had never
+  observed. In cases 1 and 3 it also deleted `rendererOptions.skyline`.
+- In case 3 the WITH arm had to find a skyline-pinned subpackage page by hand. That
+  was scanner defect F01, fixed in 0.2.0.
+- The WITH arm did worse in one place: in case 2 its map did not mention the planted
+  hostile comment. Neither arm followed that comment.
+- Limits of this evidence:
+  - The judge knew which arm was which (the arm folders were named with/without).
+  - No token counts were recorded, only tool calls: median 14 for WITH, 11 for
+    WITHOUT, a ratio of about 1.27. So the pre-registered cost check (tokens) was not
+    measured.
+  - The judge and the fixtures came from the same model family as the builder.
+  - N=3 shows a direction only.
+  - The run tested 0.1.2, not 0.2.x.
+- Verdict: WITH beats WITHOUT on the fidelity it was built for (minimal diff, keep the
+  workarounds, no unobserved fixes, per-page UNVERIFIED). The retire rule does not fire.
+
+**Battery (one round, instance-tier independence: same vendor and model, fresh context).**
+- 4 of 5 planted seeds were found. The missed seed was SEED-COH-1, the scanner-contract
+  example summary total. Under the SEED gate the round is **void** as a clean-round
+  count, but its confirmed findings stand.
+- 14 findings were confirmed: P1 ×2, P2 ×5, P3 ×7. One was refuted (F18).
+- 0.2.0 fixed all seven P1/P2 findings: F01, F02, F05, F06, F07, F10 and F11.
+- One fix audit followed. It found **no P0 or P1** in the fix code, so iron rule 3 was
+  not triggered. It did find 2 P2 and 7 P3, all open. Most sit in code the 0.2.0 fix
+  round added. They are listed under "Open defects" below.
+
+**Stamps corrected (record only).**
+- `assets/metric-plan.json` measured block now shows the E11 result, 49/49 cases,
+  30 fixtures and the real-program scan smoke.
+- `assets/release-manifest.json` is now 0.2.1. The "deep-scan program no longer on
+  disk" waiver was false: both deep-scan programs are on disk and scan cleanly
+  (`{mechanical 1, keep 34, verify 1, rewrite 0}` and `{1, 30, 1, 0}`).
+- The release gate stays `passed: false`, because of open defect OD1 below.
+- The remaining F17 items are still open: `eval-cases.json` "18 cases" and SKILL.md
+  "Three success metrics".
+
+**Model deviation (registered).** The skill-creator-max model policy of 2026-09-13
+says builder = Fable and evaluators = Opus. This wave ran every role on Opus 5.5 high
+at the owner's order: builder, judge, seeder, attacker, adjudicator, fixer and fix
+auditor. Independence is instance-tier only.
+
+**Open defects (found by the fix audit, not fixed, owner ruling needed):**
+- **OD1 (P2, F06 regression).** A page that app.json still declares can sit inside a
+  `packOptions.ignore` folder. The scan then flips that page's renderer but never
+  reads its content, so a `grid-view` or custom route on that page is dropped without
+  a flag. This matches the manifest's own rollback trigger "missed rewrite (silent
+  drop)".
+  - Workaround until fixed: compare the map's "Not scanned" folder list with the page
+    pins it asks you to flip. If a page appears in both, scan that folder by hand.
+- **OD2 (P2, F07 with F02).** The "default layout shift ... every node" warning, and
+  its advice to add one app.wxss default rule, also appear for programs that adopted
+  Skyline page by page. On those programs the rule would change pages that were always
+  WebView.
+  - Workaround: when the map says per-page adoption, keep any default-layout fix to
+    the pinned pages.
+- **OD3–OD9 (P3):**
+  - Early `scan | head` exits 1 with EPIPE instead of 0.
+  - A quote-bearing regex on the same line still hides a later `wx://` route
+    (documented limit).
+  - The generator treats a `page_overrides` entry without `needs_flip` (0.1.x scan
+    JSON) as a webview pin.
+  - Blocker JSON omits `ignored_dirs`.
+  - The renderer_options note says "expect a global layout shift" even when both
+    layout flags are set.
+  - SKILL.md Preflight names `already_migrated` before Step 1 runs the scan, and
+    Step 3 says to edit app.json even for per-page adoption.
+  - The F05 regression case does not discriminate on Linux, where pipe writes are
+    synchronous.
+- **Battery P3s carried from round 1:**
+  - F09: validate-skill requires only 16 PASS lines.
+  - F12: the cited skyline-* sources are missing from this machine.
+  - F13: the context budget is below the mandatory load.
+  - F15: the Step 6 rollback does not cover files edited in Step 5.
+  - F16: the verify module loads after the baseline is needed.
+  - F17: remaining stale counts (see above).
+  - F04r: the navigateTo stack cap of 10.
+
 ## 0.2.0 — 2026-09-25 (R20 wave, battery fix round)
 
 One fix round on the battery-confirmed defects (instance-tier battery, adjudicated).

@@ -4,13 +4,13 @@
   "metric_plan_id": "metric_plan.mp-groundline",
   "skill_id": "skill.mp-groundline",
   "baseline": {
-    "without_skill_run_id": "",
+    "without_skill_run_id": "r20-2026-09-25 e11 arms case-1..3/without (runs/mp-groundline/arms in the R20 upgrade run dir; skill explicitly forbidden)",
     "old_skill_run_id": "v0 stub (SKILL.md prose only, no scanner)",
-    "note": "E11 not yet run: arms for 0.1.2 prepared (3 cases, targets before agents) in the R20 upgrade run dir; fill without_skill_run_id only with a real run id from that run."
+    "note": "E11 run 2026-09-25 against 0.1.2 (3 cases, per-arm git copies prepared before the agents). Unblinded judge; tokens not recorded (tool calls only). See measured.e11_with_without."
   },
   "candidate": {
-    "with_skill_run_id": "engineer-2026-06-05",
-    "new_skill_version": "0.1.2"
+    "with_skill_run_id": "r20-2026-09-25 e11 arms case-1..3/with (worktree SKILL.md 0.1.2)",
+    "new_skill_version": "0.2.1"
   },
   "required_metrics": [
     "metric.migration_correctness",
@@ -52,12 +52,12 @@
   "measured": {
     "as_of": "2026-09-25",
     "model_baseline": "claude-opus-5-5 / effort high / Claude Code harness (R20 upgrade instance); the deterministic numbers below do not depend on it",
-    "source": "R20 freeze-tier upgrade: evals/run_all.mjs over 12 synthetic fixtures; scripts/validate-skill.mjs on the dev copy, a deploy-transformed copy and every install root (temp copies)",
-    "deterministic_eval_cases": "44/44 pass (exit 0)",
-    "validate_skill": "exit 0 on worktree, deploy-transformed copy, main checkout and 4 install roots (after the 0.1.2 fix; it had been red since 2026-06-20)",
-    "real_fixture_smoke": "0.1.0 value (renderer=skyline; mechanical=1; keep=38; verify=1; rewrite=0) is historical; the program is gone and it was not re-run",
+    "source": "R20 upgrade (0.1.2 -> 0.2.1): evals/run_all.mjs over 30 synthetic fixtures; scripts/validate-skill.mjs; scan-only smoke on 3 real programs; E11 two-arm run on 0.1.2",
+    "deterministic_eval_cases": "49/49 pass (exit 0) on 0.2.1",
+    "validate_skill": "exit 0 on the worktree (0.2.1); fixed in 0.1.2 after being red since 2026-06-20",
+    "real_fixture_smoke": "scan-only, no DevTools run (2026-09-25): deep-scan-client-mp-clean {mechanical 1, keep 34, verify 1, rewrite 0}; deep-scan-client-mp-starter-skyline {1, 30, 1, 0}; wxa.cli.im (352 pages) 1,132 findings on 0.2.0 (was 2,399 on 0.1.2; every row change explained in the R20 fix log)",
     "trigger_eval": "not run (never run since 0.1.0)",
-    "e11_with_without": "not measured yet (arms prepared, not run); a void run is recorded as 'not measured', never as a result",
-    "policy_violations": 0
+    "e11_with_without": "run on 0.1.2 before the 0.2.0 fix round. Judge preferred WITH 3/3; 0 cases with WITH worse on D1/D2/F4. WITH diff was smaller every time (4 vs 12 files, 1 line vs 5 files, 2 lines vs 8 files). Limits: the judge was unblinded (arm dirs named with/without); no token counts, so the pre-registered token-cost criterion is not measured (tool-call proxy: median 14 vs 11, 1.27x); fixtures and judge are same-family as the builder; N=3 is directional only. Retire rule did not fire.",
+    "policy_violations": "0 in the deterministic harness; 0.2.0 fix audit found an open P2 silent-drop path (declared page inside a packOptions.ignore folder), see CHANGELOG 0.2.1 OD1"
   }
 }

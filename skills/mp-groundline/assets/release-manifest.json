@@ -4,7 +4,7 @@
   "skill": {
     "id": "skill.mp-groundline",
     "name": "mp-groundline",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "owner": "Vince",
     "source_uri": "skills/mp-groundline",
     "artifact_uri": "skills/mp-groundline",
@@ -16,11 +16,11 @@
     ]
   },
   "change": {
-    "change_type": "minor",
-    "summary_zh": "0.2.0 battery 修复轮：页面级 renderer 以迁移目标 webview 衡量（F01/F02，含 needs_flip 字段与 already_migrated 新定义）；CLI 管道输出不再截断（F05）；跳过并报告 packOptions.ignore 文件夹（F06，新增 ignored_dirs 字段）；缺 Skyline 默认布局开关时地图提示全局布局变化（F07）；JS 注释剥离器引号串遇换行终止（F11）。",
-    "summary_en": "0.2.0 battery fix round: page renderer pins measured against the webview target (F01/F02; new needs_flip field, already_migrated redefined); piped CLI output no longer truncated (F05); packOptions.ignore folders skipped and reported (F06; new ignored_dirs field); map warns of a global layout shift when Skyline default-layout flags are absent (F07); JS comment stripper ends quote strings at a newline (F11).",
+    "change_type": "patch",
+    "summary_zh": "0.2.1 发布记录（无行为改动）：记入 E11 两臂结果（0.1.2 上 WITH 3/3 胜，未盲、未记 token）、battery 结果（种子 4/5、确认 14 条、0.2.0 修复 7 条）与修复审计遗留（2 条 P2、7 条 P3 未修）；校正 metric-plan 与本清单里过期的戳记。0.2.0 行为改动见 CHANGELOG。",
+    "summary_en": "0.2.1 release record (no behavior change): records the E11 two-arm result (WITH 3/3 on 0.1.2, unblinded, no token counts), the battery result (seeds 4/5, 14 confirmed, 7 fixed in 0.2.0) and the fix-audit residuals (2 P2 + 7 P3 open); corrects stale stamps in metric-plan and this manifest. 0.2.0 behavior changes: see CHANGELOG.",
     "breaking_change": false,
-    "public_behavior_contract_changed": true,
+    "public_behavior_contract_changed": false,
     "changelog_path": "CHANGELOG.md"
   },
   "release_gate": {
@@ -32,16 +32,18 @@
       "E11 with/without two-arm evidence (A44) recorded in assets/metric-plan.json"
     ],
     "failed_check_ids": [
-      "e11-with-without: PENDING, not failed; arms prepared in the upgrade run dir, not yet run (0.1.2)"
+      "open-P2-OD1: a page declared in app.json inside a packOptions.ignore folder has its renderer flipped but its content unscanned (silent rewrite drop, matches rollback trigger 'missed rewrite (silent drop)'); introduced by the 0.2.0 F06 fix, found by the fix audit, not fixed (wave fix budget spent); owner ruling needed",
+      "open-P2-OD2: default-layout-shift warning is global even for per-page Skyline adoption; not fixed; owner ruling needed"
     ],
     "waived_check_ids": [
-      "real-program-smoke: the deep-scan Skyline program used in 0.1.0 is no longer on disk; cannot be re-run (waived 0.1.2)",
-      "trigger-eval: never run since 0.1.0 (metric-plan said 'deferred'); description unchanged in 0.1.2, so no re-balance was triggered (waived, open for the next K2 review)",
-      "adversarial-checklist-16/16: 0.1.0 build-time evidence, superseded by the 44-case harness; not re-run"
+      "real-program-smoke: scan-only smoke done 2026-09-25 on both deep-scan programs and wxa.cli.im; a DevTools before/after run was not possible offline (the earlier 'program no longer on disk' waiver was false)",
+      "trigger-eval: never run since 0.1.0; description unchanged through 0.2.1 (waived, open for the next K2 review)",
+      "adversarial-checklist-16/16: 0.1.0 build-time evidence, superseded by the 49-case harness and the R20 battery; not re-run"
     ],
     "evidence_paths": [
       "evals/run_all.mjs",
       "scripts/validate-skill.mjs",
+      "assets/metric-plan.json",
       "CHANGELOG.md"
     ]
   },
