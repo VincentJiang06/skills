@@ -15,7 +15,8 @@ publicness. *KB A50: skeleton checks are exempt from (i); (ii) FP measured below
   undocumented export. The walk now skips exactly what
   `git ls-files --others --ignored --exclude-standard` reports: untracked paths
   that any ignore source matches, nested `.gitignore` files included. A tracked
-  file is always read. With no git answer (no repo, no git, root inside an ignored
+  file is never skipped for matching an ignore pattern (the fixed dir-name skips
+  still apply, as in 0.2.1). With no git answer (no repo, no git, root inside an ignored
   dir) no ignore file is honored, so the walk reads. The hand-written parser is
   removed. Every skip is printed on a `not read:` line (dir names, then the first
   five git-ignored paths). This also closes the P3s "nested `.gitignore` not read"
@@ -71,6 +72,9 @@ publicness. *KB A50: skeleton checks are exempt from (i); (ii) FP measured below
   `COVERAGE_HOLE publicHelper` exit 1.
 
 ### Still open
+- F01 for CommonJS: two modules that each assign the same CommonJS export name are
+  name-keyed again (one row covers both), as in 0.2.1; ESM and declaration forms
+  keep per-file identity.
 - Fix-audit P3: grouped Go `type ( … )` blocks are not parsed (0.2.1 read no Go
   `type` at all); the printed `extracted`/`ratio` count names, not (name, file)
   symbols (cosmetic).

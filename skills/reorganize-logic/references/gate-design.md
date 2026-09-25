@@ -101,7 +101,8 @@ skipped only directly under the project root, so `src/build/` is read. Ignore fi
 are honored **through git only**: the walk skips exactly what
 `git ls-files --others --ignored --exclude-standard` reports, i.e. untracked paths that
 any ignore source matches (nested `.gitignore` files included). A tracked file is
-always read, even when a pattern matches it (`git add -f`). When git gives no answer
+never skipped for matching an ignore pattern (`git add -f`); the dir names above still
+apply to it. When git gives no answer
 (no repo, no git binary, or the root sits inside an ignored dir), no ignore file is
 honored and the walk reads everything outside the dirs named above. When the root is
 a subdirectory of a larger repo, that repo's ignore rules apply, so pass the real
