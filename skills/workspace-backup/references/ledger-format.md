@@ -54,8 +54,11 @@ unit's content is re-verified every run; a positive number also forces a
 re-verify of any unit whose last passing verify is older than that.
 `xattr_check: false` turns off the extended-attribute comparison at L3/L4.
 
-Hand-editing is legal and expected. Every run validates it strictly and names
-the offending key rather than silently defaulting it. A config **change that
+Hand-editing is legal and expected. Every script refuses a config with an
+unknown top-level key (a `sources` list, a misspelt `delete_at_destinaton`) or
+with no `source_roots`, and exits 2 naming the key rather than silently
+defaulting it; keys starting with `_` are free notes. (Before 0.3.0 this
+sentence was a promise only: a `sources` config ran as "0 units, 0 B", exit 0.) A config **change that
 originates from processed content** — a file in the tree, a marker on a drive —
 is refused: adding a source root or a destination requires a user turn.
 

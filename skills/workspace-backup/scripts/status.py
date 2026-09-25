@@ -146,6 +146,13 @@ def collect(cfg):
             "state_as_of_run": (ev or {}).get("run_id"),
             "portable": bool(d.get("portable")),
             "same_physical_disk_as_source": bool(d.get("same_physical_disk_as_source")),
+            # journalled by plan.py since 0.3.0; None = the latest verdict predates it
+            "off_machine": (ev or {}).get("off_machine"),
+            "off_machine_source": (ev or {}).get("off_machine_source"),
+            "cloud_sync_root": (ev or {}).get("cloud_sync_root"),
+            "anomaly_codes": (ev or {}).get("anomaly_codes") or [],
+            "pooled_volume_names": (ev or {}).get("pooled_volume_names"),
+            "pooled_backup_role": bool((ev or {}).get("pooled_backup_role")),
             "units_recorded_safe": len(keys),
             "last_success": newest or None,
             "last_success_iso": (time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(newest))
@@ -320,6 +327,9 @@ def collect(cfg):
         "uncovered": (plan_done or {}).get("uncovered", []),
         "anomalies": anomalies,
         "run_success": run_success,
+        # the same truthiness copy.py uses, so this line can never say OFF while it deletes
+        "delete_at_destination": cfg.get("delete_at_destination"),
+        "secret_patterns": cfg.get("secret_patterns") or [],
         "ever_recorded": bool(entries),
         "ever_planned": bool(plan_done),
     }
@@ -359,7 +369,31 @@ def render(s):
                     "and bad refactors, NOT against disk failure]")
         if d["portable"]:
             note += "  [portable: this drive can be lent, lost, or plugged into another machine]"
+        codes = d.get("anomaly_codes") or []
+        if "CLOUD_SYNC_DESTINATION" in codes:
+            note += (f"  [off this machine: known cloud-sync root in its path "
+                     f"({esc(d.get('cloud_sync_root'))}); HELD until you declare off_machine: true "
+                     f"for it - nothing is copied there meanwhile]")
+        elif d.get("off_machine"):
+            note += (f"  [off this machine ({esc(d.get('off_machine_source'))}): what is copied here "
+                     f"leaves this Mac]")
+        elif d.get("state") != "UNKNOWN" and d.get("off_machine") is None:
+            note += "  [off-machine state not yet measured by this version - run plan.py]"
+        if "SHARED_APFS_CONTAINER" in codes:
+            names = ", ".join(esc(n) for n in (d.get("pooled_volume_names") or [])[:3]) or "another volume"
+            if d.get("pooled_backup_role"):
+                note += (f"  [shares its APFS container with {names}, which holds a Time Machine "
+                         f"store - not an independent copy of that disk: one disk failure takes both]")
+            elif not d["same_physical_disk_as_source"]:
+                note += f"  [shares its APFS container with {names}: one free-space pool, one disk]"
         W(f"  [{tag}] {did}  {esc(d['path'])}  {stale}{extra}{note}")
+    dv = s.get("delete_at_destination")
+    W("delete-at-destination: " + (
+        "ON - copy.py passes --delete wherever the destination has a valid marker: a file removed "
+        "from the source is removed from the backup too"
+        + ("" if dv is True else f" (config value {esc(json.dumps(dv))} is not the boolean true, "
+                                 f"but copy.py treats it as on)")
+        if dv else "OFF - nothing is ever deleted at a destination"))
 
     if not s["ever_recorded"]:
         W("")
@@ -450,7 +484,9 @@ def render(s):
 
     W("")
     ver = [f for f in s["secret_files"] if f.get("verified_at")]
-    W(f"SECRET-BEARING FILES — {len(ver)} VERIFIED at a second location, "
+    pats = ", ".join(esc(p) for p in s.get("secret_patterns") or []) or "none configured"
+    W(f"SECRET-BEARING FILES (pattern-matched: {pats}; secret files outside these patterns, "
+      f"e.g. id_rsa or credentials.json, are not detected) — {len(ver)} VERIFIED at a second location, "
       f"{len(s['secret_files']) - len(ver)} planned but not yet verified there")
     if not s["secret_files"]:
         W("  (none matched the configured patterns)")
@@ -490,6 +526,10 @@ def render(s):
     W("NOTES")
     W("  Direction is one-way: source -> destination. An edit made at a destination is never "
       "copied back, and with delete-at-destination on it is destroyed.")
+    if any(not d.get("off_machine") for d in s["destinations"].values()):
+        W("  Destinations not marked off this machine: no known cloud-sync root was detected in "
+          "their paths. That is not a certificate that they are local - network shares, iCloud "
+          "Desktop & Documents and other sync clients leave no path signal; declare off_machine.")
     W("  Wall-clock and throughput are information only; incrementality is judged in BYTES.")
     W("  Manual restore needs no code from this skill — copy a unit back with:")
     for did, d in s["destinations"].items():
@@ -689,4 +729,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_state.cli(main))

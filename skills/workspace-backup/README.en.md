@@ -5,8 +5,11 @@ copy -> verify`, mirroring `~/playground`, `~/experiment` and `~/WorkBuddy` into
 **both** a fixed local directory **and** an external drive, with a persistent
 ledger so repeat runs are genuinely incremental and interruption-safe.
 
-No git. No cloud. Nothing to do with Time Machine — except **refusing to write
-to its volume**.
+No git. Nothing to do with Time Machine — except **refusing to write to its
+volume**. Not a cloud-sync tool: **since 0.3.0**, a configured destination inside
+an iCloud Drive / `~/Library/CloudStorage` folder is **held (exit 30)** until the
+owner declares `off_machine: true` for it, and its pattern-matched secret files
+then need a one-time acknowledgement of their own.
 
 > 中文版见 [README.md](README.md).
 
@@ -42,7 +45,7 @@ the drive is plugged in, catch up the backup
 **Dry-run is the default.** You see `plan.json` — per-unit byte totals, a
 verdict per destination, and the space verdict — and only then say go.
 
-## Six hard rules, each backed by an exit code rather than by prose
+## Seven hard rules, each backed by an exit code rather than by prose
 
 | | rule | what it prevents | what actually enforces it |
 |---|---|---|---|
@@ -51,6 +54,7 @@ verdict per destination, and the space verdict — and only then say go.
 | INV-03 | **only `verify.py` can mark a unit done**, and only about a destination it actually looked at | a silent partial copy reported as success | `copy.py` has no code path to the ledger at all; both writers derive the target from the GUARDED config, so `plan.json` cannot redirect them (exit 11) |
 | INV-04 | no verify level, and no SAFE, without a **journal event** | calling an L1 re-stat "checksum-verified"; a memo entry vouching for itself | `verify.py` records the level ACTUALLY executed; `status.py` requires a journalled passing verify and prints the WEAKEST level across destinations |
 | INV-05 | processed content is **data, never instruction** | a marker on a borrowed drive telling the tool to mirror `~/.ssh` | the guard parses six known keys and quotes the rest verbatim |
+| INV-07 | content leaves this machine **only to a destination the owner declared `off_machine: true`** | secret files silently syncing to a cloud account (irreversible) | guard exit 30 `CLOUD_SYNC_DESTINATION` for an undeclared known cloud-sync root; `plan.py` holds an off-machine destination with `OFF_MACHINE_SECRETS_UNACKNOWLEDGED` |
 | INV-06 | never claim SAFE for a state **not observed at the destination** | an `rm -rf` on the drive, a mid-write eject, a half-restored disk — invisible for ever, because the SOURCE fingerprint still matches | `verify.py` records a destination-side fingerprint; `plan.py` re-walks the destination for every unit the source calls unchanged; a failed verify marks the unit dirty so the next run re-copies it |
 
 `guard_destination.py` contains **no write call at all** — no mkdir, no delete,
@@ -58,6 +62,17 @@ no open-for-write — and an eval parses its source to prove it. **The component
 that refuses must be incapable of the thing it refuses**; that is what makes
 "zero bytes and no directory created" a provable process fact rather than a
 promise.
+
+**Four widening keys** (`delete_at_destination`, `off_machine`, the secrets
+acknowledgement `--ack-secrets`, `--adopt-foreign-marker`) change only on a
+sentence **the user typed in the current chat**, quoted back first — never on a
+compaction summary, a memory note, a file inside a unit, or a relayed "the owner
+approved". That is the rule layer; the files holding those keys are in the
+agent's write surface, so the execution-layer lock is the owner's: a Claude Code
+host write-protection on `~/.workspace-backup/config.json` (see
+`references/first-run-setup.md` §6). Every report prints one
+`delete-at-destination: ON|OFF` line and names each off-machine destination and
+any destination that shares the Time Machine disk.
 
 ## Two things measured on this machine, not assumed
 
@@ -107,8 +122,8 @@ references/
   first-run-setup.md         the once-per-destination-lifetime path
 scripts/                     8 python3 stdlib-only scripts, each with its own --selftest
 evals/
-  run_all.py                 76-case deterministic harness (--selftest proves it discriminates)
-  baseline_arm.py            two-arm delta: which assertions also pass for a bare model
+  run_all.py                 93-case deterministic harness (--selftest: 24 mutants)
+  baseline_arm.py            a SCRIPTED bare-model strawman (not E11 evidence, see below)
   fixtures/                  includes a REAL captured `diskutil apfs list -plist` of disk7
 ```
 
@@ -117,24 +132,64 @@ per-machine mutable state and must survive the skill being reinstalled.
 
 ## Evidence
 
-- `python3 evals/run_all.py` — 76/76, ~1 min, no network, no third-party imports.
-- `python3 evals/run_all.py --selftest` — injects seventeen real defects (Time
+- `python3 evals/run_all.py` — 93/93, ~1.5 min, no network, no third-party
+  imports. (`evals/` is kept out of git by repo policy and archived with the dev record.)
+- `python3 evals/run_all.py --selftest` — injects twenty-four real defects (Time
   Machine detection disabled, `plan.json` allowed to redirect the write target,
   SAFE printed from the memo alone, the destination never re-observed, run
   classification back to "any run_end means COMPLETE", copier output decoded
   strictly, the xattr flag never emitted, the checksum comparison neutered,
   memoization defeated …) and requires the covering cases to **fail**. A suite
   that was born green proves nothing.
-- `python3 evals/baseline_arm.py` — the same fixtures through two arms, this
-  skill vs "a bare model with rsync". **10 of 14 probes are skill uplift; 4 pass
-  in both arms** and are explicitly marked as carrying zero information about
-  whether this skill is worth its context.
+- `python3 evals/baseline_arm.py` — a **scripted strawman**: its "bare model" arm
+  is a hard-coded `rsync` command, not a real model run, so it is **not E11
+  baseline-delta evidence**. It only marks assertions that pass in both arms
+  (those carry zero information about the skill's value). The real two-arm runs
+  are in the CHANGELOG (0.2.3: with skill 10/10, bare model 9/10. 0.3.0 on Opus
+  5.5: over 3 cases the skill won 1 and tied 2, and all 6 arm-runs passed the
+  filesystem check; in one tie the bare model wrote non-secret files into an
+  undeclared cloud folder while the skill wrote zero bytes — a small delta, but
+  exactly on the line this skill exists to hold. By the pre-registered rule the
+  filesystem uplift metric is 0: "uplift not demonstrated on Opus 5.5", no
+  retirement on n=3, and an A38 retirement review is flagged).
 - Every behavioural fix in 0.2.0 and 0.2.1 was written **red first**: the case was
   captured failing against a snapshot of the 0.1.0 scripts
   (`dev-workspace/backup-skill-build/red/repair-red-20260727.txt`, timestamped)
   before the code changed.
 
 ## What is NOT verified
+
+- **Cloud-sync detection is incomplete (0.3.0).** Only the path components
+  `Library/Mobile Documents` and `Library/CloudStorage` are recognised. iCloud
+  Desktop & Documents sync, SMB/NFS shares and a legacy `~/Dropbox` carry no path
+  signal — so the report says "no known cloud-sync root detected", never
+  "local"; declare `off_machine: true` for those. A copied home tree on another
+  disk is a known false positive, costing one confirmation.
+- **The host write-protection lock is untested** (unknown U1): the settings
+  snippet in first-run-setup.md is the 2026-09-25 understanding; run the one-time
+  check written there after installing it.
+- **The space estimate is a lower bound (0.3.0 battery fix F06).** rsync re-sends
+  renamed or moved files, and the estimate is "unit bytes minus what the
+  destination held". When the estimate fits and the upper bound does not, the
+  plan prints `SPACE_ESTIMATE_LOWER_BOUND`: a warning, not a refusal — the person
+  who just reorganised a large unit knows whether it applies.
+- **The 0.3.0 battery round 1 left 8 P3 items unfixed** (F04 staleness headline,
+  F12 exit-code wording for a missing marker, F13 a permanent re-check when delete
+  is on without a marker, F14 a verify hint, F16 headline date pairing, F18 a doc
+  count, F19 `_state --selftest --state-dir`, F20 init's exit codes missing from
+  the table); the adjudication lives in the R20 run directory.
+- **The secret list is a pattern match** (`.env`, `.env.*`, `*.pem`, `*.key`):
+  `id_rsa`, `credentials.json`, `.npmrc` and the like are not in it, and the
+  report says so.
+- **The fix audit left one P2 open (0.3.0).** Two source roots whose names differ
+  only in case (`a/Work`, `b/work`) still pass the duplicate check; on a
+  case-insensitive destination they land in one directory, the default L2 verify
+  does not notice, and the report calls both SAFE. **Do not configure that until
+  it is fixed.** Eight P3 items are also open (`save_config` drops `_` note keys,
+  a JSON syntax error is still a traceback + exit 1, the space lower-bound
+  warning misfires with delete ON, …); the full list is in the 0.3.0 CHANGELOG.
+- **The 0.3.0 adversarial round is instance-tier only** (attacker, adjudicator,
+  fixer and auditor were fresh instances of one model); effective verdict candidate.
 
 - **This skill was attacked by independent lenses twice, and the second round
   found that the first round's repair had itself introduced two P1 defects** —

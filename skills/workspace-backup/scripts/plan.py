@@ -160,6 +160,7 @@ def build_plan(cfg, inventory, args):
         dests[did] = {
             "id": did, "path": d["path"], "state": state_name, "guard_exit": code,
             "portable": bool(d.get("portable")), "removable": bool(d.get("removable")),
+            "off_machine": bool(g.get("off_machine")), "off_machine_source": g.get("off_machine_source"),
             "same_physical_disk_as_source": bool(d.get("same_physical_disk_as_source")),
             "marker_valid": bool(g.get("marker_valid")),
             "container": g.get("container"),
@@ -181,7 +182,11 @@ def build_plan(cfg, inventory, args):
             anomalies.append({**a, "dest": did})
         j.append("dest_verdict", dest=did, verdict=state_name, exit_code=code,
                  path=d["path"], container=g.get("container"),
-                 anomaly_codes=[a.get("code") for a in (g.get("anomalies") or [])])
+                 anomaly_codes=[a.get("code") for a in (g.get("anomalies") or [])],
+                 off_machine=bool(g.get("off_machine")), off_machine_source=g.get("off_machine_source"),
+                 cloud_sync_root=g.get("cloud_sync_root"),
+                 pooled_volume_names=g.get("pooled_volume_names") or [],
+                 pooled_backup_role=bool(g.get("pooled_backup_role")))
 
     routable = [k for k, v in dests.items() if v["state"] == "CLEAR"]
 
@@ -333,17 +338,29 @@ def build_plan(cfg, inventory, args):
                 "routed": bool(live),
             })
 
-    # ---- portable-destination secrets acknowledgement (F5 / dispute D3)
+    # ---- secrets ack for a portable OR off-machine destination (F5, D3-extended,
+    #      INV-07). The ack key name is kept so existing acknowledgements stay valid.
     ack = cfg.get("portable_secrets_ack") or {}
     for did, d in dests.items():
-        if d["state"] != "CLEAR" or not d["portable"]:
+        if d["state"] != "CLEAR" or not (d["portable"] or d["off_machine"]):
             continue
         # only the secrets actually routed HERE. Counting unrouted ones inflated
         # the consent prompt and then claimed, in every later report, that a file
         # living nowhere but the source was 'now at a second location'.
         here = [s for s in all_secrets if did in (s.get("dest_paths") or {})]
         n = len(here)
-        if n and not ack.get(did):
+        if n and not ack.get(did) and not d["portable"]:
+            blocked[did] = {
+                "code": "OFF_MACHINE_SECRETS_UNACKNOWLEDGED", "count": n,
+                "message": (f"{n} pattern-matched secret-bearing file(s) would be copied to "
+                            f"{d['path']}, which is off this machine ({d['off_machine_source']}): "
+                            f"content there syncs to an account or machine outside this Mac. They "
+                            f"are preserved by design, but the first copy needs a one-time "
+                            f"acknowledgement on the owner's own words: init_destination.py "
+                            f"--dest-id {did} --ack-secrets --confirm."),
+                "files": [s["source_rel"] for s in here],
+            }
+        elif n and not ack.get(did):
             blocked[did] = {
                 "code": "PORTABLE_SECRETS_UNACKNOWLEDGED", "count": n,
                 "message": (f"{n} secret-bearing file(s) would be copied to {d['path']}, which is "
@@ -372,8 +389,14 @@ def build_plan(cfg, inventory, args):
             cap = dests[did]["capacity_bytes"] if cap is None else cap
             src = dests[did]["free_source"] if src is None else src
         planned = sum(dests[d]["planned_bytes"] for d in dids)
+        upper = sum(dests[d]["planned_bytes_upper_bound"] for d in dids)
         head = headroom_for(cap)
         fits = None if free is None else (planned <= (free - head))
+        # planned = unit bytes minus what the destination held: a LOWER bound
+        # once files were renamed or moved (rsync re-sends them). Gating on the
+        # upper bound would refuse every small edit to a 17 GB unit on a tight
+        # disk (over-refusal); saying it at step 4 is the proportionate form.
+        fits_upper = None if free is None else (upper <= (free - head))
         for did in dids:
             space[did] = {
                 "container": container, "pooled_free_bytes": free, "capacity_bytes": cap,
@@ -383,6 +406,7 @@ def build_plan(cfg, inventory, args):
                 "planned_bytes_upper_bound": dests[did]["planned_bytes_upper_bound"],
                 "shares_container_with": [x for x in dids if x != did],
                 "fits": fits,
+                "fits_upper_bound": fits_upper,
                 "note": ({
                     "apfs-container": ("free space is ONE pool for this APFS container; the "
                                        "figures for its volumes are the same bytes, not "
@@ -413,6 +437,18 @@ def build_plan(cfg, inventory, args):
                                 f"than warning: filling this container is how a backup damages "
                                 f"the system it was supposed to protect."),
                 })
+            if fits and fits_upper is False:
+                anomalies.append({
+                    "code": "SPACE_ESTIMATE_LOWER_BOUND", "dest": did,
+                    "message": (f"{did}: the plan fits on its estimate "
+                                f"({_state.human_bytes(planned)}), but renamed or moved files "
+                                f"are re-sent, and with delete-at-destination "
+                                f"{'ON' if cfg.get('delete_at_destination') else 'OFF'} the "
+                                f"old copies stay until pruned: up to "
+                                f"{_state.human_bytes(upper)} against "
+                                f"{_state.human_bytes(max(0, free - head))} usable. Show this "
+                                f"before asking for a go."),
+                    "source": "plan.py space verdict"})
             if src == "cli-override":
                 anomalies.append({
                     "code": "SPACE_VERDICT_OVERRIDDEN", "dest": did,
@@ -589,6 +625,9 @@ def main():
                           f"{_state.escape_untrusted(r['dest_drift'])} — re-copying")
         for did, b in plan["blocked"].items():
             print(f"  BLOCKED {did}: [{b['code']}] {b['message']}")
+        for a in plan["anomalies"]:
+            if a.get("code") == "SPACE_ESTIMATE_LOWER_BOUND":
+                print(f"  [SPACE_ESTIMATE_LOWER_BOUND] {a['message']}")
         for n in plan["needs_answer"]:
             print(f"  NOT CLASSIFIED {_state.escape_untrusted(n['id'])} — {n['reason']}. It is "
                   f"routed nowhere, so it is NOT backed up.")
@@ -601,4 +640,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_state.cli(main))

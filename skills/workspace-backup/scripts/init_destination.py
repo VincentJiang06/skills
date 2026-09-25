@@ -3,7 +3,8 @@
 
 Writes exactly two things: the backup root directory and its
 .workspace-backup-dest.json marker. It never copies data and never overwrites an
-existing marker. It refuses to run on any path guard_destination.py did not
+existing marker, except to adopt one the guard reported as FOREIGN_MACHINE or
+DEST_ID_MISMATCH (--adopt-foreign-marker --confirm; journalled). It refuses to run on any path guard_destination.py did not
 clear in the same invocation — including, with no override, a Time Machine
 volume.
 
@@ -11,9 +12,14 @@ The marker carries dest_id, machine UUID, hostname, layout_version, created_at
 and nothing free-text, so no future reader can mistake its contents for
 instructions.
 
+Its flags are acts, not consent (SKILL.md, widening keys); it never writes
+off_machine or delete_at_destination. An unwritable config.json (host lock) =>
+nothing recorded, the JSON fragment printed for the owner, exit 30.
+
 Usage:
   init_destination.py --config C --dest-id ID --confirm
   init_destination.py --config C --dest-id ID --ack-secrets --confirm
+  init_destination.py --config C --dest-id ID --adopt-foreign-marker --confirm
   init_destination.py --selftest
 """
 from __future__ import annotations
@@ -33,6 +39,7 @@ import guard_destination as guard  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MARKER = ".workspace-backup-dest.json"
+ADOPTABLE = ("FOREIGN_MACHINE", "DEST_ID_MISMATCH")
 
 
 def run_guard(cfg_path, dest_id, plist=None):
@@ -84,13 +91,23 @@ def main():
               f"initialise. Plug the drive in and run this again.")
         j.append("init_skipped_offline", dest=dest_id)
         return guard.OFFLINE
-    if "FOREIGN_MACHINE" in codes and not adopt:
+    foreign = [c for c in codes if c in ADOPTABLE]
+    if foreign and not (adopt and confirmed):
         for a in g.get("anomalies") or []:
-            if a["code"] == "FOREIGN_MACHINE":
-                print(f"[FOREIGN_MACHINE] {a['message']}")
-        print("REFUSED until confirmed. Re-run with --adopt-foreign-marker only if you are "
-              "certain this drive should now belong to this machine.")
-        j.append("init_refused", dest=dest_id, verdict="FOREIGN_MACHINE")
+            if a["code"] in ADOPTABLE:
+                print(f"[{a['code']}] {a['message']}")
+        print("REFUSED until confirmed. --adopt-foreign-marker --confirm rewrites the marker to "
+              "this machine and this dest_id — only on the user's own sentence naming that.")
+        j.append("init_refused", dest=dest_id, verdict=foreign[0])
+        return guard.CONFIRM
+    if "CLOUD_SYNC_DESTINATION" in codes:
+        # INV-07: even a marker (machine UUID + hostname) would leave this Mac.
+        for a in g.get("anomalies") or []:
+            if a["code"] == "CLOUD_SYNC_DESTINATION":
+                print(f"[CLOUD_SYNC_DESTINATION] {a['message']}")
+        print("HELD. Nothing written. The owner declares off_machine: true for this destination "
+              "in config.json first; then run this again.")
+        j.append("init_refused", dest=dest_id, verdict="CLOUD_SYNC_DESTINATION")
         return guard.CONFIRM
     if not confirmed:
         print(f"Would initialise destination {dest_id!r} at:\n  {_state.escape_untrusted(dest['path'])}\n"
@@ -100,7 +117,25 @@ def main():
 
     marker_path = os.path.join(dest["path"], MARKER)
     existed = os.path.exists(marker_path)
-    if not existed:
+    if foreign:
+        # the consent's record is the journal line; its effect is the rewritten
+        # marker, which the guard re-reads before every write (policy: marker identity)
+        with open(marker_path, encoding="utf-8") as f:
+            old = json.load(f)
+        prev = {k: _state.escape_untrusted(old.get(k)) for k in guard.KNOWN_MARKER_KEYS
+                if k in old}
+        _state.atomic_write_json(marker_path, {
+            "schema_version": _state.SCHEMA_VERSION, "dest_id": dest_id,
+            "machine": guard.machine_uuid() or old.get("machine"),
+            "hostname": os.uname().nodename, "layout_version": old.get("layout_version", 1),
+            "created_at": old.get("created_at") or time.strftime("%Y-%m-%dT%H:%M:%S")})
+        j.append("destination_adopted", dest=dest_id, path=os.path.realpath(dest["path"]),
+                 codes=foreign, previous=prev,
+                 dropped_keys=sorted(k for k in old if k not in guard.KNOWN_MARKER_KEYS))
+        print(f"adopted {dest_id} at {_state.escape_untrusted(os.path.realpath(dest['path']))}: "
+              f"marker now names this machine and dest_id {dest_id!r} (was "
+              f"{prev.get('dest_id')!r} on {prev.get('hostname')!r}); journalled.")
+    elif not existed:
         os.makedirs(dest["path"], exist_ok=True)
         _state.atomic_write_json(marker_path, {
             "schema_version": _state.SCHEMA_VERSION,
@@ -118,15 +153,23 @@ def main():
               f"{_state.escape_untrusted(marker_path)} — left untouched")
 
     if ack_secrets:
-        ack = cfg.get("portable_secrets_ack") or {}
-        ack[dest_id] = {"acknowledged_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-                        "note": ("the user was shown the secret-bearing files and their "
-                                 "destination paths, and accepted that they will live on this "
-                                 "portable destination. Every run restates the count.")}
-        cfg["portable_secrets_ack"] = ack
-        _state.save_config(cfg)
+        kind = " and ".join(k for k, on in (("portable", dest.get("portable")),
+                                            ("off-machine", g.get("off_machine"))) if on) or "this"
+        entry = {"acknowledged_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                 "note": (f"the user was shown the pattern-matched secret-bearing files and their "
+                          f"destination paths, and accepted that they will live on this {kind} "
+                          f"destination. Every run restates the count.")}
+        ack = dict(cfg.get("portable_secrets_ack") or {})
+        ack[dest_id] = entry
+        try:
+            _state.save_config({**cfg, "portable_secrets_ack": ack})
+        except OSError as e:
+            print(f"config.json could not be written ({e}). Nothing was recorded. If that is your "
+                  f"sandbox lock on {cfg['_path']}, add this under \"portable_secrets_ack\" "
+                  f"yourself:\n" + json.dumps({"portable_secrets_ack": {dest_id: entry}}, indent=2))
+            return guard.CONFIRM
         j.append("portable_secrets_acknowledged", dest=dest_id)
-        print(f"recorded the one-time portable-destination secrets acknowledgement for {dest_id}")
+        print(f"recorded the one-time {kind}-destination secrets acknowledgement for {dest_id}")
     return 0
 
 
@@ -209,4 +252,4 @@ def _selftest():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_state.cli(main))
