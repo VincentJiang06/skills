@@ -23,6 +23,8 @@
 5. **编排摩擦 + 同作者相关性** —— 一个 skill 免去跨 skill 交接；每角色**全新上下文派发**从构造上就把构建者和评判者去相关。
 6. **description / 可移植性** —— 六厂交集 schema + description 长度纪律 + 硬 anti-trigger。
 
+**v1.3.1（1.3.0 battery 第 1 轮修复，只修三处 P2）** —— SkillSpec 的留空字段只能由 unknowns/disputes 条目用显式 `field` 键认领（原来是在自由文本里做子串匹配，discovery plan 里提到 "trigger" 就算认领了）；`red_before_green` 写明是自报，"红早于绿、同一批用例翻转"由指挥官第 3 关读红日志、battery 抽查来查，门本身查不到；battery 的 `clean` 定义为"没有裁决后的 P1/P2"（P3 和 flag 只记录，不拦）。
+
 **v1.3.0 新增（对齐 philosophy KB v0.4.0 / R20，增量对齐）** ——
 
 - **`deterministic` 只给骨架检查**：判决信息在字符串里（存在性/计数/逐字/结构同构/哈希、字节或数值比较）才算；拿脚本退出码去近似语义判断（相似度、阈值、正则）的检查，要么走 `llm_judge` 全套校准，要么只报不拦，除非出示 A50 三件（可分性见证、全部真实语料误报实测、谱系）。这个标签是 engineer 的**提议**，由指挥官在第 3 关确认并记入 Decision Record。

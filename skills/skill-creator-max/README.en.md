@@ -23,6 +23,8 @@
 5. **Orchestration friction + correlated authorship** — one skill removes the cross-skill handoffs; **fresh-subagent dispatch per role** decorrelates builder from grader by construction.
 6. **Description / portability** — six-vendor-intersection schemas + description-length discipline + hard anti-triggers.
 
+**v1.3.1 (repair round 1 on the 1.3.0 battery; the three P2s only)** — a blank SkillSpec field is carried only by an unknowns/disputes entry with an explicit `field` key (it used to be a substring match over free text, so a discovery plan mentioning "trigger" counted); `red_before_green` is stated as self-reported, and "red predates green on the same cases" is checked by the conductor reading the red log at stage 3 and by the battery, not by the gate; the battery's `clean` now means "no adjudicated P1/P2" (P3s and flags are recorded, not blocking).
+
 **New in v1.3.0 (aligned to philosophy KB v0.4.0 / R20, incremental)** —
 
 - **`deterministic` is for skeleton checks only**: the verdict information must be in the string (existence / count / verbatim / structural isomorphism / hash, byte or numeric compare). A script exit code over an approximation of meaning (similarity, threshold, regex) is `llm_judge` with full calibration, or report-only evidence, unless it shows the A50 three items (separability witness, false positives on all real corpus, lineage). The label is the engineer's **proposal**; the conductor confirms it at the stage-3 gate and records it in the Decision Record.
