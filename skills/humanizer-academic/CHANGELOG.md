@@ -32,7 +32,8 @@ the heading becomes `Candidate (not released) — <status>` and carries the evid
     occurrences of 12 sampled listed words in 3/3 drafts, so the list no longer
     changed behavior. Phrase tells and "never rewrite on word-presence alone" stay.
   - S2 academic contrast-frame quota (≤1 per document) — **kept**: the same bare
-    model still left 4, 4 and 2 frames in 3/3 frame-dense drafts. Stamp at the
+    model still left ≥2 frames in each of 3 frame-dense drafts (a fresh counter
+    instance: 4/4/2; re-counted with an "unsure" exit: 3/4/2 certain). Stamp at the
     canonical residence (`academic-pack.md`), listing its five other residences.
 
 ### Fixed
