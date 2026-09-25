@@ -2,6 +2,75 @@
 
 All notable changes to the `paper-writer` skill. Semver.
 
+## [0.2.7] — 2026-09-25
+
+Close record for the 0.2.6 re-plane. Patch: documentation and version only; no script, fixture
+or behaviour change (scripts are byte-identical to 0.2.6, harness 42/42). Fresh finalizer
+instance.
+
+### The ruling this closes
+The conductor ruled, under the owner's delegation of 2026-09-25 ("这七个你都继续去做把他们做完"),
+option (b) re-plane for the two regression classes left open by 0.2.5:
+
+> the two remaining regression classes versus installed 0.1.0 are semantic judgments a string
+> rule cannot settle (P13/S14, iron rule 2) ... these two classes stop being terminal FAILs. The
+> script keeps detecting them but reports them as a distinct REVIEW class (not FAIL, exit code
+> unaffected by them alone), with a message that names the actual cause ... every REVIEW item
+> goes to the independent citation verifier (fresh, not the writer), whose verdict is recorded in
+> the citation ledger; unverified REVIEW items block delivery the same way an unverified citation
+> does. ... Net script lines must not grow (iron rule 4 is at the line).
+
+Principle pointers: P13 / S14 and iron rule 2 (a parenthesised year and a lower-case surname are
+L-plane judgments, so they go to the verifier, not to a third string patch); P12 / PW-F04 (nothing
+is skipped silently; every REVIEW id is on the checklist and blocks at the ledger gate); iron
+rule 4 (scripts 484 → 482, harness 42 cases).
+
+### The REVIEW route, as shipped in 0.2.6
+- `check_citations.py` prints a `REVIEW` line that names the cause for (i) an entry led by a
+  lower-case-initial surname (`hooks`, `boyd`, `d'Alembert`) and (ii) a narrative year followed by
+  `,` `;` `:` with no entry (`Hurricane Katrina (2005; category 5)`). REVIEW alone leaves the exit
+  code at 0.
+- `extract_citations.py` lists them as `<UNKEYED:…>` and `<REVIEW:name_year>`. `--verify` blocks
+  until each has a terminal verdict; `NOT_A_CITATION` is terminal for `<REVIEW:…>` ids only.
+- `SKILL.md` names the route (row J3r): the writer keeps the name as its author writes it and adds
+  an entry if the item is a real citation; everything else goes to the fresh verifier.
+
+### Release check on 0.2.6 (HEAD d98a552): release-ready
+Criterion as pre-registered for round 3: every blocking item equal to or better than installed
+0.1.0, no open P0/P1, harness green, offline workflow runs. A fresh release checker ran 28 probes
+plus 5 edge probes on both installed 0.1.0 and the candidate.
+- **FA-1.** Year ranges (`Recession (2008–2009)`, `COVID-19 (2020)`) pass on both.
+  `(2008, see below)`, `(2005; category 5)`, `(2005: landfall)` and the CJK `（2008；8.0级）` give
+  exit 0 plus a REVIEW line naming the cause, and appear on the checklist as `<REVIEW:…>`. In
+  Chicago, installed FAILs the whole paper; the candidate gives exit 0 plus REVIEW.
+- **FA-2 / FA-3.** `[2024-01-15]`, `[0, 1]`, `[0, 255]`: exit 0, no crash, on both, in GB/T and IEEE.
+- **FA-4.** APA hooks/boyd: installed passes silently and leaves them off its checklist; the
+  candidate prints REVIEW and lists each as `<UNKEYED:…>`. MLA hooks/boyd, Chicago hooks,
+  d'Alembert, al-Ghazali: installed exits 1; the candidate gives exit 0 plus REVIEW.
+- **P1 fixes hold.** An invented uncited entry FAILs as a reverse orphan (APA, Chicago, also beside
+  REVIEW shapes); `(Smith, 2020)` and `Jones (2019)` orphans FAIL; Özdemir/Ødegård/王 are keyed and
+  on the checklist (installed dropped them); a Chicago author-date paper passes (installed FAILs);
+  `a. Brandt` and MLA `e. Okafor` FAIL (installed passed `a. Brandt`); `de Souza` and `van Dijk`
+  pass (installed false-orphans both).
+- **Ledger gate** on a hooks + Katrina + Roediger paper: BLOCK on an empty ledger, on a ledger that
+  omits the REVIEW/UNKEYED ids, on `NOT_A_CITATION` for an UNKEYED or keyed id, on `UNSURE`, and on
+  `SOURCE_NEEDED` with no marker in the paper; PASS only when every id has a terminal verdict. A
+  REVIEW item cannot reach delivery without a verifier verdict.
+- **No open P0/P1.** Harness 42/42 (= the +50% cap over 28). Scripts 484 → 482. Offline workflow on
+  `demo/paper.md`: sections, length (1323 in [1260,1540]), citations (APA PASS), checklist of 7,
+  `--verify` PASS.
+
+### Still open (not blocking under the release criterion)
+- The REVIEW route is only as strong as the verifier dispatch. It has never run for real: every
+  E11 host lacked subagent dispatch, so REVIEW items there fall to fallback A (self-pass, labelled).
+  Verifier calibration and both pressure sentinels are still not run; the E11 uplift rule is still
+  unmet (M1 0 = 0). These keep the effective verdict at **draft**.
+- Accepted cost of the ruling: a true orphan written `Smith (2012, p. 4)` is REVIEW, not FAIL.
+- The release checker reported one further P2 in its open items (text held in the conductor's
+  run record). FA-5 (two-name CJK clause), PW-F10 (grouped numeric markers, same as installed),
+  and P3s FA-6..FA-11, F13 F14 F15 F16r F18 F19 F21 stay open.
+- Independence is instance tier (same model family, fresh contexts).
+
 ## [0.2.6] — 2026-09-25
 
 Re-plane of the two remaining regression classes against installed 0.1.0. Patch: no new
