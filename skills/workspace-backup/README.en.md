@@ -145,8 +145,13 @@ per-machine mutable state and must survive the skill being reinstalled.
   is a hard-coded `rsync` command, not a real model run, so it is **not E11
   baseline-delta evidence**. It only marks assertions that pass in both arms
   (those carry zero information about the skill's value). The real two-arm runs
-  are in the CHANGELOG (0.2.3: with skill 10/10, bare model 9/10; the 0.3.0 Opus
-  5.5 run is recorded with that version).
+  are in the CHANGELOG (0.2.3: with skill 10/10, bare model 9/10. 0.3.0 on Opus
+  5.5: over 3 cases the skill won 1 and tied 2, and all 6 arm-runs passed the
+  filesystem check; in one tie the bare model wrote non-secret files into an
+  undeclared cloud folder while the skill wrote zero bytes — a small delta, but
+  exactly on the line this skill exists to hold. By the pre-registered rule the
+  filesystem uplift metric is 0: "uplift not demonstrated on Opus 5.5", no
+  retirement on n=3, and an A38 retirement review is flagged).
 - Every behavioural fix in 0.2.0 and 0.2.1 was written **red first**: the case was
   captured failing against a snapshot of the 0.1.0 scripts
   (`dev-workspace/backup-skill-build/red/repair-red-20260727.txt`, timestamped)
@@ -176,6 +181,15 @@ per-machine mutable state and must survive the skill being reinstalled.
 - **The secret list is a pattern match** (`.env`, `.env.*`, `*.pem`, `*.key`):
   `id_rsa`, `credentials.json`, `.npmrc` and the like are not in it, and the
   report says so.
+- **The fix audit left one P2 open (0.3.0).** Two source roots whose names differ
+  only in case (`a/Work`, `b/work`) still pass the duplicate check; on a
+  case-insensitive destination they land in one directory, the default L2 verify
+  does not notice, and the report calls both SAFE. **Do not configure that until
+  it is fixed.** Eight P3 items are also open (`save_config` drops `_` note keys,
+  a JSON syntax error is still a traceback + exit 1, the space lower-bound
+  warning misfires with delete ON, …); the full list is in the 0.3.0 CHANGELOG.
+- **The 0.3.0 adversarial round is instance-tier only** (attacker, adjudicator,
+  fixer and auditor were fresh instances of one model); effective verdict candidate.
 
 - **This skill was attacked by independent lenses twice, and the second round
   found that the first round's repair had itself introduced two P1 defects** —
