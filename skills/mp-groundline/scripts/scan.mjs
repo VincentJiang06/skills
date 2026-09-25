@@ -352,7 +352,9 @@ export function scan(root) {
       category: "renderer_options", action: "keep", severity: "info",
       file: rel(appJsonPath), line: lineOfKey(appSrc, "rendererOptions"),
       snippet: '"rendererOptions": { "skyline": { ... } }',
-      note: "Ignored by WebView; safe to keep or strip. Never a rewrite. Without defaultDisplayBlock/defaultContentBox: true, Skyline defaulted to flex + border-box, so expect a global layout shift after the flip (see the map)."
+      note: rendererOptions.skyline.defaultDisplayBlock === true && rendererOptions.skyline.defaultContentBox === true
+        ? "Ignored by WebView; safe to keep or strip. Never a rewrite. defaultDisplayBlock/defaultContentBox are both true, so Skyline already used the WebView defaults (block + content-box)."
+        : "Ignored by WebView; safe to keep or strip. Never a rewrite. Without defaultDisplayBlock/defaultContentBox: true, Skyline defaulted to flex + border-box, so expect a default layout shift on the pages that ran on Skyline (see the map)."
     });
   }
 
