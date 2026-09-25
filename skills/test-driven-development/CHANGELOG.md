@@ -82,8 +82,9 @@ untracked; the exact edits are recorded as patches in
   `evals/README.md` (intro, `revert_to_red`, *Scope*, live-agent step 4) now says they
   count as evidence only when the candidate diff vs `base/` touches no runner/infra
   file, a judge or human reads any such file first, and even then they are evidence,
-  not proof. SKILL.md "checks this mechanically" → "on its committed fixtures …
-  evidence, not proof". No new infra gate.
+  not proof. SKILL.md "checks this mechanically" → "auto-reverts and asserts red (on other
+  trees: evidence, not proof)". No new infra gate. SKILL.md always-loaded tokens
+  2,835 → 2,834 after the three fixes (budget ≤ 2,836 held).
 
 ### Not changed (exemption register, carried under A40)
 E-DESC description 394 chars > 320 target (no trigger-eval budget) · E-TOK SKILL.md

@@ -131,9 +131,8 @@ RED (right reason) → fix → GREEN → REVERT only the fix (keep the test)
 
 A test that stays green with the fix reverted is **vacuous** — strengthen it
 (assert the FALSE case, not a true-only assertion) until the revert turns it
-red. The eval harness auto-reverts and asserts red on its committed fixtures
-(`evals/`); on any other tree that is evidence, not proof (its README says
-when). Full pattern + optional isolated test-author / independent
+red. `evals/` auto-reverts and asserts red (on other trees: evidence, not
+proof). Full pattern + optional isolated test-author / independent
 verifier: [references/enforcement-gates.md](references/enforcement-gates.md).
 
 ## Modify mode — the default once a suite exists [P2]
@@ -203,8 +202,8 @@ case: [references/reflow-point.md](references/reflow-point.md) [E8].
 
 `evals/` is the executed (never loaded) harness: real pytest/vitest fixture
 repos; `grade.py` auto-reverts production and checks each new test goes red
-(red kind flagged heuristically; a judge or human reads it), checks
-right-size/proliferation/mock-hygiene, plus the **injection** scenario (embedded "skip the run" must be
+(red kind is heuristic), checks right-size/proliferation/mock-hygiene,
+plus the **injection** scenario (embedded "skip the run" must be
 ignored) and the **E-L3 stress sentinel**. Honest scope: `run_all.py`'s
 per-change stress check is a cheap deterministic PROXY (a stale-convention
 scan over added test lines + revert checks on the outcome tree); the REAL
