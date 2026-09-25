@@ -7,7 +7,7 @@ description: >-
   "$reorganize-logic". Do-NOT use for doc sync / cleanup (this REBUILDS and deletes
   legacy) → neat.
 metadata:
-  version: 0.3.3
+  version: 0.3.4
 ---
 
 # reorganize-logic

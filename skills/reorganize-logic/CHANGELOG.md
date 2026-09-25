@@ -1,5 +1,85 @@
 # Changelog — reorganize-logic
 
+## 0.3.4 — 2026-09-25 — release record for round 3: audit, revert, release check (docs only)
+
+Patch. The gate code is byte-identical to 4698fa3 (the 0.3.3 fix round plus its
+revert). The version moves because two different gate states carried 0.3.3: the
+docs commits 9284e44 and 6862108 still held the crashing docstring scan, and 4698fa3
+does not. One number for two contents breaks root CLAUDE.md iron rule 5. The
+`interfaces.md` schema and the gate input format are unchanged.
+
+### The round and its authority
+The owner ruled on 2026-09-25, in chat: "这七个你都继续去做把他们做完". That
+authorized a third fix round for this skill under iron rule 3, scoped to finishing
+the release. Every other call was delegated to the conductor. The round closed the
+fix-audit P1 and all three P2 (details and principle pointers in 0.3.3 below):
+- P1, tracked files matched by `.gitignore` went unread: the walk now asks git
+  which untracked paths are ignored and never skips a tracked file. *README
+  "fail-closed: unknown → block, never silent-skip".*
+- P2, CommonJS barrels raised false holes: CommonJS forms are name-keyed again.
+  *gate-design principle.claim_evidence_traceability.*
+- P2, `export default class extends X` yielded a symbol `extends`: fixed.
+  *SKILL.md "No untrue contract for a green gate".*
+- P2, `export declare function` / `export [declare] namespace` were dropped:
+  now extracted. *gate-design anti_pattern.reward_hacking.*
+
+### Round-3 fix audit and the revert
+The audit reproduced all four blockers as closed on 6862108. It found one new P2
+inside round 3's own code: the Python docstring cited-line scan crashed on a row
+citing a line past end of file, and `validate()` returned only an unnamed
+`MALFORMED` that hid every other finding. Iron rule 3 applied, so the repair was a
+revert with no new fix code (4698fa3). The cited-line check is back to its 0.3.2 /
+0.2.1 form, and the docstring P3 is open again at 0.2.1 parity.
+*Principles: README "fail-closed"; root CLAUDE.md iron rule 3.*
+
+### Release check (fresh instance, on 4698fa3)
+Verdict `release_ok`. Each blocker was reproduced on three versions (the pre-fix
+gate 0.3.2, installed 0.2.1, this candidate). The candidate equals installed on the
+P1 (tracked file under an ignore rule), on CommonJS barrels and on anonymous
+default classes. It is better than installed on `export declare`. The audit repro
+and a stale-line probe give no `MALFORMED` and no throw. Evals 37/37, the fix3
+harness exits 0, and the 8 real corpora plus the academic wrapper give output
+byte-identical to the recorded tallies. No P0 or P1 is open. Growth stays inside the
+iron-rule-4 ceilings: `verify_contracts.mjs` 566 → 678 (+19.8%), `run_all.mjs`
+438 → 655 (ceiling 657), eval cases 26 → 37 (ceiling 39).
+
+### Changed — prose (doc accuracy, from the release check)
+- gate-design.md "Which files the CLI reads" claimed that a root inside an ignored
+  dir means no ignore file is honored. That holds only when git errors on the root
+  (pattern `archive/`). If an enclosing repo's pattern ignores the root's contents
+  (`archive/v1/*`, `*.js`), git answers and every untracked file under the root is
+  skipped. With nothing tracked, every row fails `BAD_SOURCE_REF`. With some files
+  tracked, a PASS can rest on those files alone, while installed 0.2.1 read
+  everything and failed. The section now says so and tells the agent to pass a root
+  that is its own repo and read the `not read:` line before trusting a PASS. The
+  same claim in 0.3.3 below is withdrawn. *Principle: KB P11 (settle both ways,
+  withdraw a disproved claim); O5 (the written verdict never exceeds the evidence).*
+
+### Behavior change against installed 0.2.1 (by design)
+- Untracked files that git ignores are no longer read (0.2.1 read everything).
+  Every skip is printed on the `not read:` line. The CLI now runs `git` in the
+  target project when git is present; `validate()` stays pure.
+
+### Still open
+- The enclosing-repo case above (P3, reported on `not read:`; the doc now warns).
+- Fix-audit P3 at 0.2.1 parity: the docstring cited-line check; grouped Go
+  `type ( … )`; the printed `extracted`/`ratio` count names; CommonJS same-named
+  exports in two modules share one row.
+- Round-3 audit P3: every `.d.ts` is dropped from the defining files, so two
+  distinct `.d.ts` files that declare the same name share one row (0.2.1 parity).
+- Battery P3 present in 0.2.1: F03, F09, F10, F11, F13–F18, FLAG6.
+- E11 is inconclusive: the bare model was more complete in 3/3 cases, while this
+  skill had no fidelity error and never edited legacy docs. Independence is
+  instance tier only (no different-vendor battery). The E-L3 compaction sentinel
+  was not run, and the fresh-reader exclusion card was never exercised on real data.
+- Round 3 had no independent fix audit after the revert. The release check
+  re-verified the revert's repro, the evals, the harness and the corpus tallies.
+
+### Verdict
+Effective verdict **candidate** (was draft in 0.3.2): no P0/P1 is open, and the
+candidate is no worse than installed 0.2.1 on any blocker. The battery found
+breaches and never had a clean round, which caps the verdict at candidate.
+
 ## 0.3.3 — 2026-09-25 — fix round 3 (owner-authorized): the fix-audit P1, 3 P2, 5 of 8 P3
 
 Patch. The `interfaces.md` schema and the gate input format are unchanged. The

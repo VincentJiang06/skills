@@ -102,11 +102,16 @@ are honored **through git only**: the walk skips exactly what
 any ignore source matches (nested `.gitignore` files included). A tracked file is
 never skipped for matching an ignore pattern (`git add -f`); the dir names above still
 apply to it. When git gives no answer
-(no repo, no git binary, or the root sits inside an ignored dir), no ignore file is
-honored and the walk reads everything outside the dirs named above. When the root is
-a subdirectory of a larger repo, that repo's ignore rules apply, so pass the real
-project root. Nothing is skipped silently: the CLI prints a `not read:` line with the
-skipped dir names and the git-ignored paths (first five). An extra file can only add
+(no repo, no git binary, or git errors on the root, e.g. a root under a dir pattern
+such as `archive/`), no ignore file is honored and the walk reads everything outside
+the dirs named above. When the root is a subdirectory of a larger repo, that repo's
+ignore rules apply. If one of them ignores the root's own contents (`archive/v1/*`,
+`*.js`), git does answer, and every untracked file under the root is skipped: with no
+file tracked, every row fails `BAD_SOURCE_REF`; with some tracked, a PASS can rest on
+the tracked files alone. So pass a root that is its own repo (the real project root),
+and read the `not read:` line before trusting a PASS. Nothing is skipped silently:
+the CLI prints a `not read:` line with the skipped dir names and the git-ignored
+paths (first five). An extra file can only add
 a visible `COVERAGE_HOLE`, never hide one. A file set the walk cannot express
 (several roots, custom skips) is escalate (d) in `protocol.md`.
 

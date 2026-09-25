@@ -15,9 +15,12 @@
 - Deletion is fail-closed: unknown → block, never silent-skip.
 - Contrast with neat, which SYNCS docs incrementally rather than rebuilding them.
 
-**Known limitations (0.3.3)** —
+**Known limitations (0.3.4)** —
+- One deliberate behavior change against installed 0.2.1: untracked files that git ignores are no longer read (0.2.1 read everything). Every skip is printed on the `not read:` line, and the CLI runs `git` in the target project.
+- If the root sits inside a larger repo whose rules ignore the root's contents (e.g. `archive/v1/*`), every untracked file is skipped and a PASS can rest on the tracked files alone. Pass a root that is its own repo, and read the `not read:` line before trusting a PASS.
 - A column-0 `name =` inside a Python docstring counts as a definition for a cited row (as in 0.2.1); grouped Go `type ( … )` blocks are not read; the printed `extracted`/`ratio` count names, not (name, file) symbols.
-- Edge cases carried from 0.2.x (a zero surface passes, exports inside comments are extracted, a plain JS `class X` counts as a strong export, and others): full list with repros in [CHANGELOG.md](CHANGELOG.md) 0.3.3 and 0.3.2.
+- Edge cases carried from 0.2.x (a zero surface passes, exports inside comments are extracted, a plain JS `class X` counts as a strong export, and others): full list with repros in [CHANGELOG.md](CHANGELOG.md) 0.3.4, 0.3.3 and 0.3.2.
+- Status: release candidate (release check passed, no open P0/P1; adversarial testing reached same-model instance-tier independence only).
 - Head-to-head against a bare model (3 cases), the skill was never less accurate and never edited legacy docs, but the bare model was more complete in all three.
 
 **When to use** — "reorganize/rewrite the logic" · "rebuild the contracts from scratch" · "rewrite the architecture/structure/interface docs"; or call `/reorganize-logic`.
