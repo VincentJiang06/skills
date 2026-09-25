@@ -17,6 +17,6 @@
 
 **安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/hifi-review ~/.claude/skills/`）。
 
-**已知局限** —— `validate_output.py` 只查结构（schema、每条结论都挂在已列出的来源上、`attribute` 为技术力的结论标为共识——它读标签不读句子，没打技术力标签的结论会漏过），不判断结论是否站得住（如「可闻差异」是否成立，这由 Step 8 按判断卡自读）；L1 golden 是引擎在合成曲线上自己冻结的回归基线，只证明确定性与不回退，不证明准确。
+**已知局限** —— `validate_output.py` 只查结构（schema、每条结论都挂在已列出的来源上、`attribute` 为技术力的结论标为共识——它读标签不读句子，没打技术力标签的结论会漏过），不判断结论是否站得住（如「可闻差异」是否成立，这由 Step 8 按判断卡自读）；L1 golden 是引擎在合成曲线上自己冻结的回归基线，只证明确定性与不回退，不证明准确。1.1.1 仍未修的已知缺口：`coloration_high` 这类染色 / 齿音 id 标成 measured 仍会放行；`compare.py` 在耦合腔（rig）缺失或拼错时仍给出 `comparable: true`，只在 `warnings` 里记一条——判断两条曲线能否比较要看 warnings，不能只看这个标志。两臂对照（3 例，对裸 Opus 5.5）：2 例本 skill 更好（优势在耦合腔 / 目标曲线匹配），1 例持平，0 例更差。
 
-当前版本 1.1.0，变更见 [CHANGELOG.md](CHANGELOG.md)。完整说明见 [SKILL.md](SKILL.md)。
+当前版本 1.1.1，变更见 [CHANGELOG.md](CHANGELOG.md)。完整说明见 [SKILL.md](SKILL.md)。

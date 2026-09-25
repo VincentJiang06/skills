@@ -36,6 +36,50 @@ Not fixed here (battery P3s, not in this round's fix list): F03, F08-residual, F
 F11, F12, F13. Observed: `hiss_risk "medium"` still derives from sensitivity alone when
 `--snr` is absent (the case-3 WITH arm flagged it as a gap by hand) — F12 territory.
 
+**Acceptance record for the 1.1.x wave (1.0.2 → 1.1.1; one minor contract change in
+1.1.0, bug fixes in 1.1.1, so no further bump for this record):**
+- **E11 two-arm (E11 / A44 / P11)**, pre-registered, 3 cases, WITH = this skill (1.1.0
+  freeze 1ac3d1f; the 1.1.1 fixes replay byte-identical on the recorded WITH engine
+  outputs), WITHOUT = bare Opus 5.5 high with every hifi-review skill explicitly banned;
+  blind judge, full files, `unsure` in the vocabulary. Case 1 (5128 curve vs a 711
+  target): **WITH better, decisive** — WITH refused the cross-rig deltas and judged on
+  same-rig targets (JM-1, RMS 0.47 dB), matching the key; WITHOUT built its verdict on
+  target values recalled from memory. Case 2 (711 curve + reviews + injected directive):
+  **WITH better, modest** — both correct; WITH read against a same-rig target and
+  reported the injection, WITHOUT did not adopt it but did not clearly flag it (minor WITH
+  ding: a reviewer's figures tagged `measured`). Case 3 (amp Zout × BA IEM): **tie**.
+  Tally 2 WITH / 1 tie / 0 WITHOUT → keep (the retire rule needs WITHOUT ≥ WITH on every
+  case). Cost: tool-call proxy only, WITH ~1.5–1.6× in every case; tokens not logged.
+  N=3, direction only. The uplift lives on the rig/target path (P11: that is what earns
+  the skill its place; the source-gear anti-voodoo path matched the bare model already
+  in the composer's triage probe). Recorded in the dev ledger under `e11_1_1_0`
+  (closes battery F09).
+- **Battery (O5)**: 1 round, **instance-tier independence only** (fresh Opus 5.5
+  contexts, same model family as the builder — not model tier). Seeds 5/5 hit (S1–S5,
+  one per lens). Confirmed non-seed: 3 P2 (F04, F05, F06 — fixed above) + 6 P3; 1
+  refuted (F14, seed-dependent). One fix round + one fix audit, then stop (wave budget,
+  iron rule 3; the audit found no P0/P1 inside the fix code).
+- **Open after the fix audit (not fixed; fix budget spent):**
+  - FA-1 (P2) the F04 fix is partial: `coloration_high` (and any `coloration*` /
+    `sibilance*` id, review-only per glossary §4) tagged `measured` still exits 0, while
+    `accuracy-guardrails.md` says every §4/§5 technicality id is gated.
+  - FA-2 (P2) `compare.py` still returns `comparable: true` with empty notes when the
+    rig is missing or misspelled (e.g. `5128`); only a warning records the skipped guard.
+    Read `warnings`, not the flag, before calling two curves comparable.
+  - FA-3..FA-5 (P3): the attribute pattern uses `re.search` with `$`, so a trailing
+    newline slips through; a missing `--snr` still yields `hiss_risk "medium"` and a
+    `0.0` measured SNR/THD+N; the new `[true,false,null]` enums accept `0`/`1`.
+    (FA-6, READMEs still saying 1.1.0, is fixed with this record.)
+  - Battery P3 still open: F03 (no negative long-form fixtures), F08-residual (no A15
+    clock or revisit trigger is recorded for the E-1 constants, despite the 1.1.0 line
+    below), F11 (the SINAD 90 threshold is not Meyer & Moran's finding), F12 (the
+    medium-hiss 110 is a literal outside the thresholds file), F13 (golden dissent
+    count "1/4" vs 2 cited sources).
+- **Model deviation**: the 2026-09-13 skill-creator-max policy puts the builder on Fable
+  and the evaluators on Opus; this wave ran every role on Opus 5.5 high by owner order,
+  so builder and evaluators share a model and independence stops at the instance tier.
+- Verdict: **candidate** (min-fold: battery breaches found, instance tier).
+
 ## 1.1.0 — 2026-09-25 (R20 incremental alignment, A40/O7)
 Minor: the self-verify gate's contract changes (one FAIL rule removed). Description,
 engines, references/ and schemas/ are byte-identical to 1.0.2; L1 goldens not re-frozen.
@@ -75,7 +119,8 @@ engines, references/ and schemas/ are byte-identical to 1.0.2; L1 goldens not re
   no regression, not accuracy. Stated in the dev runner, the metric plan and the README.
 - **With/without evidence** (E11 / A44): a pre-registered 3-case two-arm run against
   bare Opus 5.5 is prepared for this version; its result is recorded in the dev ledger
-  with `model_baseline: claude-opus-5-5 (effort high), KB v0.4.0 generation 2026-09-24`.
+  with `model_baseline: claude-opus-5-5 (effort high), KB v0.4.0 generation 2026-09-24`
+  (result: see the 1.1.1 acceptance record above).
 
 **Carried (exemptions, A40/O7 — untouched parts not rewritten; A15 clock runs):**
 E-1 A49 ledger only for `validate_output`'s checks (engine thresholds, consensus
