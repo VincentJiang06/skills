@@ -104,8 +104,9 @@ anything ships. Speed is not a concern — quality and honesty are the only bars
 ## Metrics
 
 See `rules/metric-plan.md`: length-window conformance rate (target ≥0.9),
-ungrounded-claim rate (target 0), section-coverage pass rate, and activation
-precision vs adjacent skills (album-review vs hifi-review vs lyric-translation).
+untraced fact-label rate (reference integrity, target 0), section-coverage pass
+rate, and route-classifier agreement (a regex proxy — real activation precision is
+未测 until a description-driven trigger eval runs).
 
 ## Modules
 
