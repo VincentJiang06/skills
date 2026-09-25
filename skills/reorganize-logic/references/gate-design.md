@@ -41,23 +41,26 @@ string = no reason) and runs through the same reason grammar.
 - **Documented** — the `interfaces.md` table rows (`name`, `file:line`) + the
   intentionally-internal exclusions.
 - **Extracted public surface** — names matched by export heuristics across common
-  languages. Recognized JS/TS forms: `export function/const(multi-declarator + simple
-  destructuring)/let/var/class/type/interface/enum`, `export default function`,
+  languages. Recognized JS/TS forms: `export [declare] function/const(multi-declarator + simple
+  destructuring)/let/var/class/type/interface/enum/const enum`, `export default function`,
+  `export default [abstract] class`,
   multi-line `export { a, b as c }` (+ `from` re-exports), `export * as ns from`,
   resolved `export * from './local'` (followed across files), `module.exports.x` /
   `exports.x` / computed `exports['x']`, `module.exports = <ident>` (strong export of that
   binding), `module.exports = { … }` and
   `Object.assign(module.exports, { … })` object literals (brace-balanced, multi-line,
   with getter/setter/async/generator members), and `Object.defineProperty(exports,
-  'x', …)`. Plus Python top-level `def`/`class`, Go exported `func`, Java/C# `public`
-  members, and weak top-level `function`. `_`-prefixed names are private. Confidence
+  'x', …)`. Plus Python top-level `def`/`class`, Go exported `func` and (in `.go` files) exported
+  `type`, Java/C# `public` members, and weak top-level `function`. Not on the surface but
+  accepted for a documented row: a column-0 assignment/declaration of the name exactly at
+  the cited line (Python `app = FastAPI()`, Go `var X = …`) — existence, not publicness. `_`-prefixed names are private. Confidence
   is `strong` (explicit export) or `weak`.
 
 ## Verdicts
 
 | Tag | Class | Plane | Means | Fix |
 |---|---|---|---|---|
-| `ORPHAN` | FAIL | D (skeleton) | documented symbol not defined anywhere in scope, no near-name | remove/rename the row |
+| `ORPHAN` | FAIL | D (skeleton) | documented symbol not defined anywhere in scope (not on the extracted surface, and its cited line does not assign/declare it at column 0), no near-name | open the cited line: a row you invented or misnamed → remove/rename it; a true definition in a form the extractor misses → keep the row and escalate with the form (protocol step 5), never delete a true row for a green gate |
 | `BAD_SOURCE_REF` | FAIL | D (skeleton) | symbol exists but not at the cited `file:line` (or cited file absent) | fix the ref |
 | `COVERAGE_HOLE` | FAIL | D (skeleton) | code exports a symbol that is neither documented nor excluded | document it (or exclude with a reason) |
 | `EMPTY_CONTRACT` / `MALFORMED` | FAIL | D (skeleton) | no parseable rows/exclusions, or non-string input | author a real contract |
@@ -120,7 +123,7 @@ coverage.
   Kotlin, Swift), do not trust the green and never edit the extractor during a user
   task: report the form to the owner as a proposal (form, example line, file) and
   escalate (`protocol.md` step 5). Supported today: the JS/TS forms above, Python
-  top-level `def`/`class`, Go exported `func`, Java/C# `public` members, weak
+  top-level `def`/`class`, Go exported `func`/`type`, Java/C# `public` members, weak
   top-level `function`.
 
 ## Tracked metrics (asserted by the local `evals/run_all.mjs`)

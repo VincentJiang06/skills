@@ -96,8 +96,11 @@ node scripts/verify_contracts.mjs <project-root> [--scope <subdir>]
 ```
 
 FAIL and FLAG block; REVIEW lines do not. Per tag:
-- **FAIL [ORPHAN]** — you documented a symbol that isn't in the code. Remove it or
-  fix the name.
+- **FAIL [ORPHAN]** — the gate found no definition for a documented symbol. Open
+  the cited line. If you invented or misnamed the row, remove it or fix the name. If
+  the definition is really there in a form the gate does not recognize, keep the row
+  (it is true) and escalate with the form, per (a) below — never delete a true row
+  to get a green gate.
 - **FAIL [COVERAGE_HOLE]** — the code exports a symbol you didn't document. Add it,
   or list it under `## Intentionally internal` with a same-line reason.
 - **FAIL [BAD_SOURCE_REF]** — the `file:line` is wrong. Fix it to the real line.

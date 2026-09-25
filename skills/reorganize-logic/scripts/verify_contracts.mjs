@@ -48,9 +48,9 @@ const SURFACE_MATCHERS = [
   // --- JS / TS strong exports ---
   { re: new RegExp(`^\\s*export\\s+default\\s+(?:async\\s+)?function\\s+(${NAME})`), conf: "strong" },
   { re: new RegExp(`^\\s*export\\s+(?:async\\s+)?function\\*?\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:const|let|var)\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:abstract\\s+)?class\\s+(${NAME})`), conf: "strong" },
-  { re: new RegExp(`^\\s*export\\s+(?:type|interface|enum)\\s+(${NAME})`), conf: "strong" },
+  { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const|let|var)\\s+(?!enum\\b)(${NAME})`), conf: "strong" },
+  { re: new RegExp(`^\\s*export\\s+(?:default\\s+|declare\\s+)?(?:abstract\\s+)?class\\s+(${NAME})`), conf: "strong" },
+  { re: new RegExp(`^\\s*export\\s+(?:declare\\s+)?(?:const\\s+)?(?:type|interface|enum)\\s+(${NAME})`), conf: "strong" },
   { re: new RegExp(`^\\s*module\\.exports\\.(${NAME})\\s*=`), conf: "strong" },
   { re: new RegExp(`^\\s*exports\\.(${NAME})\\s*=`), conf: "strong" },
   // whole-module export of one binding: `module.exports = f;` makes f a strong export
@@ -64,6 +64,7 @@ const SURFACE_MATCHERS = [
   { re: new RegExp(`^class\\s+(${NAME})`), conf: "strong" },
   // --- Go exported (uppercase first letter) ---
   { re: new RegExp(`^func\\s+(?:\\([^)]*\\)\\s+)?([A-Z]\\w*)`), conf: "strong" },
+  { re: /^type\s+([A-Z]\w*)\b/, conf: "strong", ext: ".go" }, // `type X` is TS/Python syntax too: .go only
   // --- Java / C# members ---
   { re: new RegExp(`^\\s*(?:public|protected)\\s+(?:static\\s+)?(?:[\\w<>\\[\\],?.]+\\s+)+(${NAME})\\s*\\(`), conf: "strong" },
   // --- weak: top-level function declaration with no export keyword (CommonJS) ---
@@ -90,7 +91,7 @@ function splitTopLevel(s, sep) {
 // Names bound by `export const|let|var <decls>` — handles MULTI-declarator
 // (`export const a = 1, b = 2`) and simple destructuring (`export const {a, b} = x`).
 function exportDeclNames(line) {
-  const m = line.match(/^\s*export\s+(?:const|let|var)\s+(.+)$/);
+  const m = line.match(/^\s*export\s+(?:declare\s+)?(?:const|let|var)\s+(?!enum\b)(.+)$/);
   if (!m) return [];
   const out = [];
   for (let seg of splitTopLevel(m[1], ",")) {
@@ -253,7 +254,7 @@ function resolveSpec(fromPath, spec, files) {
 }
 
 // The DIRECT public surface a single file declares (no cross-file resolution yet).
-function directSurface(content) {
+function directSurface(content, path) {
   const entries = [];
   const flags = [];
   const lines = content.split("\n");
@@ -262,6 +263,7 @@ function directSurface(content) {
     const names = [];
     let confidence = "weak";
     for (const mm of SURFACE_MATCHERS) {
+      if (mm.ext && !String(path).endsWith(mm.ext)) continue;
       const hit = line.match(mm.re);
       if (hit && hit[1]) {
         names.push(hit[1]);
@@ -294,7 +296,7 @@ function extractSurface(files, scope) {
   const direct = {};
   for (const path of paths) {
     const content = files[path];
-    if (typeof content === "string") direct[path] = directSurface(content);
+    if (typeof content === "string") direct[path] = directSurface(content, path);
   }
   const surface = [];
   const flags = [];
@@ -383,6 +385,12 @@ function reasonOf(raw) {
   return /\p{L}/u.test(rest) ? rest : "";
 }
 
+function definedAtLine(content, line, name) {
+  const text = String(content).split("\n")[line - 1] || "";
+  const n = name.replace(/\$/g, "\\$");
+  return new RegExp(`^(?:(?:const|let|var)\\s+${n}\\b|${n}\\s*(?::[^=]*)?=(?!=))`).test(text);
+}
+
 function sortIssues(arr) {
   return arr
     .slice()
@@ -444,7 +452,11 @@ export function validate(input) {
           fails.push({ tag: "BAD_SOURCE_REF", symbol: d.name, detail: `cited ${d.file}:${d.line}, but defined at ${at}` });
         }
       } else {
-        // not in the extracted surface — orphan, or a near-name typo to reconcile
+        // not in the extracted surface. A row whose cited line assigns/declares the
+        // name at column 0 (`app = FastAPI()`, Go `var X = …`) is tied to a real
+        // definition: existence at the exact cited line, not a publicness verdict.
+        if (definedAtLine(files[d.file], d.line, d.name)) continue;
+        // otherwise orphan, or a near-name typo to reconcile
         const near = surfaceNames.find(
           (s) => s !== d.name && (s.includes(d.name) || d.name.includes(s)) && Math.min(s.length, d.name.length) >= 3
         );
