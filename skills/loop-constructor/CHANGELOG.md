@@ -63,8 +63,50 @@ runbooks, the stale rule was copied into every design it emitted.
   question) and a safe-exit escalate lead the escalate list; a matching
   `parameter_provenance.fixed` entry; `maker_checker.scope` states the instruction-file
   hashing so the golden passes its own new checklist box.
-- SKILL.md stays under its 0.4.0 size (3,387 → 3,385 tokens): the 0.4.0 Lifecycle
-  paragraph moved verbatim into this file (below, under 0.4.0).
+- SKILL.md stays under its 0.4.0 size (3,387 → 3,385 tokens, 3,368 after the fix
+  round below): the 0.4.0 Lifecycle paragraph moved verbatim into this file (below,
+  under 0.4.0).
+
+### Battery fix round (same version; 0.5.0 was not yet released)
+One independent battery round (instance tier: same model family, fresh context) hit
+5/5 seeds and confirmed 14 findings (P2 ×3, P3 ×11, no P0/P1). This single permitted
+fix round is prose and golden edits only; `scripts/` are still byte-identical to
+0.4.0, evals still 101/101, both goldens still 0 FAIL / 0 WARN.
+- **F8** (P2, **H4** routing) — the staged golden put the own-work restart counter in
+  the outer failure list, which the renderer prints as a terminal STOPPED_UNMET.
+  `implement_rate_limit` now carries `on_failure: restart` with its own stall counter;
+  the outer list keeps only the spent restart budget. §V says where each counter is
+  written.
+- **F7** (P2, §III contract floors) — the staged golden had 5 machine-gradable
+  assertions against the skill's own endpoint floor of 8; it now has 9 (A7 diff scope,
+  A8 contract suite unchanged, A9 window reset, A10 concurrent burst).
+- **F10** (P2, KB `principle.autonomy_by_blast_radius`) — D3 had three versions of the
+  autonomy rule; it now has one (high blast and low reversibility, or a weak check
+  guarding a high-blast or irreversible step ⇒ `in_the_loop`), and the checklist box
+  and the D3 summary point to it (**A49** one residence).
+- **F19** (P3) — success now cites A7, which proves the diff-scope claim; the flat
+  golden's 50-run soak states its bound (≈6% at 95%, rule of three).
+- **F20 / F9** (P3) — the golden's D7 log counts match its `parameter_provenance`; a
+  sample size that claims variance is empirical, a minimum sample floor is a decision
+  number ("re-examine per design"), and both D7 passages say which they mean.
+- **F12** (P3) — SKILL.md now says D7 closes after NEGOTIATE, as loop-selection.md
+  does; one restated sentence was cut to pay for it.
+- **F17** (P3, **P10**) — 0 failures in 10⁴ trials bounds the residual at ≈0.03%, not
+  0.3%. **F18** (P3, **P10**) — the Karpathy attribution is hedged to its KB grade C.
+- **F11** (P3, §II) — the checklist says a same-context pass is an author review and
+  is recorded as `fresh-reader: author, same context (L-i incomplete)`.
+- **F15 / F16 / F1** (P3, **P13**) — the "Not a hidden no-op" box names what the
+  linter does not block (progress.md/log.md self-report greps, decidable always-0
+  shell forms, `|| true` after a quoted `#`). The linter's guarantee is narrowed in
+  prose; the denylist does not grow (iron rules 2/4).
+- **FL1–FL4** (P3 doc drift) — the 0.4.0 entry now says 101 cases; "Four
+  disciplines" lost its wrong count; the on_failure linter row lists `restart`; the
+  retired "9-step protocol" wording names the procedure the skill actually runs.
+- **Carried, not fixed:** F1's quote-aware `#` strip in the linter (a structural,
+  A50-admissible parser fix, deferred because this wave keeps `scripts/` unchanged and
+  a new parser needs new eval cases); F14 (eval case C12's label overclaims; evals.json
+  lists 40 of 101 cases; there is no trigger/routing coverage). Evals are not edited
+  this wave.
 
 ### Compatibility
 - Every pre-0.5 lint-green design still exits 0 (no linter change). **Persisted pre-0.5
@@ -83,12 +125,16 @@ runbooks, the stale rule was copied into every design it emitted.
 
 ### Sibling
 - `loop-constructor-codex` does not mirror 0.5.0 yet; its own upgrade must copy the §V /
-  D5 / restart-bullet / checklist / golden / §II / §VIII / Controls changes and add its
-  codex-specific `AGENTS.md` write-surface clause.
+  D5 / restart-bullet / checklist / golden / §II / §VIII / Controls changes (including
+  the fix round above: §V counter placement, D3 single rule, D2/D7 wording, the
+  checklist residual and author-review lines, golden F7/F8/F19/F20 repairs, doc drift)
+  and add its codex-specific `AGENTS.md` write-surface clause.
 
 ## 0.4.0 — 2026-08-20
 
-**Parameter provenance** (non-breaking; battery 69 → **99/99**). The recorded incident:
+**Parameter provenance** (non-breaking; battery 69 → **101/101** — this line said
+99/99 at release; P31/P32 and the linter's `tee`/`wc` pipe-tail rule reached the
+install after this note and came back into the repo with the c2a922b sync). The recorded incident:
 a 0.3.0-designed review loop pre-fixed seven classes of operational thresholds at zero
 runs (scope-crossover 65%, 3.5M ceiling, 15min lens timeout, ≥20/≥90% steady-state
 bars…) because every skill surface pushed numeric completeness and nothing offered a
