@@ -48,13 +48,14 @@ string = no reason) and runs through the same reason grammar.
   multi-line `export { a, b as c }` (+ `from` re-exports), `export * as ns from`,
   resolved `export * from './local'` (followed across files), `module.exports.x` /
   `exports.x` / computed `exports['x']`, `module.exports = <ident>` (strong export of that
-  binding), `module.exports = { … }` and
+  binding; `null`/`undefined`/`true`/`false`/`this` name nothing), `module.exports = { … }` and
   `Object.assign(module.exports, { … })` object literals (brace-balanced, multi-line,
   with getter/setter/async/generator members), and `Object.defineProperty(exports,
   'x', …)`. Plus Python top-level `def`/`class`, Go exported `func` and (in `.go` files) exported
   `type`, Java/C# `public` members, and weak top-level `function`. Not on the surface but
   accepted for a documented row: a column-0 assignment/declaration of the name exactly at
-  the cited line (Python `app = FastAPI()`, Go `var X = …`) — existence, not publicness. `_`-prefixed names are private. Confidence
+  the cited line (Python `app = FastAPI()`, Go `var X = …`) — existence, not publicness; a
+  line inside a Python triple-quoted string (a docstring example) is text and does not count. `_`-prefixed names are private. Confidence
   is `strong` (explicit export) or `weak`.
 
 ## Verdicts
@@ -117,8 +118,10 @@ symbols)`. The gate passes only at **ratio 1.0** with zero flags. Matching is
 `uuid`/`idx`/`valid`. This is what stops a near-name false-positive from inflating
 coverage. A name *strongly defined* by a declaration (not an `export { … }` list alias, not a
 CommonJS binding such as `exports.x =` / `module.exports = { x }` / `module.exports = x`,
-which may re-export an import, not a weak function) in two or more files is two symbols: a row covers the file it cites plus
-the files reached from it through `export { name } from` re-exports, and each
+which may re-export an import, not a weak function, not a `.d.ts` declaration of a twin
+source file) in two or more files is two symbols: a row covers the file it cites plus
+the files reached from it through `export { name } from` re-exports (a TS `./x.js`
+specifier reaches `x.ts`), and each
 defining file no row reaches is its own `COVERAGE_HOLE` (detail names the file).
 A name with one defining file (the usual barrel case) is covered by any row of that
 name. Exclusions stay name-keyed: one exclusion covers every file's definition, and

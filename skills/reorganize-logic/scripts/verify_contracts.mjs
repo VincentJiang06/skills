@@ -58,7 +58,7 @@ const SURFACE_MATCHERS = [
   { re: new RegExp(`^\\s*module\\.exports\\.(${NAME})\\s*=`), conf: "strong", bind: true },
   { re: new RegExp(`^\\s*exports\\.(${NAME})\\s*=`), conf: "strong", bind: true },
   // whole-module export of one binding: `module.exports = f;` makes f a strong export
-  { re: new RegExp(`^\\s*module\\.exports\\s*=\\s*(${NAME})\\s*;?\\s*$`), conf: "strong", bind: true },
+  { re: new RegExp(`^\\s*module\\.exports\\s*=\\s*(?!(?:null|undefined|true|false|this|exports|module)\\b)(${NAME})\\s*;?\\s*$`), conf: "strong", bind: true },
   // computed string-key assignment: exports['x'] = / module.exports["x"] =
   { re: new RegExp(`^\\s*(?:module\\.)?exports\\[['"](${NAME})['"]\\]\\s*=`), conf: "strong", bind: true },
   // Object.defineProperty(exports|module.exports, 'x', …)
@@ -256,6 +256,9 @@ function resolveSpec(fromPath, spec, files) {
   const base = stack.join("/");
   for (const e of ["", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"]) if (base + e in files) return base + e;
   for (const e of [".js", ".mjs", ".cjs", ".ts"]) if (base + "/index" + e in files) return base + "/index" + e;
+  // TS NodeNext/ESM: a specifier written './x.js' names the source './x.ts' (or .tsx/.mts/.cts)
+  const ts = base.replace(/\.([mc]?)js$/, ".$1ts");
+  for (const e of ["", "x"]) if (ts !== base && ts + e in files) return ts + e;
   return null;
 }
 
@@ -392,8 +395,31 @@ function reasonOf(raw) {
   return /\p{L}/u.test(rest) ? rest : "";
 }
 
-function definedAtLine(content, line, name) {
-  const text = String(content).split("\n")[line - 1] || "";
+// Python lexical scan: does line `line` (1-based) start inside a triple-quoted string (a
+// docstring or template), i.e. is it text, not code? Tracks '/" strings, escapes and # comments.
+function pyInString(lines, line) {
+  let q = null;
+  for (let i = 0; i < line - 1; i++) {
+    const l = lines[i];
+    for (let j = 0; j < l.length; j++) {
+      if (q) {
+        if (l[j] === "\\") j++;
+        else if (l.startsWith(q, j)) (q = null), (j += 2);
+      } else if (l[j] === "#") break;
+      else if (l[j] === '"' || l[j] === "'") {
+        const c = l[j];
+        if (l.startsWith(c + c + c, j)) (q = c + c + c), (j += 2);
+        else for (j++; j < l.length && l[j] !== c; j++) if (l[j] === "\\") j++;
+      }
+    }
+  }
+  return q !== null;
+}
+
+function definedAtLine(file, content, line, name) {
+  const lines = String(content).split("\n");
+  const text = lines[line - 1] || "";
+  if (file.endsWith(".py") && pyInString(lines, line)) return false; // a docstring line is text, not code
   const n = name.replace(/\$/g, "\\$");
   return new RegExp(`^(?:(?:const|let|var)\\s+${n}\\b|${n}\\s*(?::[^=]*)?=(?!=))`).test(text);
 }
@@ -462,7 +488,7 @@ export function validate(input) {
         // not in the extracted surface. A row whose cited line assigns/declares the
         // name at column 0 (`app = FastAPI()`, Go `var X = …`) is tied to a real
         // definition: existence at the exact cited line, not a publicness verdict.
-        if (definedAtLine(files[d.file], d.line, d.name)) continue;
+        if (definedAtLine(d.file, files[d.file], d.line, d.name)) continue;
         // otherwise orphan, or a near-name typo to reconcile
         const near = surfaceNames.find(
           (s) => s !== d.name && (s.includes(d.name) || d.name.includes(s)) && Math.min(s.length, d.name.length) >= 3
@@ -492,7 +518,8 @@ export function validate(input) {
         continue;
       }
       const locs = surfaceByName.get(name);
-      const defFiles = [...new Set(locs.filter((l) => !l.alias && l.confidence === "strong").map((l) => l.file))];
+      // a .d.ts declares the types of a twin source file; it is not a second definition
+      const defFiles = [...new Set(locs.filter((l) => !l.alias && l.confidence === "strong" && !l.file.endsWith(".d.ts")).map((l) => l.file))];
       const reached = new Set();
       const queue = documented.filter((d) => d.name === name).map((d) => d.file);
       while (queue.length) {
