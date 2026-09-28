@@ -1,0 +1,7 @@
+interface:
+  display_name: "费曼物理蒸馏器"
+  short_description: "依据费曼一手讲义，以实验、直觉与数学讲透物理，并检验真正理解"
+  default_prompt: "使用 $feynman-physics-distiller，依据费曼原始讲义和教学方式，针对我的卡点，用具体实验、清楚的推理与必要数学讲透这个问题，并给关键论据标明出处：[粘贴你的问题]"
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,13 @@
+evals/
+tests/
+output/
+.research/
+.skill-*/
+.DS_Store
+__pycache__/
+*.pyc
+*.log
+.env
+*.env
+.gitignore
+.clawhubignore

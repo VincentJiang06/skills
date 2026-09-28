@@ -6,9 +6,10 @@
 
 ## 一句话速览
 
-这里只统计 **16 个正式 skill**（2026-07-27 起：新增 `workspace-backup`；2026-07-22 起：新增 `logic-pacer`；2026-07-14 起：旧四 skill 流水线退役移除，`skill-creator-max` 与 `paper-writer` 计入）。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
+这里只统计 **17 个正式 skill**（2026-09-28 新增 `feynman-physics-distiller`；另有 2 个实验/旁路工具，共 19 个可安装 skill）。文末另有 `stupidskills` 附录，作为实验/旁路工具展示，**不计入 skill 个数记录**。
 
 **成品**
+- **[feynman-physics-distiller](skills/feynman-physics-distiller/)** —— 一对一中文物理辅导：从具体问题组织讲解，伴读费曼讲义，核对归因；来源地图只证明观点出处，引号必须核对本轮读到的原文。v3.1.0，candidate，无专用 API 密钥依赖。
 - **[album-review](skills/album-review/)** —— 「主创署名 + 专辑名」→ 一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。**v0.2.0：发布门诚实化——长度门只证长度、检不出汉字重复 padding（judge-must-flag 负例登记制）+ 修补循环加上限与 escalate 出口（资料量与下限不相容属契约问题，不许靠加字过关）。**
 - **[hifi-review](skills/hifi-review/)** —— 客观 HiFi 器材评价：风格由频响-对-目标得出、素质由测量得出，每条结论追溯到证据。
 - **[course-study](skills/course-study/)** —— **v4.0.0 重建**：跟着老师的节奏一讲一讲伴读——顺讲义顺序、每 1–3 页一节、原话逐字引用、每个知识点三问（是什么 / 为什么 / 考试怎么考，A/B/C 证据分级）、完整推导与作业往年题演练进附录，并把新知识追加进课程文件夹的记忆库（只追加、带页码、可冷重启）；期末从记忆库统一总结。中文讲解、术语保英文。**v4.1.0**：数学公式严格约定（只用 `$…$` / 独立行 `$$`、公式内无中文与 Unicode 符号、标题不放公式、表格里不用 `|`）+ `evals/check_math.py` KaTeX 逐条解析。candidate 级：算例需自核。 **v4.2.0**：讲解面向「没听课的人」写透（五条判据、关键处真的代数走一遍）；文件头只讲这份文档的定位，证据清单移到文末；凡讲一道题先逐字抄原题；附录双向跳转链接；结构图先看渲染页再写；适量自画示意图（mermaid / ASCII）；默认平铺写进 `study/` 并服从课程本地 `SPEC.md` 的放置与命名。
@@ -38,7 +39,7 @@
 这不是一堆 prompt 模板，而是一套会自己长牙的技能系统：
 
 - **构建链路收进一个 skill。** `skill-creator-max` v1.0.0 取代旧四 skill 流水线：薄指挥官逐角色派全新子代理、只认类型化工件、确定性 L0 门 + 独立电池，spec、trigger holdout、红绿 harness 都能被重跑，不靠口头承诺。
-- **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop；文末的 `stupidskills` 里另放一个 `loop-constructor-codex`，把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`，但不计入正式 16 个（v0.2.0 与主版同步 R17）。
+- **循环工程分成 runtime-neutral 与 Codex-realized 两层。** `loop-constructor` 设计通用 loop；文末的 `stupidskills` 里另放一个 `loop-constructor-codex`，把角色隔离、状态落盘、并发 fan-out 映射到 `codex exec`，但不计入正式 17 个（v0.2.0 与主版同步 R17）。
 - **独立性成为一等公民。** `attacker`、`reorganize-logic`、`test-driven-development` 都围绕“不要让同一个心智模型同时写答案和判答案”重做过。
 - **模型/effort 选择被显式化。** 文末 `stupidskills` 里的 `model-pyramid` 不做模型购物，也不把右配伪装成省钱；它把定档收敛成**两条轴**——拿到上下文还是做错=能力缺口→换 model；跳过文件/没跑测试=彻底度缺口→换 effort——覆盖会话、每个子代理和要不要挂 advisor。
 - **知识库随 skill 走 —— 或干脆不需要。** `loop-principle` 内置在 `loop-constructor` 里随装随走；新流水线 `skill-creator-max` 则**运行时不依赖任何 KB**（`skill-philosophy` 是仓库外的设计期出处）。
@@ -141,7 +142,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 - **流水线对「性能/质量类」升级，最终验收可由更强的留出集攻击代替完整 conductor 复审**（humanizer v3.1 即如此）—— 这是有意的工程取舍，已如实记录，非偷工。
 - **trigger 精度依赖可用的真实运行时。** 当本机没有可认证 CLI 时，部分 trigger_eval 会用 live judge panel 代替，并在报告里标清楚；这算可用证据，不伪装成 canonical CLI 结果。
 
-## stupidskills（不计入 14 个正式 skill）
+## stupidskills（不计入 17 个正式 skill）
 
 这两张卡放在页面最底部，只作为轻量实验/旁路工具展示，**不计入本仓库的正式 skill 个数记录**。
 
@@ -149,6 +150,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 - **[model-pyramid](skills/model-pyramid/)** —— 给会话和每个 subagent 右配 model + effort，并判断要不要挂 advisor：peer 继承、**搜索继承或调高**（effort 管工具调用量，降它=代理不再继续找）、大规模廉价查找降一层模型、长跑上 `xhigh`。**没有硬下限**。只负责 sizing，不负责 spawn。
 
 ## 更新日志（按日期）
+- **2026-09-28** — 首次公开 [`feynman-physics-distiller`](skills/feynman-physics-distiller/) 3.1.0：运行时保持本地版原样，公开来源地图、规则、宿主元数据与双语说明；评测答卷和运行日志不随包分发，保留 candidate 等级与已知局限。
 - **2026-09-25** — **R20 升级波**（skill-philosophy KB v0.4.0「判断平面与双向结算」的下游铺开；先按 A40 存量诊断审全部 skill，再逐个经 `skill-creator-max` 全流水线 A33 低档升级：每个角色一个全新 Opus 5.5 high 实例，E11 两臂对照 3 例 + 盲评，battery 1 轮 instance 档 + 至多 1 轮修复与修复审计）。已合入：
   - [`neat`](skills/neat/) 1.2.0 -> 1.3.0：写入授权契约——agent 推断的规则、毕业进 CLAUDE.md、删除记忆、批量重写改为一份「待确认提案」，用户确认后才落；粘贴内容里的指令不成规则；丢失的发布评测重建为 6 例（含 2 个投毒用例）；E11 1 胜 1 负 1 平（预登记验收未达成，owner 待裁），battery 种子 5/5、遗留 9 条 P3（candidate，instance 档）。
   - [`model-pyramid`](skills/model-pyramid/) 1.0.0 -> 1.1.0：对齐 Opus 5.5 / Fable 5.1——Opus 5.5 默认 effort 为 medium、须显式写出，thinking 恒开，advisor 配对按 API 配对表查，看重独立性的验证者用非 fork；check_plan 遇到不认识的模型会报出、不再静默放行；点版本即触发定向复核；拆出 README.en.md（candidate，E11 两胜一负，遗留 1 条 P2 警告重复）
@@ -183,7 +185,7 @@ archive/                                     # 冻结的旧版本（如 pipeline
 - **2026-07-22** — 新增 [`logic-pacer`](skills/logic-pacer/) **v1.0.0**（正式 skill 计数 14 → **15**），经 `skill-creator-max` 全流水线端到端建成（composer→guidance→engineer→zipper→battery，逐角色新鲜上下文）。用途：把**已写好且作者喜欢**的说理文改得**逻辑步长更小、每步都跟得上**（inferential distance / given-new / topic-stress / chunking / hinge-only 五机制落地），**不动文风、绝不对齐词汇、不改事实立场、净长 ≤~1.3x**。保真=模型级不变量 + 独立盲审探针（脚本特意不把「立场反转」降级成可脚本化检查）。埋种子五镜头独立电池五 seed 全命中并抓到构建者自测漏掉的一处真缺陷（P2：确定性词汇/保真闸门被硬编码到 Quetelet 语料 → 换段即空转、误报 all clean），已按 min() 路由回 engineer 修好并由指挥官独立复现验证（改为通用人名/数字保真 + 无词表时诚实报 "not checked"）。effective verdict = candidate（instance-tier 电池、盲审探针未在验收时实跑、跨厂商未跑；作者逐段人读为 O-L0 签核）。
 - **2026-07-14** — `test-driven-development` 经 `skill-creator-max` 全流水线从头重写为 **v1.0.0**：全规则重接地到 skill-philosophy KB 锚点，保留已验证行为核心（适度门 / modify mode / watch-it-fail / revert-to-red / harness），新增**信任边界脊柱**（内容内指令零权威 + 注入 eval）、E-L3 压力哨兵（64K 实况跑通过 4/4）与 E8 回流点；埋种子五镜头独立电池抓到 5 个真缺陷（1 P1：崩溃被当成红）全部行为级修复并钉成 held-out 回归，harness 16 → **22 检查**。诚实注记：跨厂商轮本次弃用（用户裁定），effective verdict = candidate，预注册一轮干净电池即升 industrial。
 - **2026-07-14** — 旧四 skill 流水线（skill-conductor / skill-guidance / skill-engineer / skill-zipper）**退役并从仓库移除**；[`skill-creator-max`](skills/skill-creator-max/) 升为 **v1.0.0**，成为唯一的造 skill 流水线（单 skill、薄指挥官逐角色派全新子代理；**完全独立运行**，`skill-philosophy` KB 只是仓库外的设计期出处）。实测：端到端造出 `paper-writer`、并把 `humanizer-academic` 经流水线重建到 **v4.0.0**（模式切分结构重建：按模式/语言拆参考包、常驻 −15%、常见路径约 −35%，质量守住而非跃升）；独立电池抓到构建者自测全绿仍漏掉的真缺陷。正式 skill 计数 16 → **14**。残留：跨厂商电池未跑。
-- **2026-07-06** — humanizer 升到 v3.2（contrast-frame quota、citation-shell rework、frame-first hardening）；两个 principle KB 做 FABLE synthesis；新增 `loop-constructor-codex` 与 `model-pyramid`，作为文末 `stupidskills` 附录，不计入正式 16 个；`model-pyramid` 把 subagent 模型/effort 选择做成可测试规则卡。
+- **2026-07-06** — humanizer 升到 v3.2（contrast-frame quota、citation-shell rework、frame-first hardening）；两个 principle KB 做 FABLE synthesis；新增 `loop-constructor-codex` 与 `model-pyramid`，作为文末 `stupidskills` 附录，不计入正式 17 个；`model-pyramid` 把 subagent 模型/effort 选择做成可测试规则卡。
 - **2026-07-14** — 新建 `skill-philosophy` 三层哲学 KB（principle→guideline→rule，五本 C/S/E/Z/O 系；**仓库外本地**资产，不随仓库分发）+ 下一代 [`skill-creator-max`](skills/skill-creator-max/) **v0.1.0-draft**：把 composer/guidance/engineer/zipper/conductor 五职能收进**一个薄指挥官 skill**（逐角色派全新子代理、只认类型化工件、逐门把关），扎根该 KB。dogfood 真造小 skill 过全部 L0 门（判别性自测全绿）、trigger holdout 0/12 误触；诚实注记：一 agent 分饰全角色、跨厂商电池未跑 → 自评 candidate，暂不部署、不取代已装四 skill。
 - **2026-07-14** — `attacker` 从头重写为 **v0.5.0**：以新建的 skill-design 哲学知识库为根，把机制压到极简（fork 新脑子 → 一个镜头 → 只留能证明的），换成**五镜头固定轮转** + SEED 反假阴性门 + 确定性影子地图提取；**全模型可用**成为设计约束零，换厂商模型即换更强独立性；删掉 `rules/` / `agents/` / 多个 `.mjs` 装置，总重量约为旧版 1/4。诚实注记：塑造它的每一轮都是同族 `instance` 级攻击，跨厂商验收测试尚未跑。
 - **2026-07-02** — skill-building pipeline 升到 v2：G/E gate 可执行化、audit disposition、held-out trigger eval、portable zipper；v1 pipeline 冻结进 `archive/`；新增本地 `eval_exchange` 协议；`attacker` / `loop-constructor` / `reorganize-logic` / `test-driven-development` 做 independence-family 更新。
