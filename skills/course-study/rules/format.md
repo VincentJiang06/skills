@@ -2,7 +2,7 @@
 
 # 排版与标注约定
 
-目标：读者一眼分得清「老师的原话 / 我的讲解 / 我的补充 / 考试信息」，导出 PDF 后不丢信息。只用 markdown 稳定子集：不用下划线、HTML 标签、emoji 做任何标记（HTML 的唯一例外见 rules/layout.md「链接写法」）。与 SKILL.md 压缩版冲突时以本文件为准。
+目标：读者一眼分得清「老师的原话 / 我的讲解 / 我的补充 / 考试信息」，导出 PDF 后不丢信息。只用 markdown 稳定子集：不用下划线、HTML 标签、emoji 做任何标记（HTML 例外为 rules/layout.md 的锚点与 rules/depth.md 的默认关闭折叠答案）。与 SKILL.md 压缩版冲突时以本文件为准。
 
 ## 引用讲义原话
 
@@ -106,7 +106,7 @@ flowchart LR
 ## 数学公式（严格约定）
 
 目标：同一份 `.md` 在 Typora、GitHub、Obsidian 三处都渲染得出来。读者用 Typora 时需在「偏好设置 → Markdown」里勾选「内联公式」。
-下面十一条是硬约定，写完每一节就照着自查一遍（数一数 `$` 是否成对、花括号是否闭合、公式里有没有中文）。不跑任何脚本；`evals/check_math.py` 是开发期的检查工具，不是产物的一部分。
+下面十一条是硬约定，写完每一节就照着自查一遍（数一数 `$` 是否成对、花括号是否闭合、公式里有没有中文）。同时实际调用目标 Markdown/KaTeX 渲染器检查所有公式。存在且读过的检查脚本可用于验证；检查脚本与日志不混入公开笔记。
 
 ### ① 只有两种定界符
 
@@ -219,7 +219,7 @@ blockquote 逐字引用的规矩管文字，公式必须渲染得出来：引用
 
 ### ⑪ 每条公式都要过 KaTeX
 
-以 `throwOnError: true`、`strict: false` 为准。不写 `\newcommand`、`\def`、`\renewcommand`，不用 KaTeX 内置以外的宏包命令（`\bm` 改 `\boldsymbol`）。自查靠三件事：`$` 成对、花括号成对、每个反斜杠命令都是自己认识的 KaTeX 命令——拿不准的命令就换成认得的写法，不赌。
+实际调用 KaTeX，以 `throwOnError: true` 为错误门槛，并按目标站点 strict 配置检查警告。不写 `\newcommand`、`\def`、`\renewcommand`，不用 KaTeX 内置以外的宏包命令（`\bm` 改 `\boldsymbol`）。执行渲染后另自查三件事：`$` 成对、花括号成对、每个反斜杠命令都是自己认识的 KaTeX 命令——拿不准的命令就换成认得的写法，不赌。
 
 ## 伪代码
 
