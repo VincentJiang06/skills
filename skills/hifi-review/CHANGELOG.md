@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 — 2026-11-02
+
+- Publish the existing local sound-dashboard integration: a rules page, Python CLI wrapper, and SKILL.md entry for transducer JPEG summaries and share URLs.
+- Preserve evidence mapping: no default ratings for missing evidence, no mechanical conversion from quality ranks to descriptive coordinates; evaluation device/class checks precede rendering when --evaluation is supplied.
+- Document the optional external CLI, Node.js 22+ and Chromium dependencies. The CLI is not bundled and has no public installation source supplied with this release; missing CLI leaves the text-review workflow available.
+- Align the file-writing boundary with local JPEG/result outputs and explicit overwrite authorization. Basis: the existing authority/surface boundary and accuracy guardrails; PHILOSOPHY judgments 2 (structure) and 3 (honest evidence).
+- This is a publication of local functionality, not a new model-quality evaluation; prior two-arm results remain historical.
+
+
 ## 1.1.1 — 2026-09-25 (R20 battery round 1 fixes)
 Patch: three battery-confirmed P2 defects where a tool reported success it had not
 earned. No new claim-text pattern, no new gate; each fix points to an existing rule.

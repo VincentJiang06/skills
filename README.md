@@ -11,8 +11,8 @@
 **成品**
 - **[feynman-physics-distiller](skills/feynman-physics-distiller/)** —— 一对一中文物理辅导：从具体问题组织讲解，伴读费曼讲义，核对归因；来源地图只证明观点出处，引号必须核对本轮读到的原文。v3.1.0，candidate，无专用 API 密钥依赖。
 - **[album-review](skills/album-review/)** —— 「主创署名 + 专辑名」→ 一篇 10,000–15,000 字、可溯源、覆盖每个音乐维度的中文乐评。**v0.2.0：发布门诚实化——长度门只证长度、检不出汉字重复 padding（judge-must-flag 负例登记制）+ 修补循环加上限与 escalate 出口（资料量与下限不相容属契约问题，不许靠加字过关）。**
-- **[hifi-review](skills/hifi-review/)** —— 客观 HiFi 器材评价：风格由频响-对-目标得出、素质由测量得出，每条结论追溯到证据。
-- **[course-study](skills/course-study/)** —— **v4.0.0 重建**：跟着老师的节奏一讲一讲伴读——顺讲义顺序、每 1–3 页一节、原话逐字引用、每个知识点三问（是什么 / 为什么 / 考试怎么考，A/B/C 证据分级）、完整推导与作业往年题演练进附录，并把新知识追加进课程文件夹的记忆库（只追加、带页码、可冷重启）；期末从记忆库统一总结。中文讲解、术语保英文。**v4.1.0**：数学公式严格约定（只用 `$…$` / 独立行 `$$`、公式内无中文与 Unicode 符号、标题不放公式、表格里不用 `|`）+ `evals/check_math.py` KaTeX 逐条解析。candidate 级：算例需自核。 **v4.2.0**：讲解面向「没听课的人」写透（五条判据、关键处真的代数走一遍）；文件头只讲这份文档的定位，证据清单移到文末；凡讲一道题先逐字抄原题；附录双向跳转链接；结构图先看渲染页再写；适量自画示意图（mermaid / ASCII）；默认平铺写进 `study/` 并服从课程本地 `SPEC.md` 的放置与命名。
+- **[hifi-review](skills/hifi-review/)** —— **v1.2.0**：客观、可溯源的 HiFi 评价；新增可选声音仪表盘 JPEG 与分享链接，依赖外部 CLI，未安装时仍可交付文字评价。
+- **[course-study](skills/course-study/)** —— **v4.4.0**：按讲义顺序写详细 PPT 解释、PPT 自足慢讲或独立逐问作业解析；支持提示版、批量深化、课程记忆库、追问和期末总结。
 - **[fact-check](skills/fact-check/)** —— 对事实性问题给出快速、有出处的 BLUF 回答（≤2 / ≤5 分钟）。
 - **[humanizer-academic](skills/humanizer-academic/)** —— 重写 AI 生成的严肃文本（中 / 英 / 混合），两模式（学术 / 科普）；先判定、读着像人就不动，去 AI 痕迹同时保留体裁腔调。**v4.0.0 完成模式切分结构重建**（按模式/语言拆参考包、按需加载，常驻 −15%、常见路径约 −35%；质量守住而非跃升）。
 - **[paper-writer](skills/paper-writer/)** —— 从需求（字数 / 引用风格 / 章节）和/或选题写出一篇**新的**、完整合规的论文；两条完整性铁律：绝不编造引用、绝不抄袭，查不到的来源标 `[SOURCE NEEDED]` 而非发明。
@@ -43,6 +43,9 @@
 - **独立性成为一等公民。** `attacker`、`reorganize-logic`、`test-driven-development` 都围绕“不要让同一个心智模型同时写答案和判答案”重做过。
 - **模型/effort 选择被显式化。** 文末 `stupidskills` 里的 `model-pyramid` 不做模型购物，也不把右配伪装成省钱；它把定档收敛成**两条轴**——拿到上下文还是做错=能力缺口→换 model；跳过文件/没跑测试=彻底度缺口→换 effort——覆盖会话、每个子代理和要不要挂 advisor。
 - **知识库随 skill 走 —— 或干脆不需要。** `loop-principle` 内置在 `loop-constructor` 里随装随走；新流水线 `skill-creator-max` 则**运行时不依赖任何 KB**（`skill-philosophy` 是仓库外的设计期出处）。
+
+
+> hifi-review 1.2.0 的声音仪表盘另需外部 CLI、Node.js 22+ 与 Chromium；不随本仓库分发，缺少时保留文字评价。详见该 skill README。
 
 ## 安装
 

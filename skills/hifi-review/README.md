@@ -17,6 +17,13 @@
 
 **安装** —— `npx skills add VincentJiang06/skills`（或 `cp -R skills/hifi-review ~/.claude/skills/`）。
 
-**已知局限** —— `validate_output.py` 只查结构（schema、每条结论都挂在已列出的来源上、`attribute` 为技术力的结论标为共识——它读标签不读句子，没打技术力标签的结论会漏过），不判断结论是否站得住（如「可闻差异」是否成立，这由 Step 8 按判断卡自读）；L1 golden 是引擎在合成曲线上自己冻结的回归基线，只证明确定性与不回退，不证明准确。1.1.1 仍未修的已知缺口：`coloration_high` 这类染色 / 齿音 id 标成 measured 仍会放行；`compare.py` 在耦合腔（rig）缺失或拼错时仍给出 `comparable: true`，只在 `warnings` 里记一条——判断两条曲线能否比较要看 warnings，不能只看这个标志。两臂对照（3 例，对裸 Opus 5.5）：2 例本 skill 更好（优势在耦合腔 / 目标曲线匹配），1 例持平，0 例更差。
+**已知局限** —— `validate_output.py` 只查结构（schema、每条结论都挂在已列出的来源上、`attribute` 为技术力的结论标为共识——它读标签不读句子，没打技术力标签的结论会漏过），不判断结论是否站得住（如「可闻差异」是否成立，这由 Step 8 按判断卡自读）；L1 golden 是引擎在合成曲线上自己冻结的回归基线，只证明确定性与不回退，不证明准确。1.2.0 仍未修的已知缺口：`coloration_high` 这类染色 / 齿音 id 标成 measured 仍会放行；`compare.py` 在耦合腔（rig）缺失或拼错时仍给出 `comparable: true`，只在 `warnings` 里记一条——判断两条曲线能否比较要看 warnings，不能只看这个标志。两臂对照（3 例，对裸 Opus 5.5）：2 例本 skill 更好（优势在耦合腔 / 目标曲线匹配），1 例持平，0 例更差。
 
-当前版本 1.1.1，变更见 [CHANGELOG.md](CHANGELOG.md)。完整说明见 [SKILL.md](SKILL.md)。
+当前版本 1.2.0，变更见 [CHANGELOG.md](CHANGELOG.md)。完整说明见 [SKILL.md](SKILL.md)。
+
+
+## 声音仪表盘（1.2.0）
+
+证据完整的耳机/IEM/TWS 评价可附五频段、五项声音特征的 JPEG 摘要与分享链接。仪表盘不为缺失证据补分，也不把描述坐标当品质总分。原有评价流程保持有效。
+
+这是**可选功能**：Python 包装脚本需要外部 `sound-dashboard` CLI、Node.js 22+ 和用于 JPEG 渲染的 Chromium；CLI 未随本仓库分发，目前没有随本版本提供公开安装入口。缺少它时正常完成文字评价，并说明未生成图。已有项目源码的安装方式、参数和证据映射见 [rules/sound-dashboard.md](rules/sound-dashboard.md)。生成图片在本机进行，不上传评价数据。
